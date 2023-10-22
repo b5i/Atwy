@@ -1,0 +1,57 @@
+//
+//  PreferencesStorageModel.swift
+//  Atwy
+//
+//  Created by Antoine Bollengier on 08.10.2023.
+//
+
+import Foundation
+
+class PreferencesStorageModel: ObservableObject {
+    static let shared = PreferencesStorageModel()
+    
+    let UD = UserDefaults.standard
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
+    
+    @Published var propetriesState: [Properties : Any] = [:]
+    
+    init() {
+        reloadData()
+    }
+    
+    public func setNewValueForKey(_ key: Properties, value: Encodable?) {
+        if let value = value {
+            if let encoded = try? jsonEncoder.encode(value) {
+                UD.setValue(encoded, forKey: key.rawValue)
+            } else {
+                print("Couldn't encode! Storing temporaily the new value.")
+            }
+            propetriesState[key] = value
+        } else {
+            UD.setValue(nil, forKey: key.rawValue)
+            propetriesState[key] = nil
+        }
+    }
+    
+    private func reloadData() {
+        for property in Properties.allCases where UD.object(forKey: property.rawValue) != nil {
+            if let data = UD.object(forKey: property.rawValue) as? Data {
+                switch property {
+                case .videoViewMode:
+                    if let value = try? jsonDecoder.decode(Properties.VideoViewModes.self, from: data) {
+                        propetriesState.updateValue(value, forKey: property)
+                    }
+                }
+            }
+        }
+    }
+    
+    public enum Properties: String, CaseIterable {
+        case videoViewMode
+        public enum VideoViewModes: Codable {
+            case fullThumbnail
+            case halfThumbnail
+        }
+    }
+}

@@ -1,0 +1,33 @@
+//
+//  DownloadVideoContextButtonView.swift
+//  Atwy
+//
+//  Created by Antoine Bollengier on 23.04.23.
+//
+
+import SwiftUI
+import YouTubeKit
+
+struct DownloadVideoContextButtonView: View {
+    @State var downloadAction: ((any DownloadFormat)?) -> Void
+    @State var video: YTVideo
+    var body: some View {
+        Menu {
+            Button {
+                downloadAction(nil)
+            } label: {
+                Text("Default")
+            }
+            DownloadOptionsView(video: video, actionOnClick: { format in
+                downloadAction(format)
+            })
+        } label: {
+            HStack {
+                Text("Download")
+                Image(systemName: "arrow.down.circle")
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+    }
+}

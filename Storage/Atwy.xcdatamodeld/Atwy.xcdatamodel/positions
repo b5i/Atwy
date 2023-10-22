@@ -1,0 +1,27 @@
+[
+  {
+    "name" : "DownloadedChannel",
+    "positionX" : "182.0",
+    "positionY" : "198.52734375"
+  },
+  {
+    "name" : "DownloadedDescriptionPart",
+    "positionX" : "899.23046875",
+    "positionY" : "211.0"
+  },
+  {
+    "name" : "DownloadedVideo",
+    "positionX" : "899.23046875",
+    "positionY" : "211.0"
+  },
+  {
+    "name" : "DownloadedVideoChapter",
+    "positionX" : "899.23046875",
+    "positionY" : "211.0"
+  },
+  {
+    "name" : "FavoriteVideo",
+    "positionX" : "899.23046875",
+    "positionY" : "211.0"
+  }
+]
