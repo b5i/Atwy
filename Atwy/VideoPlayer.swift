@@ -15,7 +15,6 @@ import MediaPlayer
 #if canImport(UIKit)
 import UIKit
 struct PlayerViewController: UIViewControllerRepresentable {
-
     var player: CustomAVPlayer
     var showControls: Bool = true
     var controller: AVPlayerViewController

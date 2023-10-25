@@ -232,13 +232,20 @@ struct NewWatchVideoView: View {
                                 //                                    }
                                 //                            }
                                 if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() {
-                                    ChaptersView(geometry: geometry, chapters: getChapterInText(VPM.streamingInfos?.videoDescription ?? ""), chapterAction: {_ in})
-                                    Text(videoDescription)
+//                                    ChaptersView(geometry: geometry, chapters: getChapterInText(VPM.streamingInfos?.videoDescription ?? ""), chapterAction: {_ in})
+                                    ChaptersView(geometry: geometry, chapters: VPM.moreVideoInfos?.chapters?.compactMap({ chapter in
+                                        if let time = chapter.startTimeSeconds, let formattedTime = chapter.timeDescriptions.shortTimeDescription, let title = chapter.title {
+                                            return Chapter(time: time, formattedTime: formattedTime, title: title)
+                                        }
+                                        return nil
+                                    }) ?? [], chapterAction: { clickedChapter in
+                                        VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
+                                    })
+                                    Text(LocalizedStringKey(videoDescription))
+                                        .blendMode(.difference)
+                                        .padding(.horizontal)
+                                    Color.clear.frame(height: 15)
                                 }
-                                Text(LocalizedStringKey(VPM.streamingInfos?.videoDescription ?? ""))
-                                    .blendMode(.difference)
-                                    .padding(.horizontal)
-                                Color.clear.frame(height: 15)
                             }
                             .mask(FadeInOutView())
                         }

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		340995622A759EC9004F9AAF /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 340995612A759EC9004F9AAF /* SwipeActions */; };
 		34320DFF297324C700B2CAE8 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34320DFE297324C700B2CAE8 /* Messages.framework */; };
-		34320E02297324C700B2CAE8 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34320E01297324C700B2CAE8 /* MessagesViewController.swift */; };
 		34320E07297324C900B2CAE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34320E06297324C900B2CAE8 /* Assets.xcassets */; };
 		34320E11297330E200B2CAE8 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34320E10297330E200B2CAE8 /* MainView.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
@@ -45,6 +44,7 @@
 		345DC3102AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */; };
 		345DC3122AE53ECC007AE044 /* PopupsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3112AE53ECC007AE044 /* PopupsModel.swift */; };
 		345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3132AE54229007AE044 /* ShowSettingsButton.swift */; };
+		3478F22F2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478F22E2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift */; };
 		347AE2562A6C65490099DDE7 /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 347AE2552A6C65490099DDE7 /* YouTubeKit */; };
 		34B5FD9F2ADA84F300367036 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FD9E2ADA84F300367036 /* Assets.xcassets */; };
 		34B5FDA12ADA84FA00367036 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */; };
@@ -86,7 +86,6 @@
 		34B5FE302ADA856900367036 /* IsUserTypingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDE72ADA856600367036 /* IsUserTypingModel.swift */; };
 		34B5FE322ADA856900367036 /* PersonnalAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDE92ADA856600367036 /* PersonnalAccountView.swift */; };
 		34B5FE332ADA856900367036 /* GoToChannelContextMenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDEA2ADA856600367036 /* GoToChannelContextMenuButtonView.swift */; };
-		34B5FE342ADA856900367036 /* ElementsInfiniteScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDEB2ADA856600367036 /* ElementsInfiniteScrollView.swift */; };
 		34B5FE352ADA856900367036 /* UsersPlaylistsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDEC2ADA856600367036 /* UsersPlaylistsListView.swift */; };
 		34B5FE362ADA856900367036 /* PlayingQueueModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDED2ADA856600367036 /* PlayingQueueModel.swift */; };
 		34B5FE372ADA856900367036 /* VideoPlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDEE2ADA856700367036 /* VideoPlayerModel.swift */; };
@@ -134,7 +133,6 @@
 /* Begin PBXFileReference section */
 		34320DFC297324C700B2CAE8 /* Atwy_iMessagesExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Atwy_iMessagesExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
-		34320E01297324C700B2CAE8 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
 		34320E06297324C900B2CAE8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		34320E08297324C900B2CAE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		34320E10297330E200B2CAE8 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -157,6 +155,7 @@
 		345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SheetsModel+makeSheetBinding.swift"; sourceTree = "<group>"; };
 		345DC3112AE53ECC007AE044 /* PopupsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupsModel.swift; sourceTree = "<group>"; };
 		345DC3132AE54229007AE044 /* ShowSettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSettingsButton.swift; sourceTree = "<group>"; };
+		3478F22E2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementsInfiniteScrollView.swift; sourceTree = "<group>"; };
 		34B5FD9E2ADA84F300367036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToQueueContextMenuButtonView.swift; sourceTree = "<group>"; };
@@ -197,7 +196,6 @@
 		34B5FDE72ADA856600367036 /* IsUserTypingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsUserTypingModel.swift; sourceTree = "<group>"; };
 		34B5FDE92ADA856600367036 /* PersonnalAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonnalAccountView.swift; sourceTree = "<group>"; };
 		34B5FDEA2ADA856600367036 /* GoToChannelContextMenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToChannelContextMenuButtonView.swift; sourceTree = "<group>"; };
-		34B5FDEB2ADA856600367036 /* ElementsInfiniteScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementsInfiniteScrollView.swift; sourceTree = "<group>"; };
 		34B5FDEC2ADA856600367036 /* UsersPlaylistsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersPlaylistsListView.swift; sourceTree = "<group>"; };
 		34B5FDED2ADA856600367036 /* PlayingQueueModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayingQueueModel.swift; sourceTree = "<group>"; };
 		34B5FDEE2ADA856700367036 /* VideoPlayerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerModel.swift; sourceTree = "<group>"; };
@@ -296,7 +294,6 @@
 				34320E00297324C700B2CAE8 /* Atwy_iMessagesExtension */,
 				34320DFD297324C700B2CAE8 /* Frameworks */,
 				344ED4A22928D85100DB56EA /* Products */,
-				34577E0E2AE5873D007F75ED /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -307,14 +304,6 @@
 				34320DFC297324C700B2CAE8 /* Atwy_iMessagesExtension.appex */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		34577E0E2AE5873D007F75ED /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				34320E01297324C700B2CAE8 /* MessagesViewController.swift */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		34B5FE632ADA876C00367036 /* Atwy */ = {
@@ -354,7 +343,7 @@
 				34B5FDF82ADA856800367036 /* DownloadSwipeActionsView.swift */,
 				34B5FE072ADA856900367036 /* DownloadVideoButtonView.swift */,
 				34B5FE032ADA856900367036 /* DownloadVideoContextButtonView.swift */,
-				34B5FDEB2ADA856600367036 /* ElementsInfiniteScrollView.swift */,
+				3478F22E2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift */,
 				34B5FDD32ADA856400367036 /* FavoritesView.swift */,
 				3457B4912AE4370400390A5A /* FileManagerModel.swift */,
 				3457B47A2AE41D7600390A5A /* GoogleConnectionView.swift */,
@@ -376,6 +365,7 @@
 				34B5FDCC2ADA856300367036 /* PlayingQueueView.swift */,
 				34B5FDD12ADA856300367036 /* PlaylistDetailsView.swift */,
 				34B5FDFC2ADA856800367036 /* PlaylistView.swift */,
+				345DC3112AE53ECC007AE044 /* PopupsModel.swift */,
 				34B5FDDD2ADA856500367036 /* PreferencesStorageModel.swift */,
 				34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */,
 				34B5FDFD2ADA856800367036 /* PrivacyIconView.swift */,
@@ -384,6 +374,9 @@
 				34B5FDD52ADA856400367036 /* SettingsView.swift */,
 				34B5FDF72ADA856800367036 /* ShareChannelView.swift */,
 				34B5FDCE2ADA856300367036 /* ShazamProcessing.swift */,
+				345DC30B2AE538A2007AE044 /* SheetsModel.swift */,
+				345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */,
+				345DC3132AE54229007AE044 /* ShowSettingsButton.swift */,
 				34B5FE012ADA856800367036 /* SubscribeButtonView.swift */,
 				34B5FDC82ADA856200367036 /* SwipeActionsExtensions.swift */,
 				34B5FDC92ADA856200367036 /* TemporalAlertsViews.swift */,
@@ -403,10 +396,6 @@
 				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
 				34B5FDF42ADA856700367036 /* WebView.swift */,
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
-				345DC30B2AE538A2007AE044 /* SheetsModel.swift */,
-				345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */,
-				345DC3112AE53ECC007AE044 /* PopupsModel.swift */,
-				345DC3132AE54229007AE044 /* ShowSettingsButton.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -571,7 +560,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3457B4892AE435BA00390A5A /* DownloadedDescriptionPart+CoreDataClass.swift in Sources */,
-				34320E02297324C700B2CAE8 /* MessagesViewController.swift in Sources */,
 				3457B4842AE435BA00390A5A /* DownloadedChannel+CoreDataProperties.swift in Sources */,
 				3457B4902AE4360500390A5A /* Persistence.swift in Sources */,
 				34320E11297330E200B2CAE8 /* MainView.swift in Sources */,
@@ -608,6 +596,7 @@
 				34B5FE0F2ADA856900367036 /* APIKeyModel.swift in Sources */,
 				34B5FE102ADA856900367036 /* WatchVideoView.swift in Sources */,
 				34B5FE112ADA856900367036 /* SwipeActionsExtensions.swift in Sources */,
+				3478F22F2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift in Sources */,
 				34B5FE122ADA856900367036 /* TemporalAlertsViews.swift in Sources */,
 				34B8B2DA2AE0265200C5C07C /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
 				34B5FE142ADA856900367036 /* DownloadOptionsView.swift in Sources */,
@@ -644,7 +633,6 @@
 				34B5FE322ADA856900367036 /* PersonnalAccountView.swift in Sources */,
 				3457B4812AE4328100390A5A /* HLSDownloader+AVAssetDownloadDelegate.swift in Sources */,
 				34B5FE332ADA856900367036 /* GoToChannelContextMenuButtonView.swift in Sources */,
-				34B5FE342ADA856900367036 /* ElementsInfiniteScrollView.swift in Sources */,
 				34B5FE352ADA856900367036 /* UsersPlaylistsListView.swift in Sources */,
 				34B5FE362ADA856900367036 /* PlayingQueueModel.swift in Sources */,
 				3457B47D2AE4304900390A5A /* Download.swift in Sources */,
@@ -991,8 +979,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
-				kind = exactVersion;
-				version = 1.1.0;
+				kind = revision;
+				revision = ccd7699b5c80b0008edb6a5758f62215c91632b8;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

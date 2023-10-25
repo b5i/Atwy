@@ -255,27 +255,73 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     }
                     // Not enabled for the moment
                     // https://stackoverflow.com/questions/47953605/avplayer-play-network-video-with-separate-audio-url-without-downloading-the-fi
-//                    if let otherLanguageAudio = streamingInfos.downloadFormats.first(where: {($0 as? VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat)?.formatLocaleInfos?.isDefaultAudioFormat ?? false}), let audioStreamingURL = otherLanguageAudio.url, let otherLanguageVideo = streamingInfos.downloadFormats.first(where: {($0 as? VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat != nil)}), let videoStreamingURL = otherLanguageVideo.url {
-//                        //                        let videoAsset = AVURLAsset(url: videoStreamingURL)
+//                    if let otherLanguageAudio = streamingInfos.downloadFormats.first(where: { audioFormat in
+//                        guard let audioFormat = audioFormat as? VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat else { return false }
+//                        return (audioFormat.formatLocaleInfos?.isDefaultAudioFormat ?? false) && audioFormat.mimeType == "audio/mp4"
+//                       }),
+//                       let audioStreamingURL = otherLanguageAudio.url,
+//                       let otherLanguageVideo = streamingInfos.downloadFormats.first(where: { videoFormat in
+//                           guard let videoFormat = videoFormat as? VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat else { return false }
+//                           return videoFormat.mimeType == "video/mp4"
+//                       }),
+//                       let videoStreamingURL = otherLanguageVideo.url {
 //                        let videoAsset = AVURLAsset(url: videoStreamingURL, options: ["AVURLAssetHTTPHeaderFieldsKey": ["Range": "bytes=0-"]])
 //                        let audioAsset = AVURLAsset(url: audioStreamingURL, options: ["AVURLAssetHTTPHeaderFieldsKey": ["Range": "bytes=0-"]])
-//                        //                        let audioAsset = AVURLAsset(url: audioStreamingURL)
 //                        do {
+//                            guard let contentDurationMilliseconds = otherLanguageAudio.contentDuration ?? otherLanguageVideo.contentDuration, let videoContentLength = otherLanguageVideo.contentLength, let audioContentLength = otherLanguageAudio.contentLength else {
+//                                print("Couldn't get duration or contentLengths.")
+//                                DispatchQueue.main.async {
+//                                    self.player.replaceCurrentItem(with: AVPlayerItem(asset: AVURLAsset(url: streamingURL)))
+//                                }
+//                                NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: self.player.currentItem, queue: nil, using: { _ in
+//                                    NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
+//                                })
+//                                do {
+//            #if !os(macOS)
+//                                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+//            #endif
+//                                } catch {
+//                                    print("Couldn't set playback mode, error: \(error)")
+//                                }
+//                                
+//                                let potentialDownloader = downloads.last(where: {$0.video?.videoId == VideoPlayerModel.shared.video?.videoId})
+//                                if potentialDownloader != nil {
+//                                    self.downloader = potentialDownloader!
+//                                } else {
+//                                    self.downloader = HLSDownloader()
+//                                }
+//                                
+//                                self.fetchMoreInfosForVideo()
+//                                DispatchQueue.main.async {
+//                                    self.isLoadingVideo = false
+//                                }
+//                                self.player.play()
+//                                DispatchQueue.main.async {
+//                                    self.objectWillChange.send()
+//                                }
+//                                return
+//                            }
 //                            
-//                            var duration = min((try? await videoAsset.load(.duration)) ?? .init(), (try? await audioAsset.load(.duration)) ?? .init())
+//                            let contentDuration = CMTime(seconds: Double(contentDurationMilliseconds) / 1000, preferredTimescale: 1)
 //                            
 //                            let composition = AVMutableComposition()
 //                            
+//                            let partsSizeBytes: Int = 300_000
+//                            
 //                            let videoTrack = composition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
-//                            if let firstVideoTrack = try? await videoAsset.loadTracks(withMediaType: .video).first {
-//                                try? videoTrack?.insertTimeRange(CMTimeRange(start: CMTime.zero, duration: duration), of: firstVideoTrack, at: CMTime.zero)
+//                            let totalVideoContent: Int = 0
+//                            while totalVideoContent != videoContentLength {
+//                                let newTotalVideoContent = min(totalVideoContent + partsSizeBytes, videoContentLength)
+//                                let videoAssetPart = AVURLAsset(url: videoStreamingURL.appending(queryItems: [.init(name: "range", value: "\(totalVideoContent)-\(newTotalVideoContent)")]))
+//                                if let firstVideoTrack = try? await videoAssetPart.loadTracks(withMediaType: .video).first {
+//                                    try? videoTrack?.insertTimeRange(CMTimeRange(start: CMTime.zero, duration: contentDuration), of: firstVideoTrack, at: CMTime.zero)
+//                                }
 //                            }
 //                            
 //                            let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
 //                            if let firstAudioTrack = try? await audioAsset.loadTracks(withMediaType: .audio).first {
-//                                try? audioTrack?.insertTimeRange(CMTimeRange(start: CMTime.zero, duration: duration), of: firstAudioTrack, at: CMTime.zero)
+//                                try? audioTrack?.insertTimeRange(CMTimeRange(start: CMTime.zero, duration: contentDuration), of: firstAudioTrack, at: CMTime.zero)
 //                            }
-//                            
 //                            
 //                            let playerItem = AVPlayerItem(asset: composition)
 //                            DispatchQueue.main.async {
@@ -284,6 +330,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 //                        }
 //                    } else {
                         DispatchQueue.main.async {
+                            
                             self.player.replaceCurrentItem(with: AVPlayerItem(asset: AVURLAsset(url: streamingURL)))
                         }
 //                    }

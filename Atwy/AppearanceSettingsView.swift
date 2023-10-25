@@ -15,6 +15,7 @@ struct AppearanceSettingsView: View {
     @State private var videoViewChoice: PreferencesStorageModel.Properties.VideoViewModes
     
     init() {
+        /// Maybe using AppStorage would be better
         if let state = PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes {
             self._videoViewChoice = State(wrappedValue: state)
         } else {

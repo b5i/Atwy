@@ -251,7 +251,6 @@ struct VideoView: View {
                             //                                .border(colorScheme.textColor)
                         }
                     }
-                    //https://medium.com/geekculture/find-image-dimensions-from-url-in-ios-swift-a186297e9922
                 } else if hqImage, let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                     CachedAsyncImage(url: thumbnailURL) { image in
                         if let croppedImage = cropImage(image) {

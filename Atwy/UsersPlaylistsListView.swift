@@ -13,6 +13,7 @@ struct UsersPlaylistsListView: View {
     @State private var search: String = ""
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
+    @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -29,6 +30,7 @@ struct UsersPlaylistsListView: View {
                                 })
                             .frame(width: geometry.size.width, height: 180)
                         }
+                        Color.clear.frame(width: 0, height: (VPM.video != nil) ? 50 : 0)
                     }
                 })
 #if os(macOS)

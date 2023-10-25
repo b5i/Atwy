@@ -12,10 +12,11 @@ struct ChannelView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State var channel: YTChannel
     var body: some View {
-        NavigationLink(destination: ChannelDetailsView(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails))) {
-            HStack {
+        GeometryReader { geometry in
+            NavigationLink(destination: ChannelDetailsView(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails))) {
                 HStack {
-                    CachedAsyncImage(url: channel.thumbnails.last?.url) { image in
+                    HStack {
+                        CachedAsyncImage(url: channel.thumbnails.last?.url) { image in
                             image
                                 .resizable()
                                 .clipShape(Circle())
@@ -31,22 +32,25 @@ struct ChannelView: View {
                             .frame(width: 125)
                         }
                         // Add badges
-                }
-                .frame(width: 222, height: 125, alignment: .center)
-                VStack {
-                    VStack {
-                        Text(channel.name ?? "")
                     }
-                    .frame(height: 125)
-                    .foregroundColor(colorScheme.textColor)
-                    Divider()
-                    Text(channel.subscriberCount ?? "")
+                    .frame(width: geometry.size.width * 0.5, height: 125, alignment: .center)
+                    VStack {
+                        VStack {
+                            Text(channel.name ?? "")
+                        }
                         .foregroundColor(colorScheme.textColor)
-                        .font(.footnote)
-                        .opacity(0.5)
-                        .bold()
+                        .truncationMode(.tail)
+                        .frame(height: 125)
+                        Divider()
+                        Text(channel.subscriberCount ?? "")
+                            .foregroundColor(colorScheme.textColor)
+                            .font(.footnote)
+                            .opacity(0.5)
+                            .bold()
+                    }
+                    .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
+                    Spacer()
                 }
-                .frame(width: 170)
             }
         }
     }
