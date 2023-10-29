@@ -51,7 +51,9 @@ struct PlaylistDetailsView: View {
                 }
             }
             .onAppear {
-                model.fetchPlaylistInfos(playlist: playlist)
+                if model.playlistInfos == nil {
+                    model.fetchPlaylistInfos(playlist: playlist)
+                }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .overlay(alignment: .top, content: {

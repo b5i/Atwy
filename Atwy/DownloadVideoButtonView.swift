@@ -16,9 +16,11 @@ struct DownloadVideoButtonView: View {
     @StateObject var downloader: HLSDownloader
     var body: some View {
         Button {
-            downloader.video = video
-            downloader.isShort = isShort
-            downloader.state.thumbnailData = videoThumbnailData
+            DispatchQueue.main.async {
+                downloader.video = video
+                downloader.isShort = isShort
+                downloader.state.thumbnailData = videoThumbnailData
+            }
             DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
         } label: {
             Image(systemName: "arrow.down")

@@ -13,8 +13,8 @@ import YouTubeKit
 
 class HLSDownloader: NSObject, ObservableObject {
 
-    var video: YTVideo?
-    var state = Download()
+    @Published var video: YTVideo?
+    @Published var state = Download()
 
     var DCMM = DownloadCoordinatorManagerModel.shared
 
@@ -59,7 +59,9 @@ class HLSDownloader: NSObject, ObservableObject {
     }
     
     func downloadVideo(thumbnailData: Data? = nil, videoDescription: String = "") {
-        downloaderState = .downloading
+        DispatchQueue.main.async {
+            self.downloaderState = .downloading
+        }
         if let video = video {
             state.title = ""
             state.owner = ""
@@ -96,17 +98,18 @@ class HLSDownloader: NSObject, ObservableObject {
                     self.downloadTask = downloadTask
                     downloadTask.resume()
                     self.downloadTaskState = downloadTask.state
-                    print("Got data")
                 }
             }
         }
         
         let backgroundConfiguration = URLSessionConfiguration.background(
             withIdentifier: UUID().uuidString) // !!!!!!!!!!!!!!! il doit être différent pour chaque download !
-        if backgroundConfiguration.httpAdditionalHeaders != nil {
-            backgroundConfiguration.httpAdditionalHeaders?.updateValue("bytes=0-", forKey: "Range")
-        } else {
-            backgroundConfiguration.httpAdditionalHeaders = ["Range": "bytes=0-"]
+        if !downloadURL.absoluteString.contains("manifest.googlevideo.com") {
+            if backgroundConfiguration.httpAdditionalHeaders != nil {
+                backgroundConfiguration.httpAdditionalHeaders?.updateValue("bytes=0-", forKey: "Range")
+            } else {
+                backgroundConfiguration.httpAdditionalHeaders = ["Range": "bytes=0-"]
+            }
         }
         let assetDownloadURLSession = AVAssetDownloadURLSession(
             configuration: backgroundConfiguration,
@@ -125,7 +128,7 @@ class HLSDownloader: NSObject, ObservableObject {
         } else {
             if let thumbnailURL = video.thumbnails.last?.url {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
-                    guard let imageData = imageData, error == nil else { print("Could not download image"); self.downloaderState = .failed; return }
+                    guard let imageData = imageData, error == nil else { print("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
                     self.state.thumbnailData = imageData
                     launchDownload(thumbnailData: imageData)
                 }
