@@ -134,7 +134,14 @@ class VideoPlayerModel: NSObject, ObservableObject {
     #endif
     var downloader = HLSDownloader()
     @Published var streamingInfos: VideoInfosResponse?
-    @Published var videoThumbnailData: Data?
+    @Published var videoThumbnailData: Data? {
+        didSet {
+            if let videoThumbnailData = videoThumbnailData {
+                player.currentItem?.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierArtwork})
+                player.currentItem?.setAndAppendImageData(imageData: videoThumbnailData)
+            }
+        }
+    }
     @Published var channelAvatarData: Data?
     @Published var isLoadingVideo: Bool = false
     @Published var isFetchingAppreciation: Bool = false
@@ -208,10 +215,20 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.isLoadingVideo = true
         self.video = video
         if let downloadedVideo = checkIfDownloaded(videoId: video.videoId) {
+            let newPlayingItem = AVPlayerItem(
+                asset: .init(url: downloadedVideo.storageLocation),
+                metadatas: [
+                    (downloadedVideo.title ?? "", .commonIdentifierTitle, nil),
+                    (downloadedVideo.title ?? "", .quickTimeMetadataTitle, nil),
+                    (downloadedVideo.channel?.name ?? "", .commonIdentifierArtist, nil),
+                    (downloadedVideo.channel?.name ?? "", .iTunesMetadataTrackSubTitle, nil),
+                    (downloadedVideo.descriptionPartsArray.map({$0.text}).joined(), .commonIdentifierDescription, key: .commonKeyDescription)
+                ],
+                thumbnailData: downloadedVideo.thumbnail)
             DispatchQueue.main.async {
-                self.player.replaceCurrentItem(with: AVPlayerItem(url: downloadedVideo.storageLocation))
+                self.player.replaceCurrentItem(with: newPlayingItem)
             }
-            NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: self.player.currentItem, queue: nil, using: { _ in
+            NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: newPlayingItem, queue: nil, using: { _ in
                 NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
             })
             var streamingInfos = VideoInfosResponse.createEmpty()
@@ -248,8 +265,10 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     if let thumbnailURL = streamingInfos.videoInfos.thumbnails.last?.url {
                         Task {
                             let thumbnailData = await getImage(from: thumbnailURL)
-                            DispatchQueue.main.async {
-                                self.videoThumbnailData = thumbnailData
+                            if self.video?.videoId == streamingInfos.videoInfos.videoId {
+                                DispatchQueue.main.async {
+                                    self.videoThumbnailData = thumbnailData
+                                }
                             }
                         }
                     }
@@ -329,9 +348,18 @@ class VideoPlayerModel: NSObject, ObservableObject {
 //                            }
 //                        }
 //                    } else {
+                    let newPlayingItem = AVPlayerItem(
+                        asset: AVURLAsset(url: streamingURL),
+                        metadatas: [
+                            (streamingInfos.videoInfos.title ?? "", .commonIdentifierTitle, nil),
+                            (streamingInfos.videoInfos.title ?? "", .quickTimeMetadataTitle, nil),
+                            (streamingInfos.videoInfos.channel?.name ?? "", .commonIdentifierArtist, nil),
+                            (streamingInfos.videoInfos.channel?.name ?? "", .iTunesMetadataTrackSubTitle, nil),
+                            (streamingInfos.videoInfos.videoDescription ?? "", .commonIdentifierDescription, .commonKeyDescription)
+                        ],
+                        thumbnailData: self.videoThumbnailData)
                         DispatchQueue.main.async {
-                            
-                            self.player.replaceCurrentItem(with: AVPlayerItem(asset: AVURLAsset(url: streamingURL)))
+                            self.player.replaceCurrentItem(with: newPlayingItem)
                         }
 //                    }
                     NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: self.player.currentItem, queue: nil, using: { _ in
@@ -420,5 +448,44 @@ struct InterruptionResult {
 extension VideoPlayerModel: AVPlayerPlaybackCoordinatorDelegate {
     func playbackCoordinator(_ coordinator: AVPlayerPlaybackCoordinator, identifierFor playerItem: AVPlayerItem) -> String {
         return self.video?.videoId ?? ""
+    }
+}
+
+extension AVPlayerItem {
+    convenience init(asset: AVAsset, metadatas: [(value: String, identifier: AVMetadataIdentifier, key: AVMetadataKey? )] = [], thumbnailData: Data?) {
+        self.init(asset: asset)
+        for metadataItem in metadatas {
+            self.setAndAppendMetdataItem(value: metadataItem.value, type: metadataItem.identifier, key: metadataItem.key)
+        }
+        if let thumbnailData = thumbnailData {
+            self.setAndAppendImageData(imageData: thumbnailData)
+        }
+    }
+    
+    func setAndAppendMetdataItem(value: String, type: AVMetadataIdentifier, key: AVMetadataKey? = nil) {
+        let metadataItem = AVMutableMetadataItem()
+        metadataItem.locale = NSLocale.current
+        if let key = key {
+            metadataItem.key = key as any NSCopying & NSObjectProtocol
+        } else {
+            metadataItem.identifier = type
+        }
+        metadataItem.value = value as NSString
+        metadataItem.extendedLanguageTag = "und"
+        self.externalMetadata.append(metadataItem)
+    }
+
+    func setAndAppendImageData(imageData: Data) {
+        func createArtworkItem(imageData: Data) -> AVMutableMetadataItem {
+            let artwork = AVMutableMetadataItem()
+            artwork.value = UIImage(data: imageData)?.pngData() as (NSCopying & NSObjectProtocol)?
+            artwork.dataType = kCMMetadataBaseDataType_PNG as String
+            artwork.identifier = .commonIdentifierArtwork
+            artwork.extendedLanguageTag = "und"
+            return artwork
+        }
+        
+        let artwork = createArtworkItem(imageData: imageData)
+        self.externalMetadata.append(artwork)
     }
 }

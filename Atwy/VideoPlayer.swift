@@ -22,7 +22,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
     var nowPlayingController = MPNowPlayingInfoCenter.default()
 #endif
     var audioSession = AVAudioSession.sharedInstance()
-    var metadataContainer = MetadataContainer()
     @ObservedObject private var VPM = VideoPlayerModel.shared
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
@@ -64,14 +63,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.canStartPictureInPictureAutomaticallyFromInline = true
         controller.exitsFullScreenWhenPlaybackEnds = true
         
-        updateTitle()
-        
-        updateChannelName()
-        
-        updateVideoDescription()
-        
-        updateThumbnailData()
-        
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
@@ -81,110 +72,9 @@ struct PlayerViewController: UIViewControllerRepresentable {
     private func stopPlayer() {
         controller.player?.replaceCurrentItem(with: nil)
     }
-
-    private func setAndAppendMetdataItem(value: String, type: AVMetadataIdentifier, key: AVMetadataKey? = nil) {
-        let metadataItem = AVMutableMetadataItem()
-        metadataItem.locale = NSLocale.current
-        if let key = key {
-            metadataItem.key = key as any NSCopying & NSObjectProtocol
-        } else {
-            metadataItem.identifier = type
-        }
-        metadataItem.value = value as NSString
-        metadataItem.extendedLanguageTag = "und"
-        player.currentItem?.externalMetadata.append(metadataItem)
-    }
-
-    private func setAndAppendImageData(imageData: Data) {
-        player.imageData = imageData
-        let artwork = createArtworkItem(imageData: imageData)
-        self.player.currentItem?.externalMetadata.append(artwork)
-    }
-
-    private func createArtworkItem(imageData: Data) -> AVMutableMetadataItem {
-        let artwork = AVMutableMetadataItem()
-        artwork.value = UIImage(data: imageData)!.pngData() as (NSCopying & NSObjectProtocol)?
-        artwork.dataType = kCMMetadataBaseDataType_PNG as String
-        artwork.identifier = .commonIdentifierArtwork
-        artwork.extendedLanguageTag = "und"
-        return artwork
-    }
-    
-    private func updateTitle() {
-        if metadataContainer.title != (VPM.video?.title ?? VPM.streamingInfos?.title) ?? VPM.moreVideoInfos?.videoTitle {
-            
-            player.currentItem?.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierTitle || $0.identifier == .quickTimeMetadataTitle})
-            metadataContainer.title = (VPM.video?.title ?? VPM.streamingInfos?.title) ?? VPM.moreVideoInfos?.videoTitle
-            
-            if let videoTitle = (VPM.video?.title ?? VPM.streamingInfos?.title) ?? VPM.moreVideoInfos?.videoTitle {
-                setAndAppendMetdataItem(
-                    value: videoTitle,
-                    type: .commonIdentifierTitle
-                )
-                setAndAppendMetdataItem(
-                    value: videoTitle,
-                    type: .quickTimeMetadataTitle
-                )
-            }
-        }
-    }
-    
-    private func updateChannelName() {
-        if metadataContainer.channelName != (VPM.video?.channel?.name ?? VPM.streamingInfos?.channel?.name) ?? VPM.moreVideoInfos?.channel?.name {
-            
-            player.currentItem?.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierTitle || $0.identifier == .iTunesMetadataTrackSubTitle})
-            metadataContainer.channelName = (VPM.video?.channel?.name ?? VPM.streamingInfos?.channel?.name) ?? VPM.moreVideoInfos?.channel?.name
-            
-            if let channelName = (VPM.video?.channel?.name ?? VPM.streamingInfos?.channel?.name) ?? VPM.moreVideoInfos?.channel?.name {
-                setAndAppendMetdataItem(
-                    value: channelName,
-                    type: .commonIdentifierArtist
-                )
-                setAndAppendMetdataItem(
-                    value: channelName,
-                    type: .iTunesMetadataTrackSubTitle
-                )
-            }
-        }
-    }
-    
-    private func updateVideoDescription() {
-        if metadataContainer.videoDescription != VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() {
-            
-            player.currentItem?.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierDescription})
-            metadataContainer.videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined()
-            
-            if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() {
-                setAndAppendMetdataItem(
-                    value: videoDescription,
-                    type: .commonIdentifierDescription,
-                    key: .commonKeyDescription
-                )
-            }
-        }
-    }
-    
-    private func updateThumbnailData() {
-        if metadataContainer.thumbnailData != VideoPlayerModel.shared.videoThumbnailData {
-            
-            player.currentItem?.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierArtwork})
-            metadataContainer.thumbnailData = VideoPlayerModel.shared.videoThumbnailData
-            
-            if let thumbnailData = VideoPlayerModel.shared.videoThumbnailData {
-                setAndAppendImageData(imageData: thumbnailData)
-            }
-        }
-    }
     
 
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
-
-    class MetadataContainer {
-        var title: String?
-        var channelName: String?
-        var videoDescription: String?
-        var thumbnailData: Data?
-    }
 }
 #else
 
