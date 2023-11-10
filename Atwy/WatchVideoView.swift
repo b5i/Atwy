@@ -231,7 +231,7 @@ struct NewWatchVideoView: View {
                                 //                                        }
                                 //                                    }
                                 //                            }
-                                if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() {
+                                if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() ?? VPM.videoDescription {
 //                                    ChaptersView(geometry: geometry, chapters: getChapterInText(VPM.streamingInfos?.videoDescription ?? ""), chapterAction: {_ in})
                                     ChaptersView(geometry: geometry, chapters: VPM.moreVideoInfos?.chapters?.compactMap({ chapter in
                                         if let time = chapter.startTimeSeconds, let formattedTime = chapter.timeDescriptions.shortTimeDescription, let title = chapter.title {
@@ -263,6 +263,7 @@ struct NewWatchVideoView: View {
                         .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
                         Spacer()
                         HStack {
+                            let hasDescription = VPM.streamingInfos?.videoDescription ?? VPM.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.compactMap({$0.text}).joined() ?? "" != ""
                             Spacer()
                             Button {
                                 withAnimation(.interpolatingSpring(duration: 0.3)) {
@@ -285,6 +286,8 @@ struct NewWatchVideoView: View {
                                 }
                                 .frame(width: 30, height: 30)
                             }
+                            .opacity(hasDescription ? 1 : 0.5)
+                            .disabled(!hasDescription)
                             Spacer()
                             Button {
                                 
@@ -329,7 +332,9 @@ struct NewWatchVideoView: View {
             if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
                 URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in
                     if let data = data, let image = UIImage(data: data) {
-                        makeGradient(image: image)
+                        DispatchQueue.main.async {
+                            makeGradient(image: image)
+                        }
                     } else {
                         print("Couldn't get/create image")
                     }

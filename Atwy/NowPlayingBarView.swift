@@ -61,11 +61,11 @@ struct NowPlayingBarView: View {
                         Spacer()
                         VStack {
                             if VPM.video != nil {
-                                Text(VPM.video?.title ?? "Sans Titre")
+                                Text(VPM.video?.title ?? "No title")
                                     .truncationMode(.tail)
                                     .foregroundColor(colorScheme.textColor)
                             } else {
-                                Text("Sans Titre")
+                                Text("No title")
                                     .truncationMode(.tail)
                                     .foregroundColor(colorScheme.textColor)
                             }

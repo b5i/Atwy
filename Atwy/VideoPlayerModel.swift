@@ -129,7 +129,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
     @Published var video: YTVideo?
     @Published var player: CustomAVPlayer = CustomAVPlayer(playerItem: nil)
     #if !os(macOS)
-    var controller = AVPlayerViewController()
+    // TODO: implement AVNavigationMarkersGroup
+    lazy var controller = AVPlayerViewController()
     var nowPlayingSession: MPNowPlayingSession?
     #endif
     var downloader = HLSDownloader()
@@ -144,8 +145,13 @@ class VideoPlayerModel: NSObject, ObservableObject {
     }
     @Published var channelAvatarData: Data?
     @Published var isLoadingVideo: Bool = false
+    
     @Published var isFetchingAppreciation: Bool = false
+    
+    /// Contains the videoId of the fetch request, nil if it isn't fetching.
+    var isFetchingMoreVideoInfos: String?
     @Published var moreVideoInfos: MoreVideoInfosResponse?
+    @Published var videoDescription: String?
 //    @StateObject var DM = downloadingsModel
 
     private var subscriptions = Set<AnyCancellable>()
@@ -217,13 +223,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         if let downloadedVideo = checkIfDownloaded(videoId: video.videoId) {
             let newPlayingItem = AVPlayerItem(
                 asset: .init(url: downloadedVideo.storageLocation),
-                metadatas: [
-                    (downloadedVideo.title ?? "", .commonIdentifierTitle, nil),
-                    (downloadedVideo.title ?? "", .quickTimeMetadataTitle, nil),
-                    (downloadedVideo.channel?.name ?? "", .commonIdentifierArtist, nil),
-                    (downloadedVideo.channel?.name ?? "", .iTunesMetadataTrackSubTitle, nil),
-                    (downloadedVideo.descriptionPartsArray.map({$0.text}).joined(), .commonIdentifierDescription, key: .commonKeyDescription)
-                ],
+                metadatas: getMetadatasForInfos(title: downloadedVideo.title ?? "", channelName: downloadedVideo.channel?.name ?? "", videoDescription: downloadedVideo.videoDescription ?? ""),
                 thumbnailData: downloadedVideo.thumbnail)
             DispatchQueue.main.async {
                 self.player.replaceCurrentItem(with: newPlayingItem)
@@ -231,13 +231,14 @@ class VideoPlayerModel: NSObject, ObservableObject {
             NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: newPlayingItem, queue: nil, using: { _ in
                 NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
             })
-            var streamingInfos = VideoInfosResponse.createEmpty()
-            streamingInfos.streamingURL = downloadedVideo.storageLocation
+            self.streamingInfos = VideoInfosResponse.createEmpty()
+            self.streamingInfos?.streamingURL = downloadedVideo.storageLocation
             if let channel = downloadedVideo.channel {
-                streamingInfos.channel = YTLittleChannelInfos(channelId: channel.channelId, name: channel.name)
+                self.streamingInfos?.channel = YTLittleChannelInfos(channelId: channel.channelId, name: channel.name)
                 self.channelAvatarData = channel.thumbnail
             }
-            streamingInfos.title = downloadedVideo.title
+            self.streamingInfos?.title = downloadedVideo.title
+            self.streamingInfos?.videoDescription = downloadedVideo.videoDescription
             self.videoThumbnailData = downloadedVideo.thumbnail
             if NetworkReachabilityModel.shared.connected {
                 self.fetchMoreInfosForVideo()
@@ -350,13 +351,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 //                    } else {
                     let newPlayingItem = AVPlayerItem(
                         asset: AVURLAsset(url: streamingURL),
-                        metadatas: [
-                            (streamingInfos.videoInfos.title ?? "", .commonIdentifierTitle, nil),
-                            (streamingInfos.videoInfos.title ?? "", .quickTimeMetadataTitle, nil),
-                            (streamingInfos.videoInfos.channel?.name ?? "", .commonIdentifierArtist, nil),
-                            (streamingInfos.videoInfos.channel?.name ?? "", .iTunesMetadataTrackSubTitle, nil),
-                            (streamingInfos.videoInfos.videoDescription ?? "", .commonIdentifierDescription, .commonKeyDescription)
-                        ],
+                        metadatas: getMetadatasForInfos(title: streamingInfos.videoInfos.title ?? "", channelName: streamingInfos.videoInfos.channel?.name ?? "", videoDescription: streamingInfos.videoInfos.videoDescription ?? ""),
                         thumbnailData: self.videoThumbnailData)
                         DispatchQueue.main.async {
                             self.player.replaceCurrentItem(with: newPlayingItem)
@@ -374,8 +369,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     }
                     
                     let potentialDownloader = downloads.last(where: {$0.video?.videoId == VideoPlayerModel.shared.video?.videoId})
-                    if potentialDownloader != nil {
-                        self.downloader = potentialDownloader!
+                    if let potentialDownloader = potentialDownloader {
+                        self.downloader = potentialDownloader
                     } else {
                         self.downloader = HLSDownloader()
                     }
@@ -399,10 +394,12 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.video = nil
         self.player.replaceCurrentItem(with: nil)
         self.streamingInfos = nil
+        self.isFetchingMoreVideoInfos = nil
         self.isFetchingAppreciation = false
         self.moreVideoInfos = nil
         self.channelAvatarData = nil
         self.videoThumbnailData = nil
+        self.videoDescription = nil
         DispatchQueue.main.async {
             self.objectWillChange.send()
         }
@@ -416,10 +413,27 @@ class VideoPlayerModel: NSObject, ObservableObject {
         return result?.first
     }
     
+    private func getMetadatasForInfos(title: String, channelName: String, videoDescription: String) -> [(value: String, identifier: AVMetadataIdentifier, key: AVMetadataKey? )] {
+        return [
+            (title, .commonIdentifierTitle, nil),
+            (title, .quickTimeMetadataTitle, nil),
+            (channelName, .commonIdentifierArtist, nil),
+            (channelName, .iTunesMetadataTrackSubTitle, nil),
+            (channelName, .iTunesMetadataArtist, nil),
+            (channelName, .quickTimeMetadataArtist, nil),
+            (videoDescription, .commonIdentifierDescription, key: .commonKeyDescription),
+            (videoDescription, .iTunesMetadataDescription, nil),
+            (videoDescription, .quickTimeMetadataDescription, nil)]
+    }
+    
     public func fetchMoreInfosForVideo() {
+        self.isFetchingMoreVideoInfos = self.video?.videoId
         self.video?.fetchMoreInfos(youtubeModel: YTM, result: { response, error in
-            DispatchQueue.main.async {
-                self.moreVideoInfos = response
+            if self.isFetchingMoreVideoInfos == self.video?.videoId {
+                self.isFetchingMoreVideoInfos = nil
+                DispatchQueue.main.async {
+                    self.moreVideoInfos = response
+                }
             }
             if let error = error {
                 print("Error while fetching more video infos: \(String(describing: error)).")

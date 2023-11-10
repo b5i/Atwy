@@ -20,7 +20,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                 loadedTimeRange.duration.seconds / timeRangeExpectedToLoad.duration.seconds
         }
         DispatchQueue.main.async {
-            self.percentComplete = newPercentComplete
+            self.percentComplete = max(newPercentComplete, self.percentComplete)
         }
         NotificationCenter.default.post(
             name: Notification.Name("DownloadPercentageChanged"),
@@ -53,15 +53,24 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                     _ = docDir.startAccessingSecurityScopedResource()
                     let newPath = URL(string: "\(docDir.absoluteString)\(videoId).movpkg")!
                     do {
+                        if FileManager.default.fileExists(atPath: newPath.path()) {
+                            try FileManager.default.removeItem(at: newPath)
+                        }
                         try FileManager.default.copyItem(at: location, to: newPath)
+                        do {
+                            try FileManager.default.removeItem(at: location)
+                        } catch {
+                            print("Couldn't delete downloaded asset, error: \(error)")
+                            print("Creating automatic deletion rule.")
+                            let policy = AVMutableAssetDownloadStorageManagementPolicy()
+                            policy.expirationDate = Date()
+                            AVAssetDownloadStorageManager.shared().setStorageManagementPolicy(policy, for: location)
+                        }
                         docDir.stopAccessingSecurityScopedResource()
-                        let policy = AVMutableAssetDownloadStorageManagementPolicy()
-                        policy.expirationDate = Date()
-                        AVAssetDownloadStorageManager.shared().setStorageManagementPolicy(policy, for: location)
                         self.location = newPath
                         
                         let videoInfos = await self.video?.fetchMoreInfos(youtubeModel: YTM)
-                        let newVideo = DownloadedVideo(context: PersistenceModel.shared.context)
+                        let newVideo = DownloadedVideo(context: PersistenceModel.shared.backgroundContext)
                         newVideo.timestamp = Date()
                         newVideo.storageLocation = newPath
                         newVideo.title = videoInfos?.0?.videoTitle ?? self.video?.title
@@ -74,7 +83,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                         
                         for chapter in videoInfos?.0?.chapters ?? [] {
                             guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
-                            let chapterEntity = DownloadedVideoChapter(context: PersistenceModel.shared.context)
+                            let chapterEntity = DownloadedVideoChapter(context: PersistenceModel.shared.backgroundContext)
                             chapterEntity.shortTimeDescription = chapter.timeDescriptions.shortTimeDescription
                             chapterEntity.startTimeSeconds = Int32(startTimeSeconds)
                             if let chapterThumbnailURL = chapter.thumbnail.last?.url {
@@ -88,12 +97,12 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                             let fetchRequest = DownloadedChannel.fetchRequest()
                             fetchRequest.fetchLimit = 1
                             fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                            let result = try? PersistenceModel.shared.context.fetch(fetchRequest)
+                            let result = try? PersistenceModel.shared.backgroundContext.fetch(fetchRequest)
                             
                             if let channel = result?.first {
                                 channel.addToVideos(newVideo)
                             } else {
-                                let newChannel = DownloadedChannel(context: PersistenceModel.shared.context)
+                                let newChannel = DownloadedChannel(context: PersistenceModel.shared.backgroundContext)
                                 newChannel.channelId = channelId
                                 newChannel.name = videoInfos?.0?.channel?.name ?? self.video?.channel?.name
                                 if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(2) ?? self.video?.channel?.thumbnails.maxFor(2) {
@@ -103,43 +112,11 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                             }
                         }
                         
-                        var counter: Int = 0
-                        for videoDescriptionPart in videoInfos?.0?.videoDescription ?? [] {
-                            guard let text = videoDescriptionPart.text else { continue }
-                            let partEntity = DownloadedDescriptionPart(context: PersistenceModel.shared.context)
-                            partEntity.index = Int64(counter)
-                            partEntity.text = text
-                            switch videoDescriptionPart.role {
-                            case .link(let URLRole):
-                                partEntity.role = "link"
-                                partEntity.data = URLRole.dataRepresentation
-                            case .chapter(var startTimeRole):
-                                partEntity.role = "chapter"
-                                partEntity.data = Data(bytes: &startTimeRole, count: MemoryLayout.size(ofValue: startTimeRole))
-                            case .channel(let channelIdRole):
-                                partEntity.role = "channel"
-                                partEntity.data = channelIdRole.data(using: .utf8)
-                            case .video(let videoIdRole):
-                                partEntity.role = "video"
-                                partEntity.data = videoIdRole.data(using: .utf8)
-                            case .playlist(let playlistIdRole):
-                                partEntity.role = "playlist"
-                                partEntity.data = playlistIdRole.data(using: .utf8)
-                            default:
-                                break
-                            }
-                            newVideo.addToDescriptionParts(partEntity)
-                            counter += 1
-                        }
-                        
-                        DispatchQueue.main.async {
-                            self.percentComplete = 100
-                        }
-                        
+                        newVideo.videoDescription = videoDescription
                         do {
-                            try PersistenceModel.shared.context.save()
-                            
+                            try PersistenceModel.shared.backgroundContext.save()
                             DispatchQueue.main.async {
+                                self.percentComplete = 100
                                 self.downloaderState = .success
                                 NotificationCenter.default.post(
                                     name: Notification.Name("DownloadPercentageChanged"),

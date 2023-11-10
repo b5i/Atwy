@@ -1,30 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23B5056e" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22511.1" systemVersion="23B5056e" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="DownloadedChannel" representedClassName="DownloadedChannel" syncable="YES">
-        <attribute name="channelId" attributeType="String"/>
+        <attribute name="channelId" attributeType="String" defaultValueString=""/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
         <relationship name="favorites" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FavoriteVideo" inverseName="channel" inverseEntity="FavoriteVideo"/>
         <relationship name="videos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DownloadedVideo" inverseName="channel" inverseEntity="DownloadedVideo"/>
     </entity>
-    <entity name="DownloadedDescriptionPart" representedClassName="DownloadedDescriptionPart" syncable="YES">
-        <attribute name="data" optional="YES" attributeType="Binary"/>
-        <attribute name="index" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="role" optional="YES" attributeType="String"/>
-        <attribute name="text" attributeType="String" defaultValueString=""/>
-        <relationship name="video" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedVideo" inverseName="descriptionParts" inverseEntity="DownloadedVideo"/>
-    </entity>
     <entity name="DownloadedVideo" representedClassName="DownloadedVideo" syncable="YES">
-        <attribute name="storageLocation" attributeType="URI"/>
+        <attribute name="storageLocation" attributeType="URI" defaultValueString="https://www.youtube.com/watch?v=dQw4w9WgXcQ"/>
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
         <attribute name="timeLength" optional="YES" attributeType="String"/>
         <attribute name="timePosted" optional="YES" attributeType="String"/>
-        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="timestamp" attributeType="Date" defaultDateTimeInterval="720732540" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="videoId" attributeType="String"/>
+        <attribute name="videoDescription" optional="YES" attributeType="String"/>
+        <attribute name="videoId" attributeType="String" defaultValueString=""/>
         <relationship name="channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedChannel" inverseName="videos" inverseEntity="DownloadedChannel"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DownloadedVideoChapter" inverseName="video" inverseEntity="DownloadedVideoChapter"/>
-        <relationship name="descriptionParts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DownloadedDescriptionPart" inverseName="video" inverseEntity="DownloadedDescriptionPart"/>
     </entity>
     <entity name="DownloadedVideoChapter" representedClassName="DownloadedVideoChapter" syncable="YES">
         <attribute name="shortTimeDescription" optional="YES" attributeType="String"/>
@@ -36,9 +29,9 @@
     <entity name="FavoriteVideo" representedClassName="FavoriteVideo" syncable="YES">
         <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
         <attribute name="timeLength" optional="YES" attributeType="String"/>
-        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="timestamp" attributeType="Date" defaultDateTimeInterval="720732540" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="videoId" attributeType="String"/>
+        <attribute name="videoId" attributeType="String" defaultValueString=""/>
         <relationship name="channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedChannel" inverseName="favorites" inverseEntity="DownloadedChannel"/>
     </entity>
 </model>

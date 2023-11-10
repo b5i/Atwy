@@ -17,6 +17,7 @@ extension DownloadedVideo {
     }
 
     @NSManaged public var videoId: String
+    @NSManaged public var videoDescription: String?
     @NSManaged public var title: String?
     @NSManaged public var timestamp: Date
     @NSManaged public var timeLength: String?
@@ -24,19 +25,10 @@ extension DownloadedVideo {
     @NSManaged public var thumbnail: Data?
     @NSManaged public var storageLocation: URL
     @NSManaged public var channel: DownloadedChannel?
-    @NSManaged public var descriptionParts: NSSet?
     @NSManaged public var chapters: NSSet?
 
     public override func awakeFromInsert() {
         timestamp = Date()
-    }
-    
-    public var descriptionPartsArray: [DownloadedDescriptionPart] {
-        let set = descriptionParts as? Set<DownloadedDescriptionPart> ?? []
-        
-        return set.sorted {
-            $0.index < $1.index
-        }
     }
     
     public var chaptersArray: [DownloadedVideoChapter] {
@@ -46,27 +38,6 @@ extension DownloadedVideo {
             $0.startTimeSeconds < $1.startTimeSeconds
         }
     }
-    
-    public var reconstitutedDescription: String {
-        return descriptionPartsArray.map({$0.text}).joined()
-    }
-}
-
-// MARK: Generated accessors for descriptionParts
-extension DownloadedVideo {
-
-    @objc(addDescriptionPartsObject:)
-    @NSManaged public func addToDescriptionParts(_ value: DownloadedDescriptionPart)
-
-    @objc(removeDescriptionPartsObject:)
-    @NSManaged public func removeFromDescriptionParts(_ value: DownloadedDescriptionPart)
-
-    @objc(addDescriptionParts:)
-    @NSManaged public func addToDescriptionParts(_ values: NSSet)
-
-    @objc(removeDescriptionParts:)
-    @NSManaged public func removeFromDescriptionParts(_ values: NSSet)
-
 }
 
 // MARK: Generated accessors for chapters

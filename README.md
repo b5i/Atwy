@@ -19,6 +19,7 @@ At this time, contributing to Atwy with code is not possible as it is a personna
 - Videos that have more than one audio track (multiple languages) aren't played in the right language.
 - The elliplis button in the full-thumbnail video view (`VideoView2`) starts playing the video in addition to show a context menu.
 - (InfiniteScrollViews) Menus containing an `ElementsInfiniteScrollView` with very few elements have unexpected behaviors.
+- Downloaded videos can appear two times in the `Downloads` section.
 
 ### Note
 At this time, Atwy is still in a very early stage with a lot improvements, refractoring and bug fixes still to come.

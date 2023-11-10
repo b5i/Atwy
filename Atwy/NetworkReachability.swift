@@ -24,6 +24,9 @@ class NetworkReachabilityModel: ObservableObject {
     func checkConnection() {
         monitor.pathUpdateHandler = { path in
             if path.status == .satisfied {
+                if VideoPlayerModel.shared.video != nil, VideoPlayerModel.shared.isFetchingMoreVideoInfos == nil, VideoPlayerModel.shared.moreVideoInfos == nil {
+                    VideoPlayerModel.shared.fetchMoreInfosForVideo()
+                }
                 DispatchQueue.main.async {
                     self.connected = true
                 }

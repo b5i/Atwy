@@ -30,8 +30,8 @@ class DownloadCoordinatorManagerModel: ObservableObject {
     }
 
     func appendDownloader(downloader: HLSDownloader) {
-        downloader.downloaderState = .waiting
         downloads.append(downloader)
+        downloader.downloaderState = .waiting
         NotificationCenter.default.post(name: Notification.Name("DownloadingChanged\(downloader.video?.videoId ?? "")"), object: nil)
         if downloadings.count < 3 {
             downloader.downloadVideo()
@@ -43,7 +43,7 @@ class DownloadCoordinatorManagerModel: ObservableObject {
             downloads.first(where: {
                 $0.downloaderState == .waiting
             })?.downloadVideo()
-            if downloadings.count + pausedDownloadings.count == 0 {
+            if downloadings.count + pausedDownloadings.count + waitingDownloadings.count == 0 {
                 NotificationCenter.default.post(name: Notification.Name("NoDownloadingsLeft"), object: nil)
             }
         }

@@ -44,7 +44,7 @@ struct ContentView: View {
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
             TabBarElement(DestinationView: {DownloadedVideosView()}, name: "Downloads", image: "arrow.down.circle.fill")
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-                .badge(DM.downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}).count)
+                .badge(DM.activeDownloadings)
             TabBarElement(DestinationView: {
                 if network.connected {
                     if !(APIM.userAccount?.isDisconnected ?? true) {

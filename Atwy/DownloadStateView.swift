@@ -15,7 +15,7 @@ struct DownloadStateView: View {
     @State var video: YTVideo
     @State var isShort: Bool
     @State var videoThumbnailData: Data?
-    @StateObject var downloader: HLSDownloader
+    @ObservedObject var downloader: HLSDownloader
     var body: some View {
         if downloaded {
             Image(systemName: "arrow.down.circle.fill")

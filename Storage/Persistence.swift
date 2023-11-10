@@ -14,9 +14,15 @@ struct PersistenceController {
     private (set) var spotlightIndexer: YTSpotlightDelegate?
 
     let container: NSPersistentContainer
+    
+    let context: NSManagedObjectContext
+    
+    let backgroundContext: NSManagedObjectContext
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Atwy")
+//        container = NSPersistentCloudKitContainer(name: "Atwy")
+//        try? container.initializeCloudKitSchema(options: [])
         // Add support to group
         let storeUrl =  FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Antoine-Bollengier.Atwy")!.appendingPathComponent("Atwy.sqlite")
         let description = NSPersistentStoreDescription()
@@ -27,7 +33,10 @@ struct PersistenceController {
         description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         container.persistentStoreDescriptions = [NSPersistentStoreDescription(url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Antoine-Bollengier.Atwy")!.appendingPathComponent("Atwy.sqlite"))]
         // End of group support
-        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+//        self.context = container.newBackgroundContext()
+        self.context = container.viewContext
+        self.backgroundContext = container.newBackgroundContext()
+        self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         spotlightIndexer = YTSpotlightDelegate(forStoreWith: description, coordinator: container.persistentStoreCoordinator)
         print(spotlightIndexer?.isIndexingEnabled)
         if inMemory {
@@ -49,7 +58,7 @@ struct PersistenceController {
                 print("Unresolved error \(error), \(error.userInfo)")
             }
         })
-        container.viewContext.automaticallyMergesChangesFromParent = true
+        self.context.automaticallyMergesChangesFromParent = true
 
         let center = NotificationCenter.default
         let queue = OperationQueue.main
@@ -74,15 +83,17 @@ class PersistenceModel: ObservableObject {
 
     var controller: PersistenceController
     var context: NSManagedObjectContext
-
+    var backgroundContext: NSManagedObjectContext
+    
     init() {
         controller = PersistenceController.shared
-        context = controller.container.viewContext
+        context = controller.context
+        backgroundContext = controller.backgroundContext
         NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: Notification.Name("CoreDataChanged"), object: nil)
     }
 
     @objc func updateContext() {
-        context = controller.container.viewContext
+        context = controller.context
         self.objectWillChange.send()
     }
     
@@ -186,22 +197,24 @@ class PersistenceModel: ObservableObject {
         do {
             let fetchResult = try self.context.fetch(fetchRequest)
             if let newObject = fetchResult.first {
-                do {
-                    try FileManager.default.removeItem(at: newObject.storageLocation)
-                    if let channel = newObject.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
-                        self.context.delete(channel)
+                if FileManager.default.fileExists(atPath: newObject.storageLocation.path()) {
+                    do {
+                        try FileManager.default.removeItem(at: newObject.storageLocation)
+                    } catch {
+                        print("can't delete file")
+                        print(error)
                     }
-                    self.context.delete(newObject)
-                    try self.context.save()
-                    
-                    NotificationCenter.default.post(
-                        name: Notification.Name("CoreDataChanged"),
-                        object: nil
-                    )
-                } catch {
-                    print("can't delete file")
-                    print(error)
                 }
+                if let channel = newObject.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
+                    self.context.delete(channel)
+                }
+                self.context.delete(newObject)
+                try self.context.save()
+                
+                NotificationCenter.default.post(
+                    name: Notification.Name("CoreDataChanged"),
+                    object: nil
+                )
             } else {
                 print("no item found")
             }
@@ -228,7 +241,7 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.identifier = item.videoId
             attributeSet.displayName = item.title
             attributeSet.artist = item.channel?.name
-            attributeSet.contentDescription = item.reconstitutedDescription
+            attributeSet.contentDescription = item.videoDescription
             attributeSet.thumbnailData = item.thumbnail
             return attributeSet
         } else if let channel = object as? DownloadedChannel {

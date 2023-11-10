@@ -21,10 +21,6 @@ class HLSDownloader: NSObject, ObservableObject {
     @Published var downloaderState: HLSDownloaderState = .inactive {
         didSet (newValue) {
             switch newValue {
-            case .inactive:
-                DCMM.launchDownloads()
-            case .success:
-                DCMM.launchDownloads()
             case .waiting:
                 break
             case .downloading:
@@ -33,8 +29,8 @@ class HLSDownloader: NSObject, ObservableObject {
                 if let videoId = self.video?.videoId {
                     downloads.removeAll(where: {$0.video?.videoId == videoId})
                 }
-                DCMM.launchDownloads()
-            case .paused:
+                fallthrough
+            case .inactive, .success, .paused:
                 DCMM.launchDownloads()
             }
         }
@@ -129,7 +125,9 @@ class HLSDownloader: NSObject, ObservableObject {
             if let thumbnailURL = video.thumbnails.last?.url {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
                     guard let imageData = imageData, error == nil else { print("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
-                    self.state.thumbnailData = imageData
+                    DispatchQueue.main.async {
+                        self.state.thumbnailData = imageData
+                    }
                     launchDownload(thumbnailData: imageData)
                 }
             } else {
