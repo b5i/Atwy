@@ -47,7 +47,7 @@ struct DownloadedVideosView: View {
                     ScrollView {
                         //                        List {
                         LazyVStack {
-                            ForEach(downloadedVideos, id: \.timestamp, content: { video in
+                            ForEach(downloadedVideos.filter({$0.matchesQuery(search)}), id: \.timestamp, content: { video in
                                 let convertResult = YTVideo(
                                     videoId: video.videoId,
                                     title: video.title,

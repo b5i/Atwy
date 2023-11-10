@@ -10,7 +10,10 @@ import CoreData
 import YouTubeKit
 
 struct FavoritesView: View {
-    @State var favorites1: [FavoriteVideo] = []
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \FavoriteVideo.timestamp, ascending: true)],
+        animation: .default)
+    private var favorites: FetchedResults<FavoriteVideo>
     @State private var search: String = ""
     @ObservedObject private var NPM = navigationPathModel
     @ObservedObject private var VPM = VideoPlayerModel.shared
@@ -22,7 +25,7 @@ struct FavoritesView: View {
             GeometryReader { geometry in
                 ScrollView {
                     LazyVStack {
-                        ForEach(favorites1) { video in
+                        ForEach(favorites.filter({$0.matchesQuery(search)})) { video in
                             let convertResult = YTVideo(id: Int(video.timestamp.timeIntervalSince1970),
                                                         videoId: video.videoId,
                                                         title: video.title,
@@ -68,40 +71,6 @@ struct FavoritesView: View {
                 .toolbar(content: {
                     ShowSettingsButton()
                 })
-        }
-        .task {
-            self.updateFavoritesList()
-            NotificationCenter.default.addObserver(
-                forName: Notification.Name("CoreDataChanged"),
-                object: nil,
-                queue: nil,
-                using: { _ in
-                    Task {
-                        await updateFavoritesList()
-                    }
-                })
-        }
-    }
-
-    func updateFavoritesList() {
-        let fetchRequest = FavoriteVideo.fetchRequest()
-        do {
-            var result = try PersistenceModel.shared.context.fetch(fetchRequest)
-            result = result.filter({(search.isEmpty) ? true : $0.title?.contains(search) ?? false || $0.channel?.name?.contains(search) ?? false})
-            result = result.filter({ favorite in
-                if !NetworkReachabilityModel.shared.connected {
-                    return PersistenceModel.shared.getStorageLocationFor(video: YTVideo(videoId: favorite.videoId)) != nil
-                }
-                return true
-            })
-            DispatchQueue.main.async {
-                favorites1 = result
-            }
-        } catch {
-            print(error)
-            DispatchQueue.main.async {
-                favorites1 = []
-            }
         }
     }
 }

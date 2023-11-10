@@ -44,6 +44,10 @@
 		345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3132AE54229007AE044 /* ShowSettingsButton.swift */; };
 		3478F22F2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478F22E2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift */; };
 		347AE2562A6C65490099DDE7 /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 347AE2552A6C65490099DDE7 /* YouTubeKit */; };
+		3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */; };
+		3483A7822AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */; };
+		3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */; };
+		3483A7852AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */; };
 		34B5FD9F2ADA84F300367036 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FD9E2ADA84F300367036 /* Assets.xcassets */; };
 		34B5FDA12ADA84FA00367036 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */; };
 		34B5FDA92ADA851600367036 /* AddToQueueContextMenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */; };
@@ -152,6 +156,8 @@
 		345DC3112AE53ECC007AE044 /* PopupsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupsModel.swift; sourceTree = "<group>"; };
 		345DC3132AE54229007AE044 /* ShowSettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSettingsButton.swift; sourceTree = "<group>"; };
 		3478F22E2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementsInfiniteScrollView.swift; sourceTree = "<group>"; };
+		3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+matchesQuery.swift"; sourceTree = "<group>"; };
+		3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+matchesQuery.swift"; sourceTree = "<group>"; };
 		34B5FD9E2ADA84F300367036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToQueueContextMenuButtonView.swift; sourceTree = "<group>"; };
@@ -400,12 +406,14 @@
 				345DC3042AE45E2B007AE044 /* Atwy.xcdatamodeld */,
 				34B8B2F12AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift */,
 				34B8B2F22AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift */,
+				3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */,
 				34B8B2CD2AE0265200C5C07C /* DownloadedChannel+CoreDataClass.swift */,
 				34B8B2CE2AE0265200C5C07C /* DownloadedChannel+CoreDataProperties.swift */,
 				34B8B2CF2AE0265200C5C07C /* DownloadedVideoChapter+CoreDataClass.swift */,
 				34B8B2D02AE0265200C5C07C /* DownloadedVideoChapter+CoreDataProperties.swift */,
 				34B8B2D32AE0265200C5C07C /* DownloadedVideo+CoreDataClass.swift */,
 				34B8B2D42AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift */,
+				3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */,
 				34B5FDD22ADA856400367036 /* Persistence.swift */,
 				3457B4932AE4373B00390A5A /* GetImage.swift */,
 			);
@@ -562,7 +570,9 @@
 				3457B4952AE4373F00390A5A /* GetImage.swift in Sources */,
 				3457B48B2AE435BA00390A5A /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
 				3457B4852AE435BA00390A5A /* FavoriteVideo+CoreDataProperties.swift in Sources */,
+				3483A7822AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */,
 				345DC3072AE45E2B007AE044 /* Atwy.xcdatamodeld in Sources */,
+				3483A7852AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -577,6 +587,7 @@
 				34B8B2F32AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift in Sources */,
 				34B5FDAD2ADA851600367036 /* AddToFavoritesContextButtonView.swift in Sources */,
 				34B5FDAE2ADA851600367036 /* AddToPlaylistContextMenuButtonView.swift in Sources */,
+				3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */,
 				34B5FDAF2ADA851600367036 /* AddToPlaylistSwipeActionButtonView.swift in Sources */,
 				34B5FE0C2ADA856900367036 /* NowPlayingBarView.swift in Sources */,
 				34B5FE0D2ADA856900367036 /* CircularProgressView.swift in Sources */,
@@ -626,6 +637,7 @@
 				3457B47D2AE4304900390A5A /* Download.swift in Sources */,
 				3457B4832AE432C000390A5A /* DownloadingsModel.swift in Sources */,
 				34B5FE372ADA856900367036 /* VideoPlayerModel.swift in Sources */,
+				3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */,
 				3457B4942AE4373B00390A5A /* GetImage.swift in Sources */,
 				34B5FE392ADA856900367036 /* YouTubeBasePlaylistView.swift in Sources */,
 				34B5FE3A2ADA856900367036 /* ObservedScrollView.swift in Sources */,
