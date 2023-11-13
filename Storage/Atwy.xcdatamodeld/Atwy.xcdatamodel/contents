@@ -29,6 +29,7 @@
     <entity name="FavoriteVideo" representedClassName="FavoriteVideo" syncable="YES">
         <attribute name="thumbnailData" optional="YES" attributeType="Binary"/>
         <attribute name="timeLength" optional="YES" attributeType="String"/>
+        <attribute name="timePosted" optional="YES" attributeType="String"/>
         <attribute name="timestamp" attributeType="Date" defaultDateTimeInterval="720732540" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="videoId" attributeType="String" defaultValueString=""/>

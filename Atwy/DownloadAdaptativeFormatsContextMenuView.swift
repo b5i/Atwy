@@ -25,10 +25,8 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success {
                                     downloader.downloadData = format
 
-                                    DispatchQueue.main.async {
-                                        downloader.video = video
-                                        downloader.state.thumbnailData = videoThumbnailData
-                                    }
+                                    downloader.video = video
+                                    downloader.state.thumbnailData = videoThumbnailData
                                     
                                     DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
                                 }
@@ -36,12 +34,10 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 let downloader = HLSDownloader()
                                 downloader.downloadData = format
 
-                                DispatchQueue.main.async {
-                                    downloader.video = video
-                                    downloader.state.thumbnailData = videoThumbnailData
-                                }
-                                
+                                downloader.video = video
+                                downloader.state.thumbnailData = videoThumbnailData
                                 DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
+                                    
                             }
                         } label: {
                             if let contentLength = format.contentLength {
@@ -60,10 +56,8 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success {
                                     downloader.downloadData = format
 
-                                    DispatchQueue.main.async {
-                                        downloader.video = video
-                                        downloader.state.thumbnailData = videoThumbnailData
-                                    }
+                                    downloader.video = video
+                                    downloader.state.thumbnailData = videoThumbnailData
                                     
                                     DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
                                 }
@@ -71,10 +65,8 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 let downloader = HLSDownloader()
                                 downloader.downloadData = format
                                 
-                                DispatchQueue.main.async {
-                                    downloader.video = video
-                                    downloader.state.thumbnailData = videoThumbnailData
-                                }
+                                downloader.video = video
+                                downloader.state.thumbnailData = videoThumbnailData
                                 
                                 DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
                             }

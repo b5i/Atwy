@@ -24,33 +24,13 @@ struct DownloadButtonView: View {
             } else if let downloader = downloader {
                     if downloader.downloaderState == .inactive || downloader.downloaderState == .failed {
                         if downloader.downloaderState != .waiting && downloader.downloaderState != .downloading && downloader.downloaderState != .success {
-                            DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: downloader)
+                            DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
                         }
                     } else {
-                        DownloadStateView(downloaded: (downloadURL != nil), video: video, isShort: isShort, downloader: downloader)
+                        DownloadStateView(downloaded: (downloadURL != nil), video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: downloader)
                     }
             } else {
-                Button {
-                    if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId }) {
-                        if downloader.downloaderState != .downloading && downloader.downloaderState != .success {
-                            downloader.state.thumbnailData = videoThumbnailData
-                            downloader.video = video
-                            downloader.isShort = isShort
-                            DCMM.appendDownloader(downloader: downloader)
-                        }
-                    } else {
-                        let newDownloader = HLSDownloader()
-                        newDownloader.state.thumbnailData = videoThumbnailData
-                        newDownloader.video = video
-                        newDownloader.isShort = isShort
-                        DCMM.appendDownloader(downloader: newDownloader)
-                        self.downloader = newDownloader
-                    }
-                } label: {
-                    Image(systemName: "arrow.down")
-                        .frame(width: 25, height: 25)
-                        .padding()
-                }
+                DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
             }
         }
         .frame(width: 25, height: 25)

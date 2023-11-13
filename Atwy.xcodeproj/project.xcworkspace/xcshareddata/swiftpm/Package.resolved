@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/b5i/InfiniteScrollViews",
       "state" : {
-        "revision" : "51e3695772265aba67ae02ab1fedb5c5d930a69b",
-        "version" : "1.0.0"
+        "revision" : "74d8b299687cc9b092efbe7d3ec5dd543e7ca58e",
+        "version" : "1.0.1"
       }
     },
     {

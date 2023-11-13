@@ -17,7 +17,6 @@ struct PersistenceController {
     
     let context: NSManagedObjectContext
     
-    let backgroundContext: NSManagedObjectContext
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Atwy")
@@ -35,7 +34,6 @@ struct PersistenceController {
         // End of group support
 //        self.context = container.newBackgroundContext()
         self.context = container.viewContext
-        self.backgroundContext = container.newBackgroundContext()
         self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         spotlightIndexer = YTSpotlightDelegate(forStoreWith: description, coordinator: container.persistentStoreCoordinator)
         print(spotlightIndexer?.isIndexingEnabled)
@@ -83,12 +81,10 @@ class PersistenceModel: ObservableObject {
 
     var controller: PersistenceController
     var context: NSManagedObjectContext
-    var backgroundContext: NSManagedObjectContext
     
     init() {
         controller = PersistenceController.shared
         context = controller.context
-        backgroundContext = controller.backgroundContext
         NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: Notification.Name("CoreDataChanged"), object: nil)
     }
 
@@ -98,51 +94,61 @@ class PersistenceModel: ObservableObject {
     }
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
-        Task {
-            let newItem = FavoriteVideo(context: PersistenceModel.shared.context)
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        backgroundContext.performAndWait {
+            
+            let newItem = FavoriteVideo(context: backgroundContext)
             newItem.timestamp = Date()
             newItem.videoId = video.videoId
             newItem.title = video.title
-
             if let imageData = imageData {
                 newItem.thumbnailData = imageData
             } else if let thumbnailURL = video.thumbnails.last?.url {
-                newItem.thumbnailData = await getImage(from: thumbnailURL)
+                let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
+                imageTask.start()
+                imageTask.waitUntilFinished()
+                backgroundContext.performAndWait {
+                    newItem.thumbnailData = imageTask.imageData
+                }
             }
             
             if let channelId = video.channel?.channelId {
                 let fetchRequest = DownloadedChannel.fetchRequest()
                 fetchRequest.fetchLimit = 1
                 fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                let result = try? self.context.fetch(fetchRequest)
+                let result = try? backgroundContext.fetch(fetchRequest)
                 
                 if let channel = result?.first {
                     channel.addToFavorites(newItem)
                 } else {
-                    let newChannel = DownloadedChannel(context: PersistenceModel.shared.context)
+                    let newChannel = DownloadedChannel(context: backgroundContext)
                     newChannel.channelId = channelId
                     newChannel.name = video.channel?.name
                     if let channelThumbnailURL = video.channel?.thumbnails.first {
-                        newChannel.thumbnail = await getImage(from: channelThumbnailURL.url)
+                        let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
+                        imageTask.start()
+                        imageTask.waitUntilFinished()
+                        backgroundContext.performAndWait {
+                            newChannel.thumbnail = imageTask.imageData
+                        }
                     }
                     newChannel.addToFavorites(newItem)
                 }
             }
             
             newItem.timeLength = video.timeLength
-            
-            DispatchQueue.main.async {
-                do {
-                    try self.context.save()
-                    
+            do {
+                try backgroundContext.save()
+                
+                DispatchQueue.main.async {
                     NotificationCenter.default.post(
                         name: Notification.Name("CoreDataChanged"),
                         object: nil
                     )
                     PopupsModel.shared.showPopup(.addedToFavorites, data: newItem.thumbnailData)
-                } catch {
-                    print("Couldn't add favorite to context, error: \(error)")
                 }
+            } catch {
+                print("Couldn't add favorite to context, error: \(error)")
             }
         }
     }
@@ -197,7 +203,7 @@ class PersistenceModel: ObservableObject {
         do {
             let fetchResult = try self.context.fetch(fetchRequest)
             if let newObject = fetchResult.first {
-                if FileManager.default.fileExists(atPath: newObject.storageLocation.path()) {
+                if FileManager.default.fileExists(atPath: newObject.storageLocation.absoluteString) {
                     do {
                         try FileManager.default.removeItem(at: newObject.storageLocation)
                     } catch {

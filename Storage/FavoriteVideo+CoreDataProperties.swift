@@ -17,6 +17,8 @@ extension FavoriteVideo {
 
     @NSManaged public var videoId: String
     @NSManaged public var timeLength: String?
+    /// Note: isn't used for the moment
+    @NSManaged public var timePosted: String?
     @NSManaged public var timestamp: Date
     @NSManaged public var thumbnailData: Data?
     @NSManaged public var title: String?

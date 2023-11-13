@@ -48,6 +48,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
         } else {
             if let videoId = self.video?.videoId, let location = self.location {
                 Task {
+                    let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
                     /// Moving the download in a safe place.
                     let docDir = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
                     _ = docDir.startAccessingSecurityScopedResource()
@@ -70,68 +71,85 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                         self.location = newPath
                         
                         let videoInfos = await self.video?.fetchMoreInfos(youtubeModel: YTM)
-                        let newVideo = DownloadedVideo(context: PersistenceModel.shared.backgroundContext)
-                        newVideo.timestamp = Date()
-                        newVideo.storageLocation = newPath
-                        newVideo.title = videoInfos?.0?.videoTitle ?? self.video?.title
-                        if let thumbnailURL = self.video?.thumbnails.last?.url {
-                            newVideo.thumbnail = await getImage(from: thumbnailURL)
-                        }
-                        newVideo.timeLength = self.video?.timeLength
-                        newVideo.timePosted = videoInfos?.0?.timePosted.postedDate
-                        newVideo.videoId = videoId
-                        
-                        for chapter in videoInfos?.0?.chapters ?? [] {
-                            guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
-                            let chapterEntity = DownloadedVideoChapter(context: PersistenceModel.shared.backgroundContext)
-                            chapterEntity.shortTimeDescription = chapter.timeDescriptions.shortTimeDescription
-                            chapterEntity.startTimeSeconds = Int32(startTimeSeconds)
-                            if let chapterThumbnailURL = chapter.thumbnail.last?.url {
-                                chapterEntity.thumbnail = await getImage(from: chapterThumbnailURL)
-                            }
-                            chapterEntity.title = chapter.title
-                            newVideo.addToChapters(chapterEntity)
-                        }
-                        
-                        if let channelId = self.video?.channel?.channelId {
-                            let fetchRequest = DownloadedChannel.fetchRequest()
-                            fetchRequest.fetchLimit = 1
-                            fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                            let result = try? PersistenceModel.shared.backgroundContext.fetch(fetchRequest)
-                            
-                            if let channel = result?.first {
-                                channel.addToVideos(newVideo)
-                            } else {
-                                let newChannel = DownloadedChannel(context: PersistenceModel.shared.backgroundContext)
-                                newChannel.channelId = channelId
-                                newChannel.name = videoInfos?.0?.channel?.name ?? self.video?.channel?.name
-                                if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(2) ?? self.video?.channel?.thumbnails.maxFor(2) {
-                                    newChannel.thumbnail = await getImage(from: channelThumbnailURL.url)
+                        backgroundContext.performAndWait {
+                            let newVideo = DownloadedVideo(context: backgroundContext)
+                            newVideo.timestamp = Date()
+                            newVideo.storageLocation = newPath
+                            newVideo.title = videoInfos?.0?.videoTitle ?? self.video?.title
+                            if let thumbnailURL = self.video?.thumbnails.last?.url {
+                                let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
+                                imageTask.start()
+                                imageTask.waitUntilFinished()
+                                backgroundContext.performAndWait {
+                                    newVideo.thumbnail
                                 }
-                                newChannel.addToVideos(newVideo)
                             }
-                        }
-                        
-                        newVideo.videoDescription = videoDescription
-                        do {
-                            try PersistenceModel.shared.backgroundContext.save()
-                            DispatchQueue.main.async {
-                                self.percentComplete = 100
-                                self.downloaderState = .success
-                                NotificationCenter.default.post(
-                                    name: Notification.Name("DownloadPercentageChanged"),
-                                    object: nil
-                                )
-                                NotificationCenter.default.post(
-                                    name: Notification.Name("CoreDataChanged"),
-                                    object: nil
-                                )
+                            newVideo.timeLength = self.video?.timeLength
+                            newVideo.timePosted = videoInfos?.0?.timePosted.postedDate
+                            newVideo.videoId = videoId
+                            
+                            for chapter in videoInfos?.0?.chapters ?? [] {
+                                guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
+                                let chapterEntity = DownloadedVideoChapter(context: backgroundContext)
+                                chapterEntity.shortTimeDescription = chapter.timeDescriptions.shortTimeDescription
+                                chapterEntity.startTimeSeconds = Int32(startTimeSeconds)
+                                if let chapterThumbnailURL = chapter.thumbnail.last?.url {
+                                    let imageTask = DownloadImageOperation(imageURL: chapterThumbnailURL)
+                                    imageTask.start()
+                                    imageTask.waitUntilFinished()
+                                    backgroundContext.performAndWait {
+                                        chapterEntity.thumbnail = imageTask.imageData
+                                    }
+                                }
+                                chapterEntity.title = chapter.title
+                                newVideo.addToChapters(chapterEntity)
                             }
-                        } catch {
-                            let nsError = error as NSError
-                            print("Unresolved error \(nsError), \(nsError.userInfo)")
-                            DispatchQueue.main.async {
-                                self.downloaderState = .failed
+                            
+                            if let channelId = self.video?.channel?.channelId {
+                                let fetchRequest = DownloadedChannel.fetchRequest()
+                                fetchRequest.fetchLimit = 1
+                                fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
+                                let result = try? backgroundContext.fetch(fetchRequest)
+                                
+                                if let channel = result?.first {
+                                    channel.addToVideos(newVideo)
+                                } else {
+                                    let newChannel = DownloadedChannel(context: backgroundContext)
+                                    newChannel.channelId = channelId
+                                    newChannel.name = videoInfos?.0?.channel?.name ?? self.video?.channel?.name
+                                    if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(2) ?? self.video?.channel?.thumbnails.maxFor(2) {
+                                        let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
+                                        imageTask.start()
+                                        imageTask.waitUntilFinished()
+                                        backgroundContext.performAndWait {
+                                            newChannel.thumbnail = imageTask.imageData
+                                        }
+                                    }
+                                    newChannel.addToVideos(newVideo)
+                                }
+                            }
+                            
+                            newVideo.videoDescription = videoDescription
+                            do {
+                                try backgroundContext.save()
+                                DispatchQueue.main.async {
+                                    self.percentComplete = 100
+                                    self.downloaderState = .success
+                                    NotificationCenter.default.post(
+                                        name: Notification.Name("DownloadPercentageChanged"),
+                                        object: nil
+                                    )
+                                    NotificationCenter.default.post(
+                                        name: Notification.Name("CoreDataChanged"),
+                                        object: nil
+                                    )
+                                }
+                            } catch {
+                                let nsError = error as NSError
+                                print("Unresolved error \(nsError), \(nsError.userInfo)")
+                                DispatchQueue.main.async {
+                                    self.downloaderState = .failed
+                                }
                             }
                         }
                     } catch {

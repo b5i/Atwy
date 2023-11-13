@@ -163,7 +163,7 @@ struct ChannelDetailsView: View {
                                                 }
                                             }
                                         )
-                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7)
+                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7 - 49) // 49 for the navigation bar
                                         .id(selectedCategory)
                                     }
                                 } else {
