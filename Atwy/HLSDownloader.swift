@@ -55,6 +55,7 @@ class HLSDownloader: NSObject, ObservableObject {
     }
     
     func downloadVideo(thumbnailData: Data? = nil, videoDescription: String = "") {
+        guard self.downloaderState != .downloading else { return }
         DispatchQueue.main.async {
             self.downloaderState = .downloading
         }
@@ -70,7 +71,7 @@ class HLSDownloader: NSObject, ObservableObject {
             } else {
                 self.video?.fetchStreamingInfos(youtubeModel: YTM, infos: { response, error in
                     if let streamingURL = response?.streamingURL {
-                        self.downloadHLS(downloadURL: streamingURL, videoDescription: response?.videoDescription ?? "", video: video)
+                        self.downloadHLS(downloadURL: streamingURL, videoDescription: response?.videoDescription ?? "", video: video, thumbnailData: thumbnailData)
                     } else {
                         DispatchQueue.main.async {
                             self.downloaderState = .failed
@@ -80,19 +81,25 @@ class HLSDownloader: NSObject, ObservableObject {
                     }
                 })
             }
+        } else {
+            DispatchQueue.main.async {
+                self.downloaderState = .failed
+                DownloadCoordinatorManagerModel.shared.launchDownloads()
+            }
         }
     }
 
     func downloadHLS(downloadURL: URL, videoDescription: String, video: YTVideo, thumbnailData: Data? = nil) {
         func launchDownload(thumbnailData: Data) {
-            DispatchQueue.main.async {
-                if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
-                    asset: hlsAsset,
-                    assetTitle: video.title ?? "No title",
-                    assetArtworkData: thumbnailData
-                ) {
+            if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
+                asset: hlsAsset,
+                assetTitle: video.title ?? "No title",
+                assetArtworkData: thumbnailData
+            ) {
+                downloadTask.resume()
+                self.downloadTask?.cancel()
+                DispatchQueue.main.async {
                     self.downloadTask = downloadTask
-                    downloadTask.resume()
                     self.downloadTaskState = downloadTask.state
                 }
             }
@@ -100,13 +107,6 @@ class HLSDownloader: NSObject, ObservableObject {
         
         let backgroundConfiguration = URLSessionConfiguration.background(
             withIdentifier: UUID().uuidString) // !!!!!!!!!!!!!!! il doit être différent pour chaque download !
-        if !downloadURL.absoluteString.contains("manifest.googlevideo.com") {
-            if backgroundConfiguration.httpAdditionalHeaders != nil {
-                backgroundConfiguration.httpAdditionalHeaders?.updateValue("bytes=0-", forKey: "Range")
-            } else {
-                backgroundConfiguration.httpAdditionalHeaders = ["Range": "bytes=0-"]
-            }
-        }
         let assetDownloadURLSession = AVAssetDownloadURLSession(
             configuration: backgroundConfiguration,
             assetDownloadDelegate: self,
@@ -115,14 +115,19 @@ class HLSDownloader: NSObject, ObservableObject {
         
         let url = downloadURL
         self.videoDescription = videoDescription
-        let hlsAsset = AVURLAsset(url: url)
+        let hlsAsset: AVURLAsset
+        if downloadURL.absoluteString.contains("manifest.googlevideo.com") {
+            hlsAsset = AVURLAsset(url: url)
+        } else {
+            hlsAsset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": "Range: bytes=0-"])
+        }
         
         if let thumbnailData = self.state.thumbnailData {
             launchDownload(thumbnailData: thumbnailData)
         } else if let thumbnailData = thumbnailData {
             launchDownload(thumbnailData: thumbnailData)
         } else {
-            if let thumbnailURL = video.thumbnails.last?.url {
+            if let thumbnailURL = video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
                     guard let imageData = imageData, error == nil else { print("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
                     DispatchQueue.main.async {

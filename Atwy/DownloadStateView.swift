@@ -22,7 +22,10 @@ struct DownloadStateView: View {
                 .frame(width: 20, height: 20)
         } else {
             if downloader.downloaderState == .inactive || downloader.downloaderState == .failed {
-                DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: downloader)
+                let downloaderBinding: Binding<HLSDownloader?> = Binding(get: {
+                    return self.downloader
+                }, set: { _ in})
+                DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: downloaderBinding)
             } else if downloader.downloaderState == .waiting {
                 ProgressView()
                     .frame(width: 25, height: 25)

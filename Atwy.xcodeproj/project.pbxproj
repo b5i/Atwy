@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */; };
+		340220212B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */; };
 		340995622A759EC9004F9AAF /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 340995612A759EC9004F9AAF /* SwipeActions */; };
 		34320DFF297324C700B2CAE8 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34320DFE297324C700B2CAE8 /* Messages.framework */; };
 		34320E07297324C900B2CAE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34320E06297324C900B2CAE8 /* Assets.xcassets */; };
@@ -131,6 +133,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadImageOperation.swift; sourceTree = "<group>"; };
 		34320DFC297324C700B2CAE8 /* Atwy_iMessagesExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Atwy_iMessagesExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		34320E06297324C900B2CAE8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -416,6 +419,7 @@
 				3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */,
 				34B5FDD22ADA856400367036 /* Persistence.swift */,
 				3457B4932AE4373B00390A5A /* GetImage.swift */,
+				3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -571,6 +575,7 @@
 				3457B48B2AE435BA00390A5A /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
 				3457B4852AE435BA00390A5A /* FavoriteVideo+CoreDataProperties.swift in Sources */,
 				3483A7822AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */,
+				340220212B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */,
 				345DC3072AE45E2B007AE044 /* Atwy.xcdatamodeld in Sources */,
 				3483A7852AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */,
 			);
@@ -673,6 +678,7 @@
 				34B8B2D92AE0265200C5C07C /* DownloadedVideoChapter+CoreDataClass.swift in Sources */,
 				34B5FE502ADA856900367036 /* DownloadVideoButtonView.swift in Sources */,
 				34B8B2DD2AE0265200C5C07C /* DownloadedVideo+CoreDataClass.swift in Sources */,
+				340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */,
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
 				34B5FE522ADA856900367036 /* DownloadingsView.swift in Sources */,
 				34B5FE532ADA856900367036 /* ChannelIllustrationView.swift in Sources */,
@@ -883,7 +889,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -918,7 +924,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -972,7 +978,7 @@
 			repositoryURL = "https://github.com/b5i/InfiniteScrollViews";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.0;
+				version = 1.0.1;
 			};
 		};
 		347AE2542A6C65490099DDE7 /* XCRemoteSwiftPackageReference "YouTubeKit" */ = {

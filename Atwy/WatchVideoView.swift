@@ -550,8 +550,6 @@ struct NewWatchVideoView: View {
                 if let channelAvatar = (VPM.streamingInfos?.channel?.thumbnails.maxFor(2) ?? VPM.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.video?.channel?.thumbnails.maxFor(2) {
                     CachedAsyncImage(url: channelAvatar.url) { image in
                         switch image {
-                        case .empty:
-                            NoAvatarCircle(makeGradient: makeGradient)
                         case .success(let image):
                             image
                                 .resizable()
@@ -653,6 +651,8 @@ struct NewWatchVideoView: View {
                                         }
                                     }
                                 })
+                        case .empty, .failure(_):
+                            NoAvatarCircle(makeGradient: makeGradient)
                         @unknown default:
                             NoAvatarCircle(makeGradient: makeGradient)
                         }

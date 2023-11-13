@@ -34,10 +34,23 @@ struct VideoContextMenuView: View {
                     imageData: videoThumbnailData
                 )
             }
+//            if let downloadURL = downloadURL {
             if downloadURL != nil {
                 RemoveDownloadContextMenuButtonView(video: video)
+//                Button {
+//                    guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
+//                    let vc = UIActivityViewController(
+//                        activityItems: [FileManager.default.contents(atPath: downloadURL.absoluteString)],
+//                        applicationActivities: nil
+//                    )
+//                    //vc.excludedActivityTypes = [.]
+//                    vc.popoverPresentationController?.sourceView = source.view
+//                    source.present(vc, animated: true)
+//                } label: {
+//                    Text("Share")
+//                }
             } else {
-                //DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
+                // DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
                 // Not enabled for the moment
             }
         }

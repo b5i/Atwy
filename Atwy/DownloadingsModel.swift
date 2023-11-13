@@ -18,13 +18,11 @@ class DownloadingsModel: ObservableObject {
     
     static let shared = DownloadingsModel()
     
-    @Published var downloadings = downloads {
-        didSet {
-            activeDownloadings = downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}).count
-        }
-    }
+    @Published var downloadings = downloads
     
-    @Published var activeDownloadings: Int = 0
+    var activeDownloadings: Int {
+         return downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}).count
+    }
     
     init() {
         NotificationCenter.default.addObserver(forName: Notification.Name("DownloadingChanged"), object: nil, queue: nil, using: { _ in
