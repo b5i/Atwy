@@ -152,6 +152,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     var isFetchingMoreVideoInfos: String?
     @Published var moreVideoInfos: MoreVideoInfosResponse?
     @Published var videoDescription: String?
+    @Published var chapters: [Chapter]?
 //    @StateObject var DM = downloadingsModel
 
     private var subscriptions = Set<AnyCancellable>()
@@ -231,6 +232,10 @@ class VideoPlayerModel: NSObject, ObservableObject {
             NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: newPlayingItem, queue: nil, using: { _ in
                 NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
             })
+            self.chapters = downloadedVideo.chaptersArray.map({ Chapter(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail) })
+            if self.chapters?.isEmpty ?? false {
+                self.chapters = nil
+            }
             self.streamingInfos = VideoInfosResponse.createEmpty()
             self.streamingInfos?.streamingURL = downloadedVideo.storageLocation
             if let channel = downloadedVideo.channel {
@@ -400,6 +405,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.channelAvatarData = nil
         self.videoThumbnailData = nil
         self.videoDescription = nil
+        self.chapters = nil
         DispatchQueue.main.async {
             self.objectWillChange.send()
         }
@@ -428,17 +434,34 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     public func fetchMoreInfosForVideo() {
         self.isFetchingMoreVideoInfos = self.video?.videoId
+        let operationVideoId = self.video?.videoId
         self.video?.fetchMoreInfos(youtubeModel: YTM, result: { response, error in
-            if self.isFetchingMoreVideoInfos == self.video?.videoId {
+            if self.isFetchingMoreVideoInfos == self.video?.videoId, self.isFetchingMoreVideoInfos == operationVideoId {
                 self.isFetchingMoreVideoInfos = nil
                 DispatchQueue.main.async {
                     self.moreVideoInfos = response
+                    if self.chapters == nil {
+                        self.chapters = response?.chapters?.compactMap({ chapter in
+                            if let time = chapter.startTimeSeconds {
+                                return Chapter(time: time, formattedTime: chapter.timeDescriptions.shortTimeDescription, title: chapter.title, thumbnailURLs: chapter.thumbnail)
+                            }
+                            return nil
+                        })
+                    }
                 }
             }
             if let error = error {
                 print("Error while fetching more video infos: \(String(describing: error)).")
             }
         })
+    }
+    
+    public struct Chapter {
+        var time: Int
+        var formattedTime: String?
+        var title: String?
+        var thumbnailData: Data?
+        var thumbnailURLs: [YTThumbnail]?
     }
 }
 #if !os(macOS)

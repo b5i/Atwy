@@ -232,15 +232,16 @@ struct NewWatchVideoView: View {
                                 //                                    }
                                 //                            }
                                 if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() ?? VPM.videoDescription {
-//                                    ChaptersView(geometry: geometry, chapters: getChapterInText(VPM.streamingInfos?.videoDescription ?? ""), chapterAction: {_ in})
-                                    ChaptersView(geometry: geometry, chapters: VPM.moreVideoInfos?.chapters?.compactMap({ chapter in
-                                        if let time = chapter.startTimeSeconds, let formattedTime = chapter.timeDescriptions.shortTimeDescription, let title = chapter.title {
-                                            return Chapter(time: time, formattedTime: formattedTime, title: title)
-                                        }
-                                        return nil
-                                    }) ?? [], chapterAction: { clickedChapter in
+                                    ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
                                         VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
                                     })
+                                    HStack {
+                                        Text("Description")
+                                            .foregroundColor(.gray)
+                                            .font(.caption)
+                                        Spacer()
+                                    }
+                                    .padding([.bottom, .leading])
                                     Text(LocalizedStringKey(videoDescription))
                                         .blendMode(.difference)
                                         .padding(.horizontal)
@@ -378,7 +379,7 @@ struct NewWatchVideoView: View {
         }
     }
     
-    private func getChapterInText(_ text: String) -> [Chapter] {
+    private func getChapterInText(_ text: String) -> [VideoPlayerModel.Chapter] {
 //        00:00 - intro
 //        00:00- intro
 //        00:00 intro
@@ -395,7 +396,7 @@ struct NewWatchVideoView: View {
         let chapterTitleMatches: [String] = chapterTitleRegex.matches(in: text, range: .init(text.startIndex..., in: text)).map({ match in
             return (text as NSString).substring(with: match.range) as String
         })
-        var finalChapters: [Chapter] = []
+        var finalChapters: [VideoPlayerModel.Chapter] = []
         if chapterBeforeTitleMatches.count == chapterTitleMatches.count * 2 {
             var newChapterBeforeTitleMatches: [String] = []
             for i in 0..<chapterBeforeTitleMatches.count {
@@ -426,62 +427,115 @@ struct NewWatchVideoView: View {
         return finalChapters
     }
     
-    private struct Chapter {
-        var time: Int
-        var formattedTime: String
-        var title: String
-    }
-    
     private struct ChaptersView: View {
+        typealias Chapter = VideoPlayerModel.Chapter
         @State var geometry: GeometryProxy
-        @State var chapters: [Chapter]
-        @State var chapterAction: (Chapter) -> Void
+        var chapterAction: (Chapter) -> Void
+        @State private var lastScrolled: Int = 0
+        @ObservedObject private var VPM = VideoPlayerModel.shared
         
         var body: some View {
-            ScrollView {
-                HStack(alignment: .top, spacing: 0) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(chapters.enumerated().filter({index, _ in index % 2 == 0})), id: \.offset) { _, chapter in
-                            ChapterView(chapter: chapter, chapterAction: chapterAction, geometry: geometry)
-                                .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.067)
-                        }
+            VStack {
+                if let chapters = VPM.chapters {
+                    HStack {
+                        Text("Chapters")
+                            .foregroundColor(.gray)
+                            .font(.caption)
+                        Spacer()
                     }
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(chapters.enumerated().filter({index, _ in index % 2 == 1})), id: \.offset) { _, chapter in
-                            ChapterView(chapter: chapter, chapterAction: chapterAction, geometry: geometry)
-                                .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.067)
+                    .padding([.bottom, .leading])
+                    ScrollViewReader { scrollProxy in
+                        ScrollView([.horizontal]) {
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(Array(chapters.enumerated()), id: \.offset) { _, chapter in
+                                    ChapterView(chapter: chapter, chapterAction: chapterAction, geometry: geometry)
+                                        .frame(width: geometry.size.width * 0.45)
+                                        .padding(.trailing)
+                                }
+                            }
+                        }
+                        .frame(maxHeight: geometry.size.height * 0.2)
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .padding([.horizontal, .bottom])
+                        .scrollIndicators(.hidden)
+                        .onAppear {
+                            VPM.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { time in
+                                if let nextChapter = chapters.last(where: {Int(time.seconds) >= $0.time}), nextChapter.time != lastScrolled {
+                                    lastScrolled = nextChapter.time
+                                    withAnimation(.spring) {
+                                        scrollProxy.scrollTo("WatchVideoViewChapters-\(nextChapter.time)", anchor: .leading)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-            .frame(maxHeight: geometry.size.height * 0.2)
-            .clipShape(RoundedRectangle(cornerRadius: 5))
-            .padding([.horizontal, .bottom])
         }
         
         private struct ChapterView: View {
             @State var chapter: Chapter
-            @State var chapterAction: (Chapter) -> Void
+            var chapterAction: (Chapter) -> Void
             @State var geometry: GeometryProxy
             var body: some View {
                 Button {
                     chapterAction(chapter)
                 } label: {
                     ZStack {
-                        Rectangle()
-                            .fill(.white.opacity(0.2).shadow(.inner(radius: 5)))
-                        VStack(alignment: .leading) {
-                            Text(chapter.formattedTime)
-                                .font(.caption)
-                                .foregroundStyle(.white)
-                            Text(chapter.title)
-                                .font(.system(size: 20))
-                                .minimumScaleFactor(0.05)
-                                .foregroundStyle(.white)
+                        VStack {
+                            Group {
+                                if let imageData = chapter.thumbnailData, let image = UIImage(data: imageData) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .aspectRatio(16/9, contentMode: .fit)
+                                } else if let imageURL = chapter.thumbnailURLs?.last?.url {
+                                    CachedAsyncImage(url: imageURL) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .aspectRatio(16/9, contentMode: .fit)
+                                    } placeholder: {
+                                        ZStack {
+                                            ProgressView()
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .foregroundStyle(.clear)
+                                                .aspectRatio(16/9, contentMode: .fit)
+                                        }
+                                    }
+                                }
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(alignment: .bottomTrailing, content: {
+                                if let timeDescription = chapter.formattedTime {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 5)
+                                            .opacity(0.9)
+                                            .foregroundColor(.black)
+                                        Text(timeDescription)
+                                            .bold()
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 14))
+                                    }
+                                    .frame(width: CGFloat(timeDescription.count) * 10, height: 20)
+                                    .padding(3)
+                                }
+                            })
+                            if let title = chapter.title {
+                                HStack {
+                                    Text(title)
+                                        .font(.system(size: 13))
+                                        .multilineTextAlignment(.leading)
+                                        .minimumScaleFactor(0.05)
+                                        .foregroundStyle(.white)
+                                        .frame(alignment: .leading)
+                                    Spacer()
+                                }
+                            }
                         }
-                        .padding(5)
                     }
                 }
+                .id("WatchVideoViewChapters-\(chapter.time)")
             }
         }
     }
