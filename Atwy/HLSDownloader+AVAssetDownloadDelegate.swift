@@ -80,9 +80,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                                 let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                                 imageTask.start()
                                 imageTask.waitUntilFinished()
-                                backgroundContext.performAndWait {
-                                    newVideo.thumbnail
-                                }
+                                newVideo.thumbnail = imageTask.imageData
                             }
                             newVideo.timeLength = self.video?.timeLength
                             newVideo.timePosted = videoInfos?.0?.timePosted.postedDate
@@ -97,9 +95,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                                     let imageTask = DownloadImageOperation(imageURL: chapterThumbnailURL)
                                     imageTask.start()
                                     imageTask.waitUntilFinished()
-                                    backgroundContext.performAndWait {
-                                        chapterEntity.thumbnail = imageTask.imageData
-                                    }
+                                    chapterEntity.thumbnail = imageTask.imageData
                                 }
                                 chapterEntity.title = chapter.title
                                 newVideo.addToChapters(chapterEntity)
@@ -121,9 +117,7 @@ extension HLSDownloader: AVAssetDownloadDelegate {
                                         let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                                         imageTask.start()
                                         imageTask.waitUntilFinished()
-                                        backgroundContext.performAndWait {
-                                            newChannel.thumbnail = imageTask.imageData
-                                        }
+                                        newChannel.thumbnail = imageTask.imageData
                                     }
                                     newChannel.addToVideos(newVideo)
                                 }
