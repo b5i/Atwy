@@ -50,7 +50,7 @@ struct VideoContextMenuView: View {
 //                    Text("Share")
 //                }
             } else {
-                // DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
+                 DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
                 // Not enabled for the moment
             }
         }

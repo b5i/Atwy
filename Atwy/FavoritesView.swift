@@ -68,9 +68,9 @@ struct FavoritesView: View {
                 
                 .autocorrectionDisabled(true)
                 .navigationTitle("Favorites")
-                .toolbar(content: {
-                    ShowSettingsButton()
-                })
+                .customNavigationTitleWithRightIcon {
+                    ShowSettingsButtonView()
+                }
         }
     }
 }
