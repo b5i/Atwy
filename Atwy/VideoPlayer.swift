@@ -30,7 +30,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
             object: nil,
             queue: nil,
             using: { _ in
-                print("djamy0")
                 controller.player = nil
             })
         
@@ -39,7 +38,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
             object: nil,
             queue: nil,
             using: { _ in
-                print("djamy1")
                 controller.player = player
             })
         

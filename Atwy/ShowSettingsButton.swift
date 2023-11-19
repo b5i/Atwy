@@ -13,28 +13,13 @@ public struct ShowSettingsButton: ToolbarContent {
     public var body: some ToolbarContent {
 #if os(macOS)
         ToolbarItem(placement: .secondaryAction, content: {
-            if NRM.connected {
-                Button {
-                    SheetsModel.shared.showSheet(.settings)
-                } label: {
-                    UserPreferenceCircleView()
-                        .frame(width: 40, height: 40)
-                        .padding(.trailing)
-                }
-            }
+            ShowSettingsButtonView()
         })
 #else
         ToolbarItem(placement: .navigationBarTrailing, content: {
-            if NRM.connected {
-                Button {
-                    SheetsModel.shared.showSheet(.settings)
-                } label: {
-                    UserPreferenceCircleView()
-                        .frame(width: 40, height: 40)
-                        .padding(.trailing)
-                }
-            }
+            ShowSettingsButtonView()
         })
 #endif
     }
 }
+

@@ -106,9 +106,11 @@ struct DownloadingsView: View {
                 }
             }
             #endif
-            ShowSettingsButton()
         })
         .navigationBarBackButtonHidden(true)
+        .customNavigationTitleWithRightIcon {
+            ShowSettingsButtonView()
+        }
         .padding(.vertical)
         .onAppear {
             NotificationCenter.default.addObserver(forName: Notification.Name("NoDownloadingsLeft"), object: nil, queue: nil, using: { _ in

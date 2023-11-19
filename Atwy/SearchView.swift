@@ -154,9 +154,10 @@ struct SearchView: View {
                 }
             }
             .navigationTitle("Home")
-            .toolbar(content: {
-                ShowSettingsButton()
-            })
+            .navigationBarTitleDisplayMode(.automatic)
+            .customNavigationTitleWithRightIcon {
+                ShowSettingsButtonView()
+            }
         }
     }
     

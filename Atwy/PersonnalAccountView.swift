@@ -68,9 +68,9 @@ struct PersonnalAccountView: View {
                     }
                 }
                 .navigationTitle("Playlists")
-                .toolbar(content: {
-                    ShowSettingsButton()
-                })
+                .customNavigationTitleWithRightIcon {
+                    ShowSettingsButtonView()
+                }
             }
             .onAppear {
                 if self.libraryContent == nil, !self.isFetching {

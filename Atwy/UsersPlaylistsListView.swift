@@ -14,6 +14,7 @@ struct UsersPlaylistsListView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedObject private var NRM = NetworkReachabilityModel.shared
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -41,8 +42,8 @@ struct UsersPlaylistsListView: View {
             }
         }
         .navigationTitle("Playlists")
-        .toolbar(content: {
-            ShowSettingsButton()
-        })
+        .customNavigationTitleWithRightIcon {
+            ShowSettingsButtonView()
+        }
     }
 }

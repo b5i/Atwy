@@ -87,9 +87,9 @@ struct DownloadedVideosView: View {
 #endif
                 .autocorrectionDisabled(true)
                 .navigationTitle("Downloads")
-                .toolbar(content: {
-                    ShowSettingsButton()
-                })
+                .customNavigationTitleWithRightIcon {
+                    ShowSettingsButtonView()
+                }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }

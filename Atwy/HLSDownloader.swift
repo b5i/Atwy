@@ -40,8 +40,10 @@ class HLSDownloader: NSObject, ObservableObject {
     var isFavorite: Bool?
     var videoDescription: String?
     var isShort: Bool = false
-    var downloadTask: AVAssetDownloadTask?
+    var downloadTask: URLSessionTask?
+//    var downloadTask: AVAggregateAssetDownloadTask?
     var downloadData: (any DownloadFormat)?
+    var startedEndProcedure: Bool = false
     @Published var downloadTaskState: URLSessionTask.State = .canceling
 
     override init() {
@@ -90,12 +92,40 @@ class HLSDownloader: NSObject, ObservableObject {
     }
 
     func downloadHLS(downloadURL: URL, videoDescription: String, video: YTVideo, thumbnailData: Data? = nil) {
-        func launchDownload(thumbnailData: Data) {
-            if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
-                asset: hlsAsset,
-                assetTitle: video.title ?? "No title",
-                assetArtworkData: thumbnailData
-            ) {
+        func launchDownload(thumbnailData: Data, isHLS: Bool) {
+            if isHLS {
+                //                Task {
+                //                    do {
+                //                        let preferredMediaSelection = try await asset.load(.preferredMediaSelection)
+                //                        if let downloadTask = assetDownloadURLSession.aggregateAssetDownloadTask(with: asset, mediaSelections: [], assetTitle: video.title ?? "No title", assetArtworkData: thumbnailData) {
+                //                            downloadTask.resume()
+                //                            self.downloadTask?.cancel()
+                //                            DispatchQueue.main.async {
+                //                                self.downloadTask = downloadTask
+                //                                self.downloadTaskState = downloadTask.state
+                //                            }
+                //                        }
+                //                    } catch {
+                //                        print("Couldn't load preferredMediaSelection.")
+                //                    }
+                //                }
+                if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
+                    asset: AVURLAsset(url: downloadURL),
+                    assetTitle: video.title ?? "No title",
+                    assetArtworkData: thumbnailData
+                ) {
+                    downloadTask.resume()
+                    self.downloadTask?.cancel()
+                    DispatchQueue.main.async {
+                        self.downloadTask = downloadTask
+                        self.downloadTaskState = downloadTask.state
+                    }
+                }
+            } else {
+                var downloadRequest = URLRequest(url: downloadURL)
+                downloadRequest.setValue("bytes=0-", forHTTPHeaderField: "Range")
+                let downloadTask = URLSession.shared.downloadTask(with: downloadRequest)
+                downloadTask.delegate = self
                 downloadTask.resume()
                 self.downloadTask?.cancel()
                 DispatchQueue.main.async {
@@ -103,6 +133,7 @@ class HLSDownloader: NSObject, ObservableObject {
                     self.downloadTaskState = downloadTask.state
                 }
             }
+            self.startedEndProcedure = false
         }
         
         let backgroundConfiguration = URLSessionConfiguration.background(
@@ -113,19 +144,13 @@ class HLSDownloader: NSObject, ObservableObject {
             delegateQueue: OperationQueue.main
         )
         
-        let url = downloadURL
         self.videoDescription = videoDescription
-        let hlsAsset: AVURLAsset
-        if downloadURL.absoluteString.contains("manifest.googlevideo.com") {
-            hlsAsset = AVURLAsset(url: url)
-        } else {
-            hlsAsset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": "Range: bytes=0-"])
-        }
+        let isHLS = downloadURL.absoluteString.contains("manifest.googlevideo.com")
         
         if let thumbnailData = self.state.thumbnailData {
-            launchDownload(thumbnailData: thumbnailData)
+            launchDownload(thumbnailData: thumbnailData, isHLS: isHLS)
         } else if let thumbnailData = thumbnailData {
-            launchDownload(thumbnailData: thumbnailData)
+            launchDownload(thumbnailData: thumbnailData, isHLS: isHLS)
         } else {
             if let thumbnailURL = video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
@@ -133,7 +158,7 @@ class HLSDownloader: NSObject, ObservableObject {
                     DispatchQueue.main.async {
                         self.state.thumbnailData = imageData
                     }
-                    launchDownload(thumbnailData: imageData)
+                    launchDownload(thumbnailData: imageData, isHLS: isHLS)
                 }
             } else {
                 print("No image")

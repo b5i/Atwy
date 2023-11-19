@@ -120,9 +120,11 @@ struct PlaylistDetailsView: View {
                 }
             }
 #endif
-            ShowSettingsButton()
         })
         .navigationBarBackButtonHidden(true)
+        .customNavigationTitleWithRightIcon {
+            ShowSettingsButtonView()
+        }
     }
     
     private class Model: ObservableObject {

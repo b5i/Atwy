@@ -207,9 +207,11 @@ struct ChannelDetailsView: View {
                         }
                     }
 #endif
-                    ShowSettingsButton()
                 })
                 .navigationBarBackButtonHidden(true)
+                .customNavigationTitleWithRightIcon {
+                    ShowSettingsButtonView()
+                }
                 //        .toolbar(content: {
                 //            ShareChannelView(channelID: channelID)
                 //        })
