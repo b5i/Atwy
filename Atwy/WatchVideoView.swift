@@ -95,6 +95,9 @@ struct NewWatchVideoView: View {
                                                 })
                                             }
                                         }
+                                    } else if VPM.isLoadingVideo {
+                                        LoadingView()
+                                            .frame(alignment: .center)
                                     }
                                     //                                    VideoPlayer(player: player)
                                     //                                        .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
@@ -138,12 +141,14 @@ struct NewWatchVideoView: View {
                                         Text(VPM.video?.title ?? "")
                                             .font(.callout)
                                             .lineLimit(2)
+                                            .padding(.trailing)
                                             .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.065, alignment: .leading)
                                             .multilineTextAlignment(.leading)
                                             .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
                                         Text(VPM.video?.channel?.name ?? "")
                                             .font(.subheadline)
                                             .lineLimit(2)
+                                            .padding(.trailing)
                                             .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.035, alignment: .leading)
                                             .multilineTextAlignment(.leading)
                                             .foregroundStyle(.gray)
@@ -175,8 +180,8 @@ struct NewWatchVideoView: View {
                                 VideoAppreciationView()
                                     .opacity(!(showQueue || showDescription) ? 1 : 0)
                                     .frame(width: VPM.moreVideoInfos?.likesCount.defaultState != "" ? (APIM.userAccount != nil ? 180 : 120) : 0)
-                                if NRM.connected {
-                                    if let video = VPM.video {
+                                if let video = VPM.video {
+                                    if NRM.connected {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 8)
                                                 .foregroundStyle(.white)
@@ -201,7 +206,11 @@ struct NewWatchVideoView: View {
                                             }
                                         })
                                     }
-                                    if let video = VPM.video {
+                                    AddToFavoriteWidgetView(video: video, imageData: VPM.videoThumbnailData)
+                                        .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                        .frame(width: 60)
+                                        .padding(.trailing, 10)
+                                    if NRM.connected {
                                         Button {
                                             CoordinationManager.shared.prepareToPlay(video)
                                         } label: {
@@ -228,6 +237,7 @@ struct NewWatchVideoView: View {
                         .scrollIndicators(.hidden)
                         .padding(.vertical, 15)
                         .frame(height: !(showQueue || showDescription) ? 80 : 0)
+                        .mask(FadeInOutView(mode: .horizontal))
                         VStack {
                             ScrollView {
                                 Color.clear.frame(height: 15)
@@ -261,20 +271,13 @@ struct NewWatchVideoView: View {
                                     Color.clear.frame(height: 15)
                                 }
                             }
-                            .mask(FadeInOutView())
+                            .mask(FadeInOutView(mode: .vertical))
                         }
                         .opacity(showDescription ? 1 : 0)
                         .frame(height: showDescription ? geometry.size.height * 0.85 - 120 : 0)
-                        VStack {
-                            ScrollView {
-                                Color.clear.frame(height: 15)
-                                PlayingQueueView()
-                                Color.clear.frame(height: 15)
-                            }
-                            .mask(FadeInOutView())
-                        }
-                        .opacity(showQueue ? 1 : 0)
-                        .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
+                        PlayingQueueView()
+                            .opacity(showQueue ? 1 : 0)
+                            .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
                         Spacer()
                         HStack {
                             let hasDescription = VPM.streamingInfos?.videoDescription ?? VPM.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.compactMap({$0.text}).joined() ?? "" != ""
@@ -303,14 +306,10 @@ struct NewWatchVideoView: View {
                             .opacity(hasDescription ? 1 : 0.5)
                             .disabled(!hasDescription)
                             Spacer()
-                            Button {
-                                
-                            } label: {
-                                AirPlayButton()
-                                    .scaledToFit()
-                                    .blendMode(.screen)
-                                    .frame(width: 50)
-                            }
+                            AirPlayButton()
+                                .scaledToFit()
+                                .blendMode(.screen)
+                                .frame(width: 50)
                             Spacer()
                             Button {
                                 withAnimation(.interpolatingSpring(duration: 0.3)) {
@@ -342,20 +341,24 @@ struct NewWatchVideoView: View {
                 .zIndex(1)
             }
         }
-        .task {
-            if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
-                URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in
-                    if let data = data, let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            makeGradient(image: image)
-                        }
-                    } else {
-                        print("Couldn't get/create image")
-                    }
-                })
-                .resume()
-            }
-        }
+//        .task {
+//            if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
+//                URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in
+//                    if let data = data, let image = UIImage(data: data) {
+//                        DispatchQueue.main.async {
+//                            makeGradient(image: image)
+//                        }
+//                    } else {
+//                        print("Couldn't get/create image")
+//                    }
+//                })
+//                .resume()
+//            } else if let channelAvatarData = VPM.channelAvatarData, let image = UIImage(data: channelAvatarData) {
+//                DispatchQueue.main.async {
+//                    makeGradient(image: image)
+//                }
+//            }
+//        }
 //        .task {
 //            DispatchQueue.main.async {
 //                withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) {
@@ -367,28 +370,59 @@ struct NewWatchVideoView: View {
     }
     
     private struct FadeInOutView: View {
+        let mode: FadeMode
         var body: some View {
-            VStack(spacing: 0) {
-                
-                // Left gradient
-                LinearGradient(gradient:
-                                Gradient(
-                                    colors: [Color.black.opacity(0), Color.black]),
-                               startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: 15)
-                
-                // Middle
-                Rectangle().fill(Color.black)
-                
-                // Right gradient
-                LinearGradient(gradient:
-                                Gradient(
-                                    colors: [Color.black, Color.black.opacity(0)]),
-                               startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: 15)
+            switch mode {
+            case .horizontal:
+                HStack(spacing: 0) {
+                    
+                    // Left gradient
+                    LinearGradient(gradient:
+                                    Gradient(
+                                        colors: [Color.black.opacity(0), Color.black]),
+                                   startPoint: .leading, endPoint: .trailing
+                    )
+                    .frame(width: 15)
+                    
+                    // Middle
+                    Rectangle().fill(Color.black)
+                    
+                    // Right gradient
+                    LinearGradient(gradient:
+                                    Gradient(
+                                        colors: [Color.black, Color.black.opacity(0)]),
+                                   startPoint: .leading, endPoint: .trailing
+                    )
+                    .frame(width: 15)
+                }
+            case .vertical:
+                VStack(spacing: 0) {
+                    
+                    // Top gradient
+                    LinearGradient(gradient:
+                                    Gradient(
+                                        colors: [Color.black.opacity(0), Color.black]),
+                                   startPoint: .top, endPoint: .bottom
+                    )
+                    .frame(height: 15)
+                    
+                    // Middle
+                    Rectangle().fill(Color.black)
+                    
+                    // Bottom gradient
+                    LinearGradient(gradient:
+                                    Gradient(
+                                        colors: [Color.black, Color.black.opacity(0)]),
+                                   startPoint: .top, endPoint: .bottom
+                    )
+                    .frame(height: 15)
+                }
             }
+        }
+        
+        enum FadeMode {
+            case horizontal
+            case vertical
         }
     }
     
@@ -442,8 +476,8 @@ struct NewWatchVideoView: View {
     
     private struct ChaptersView: View {
         typealias Chapter = VideoPlayerModel.Chapter
-        @State var geometry: GeometryProxy
-        var chapterAction: (Chapter) -> Void
+        let geometry: GeometryProxy
+        let chapterAction: (Chapter) -> Void
         @State private var lastScrolled: Int = 0
         @ObservedObject private var VPM = VideoPlayerModel.shared
         
@@ -487,9 +521,9 @@ struct NewWatchVideoView: View {
         }
         
         private struct ChapterView: View {
-            @State var chapter: Chapter
+            let chapter: Chapter
             var chapterAction: (Chapter) -> Void
-            @State var geometry: GeometryProxy
+            let geometry: GeometryProxy
             var body: some View {
                 Button {
                     chapterAction(chapter)
@@ -615,118 +649,123 @@ struct NewWatchVideoView: View {
         var body: some View {
             ZStack {
                 if let channelAvatar = (VPM.streamingInfos?.channel?.thumbnails.maxFor(2) ?? VPM.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.video?.channel?.thumbnails.maxFor(2) {
-                    CachedAsyncImage(url: channelAvatar.url) { image in
-                        switch image {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .clipShape(Circle())
-                                .task {
-                                    URLSession.shared.dataTask(with: channelAvatar.url, completionHandler: { data, _, _ in
-                                        if let data = data, let image = UIImage(data: data) {
-                                            makeGradient(image)
-                                        } else {
-                                            print("Couldn't get/create image")
-                                        }
-                                    })
-                                    .resume()
-                                }
-                                .overlay(alignment: .bottomTrailing, content: {
-                                    if let subscriptionStatus = VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = VPM.moreVideoInfos?.channel {
-                                        if APIM.userAccount != nil && APIM.googleCookies != "" {
-                                            if isFetching {
-                                                ZStack {
-                                                    Circle()
-                                                        .foregroundStyle(.gray)
-                                                    ProgressView()
-                                                        .padding(.horizontal)
-                                                        .frame(width: 10, height: 10)
-                                                }
-                                                .frame(width: 24, height: 24)
-                                                .clipShape(Circle())
-                                                .offset(x: 10, y: 7)
-                                                .shadow(radius: 3)
-                                            } else {
-                                                if subscriptionStatus {
-                                                    Button {
-                                                        DispatchQueue.main.async {
-                                                            self.isFetching = true
-                                                        }
-                                                        channel.unsubscribe(youtubeModel: YTM, result: { error in
-                                                            if let error = error {
-                                                                print("Error while unsubscribing to channel: \(error)")
-                                                            } else {
-                                                                VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
-                                                            }
-                                                            DispatchQueue.main.async {
-                                                                self.isFetching = false
-                                                            }
-                                                        })
-                                                    } label: {
-                                                        ZStack(alignment: .center) {
-                                                            Rectangle()
-                                                                .foregroundStyle(.white)
-                                                                .frame(width: 23, height: 23)
-                                                            Image(systemName: "checkmark.circle.fill")
-                                                                .resizable()
-                                                                .scaledToFit()
-                                                                .foregroundColor(.green)
-                                                                .frame(width: 25, height: 25)
-                                                        }
-                                                    }
-                                                    .background(.white)
-                                                    .buttonStyle(.borderedProminent)
-                                                    .frame(width: 24, height: 24)
-                                                    .clipShape(Circle())
-                                                    .offset(x: 10, y: 7)
-                                                    .shadow(radius: 3)
-                                                } else {
-                                                    Button {
-                                                        DispatchQueue.main.async {
-                                                            self.isFetching = true
-                                                        }
-                                                        channel.subscribe(youtubeModel: YTM, result: { error in
-                                                            if let error = error {
-                                                                print("Error while subscribing to channel: \(error)")
-                                                            } else {
-                                                                VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
-                                                            }
-                                                            DispatchQueue.main.async {
-                                                                self.isFetching = false
-                                                            }
-                                                        })
-                                                    } label: {
-                                                        ZStack(alignment: .center) {
-                                                            Rectangle()
-                                                                .foregroundStyle(.white)
-                                                                .frame(width: 23, height: 23)
-                                                            Image(systemName: "plus.circle.fill")
-                                                                .resizable()
-                                                                .scaledToFit()
-                                                                .foregroundColor(.red)
-                                                                .frame(width: 25, height: 25)
-                                                        }
-                                                    }
-                                                    .buttonStyle(.borderedProminent)
-                                                    .frame(width: 24, height: 24)
-                                                    .clipShape(Circle())
-                                                    .offset(x: 10, y: 7)
-                                                    .shadow(radius: 3)
-                                                }
-                                            }
-                                        }
-                                    }
-                                })
-                        case .empty, .failure(_):
-                            NoAvatarCircle(makeGradient: makeGradient)
-                        @unknown default:
+                    CachedAsyncImage(url: channelAvatar.url) { _, imageData in
+                        if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
+                            AvatarCircleView(image: uiImage, makeGradient: makeGradient)
+                        } else {
                             NoAvatarCircle(makeGradient: makeGradient)
                         }
                     }
+                } else if let imageData = VPM.channelAvatarData, let image = UIImage(data: imageData) {
+                    AvatarCircleView(image: image, makeGradient: makeGradient)
                 } else {
                     NoAvatarCircle(makeGradient: makeGradient)
                 }
+            }
+        }
+        
+        public struct AvatarCircleView: View {
+            let image: UIImage
+            let makeGradient: (UIImage) -> Void
+            @State private var isFetching: Bool = false
+            @ObservedObject var VPM = VideoPlayerModel.shared
+            @ObservedObject var APIM = APIKeyModel.shared
+            var body: some View {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(Circle())
+                    .task {
+                        DispatchQueue.main.async {
+                            makeGradient(image)
+                        }
+                    }
+                    .overlay(alignment: .bottomTrailing, content: {
+                        if let subscriptionStatus = VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = VPM.moreVideoInfos?.channel {
+                            if APIM.userAccount != nil && APIM.googleCookies != "" {
+                                if isFetching {
+                                    ZStack {
+                                        Circle()
+                                            .foregroundStyle(.gray)
+                                        ProgressView()
+                                            .padding(.horizontal)
+                                            .frame(width: 10, height: 10)
+                                    }
+                                    .frame(width: 24, height: 24)
+                                    .clipShape(Circle())
+                                    .offset(x: 10, y: 7)
+                                    .shadow(radius: 3)
+                                } else {
+                                    if subscriptionStatus {
+                                        Button {
+                                            DispatchQueue.main.async {
+                                                self.isFetching = true
+                                            }
+                                            channel.unsubscribe(youtubeModel: YTM, result: { error in
+                                                if let error = error {
+                                                    print("Error while unsubscribing to channel: \(error)")
+                                                } else {
+                                                    VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                }
+                                                DispatchQueue.main.async {
+                                                    self.isFetching = false
+                                                }
+                                            })
+                                        } label: {
+                                            ZStack(alignment: .center) {
+                                                Rectangle()
+                                                    .foregroundStyle(.white)
+                                                    .frame(width: 23, height: 23)
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundColor(.green)
+                                                    .frame(width: 25, height: 25)
+                                            }
+                                        }
+                                        .background(.white)
+                                        .buttonStyle(.borderedProminent)
+                                        .frame(width: 24, height: 24)
+                                        .clipShape(Circle())
+                                        .offset(x: 10, y: 7)
+                                        .shadow(radius: 3)
+                                    } else {
+                                        Button {
+                                            DispatchQueue.main.async {
+                                                self.isFetching = true
+                                            }
+                                            channel.subscribe(youtubeModel: YTM, result: { error in
+                                                if let error = error {
+                                                    print("Error while subscribing to channel: \(error)")
+                                                } else {
+                                                    VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                }
+                                                DispatchQueue.main.async {
+                                                    self.isFetching = false
+                                                }
+                                            })
+                                        } label: {
+                                            ZStack(alignment: .center) {
+                                                Rectangle()
+                                                    .foregroundStyle(.white)
+                                                    .frame(width: 23, height: 23)
+                                                Image(systemName: "plus.circle.fill")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundColor(.red)
+                                                    .frame(width: 25, height: 25)
+                                            }
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                        .frame(width: 24, height: 24)
+                                        .clipShape(Circle())
+                                        .offset(x: 10, y: 7)
+                                        .shadow(radius: 3)
+                                    }
+                                }
+                            }
+                        }
+                    })
             }
         }
         

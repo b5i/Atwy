@@ -137,7 +137,7 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingInfos = true
                 }
-                PlaylistInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId : playlist.playlistId], useCookies: true, result: { response, error in
+                PlaylistInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: playlist.playlistId], useCookies: true, result: { response, error in
                     DispatchQueue.main.async {
                         self.playlistInfos = response
                         if response?.playlistId == nil {
@@ -157,7 +157,7 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingContinuation = true
                 }
-                PlaylistInfosResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation : continuationToken], useCookies: true, result: { response, error in
+                PlaylistInfosResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { response, error in
                     DispatchQueue.main.async {
                         if let response = response {
                             self.playlistInfos?.mergeWithContinuation(response)
@@ -173,7 +173,7 @@ struct PlaylistDetailsView: View {
         
         public func removeFromPlaylist(videoIdInPlaylist: String) {
             if let playlistInfos = playlistInfos, let playlistId = playlistInfos.playlistId, playlistInfos.userInteractions.isEditable ?? false {
-                RemoveVideoFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { response, error in
+                RemoveVideoFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { response, _ in
                     if let response = response {
                         if response.success, let removedVideoIndex =
                             playlistInfos.videoIdsInPlaylist?.firstIndex(where: { $0 == videoIdInPlaylist }) {

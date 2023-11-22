@@ -14,7 +14,7 @@ struct SubscribeButtonView: View {
     var body: some View {
         HStack {
             if let moreVideoInfos = VPM.moreVideoInfos {
-                CachedAsyncImage(url: moreVideoInfos.channel?.thumbnails.first?.url, content: { image in
+                CachedAsyncImage(url: moreVideoInfos.channel?.thumbnails.first?.url, content: { image, _ in
                     switch image {
                     case .success(let imageCustom):
                         imageCustom

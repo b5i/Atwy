@@ -10,7 +10,7 @@ import YouTubeKit
 
 struct AddToPlaylistView: View {
     @Environment(\.dismiss) private var dismiss
-    @State var video: YTVideo
+    let video: YTVideo
     @State private var search: String = ""
     @State private var showNewPlaylistForm: Bool = false
     @State private var newPlaylistName: String = ""

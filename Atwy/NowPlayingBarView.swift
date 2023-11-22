@@ -43,7 +43,7 @@ struct NowPlayingBarView: View {
 #endif
                                     }
                             } else if let thumbnail = VPM.video?.thumbnails.first {
-                                CachedAsyncImage(url: thumbnail.url, content: { image in
+                                CachedAsyncImage(url: thumbnail.url, content: { image, _ in
                                     switch image {
                                     case .success(let image):
                                         image

@@ -58,7 +58,7 @@ struct ContentView: View {
             }, name: "Account", image: "person.circle")
         }
         .safeAreaInset(edge: .bottom, content: {
-            if !IUTM.userTyping && !(VPM.player.currentItem == nil && PQM.queue.isEmpty) {
+            if !IUTM.userTyping && (!(VPM.player.currentItem == nil && PQM.queue.isEmpty) || VPM.video != nil) {
                 NowPlayingBarView(
                     sheetAnimation: sheetAnimation,
                     isSheetPresented: watchVideoBinding,

@@ -216,7 +216,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 #endif
         }
     
-    func loadVideo(video: YTVideo) {
+    func loadVideo(video: YTVideo, thumbnailData: Data? = nil, channelAvatarImageData: Data? = nil) {
         guard !isLoadingVideo else { return }
         self.deleteCurrentVideo()
         self.isLoadingVideo = true
@@ -225,7 +225,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
             let newPlayingItem = AVPlayerItem(
                 asset: .init(url: downloadedVideo.storageLocation),
                 metadatas: getMetadatasForInfos(title: downloadedVideo.title ?? "", channelName: downloadedVideo.channel?.name ?? "", videoDescription: downloadedVideo.videoDescription ?? ""),
-                thumbnailData: downloadedVideo.thumbnail)
+                thumbnailData: thumbnailData)
             DispatchQueue.main.async {
                 self.player.replaceCurrentItem(with: newPlayingItem)
             }
@@ -240,11 +240,11 @@ class VideoPlayerModel: NSObject, ObservableObject {
             self.streamingInfos?.streamingURL = downloadedVideo.storageLocation
             if let channel = downloadedVideo.channel {
                 self.streamingInfos?.channel = YTLittleChannelInfos(channelId: channel.channelId, name: channel.name)
-                self.channelAvatarData = channel.thumbnail
+                self.channelAvatarData = channelAvatarImageData ?? channel.thumbnail
             }
             self.streamingInfos?.title = downloadedVideo.title
             self.streamingInfos?.videoDescription = downloadedVideo.videoDescription
-            self.videoThumbnailData = downloadedVideo.thumbnail
+            self.videoThumbnailData = thumbnailData ?? downloadedVideo.thumbnail
             if NetworkReachabilityModel.shared.connected {
                 self.fetchMoreInfosForVideo()
             }
@@ -262,8 +262,13 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 self.objectWillChange.send()
             }
         } else {
+            DispatchQueue.main.async {
+                self.videoThumbnailData = thumbnailData
+                self.channelAvatarData = channelAvatarImageData
+            }
             Task {
                 let (streamingInfos, error) = await video.fetchStreamingInfosWithDownloadFormats(youtubeModel: YTM)
+                guard self.video?.videoId == video.videoId else { return }
                 if let streamingInfos = streamingInfos, let streamingURL = streamingInfos.videoInfos.streamingURL {
                     DispatchQueue.main.async {
                         self.streamingInfos = streamingInfos.videoInfos
@@ -439,14 +444,18 @@ class VideoPlayerModel: NSObject, ObservableObject {
             if self.isFetchingMoreVideoInfos == self.video?.videoId, self.isFetchingMoreVideoInfos == operationVideoId {
                 self.isFetchingMoreVideoInfos = nil
                 DispatchQueue.main.async {
-                    self.moreVideoInfos = response
+                    withAnimation {
+                        self.moreVideoInfos = response
+                    }
                     if self.chapters == nil {
-                        self.chapters = response?.chapters?.compactMap({ chapter in
-                            if let time = chapter.startTimeSeconds {
-                                return Chapter(time: time, formattedTime: chapter.timeDescriptions.shortTimeDescription, title: chapter.title, thumbnailURLs: chapter.thumbnail)
-                            }
-                            return nil
-                        })
+                        withAnimation {
+                            self.chapters = response?.chapters?.compactMap({ chapter in
+                                if let time = chapter.startTimeSeconds {
+                                    return Chapter(time: time, formattedTime: chapter.timeDescriptions.shortTimeDescription, title: chapter.title, thumbnailURLs: chapter.thumbnail)
+                                }
+                                return nil
+                            })
+                        }
                     }
                 }
             }

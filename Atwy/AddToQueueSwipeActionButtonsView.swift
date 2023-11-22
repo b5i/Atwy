@@ -9,8 +9,8 @@ import SwiftUI
 import YouTubeKit
 
 struct AddToQueueSwipeActionButtonsView: View {
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data?
+    let video: YTVideo
+    let videoThumbnailData: Data?
     @ObservedObject var PQM = PlayingQueueModel.shared
     var body: some View {
         Button {

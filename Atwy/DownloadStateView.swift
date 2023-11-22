@@ -10,11 +10,11 @@ import YouTubeKit
 
 struct DownloadStateView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var displayRemainingTime: Bool = false
-    @State var downloaded: Bool
-    @State var video: YTVideo
-    @State var isShort: Bool
-    @State var videoThumbnailData: Data?
+    var displayRemainingTime: Bool = false
+    let downloaded: Bool
+    let video: YTVideo
+    let isShort: Bool
+    var videoThumbnailData: Data?
     @ObservedObject var downloader: HLSDownloader
     var body: some View {
         if downloaded {

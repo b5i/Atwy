@@ -36,13 +36,14 @@ class DownloadCoordinatorManagerModel: ObservableObject {
     }
 
     func launchDownloads() {
-        if downloadings.count < 3 {
-            downloads.first(where: {
-                $0.downloaderState == .waiting
-            })?.downloadVideo()
-            if downloadings.count + pausedDownloadings.count + waitingDownloadings.count == 0 {
-                NotificationCenter.default.post(name: Notification.Name("NoDownloadingsLeft"), object: nil)
-            }
+        var activeDownloaders = downloadings.count
+        for waitingDownloading in waitingDownloadings {
+            guard activeDownloaders < 3 else { break }
+            waitingDownloading.downloadVideo()
+            activeDownloaders += 1
+        }
+        if downloadings.count + pausedDownloadings.count + waitingDownloadings.count == 0 {
+            NotificationCenter.default.post(name: Notification.Name("NoDownloadingsLeft"), object: nil)
         }
         NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
     }

@@ -115,14 +115,16 @@ struct VideoView: View {
                 leadingActions: { context in
                     SwipeAction(
                         action: {
-                            if let videoThumbnailData = thumbnailData {
-                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                            }
-                            let PQM = PlayingQueueModel.shared
-                            PQM.queue.insert(video, at: 0)
-                            PQM.indexQueue()
-                            PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
                             context.state.wrappedValue = .closed
+                            Task {
+                                if let videoThumbnailData = thumbnailData {
+                                    VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
+                                }
+                                let PQM = PlayingQueueModel.shared
+                                PQM.queue.insert(video, at: 0)
+                                PQM.indexQueue()
+                                PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
+                            }
                         },
                         label: { _ in
                             Image(systemName: "text.line.first.and.arrowtriangle.forward")
@@ -136,14 +138,16 @@ struct VideoView: View {
                     .allowSwipeToTrigger(true)
                     SwipeAction(
                         action: {
-                            if let videoThumbnailData = thumbnailData {
-                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                            }
-                            let PQM = PlayingQueueModel.shared
-                            PQM.queue.append(video)
-                            PQM.indexQueue()
-                            PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
                             context.state.wrappedValue = .closed
+                            Task {
+                                if let videoThumbnailData = thumbnailData {
+                                    VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
+                                }
+                                let PQM = PlayingQueueModel.shared
+                                PQM.queue.append(video)
+                                PQM.indexQueue()
+                                PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
+                            }
                         },
                         label: { _ in
                             Image(systemName: "text.line.last.and.arrowtriangle.forward")

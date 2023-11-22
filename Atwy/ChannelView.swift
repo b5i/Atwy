@@ -10,7 +10,7 @@ import YouTubeKit
 
 struct ChannelView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var channel: YTChannel
+    let channel: YTChannel
     var body: some View {
         GeometryReader { geometry in
             NavigationLink(destination: ChannelDetailsView(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails))) {

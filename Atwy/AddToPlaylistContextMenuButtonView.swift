@@ -9,7 +9,7 @@ import SwiftUI
 import YouTubeKit
 
 struct AddToPlaylistContextMenuButtonView: View {
-    @State var video: YTVideo
+    let video: YTVideo
     var body: some View {
         Button {
             SheetsModel.shared.showSheet(.addToPlaylist, data: video)

@@ -13,8 +13,8 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
     typealias VideoFormat = VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat
     typealias AudioFormat = VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat
     @State private var formats: VideoInfosWithDownloadFormatsResponse?
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data?
+    let video: YTVideo
+    let videoThumbnailData: Data?
     var body: some View {
         Menu(content: {
             if let formats = formats {
