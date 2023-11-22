@@ -17,15 +17,19 @@ public class PopupsModel: ObservableObject {
         
     public func showPopup(_ type: PopupType, data: Any? = nil) {
         self.currentTimer?.invalidate()
-        withAnimation {
-            self.shownPopup = (type, data)
+        DispatchQueue.main.async {
+            withAnimation {
+                self.shownPopup = (type, data)
+            }
         }
         self.currentTimer = .scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: false)
     }
     
     public func hidePopup() {
-        withAnimation {
-            self.shownPopup = nil
+        DispatchQueue.main.async {
+            withAnimation {
+                self.shownPopup = nil
+            }
         }
     }
     

@@ -9,8 +9,8 @@ import SwiftUI
 import YouTubeKit
 
 struct AddToQueueContextMenuButtonView: View {
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data?
+    let video: YTVideo
+    let videoThumbnailData: Data?
     var body: some View {
         Button {
             if let videoThumbnailData = videoThumbnailData {

@@ -70,7 +70,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
     private func stopPlayer() {
         controller.player?.replaceCurrentItem(with: nil)
     }
-    
 
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
 }

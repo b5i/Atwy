@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import UIKit
 
 /**
  Extend `AssetPersistenceManager` to conform to the `AVAssetDownloadDelegate` protocol.
@@ -136,11 +137,13 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 newVideo.timestamp = Date()
                 newVideo.storageLocation = newPath
                 newVideo.title = videoInfos?.0?.videoTitle ?? self.video?.title
-                if let thumbnailURL = self.video?.thumbnails.last?.url {
+                if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(videoId)/hqdefault.jpg") {
                     let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                     imageTask.start()
                     imageTask.waitUntilFinished()
-                    newVideo.thumbnail = imageTask.imageData
+                    if let imageData = imageTask.imageData {
+                        newVideo.thumbnail = cropImage(data: imageData)
+                    }
                 }
                 newVideo.timeLength = self.video?.timeLength
                 newVideo.timePosted = videoInfos?.0?.timePosted.postedDate
@@ -206,6 +209,27 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     }
                 }
             }
+        }
+        
+        @Sendable func cropImage(data: Data) -> Data? {
+            guard let uiImage = UIImage(data: data) else { return nil }
+            let portionToCut = (uiImage.size.height - uiImage.size.width * 9/16) / 2
+            
+            // Scale cropRect to handle images larger than shown-on-screen size
+            let cropZone = CGRect(x: 0,
+                                  y: portionToCut,
+                                  width: uiImage.size.width,
+                                  height: uiImage.size.height - portionToCut * 2)
+            
+            // Perform cropping in Core Graphics
+            guard let cutImageRef: CGImage = uiImage.cgImage?.cropping(to: cropZone)
+            else {
+                return nil
+            }
+            
+            // Return image to UIImage
+            let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
+            return croppedImage.pngData()
         }
     }
     

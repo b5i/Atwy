@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChannelBannerRectangleView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var channelBannerURL: URL?
+    let channelBannerURL: URL?
     var body: some View {
         GeometryReader { geometry in
             VStack {

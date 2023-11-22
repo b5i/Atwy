@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ChannelIllustrationView: View {
-    @State var channelAvatarURL: URL?
-    @State var channelBannerURL: URL?
-    @State var channelTitle: String
+    let channelAvatarURL: URL?
+    let channelBannerURL: URL?
+    let channelTitle: String
     var body: some View {
         VStack {
             ChannelBannerRectangleView(channelBannerURL: channelBannerURL)

@@ -12,9 +12,9 @@ struct DownloadButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var downloader: HLSDownloader?
     @State private var downloadURL: URL?
-    @State var isShort: Bool = false
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data? = nil
+    var isShort: Bool = false
+    let video: YTVideo
+    var videoThumbnailData: Data? = nil
     @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     var body: some View {
         VStack {

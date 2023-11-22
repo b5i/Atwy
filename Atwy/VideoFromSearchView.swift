@@ -20,9 +20,8 @@ struct VideoFromSearchView: View {
     var body: some View {
         Button {
             if VideoPlayerModel.shared.video?.videoId != video.videoId {
-                VideoPlayerModel.shared.loadVideo(video: video)
+                VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarData)
             }
-            
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {
             if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {

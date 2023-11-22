@@ -8,9 +8,9 @@
 import SwiftUI
 import YouTubeKit
 
-struct AddToFavoritesContextButtonView: View {
-    @State var video: YTVideo
-    @State var imageData: Data?
+struct AddToFavoritesContextButtonView: View, Equatable {
+    let video: YTVideo
+    let imageData: Data?
     var body: some View {
         Button {
             PersistenceModel.shared.addToFavorites(

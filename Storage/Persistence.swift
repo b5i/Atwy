@@ -8,6 +8,7 @@
 import CoreData
 import CoreSpotlight
 import YouTubeKit
+import UIKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -103,12 +104,14 @@ class PersistenceModel: ObservableObject {
             newItem.title = video.title
             if let imageData = imageData {
                 newItem.thumbnailData = imageData
-            } else if let thumbnailURL = video.thumbnails.last?.url {
+            } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                 let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                 imageTask.start()
                 imageTask.waitUntilFinished()
                 backgroundContext.performAndWait {
-                    newItem.thumbnailData = imageTask.imageData
+                    if let imageData = imageTask.imageData {
+                        newItem.thumbnailData = cropImage(data: imageData)
+                    }
                 }
             }
             
@@ -124,7 +127,7 @@ class PersistenceModel: ObservableObject {
                     let newChannel = DownloadedChannel(context: backgroundContext)
                     newChannel.channelId = channelId
                     newChannel.name = video.channel?.name
-                    if let channelThumbnailURL = video.channel?.thumbnails.first {
+                    if let channelThumbnailURL = video.channel?.thumbnails.last {
                         let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                         imageTask.start()
                         imageTask.waitUntilFinished()
@@ -151,13 +154,64 @@ class PersistenceModel: ObservableObject {
                 print("Couldn't add favorite to context, error: \(error)")
             }
         }
+        
+        @Sendable func cropImage(data: Data) -> Data? {
+            guard let uiImage = UIImage(data: data) else { return nil }
+            let portionToCut = (uiImage.size.height - uiImage.size.width * 9/16) / 2
+            
+            // Scale cropRect to handle images larger than shown-on-screen size
+            let cropZone = CGRect(x: 0,
+                                  y: portionToCut,
+                                  width: uiImage.size.width,
+                                  height: uiImage.size.height - portionToCut * 2)
+            
+            // Perform cropping in Core Graphics
+            guard let cutImageRef: CGImage = uiImage.cgImage?.cropping(to: cropZone)
+            else {
+                return nil
+            }
+            
+            // Return image to UIImage
+            let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
+            return croppedImage.pngData()
+        }
+    }
+    
+    public func removeFromFavorites(video: YTVideo) {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        let fetchRequest = FavoriteVideo.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
+        do {
+            let fetchResult = try backgroundContext.fetch(fetchRequest)
+            for favorite in fetchResult {
+                if let channel = favorite.channel, channel.videosArray.count == 0, channel.favoritesArray.count == 1 {
+                    backgroundContext.delete(channel)
+                }
+                backgroundContext.delete(favorite)
+            }
+            do {
+                try backgroundContext.save()
+                
+                NotificationCenter.default.post(
+                    name: Notification.Name("CoreDataChanged"),
+                    object: nil
+                )
+            } catch {
+                // handle the Core Data error
+                print(error)
+            }
+        } catch {
+            print("Can't fetch the favorites list.")
+            print(error)
+        }
     }
     
     public func getStorageLocationFor(video: YTVideo) -> String? {
+        let backgroundContext = self.controller.container.newBackgroundContext()
         let fetchRequest = DownloadedVideo.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
-        let result = try? self.context.fetch(fetchRequest)
+        let result = try? backgroundContext.fetch(fetchRequest)
         if let video = result?.first {
             return video.storageLocation.absoluteString
         } else {
@@ -166,22 +220,24 @@ class PersistenceModel: ObservableObject {
     }
 
     public func checkIfFavorite(video: YTVideo) -> Bool {
+        let backgroundContext = self.controller.container.newBackgroundContext()
         let fetchRequest = FavoriteVideo.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
-        let result = try? self.context.fetch(fetchRequest)
+        let result = try? backgroundContext.fetch(fetchRequest)
         return !(result?.isEmpty ?? true)
     }
     
     public func modifyDownloadURLFor(videoId: String, url: String) {
+        let backgroundContext = self.controller.container.newBackgroundContext()
         let fetchRequest = DownloadedVideo.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
         do {
-            let fetchResult = try self.context.fetch(fetchRequest)
+            let fetchResult = try backgroundContext.fetch(fetchRequest)
             if let newObject = fetchResult.first, let newStorageLocation = URL(string: url) {
                 newObject.storageLocation = newStorageLocation
-                try self.context.save()
+                try backgroundContext.save()
 
                 NotificationCenter.default.post(
                     name: Notification.Name("CoreDataChanged"),
@@ -197,11 +253,12 @@ class PersistenceModel: ObservableObject {
     }
     
     public func removeDownloadFromCoreData(videoId: String) {
+        let backgroundContext = self.controller.container.newBackgroundContext()
         let fetchRequest = DownloadedVideo.fetchRequest()
         fetchRequest.fetchLimit = 1
         fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
         do {
-            let fetchResult = try self.context.fetch(fetchRequest)
+            let fetchResult = try backgroundContext.fetch(fetchRequest)
             if let newObject = fetchResult.first {
                 if FileManager.default.fileExists(atPath: newObject.storageLocation.absoluteString) {
                     do {
@@ -212,10 +269,10 @@ class PersistenceModel: ObservableObject {
                     }
                 }
                 if let channel = newObject.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
-                    self.context.delete(channel)
+                    backgroundContext.delete(channel)
                 }
-                self.context.delete(newObject)
-                try self.context.save()
+                backgroundContext.delete(newObject)
+                try backgroundContext.save()
                 
                 NotificationCenter.default.post(
                     name: Notification.Name("CoreDataChanged"),

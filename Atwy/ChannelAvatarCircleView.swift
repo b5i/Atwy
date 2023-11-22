@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ChannelAvatarCircleView: View {
-    @State var avatarURL: URL?
+    let avatarURL: URL?
     var body: some View {
         CachedAsyncImage(url: avatarURL, content: { image in
             image

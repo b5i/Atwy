@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import YouTubeKit
 
 struct DownloadingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -33,8 +34,16 @@ struct DownloadingsView: View {
             }
             .buttonStyle(.bordered)
             List {
-                ForEach(DM.downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}), id: \.self) { downloader in
-                    if let video = downloader.video {
+                let downloadersAndVideos: [(HLSDownloader, YTVideo)] =
+                    DM.downloadings
+                    .filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused})
+                    .compactMap({ downloader in
+                        if let video = downloader.video {
+                            return (downloader, video)
+                        }
+                        return nil
+                    })
+                ForEach(downloadersAndVideos, id: \.0.self) { downloader, video in
                         HStack {
                             VStack {
 #if os(macOS)
@@ -81,7 +90,6 @@ struct DownloadingsView: View {
                             SheetsModel.shared.showSheet(.watchVideo)
                         }
                     }
-                }
             }
         }
 #if !os(macOS)
