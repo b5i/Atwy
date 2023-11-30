@@ -25,17 +25,13 @@ struct DownloadedVideosView: View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack {
-                    if (!DM.downloadings.filter({
-                        $0.downloaderState == .downloading ||
-                        $0.downloaderState == .waiting ||
-                        $0.downloaderState == .paused
-                    }).isEmpty) {
+                    if (DM.activeDownloadingsCount != 0) {
                         List {
                             NavigationLink(destination: DownloadingsView(), label: {
                                 HStack {
                                     Text("Downloading")
                                     Spacer()
-                                    Text("\(DM.downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}).count)")
+                                    Text("\(DM.activeDownloadingsCount)")
                                         .padding(.horizontal)
                                     ProgressView()
                                 }

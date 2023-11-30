@@ -159,6 +159,8 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                         imageTask.start()
                         imageTask.waitUntilFinished()
                         chapterEntity.thumbnail = imageTask.imageData
+                    } else {
+                        chapterEntity.thumbnail = newVideo.thumbnail
                     }
                     chapterEntity.title = chapter.title
                     newVideo.addToChapters(chapterEntity)

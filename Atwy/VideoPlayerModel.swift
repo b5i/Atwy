@@ -233,7 +233,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
             })
             self.chapters = downloadedVideo.chaptersArray.map({ Chapter(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail) })
-            if self.chapters?.isEmpty ?? false {
+            if self.chapters?.isEmpty ?? true {
                 self.chapters = nil
             }
             self.streamingInfos = VideoInfosResponse.createEmpty()
@@ -386,9 +386,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     }
                     
                     self.fetchMoreInfosForVideo()
-                    DispatchQueue.main.async {
-                        self.isLoadingVideo = false
-                    }
                     self.player.play()
                     DispatchQueue.main.async {
                         self.objectWillChange.send()
@@ -396,11 +393,15 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 } else {
                     print("Error while fetching streaming infos for a video, error: \(String(describing: error)).")
                 }
+                DispatchQueue.main.async {
+                    self.isLoadingVideo = false
+                }
             }
         }
     }
 
     public func deleteCurrentVideo() {
+        self.isLoadingVideo = false
         self.video = nil
         self.player.replaceCurrentItem(with: nil)
         self.streamingInfos = nil

@@ -72,61 +72,73 @@ struct SearchView: View {
                 VStack {
                     if model.isFetching {
                         LoadingView()
-                    } else {
+                    } else if let error = model.error {
                         VStack (alignment: .center) {
-                            if let error = model.error {
-                                Spacer()
-                                Image(systemName: "multiply.circle")
-                                    .resizable()
-                                    .frame(width: 60, height: 60)
-                                    .foregroundColor(.red)
-                                Text(error)
-                                    .foregroundColor(.red)
-                                Button {
-                                    search = ""
-                                    dismissSearch()
-                                    model.getVideos()
-                                } label: {
-                                    Text("Go home")
-                                }
-                                .buttonStyle(.bordered)
-                                Spacer()
+                            Spacer()
+                            Image(systemName: "multiply.circle")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.red)
+                            Text(error)
+                                .foregroundColor(.red)
+                            Button {
+                                search = ""
+                                dismissSearch()
+                                model.getVideos()
+                            } label: {
+                                Text("Go home")
                             }
+                            .buttonStyle(.bordered)
+                            Spacer()
                         }
-                        if model.items.isEmpty && model.error == nil {
-                            Text("No videos found...")
-                                .foregroundColor(colorScheme.textColor)
-                                .refreshable(action: {
+                    } else if model.items.isEmpty && model.error == nil {
+                        GeometryReader { geometry in
+                            ScrollView {
+                                VStack {
+                                    Text("No videos found...")
+                                        .foregroundColor(colorScheme.textColor)
+                                    Text("Search videos or pull up to refresh for the algorithm to fill this menu.")
+                                        .foregroundStyle(.gray)
+                                        .font(.caption)
+                                }
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                            }
+                            .scrollIndicators(.hidden)
+                            .refreshable(action: {
+                                if search.isEmpty {
+                                    model.getVideos()
+                                } else {
                                     model.getVideos(search)
-                                })
-                        } else {
-                            let itemsBinding = Binding(get: {
-                                return model.items
-                            }, set: { newValue in
-                                model.items = newValue
+                                }
                             })
-                            ElementsInfiniteScrollView(
-                                items: itemsBinding,
-                                shouldReloadScrollView: $shouldReloadScrollView,
-                                refreshAction: { endAction in
-                                    withAnimation(.easeOut(duration: 0.3)) {
-                                        endAction()
-                                        if search.isEmpty {
-                                            model.getVideos()
-                                        } else {
-                                            model.getVideos(search)
-                                        }
-                                    }
-                                },
-                                fetchMoreResultsAction: {
-                                    if !model.isFetchingContination {
-                                        model.getVideosContinuation({
-                                            self.shouldReloadScrollView = true
-                                        })
+                        }
+                    } else {
+                        let itemsBinding = Binding(get: {
+                            return model.items
+                        }, set: { newValue in
+                            model.items = newValue
+                        })
+                        ElementsInfiniteScrollView(
+                            items: itemsBinding,
+                            shouldReloadScrollView: $shouldReloadScrollView,
+                            refreshAction: { endAction in
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    endAction()
+                                    if search.isEmpty {
+                                        model.getVideos()
+                                    } else {
+                                        model.getVideos(search)
                                     }
                                 }
-                            )
-                        }
+                            },
+                            fetchMoreResultsAction: {
+                                if !model.isFetchingContination {
+                                    model.getVideosContinuation({
+                                        self.shouldReloadScrollView = true
+                                    })
+                                }
+                            }
+                        )
                     }
                 }
             }

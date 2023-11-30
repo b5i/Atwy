@@ -16,6 +16,8 @@ class APIKeyModel: ObservableObject {
     @Published var googleCookies: String = "" {
         didSet {
             if googleCookies == "" {
+                YTM.cookies = ""
+                YTM.alwaysUseCookies = false
                 DispatchQueue.main.async {
                     self.userAccount = nil
                 }
