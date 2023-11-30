@@ -56,6 +56,17 @@ class HLSDownloader: NSObject, ObservableObject {
         )
     }
     
+    public func refreshProgress() {
+        guard let downloadTask = downloadTask else { return }
+        DispatchQueue.main.async {
+            self.percentComplete = max(Double(downloadTask.countOfBytesReceived / downloadTask.countOfBytesExpectedToReceive), self.percentComplete)
+        }
+        NotificationCenter.default.post(
+            name: Notification.Name("DownloadPercentageChanged"),
+            object: nil
+        )
+    }
+    
     func downloadVideo(thumbnailData: Data? = nil, videoDescription: String = "") {
         guard self.downloaderState != .downloading else { return }
         DispatchQueue.main.async {

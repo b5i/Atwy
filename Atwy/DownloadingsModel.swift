@@ -20,14 +20,23 @@ class DownloadingsModel: ObservableObject {
     
     @Published var downloadings = downloads
     
-    var activeDownloadings: Int {
-         return downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused}).count
+    var activeDownloadingsCount: Int {
+         return activeDownloadings.count
+    }
+    
+    var activeDownloadings: [HLSDownloader] {
+        return downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused})
     }
     
     init() {
         NotificationCenter.default.addObserver(forName: Notification.Name("DownloadingChanged"), object: nil, queue: nil, using: { _ in
             DispatchQueue.main.async {
                 self.downloadings = downloads
+            }
+        })
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil, using: { _ in
+            for activeDownloading in self.activeDownloadings {
+                activeDownloading.refreshProgress()
             }
         })
     }

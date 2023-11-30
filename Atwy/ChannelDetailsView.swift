@@ -163,7 +163,7 @@ struct ChannelDetailsView: View {
                                                 }
                                             }
                                         )
-                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7 - 49) // 49 for the navigation bar
+                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7 - 49 - (channelInfos.isSubcribeButtonEnabled == true && channelInfos.subscribeStatus != nil ? 35 : -35)) // 49 for the navigation bar and 35 for the subscribe button
                                         .id(selectedCategory)
                                     }
                                 } else {

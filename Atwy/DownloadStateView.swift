@@ -21,7 +21,7 @@ struct DownloadStateView: View {
             Image(systemName: "arrow.down.circle.fill")
                 .frame(width: 20, height: 20)
         } else {
-            if downloader.downloaderState == .inactive || downloader.downloaderState == .failed {
+            if downloader.downloaderState == .inactive || downloader.downloaderState == .failed || downloader.downloaderState == .success {
                 let downloaderBinding: Binding<HLSDownloader?> = Binding(get: {
                     return self.downloader
                 }, set: { _ in})
@@ -33,10 +33,6 @@ struct DownloadStateView: View {
             } else if downloader.downloaderState == .downloading && downloader.percentComplete == 0.0 {
                 ProgressView()
                     .frame(width: 25, height: 25)
-                    .padding()
-            } else if downloader.downloaderState == .success {
-                Image(systemName: "arrow.down.circle.fill")
-                    .frame(width: 20, height: 20)
                     .padding()
             } else {
                 CircularProgressView(progress: downloader.percentComplete)

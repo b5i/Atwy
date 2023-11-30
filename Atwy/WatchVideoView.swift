@@ -371,6 +371,7 @@ struct NewWatchVideoView: View {
     
     private struct FadeInOutView: View {
         let mode: FadeMode
+        let gradientSize: CGFloat = 15
         var body: some View {
             switch mode {
             case .horizontal:
@@ -382,7 +383,7 @@ struct NewWatchVideoView: View {
                                         colors: [Color.black.opacity(0), Color.black]),
                                    startPoint: .leading, endPoint: .trailing
                     )
-                    .frame(width: 15)
+                    .frame(width: gradientSize)
                     
                     // Middle
                     Rectangle().fill(Color.black)
@@ -393,7 +394,7 @@ struct NewWatchVideoView: View {
                                         colors: [Color.black, Color.black.opacity(0)]),
                                    startPoint: .leading, endPoint: .trailing
                     )
-                    .frame(width: 15)
+                    .frame(width: gradientSize)
                 }
             case .vertical:
                 VStack(spacing: 0) {
@@ -404,7 +405,7 @@ struct NewWatchVideoView: View {
                                         colors: [Color.black.opacity(0), Color.black]),
                                    startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 15)
+                    .frame(height: gradientSize)
                     
                     // Middle
                     Rectangle().fill(Color.black)
@@ -415,7 +416,7 @@ struct NewWatchVideoView: View {
                                         colors: [Color.black, Color.black.opacity(0)]),
                                    startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 15)
+                    .frame(height: gradientSize)
                 }
             }
         }
@@ -652,6 +653,8 @@ struct NewWatchVideoView: View {
                     CachedAsyncImage(url: channelAvatar.url) { _, imageData in
                         if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
                             AvatarCircleView(image: uiImage, makeGradient: makeGradient)
+                        } else if let imageData = VPM.channelAvatarData, let image = UIImage(data: imageData) {
+                            AvatarCircleView(image: image, makeGradient: makeGradient)
                         } else {
                             NoAvatarCircle(makeGradient: makeGradient)
                         }
