@@ -150,6 +150,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     /// Contains the videoId of the fetch request, nil if it isn't fetching.
     var isFetchingMoreVideoInfos: String?
+    
+
     @Published var moreVideoInfos: MoreVideoInfosResponse?
     @Published var videoDescription: String?
     @Published var chapters: [Chapter]?
@@ -216,7 +218,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
 #endif
         }
     
-    func loadVideo(video: YTVideo, thumbnailData: Data? = nil, channelAvatarImageData: Data? = nil) {
+    /// `seekTo`: Variable that will make the player seek to that time (in seconds) as soon as it has loaded the video.
+    func loadVideo(video: YTVideo, thumbnailData: Data? = nil, channelAvatarImageData: Data? = nil, seekTo: Double? = nil) {
         guard !isLoadingVideo else { return }
         self.deleteCurrentVideo()
         self.isLoadingVideo = true
@@ -228,9 +231,12 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 thumbnailData: thumbnailData)
             DispatchQueue.main.async {
                 self.player.replaceCurrentItem(with: newPlayingItem)
+                if let seekTo = seekTo {
+                    self.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
+                }
             }
             NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: newPlayingItem, queue: nil, using: { _ in
-                NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
+                NotificationCenter.default.post(name: .atwyAVPlayerEnded, object: nil)
             })
             self.chapters = downloadedVideo.chaptersArray.map({ Chapter(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail) })
             if self.chapters?.isEmpty ?? true {
@@ -304,7 +310,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 //                                    self.player.replaceCurrentItem(with: AVPlayerItem(asset: AVURLAsset(url: streamingURL)))
 //                                }
 //                                NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: self.player.currentItem, queue: nil, using: { _ in
-//                                    NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
+//                                    NotificationCenter.default.post(name: .atwyAVPlayerEnded, object: nil)
 //                                })
 //                                do {
 //            #if !os(macOS)
@@ -365,10 +371,13 @@ class VideoPlayerModel: NSObject, ObservableObject {
                         thumbnailData: self.videoThumbnailData)
                         DispatchQueue.main.async {
                             self.player.replaceCurrentItem(with: newPlayingItem)
+                            if let seekTo = seekTo {
+                                self.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
+                            }
                         }
 //                    }
                     NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: self.player.currentItem, queue: nil, using: { _ in
-                        NotificationCenter.default.post(name: Notification.Name("AVPlayerEnded"), object: nil)
+                        NotificationCenter.default.post(name: .atwyAVPlayerEnded, object: nil)
                     })
                     do {
 #if !os(macOS)

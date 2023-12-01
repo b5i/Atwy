@@ -81,6 +81,21 @@ struct SettingsView: View {
                             Spacer()
                         })
                         NavigationLink(destination: {
+                            StorageSettingsView()
+                        }, label: {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .foregroundColor(.gray)
+                                    Image(systemName: "gear")
+                                        .foregroundColor(.white)
+                                }
+                                .frame(width: 30, height: 30)
+                            }
+                            Text("Storage")
+                            Spacer()
+                        })
+                        NavigationLink(destination: {
                             LicensesView()
                         }, label: {
                             HStack {

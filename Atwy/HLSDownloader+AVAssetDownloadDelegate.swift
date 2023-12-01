@@ -24,10 +24,6 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         DispatchQueue.main.async {
             self.percentComplete = max(newPercentComplete, self.percentComplete)
         }
-        NotificationCenter.default.post(
-            name: Notification.Name("DownloadPercentageChanged"),
-            object: nil
-        )
     }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didFinishDownloadingTo location: URL) {
@@ -48,10 +44,6 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     //        DispatchQueue.main.async {
     //            self.percentComplete = max(newPercentComplete, self.percentComplete)
     //        }
-    //        NotificationCenter.default.post(
-    //            name: Notification.Name("DownloadPercentageChanged"),
-    //            object: nil
-    //        )
     //    }
     //
     
@@ -67,10 +59,6 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         DispatchQueue.main.async {
             self.percentComplete = max(Double(totalBytesWritten) / Double(totalBytesExpectedToWrite), self.percentComplete)
         }
-        NotificationCenter.default.post(
-            name: Notification.Name("DownloadPercentageChanged"),
-            object: nil
-        )
     }
     
     
@@ -195,11 +183,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                         self.percentComplete = 100
                         self.downloaderState = .success
                         NotificationCenter.default.post(
-                            name: Notification.Name("DownloadPercentageChanged"),
-                            object: nil
-                        )
-                        NotificationCenter.default.post(
-                            name: Notification.Name("CoreDataChanged"),
+                            name: .atwyCoreDataChanged,
                             object: nil
                         )
                     }

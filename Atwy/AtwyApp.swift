@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import CoreSpotlight
 import YouTubeKit
+import AVFoundation
 
 class NavigationPathModel: ObservableObject {
     @Published var path = NavigationPath()
@@ -77,6 +79,36 @@ struct AtwyApp: App {
                         }
                 }
             }
+            .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)
+        }
+    }
+    
+    private func handleSpotlightOpening(_ userActivity: NSUserActivity) {
+        guard let itemAny = userActivity.userInfo?[CSSearchableItemActivityIdentifier], let itemPath =  itemAny as? String, let itemURL = URL(string: itemPath), let objectID = PersistenceModel.shared.controller.container.persistentStoreCoordinator.managedObjectID(forURIRepresentation: itemURL) else { return }
+        
+        let coreDataItem = PersistenceModel.shared.context.object(with: objectID)
+        
+        switch coreDataItem {
+        case is DownloadedVideo:
+            guard let video = coreDataItem as? DownloadedVideo else { break }
+            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnail, channelAvatarThumbnailData: video.channel?.thumbnail)
+        case is FavoriteVideo:
+            guard let video = coreDataItem as? FavoriteVideo else { break }
+            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnailData, channelAvatarThumbnailData: video.channel?.thumbnail)
+        case is DownloadedVideoChapter:
+            guard let chapter = coreDataItem as? DownloadedVideoChapter, let video = chapter.video else { return }
+            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnail, channelAvatarThumbnailData: video.channel?.thumbnail, seekTo: Double(chapter.startTimeSeconds))
+        default:
+            break
+        }
+        
+        func loadVideoAndOpenSheet(video: YTVideo, videoThumbnailData: Data? = nil, channelAvatarThumbnailData: Data? = nil, seekTo: Double? = nil) {
+            if VideoPlayerModel.shared.video?.videoId != video.videoId {
+                VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarThumbnailData, seekTo: seekTo)
+            } else if let seekTo = seekTo, !VideoPlayerModel.shared.isLoadingVideo {
+                VideoPlayerModel.shared.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
+            }
+            SheetsModel.shared.showSheet(.watchVideo)
         }
     }
 }

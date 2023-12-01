@@ -27,7 +27,7 @@ struct DownloadingsView: View {
                     downloader.cancelDownload()
                 }
                 downloads = []
-                NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+                NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                 PopupsModel.shared.showPopup(.cancelledDownload)
             } label: {
                 Text("Cancel all downloadings")
@@ -121,7 +121,7 @@ struct DownloadingsView: View {
         }
         .padding(.vertical)
         .onAppear {
-            NotificationCenter.default.addObserver(forName: Notification.Name("NoDownloadingsLeft"), object: nil, queue: nil, using: { _ in
+            NotificationCenter.default.addObserver(forName: .atwyNoDownloadingsLeft, object: nil, queue: nil, using: { _ in
                 dismiss()
             })
         }

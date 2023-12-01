@@ -44,13 +44,7 @@ struct DownloadedVideosView: View {
                         //                        List {
                         LazyVStack {
                             ForEach(downloadedVideos.filter({$0.matchesQuery(search)}), id: \.timestamp, content: { video in
-                                let convertResult = YTVideo(
-                                    videoId: video.videoId,
-                                    title: video.title,
-                                    channel: video.channel != nil ? .init(channelId: video.channel!.channelId, name: video.channel?.name) : nil,
-                                    timePosted: video.timePosted,
-                                    timeLength: video.timeLength
-                                )
+                                let convertResult = video.toYTVideo()
                                 Button {
                                     if VideoPlayerModel.shared.video?.videoId != video.videoId {
                                         VideoPlayerModel.shared.loadVideo(video: convertResult)

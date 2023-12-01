@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22511.1" systemVersion="23B5056e" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23B92" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="DownloadedChannel" representedClassName="DownloadedChannel" syncable="YES">
         <attribute name="channelId" attributeType="String" defaultValueString=""/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
         <relationship name="favorites" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FavoriteVideo" inverseName="channel" inverseEntity="FavoriteVideo"/>
         <relationship name="videos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DownloadedVideo" inverseName="channel" inverseEntity="DownloadedVideo"/>
@@ -13,8 +13,8 @@
         <attribute name="timeLength" optional="YES" attributeType="String"/>
         <attribute name="timePosted" optional="YES" attributeType="String"/>
         <attribute name="timestamp" attributeType="Date" defaultDateTimeInterval="720732540" usesScalarValueType="NO"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="videoDescription" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
+        <attribute name="videoDescription" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
         <attribute name="videoId" attributeType="String" defaultValueString=""/>
         <relationship name="channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedChannel" inverseName="videos" inverseEntity="DownloadedChannel"/>
         <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DownloadedVideoChapter" inverseName="video" inverseEntity="DownloadedVideoChapter"/>
@@ -23,7 +23,7 @@
         <attribute name="shortTimeDescription" optional="YES" attributeType="String"/>
         <attribute name="startTimeSeconds" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
         <relationship name="video" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedVideo" inverseName="chapters" inverseEntity="DownloadedVideo"/>
     </entity>
     <entity name="FavoriteVideo" representedClassName="FavoriteVideo" syncable="YES">
@@ -31,7 +31,7 @@
         <attribute name="timeLength" optional="YES" attributeType="String"/>
         <attribute name="timePosted" optional="YES" attributeType="String"/>
         <attribute name="timestamp" attributeType="Date" defaultDateTimeInterval="720732540" usesScalarValueType="NO"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
         <attribute name="videoId" attributeType="String" defaultValueString=""/>
         <relationship name="channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadedChannel" inverseName="favorites" inverseEntity="DownloadedChannel"/>
     </entity>

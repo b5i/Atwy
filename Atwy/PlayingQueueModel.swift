@@ -21,7 +21,7 @@ class PlayingQueueModel: ObservableObject {
     }
 
     init () {
-        NotificationCenter.default.addObserver(forName: Notification.Name("AVPlayerEnded"), object: nil, queue: nil, using: { _ in
+        NotificationCenter.default.addObserver(forName: .atwyAVPlayerEnded, object: nil, queue: nil, using: { _ in
             if !self.queue.isEmpty {
                 self.loadNextVideo()
             }
