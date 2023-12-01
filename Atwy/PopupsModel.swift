@@ -14,6 +14,17 @@ public class PopupsModel: ObservableObject {
     @Published public var shownPopup: (type: PopupType, data: Any?)?
     
     private var currentTimer: Timer?
+    
+    public init(shownPopup: (type: PopupType, data: Any?)? = nil, currentTimer: Timer? = nil) {
+        self.shownPopup = shownPopup
+        self.currentTimer = currentTimer
+        
+        NotificationCenter.default.addObserver(forName: .atwyPopup, object: nil, queue: .main, using: { notification in
+            if let notifType = notification.userInfo?["PopupType"] as? String, let castedType = PopupType(rawValue: notifType) {
+                self.showPopup(castedType, data: notification.userInfo?["PopupData"] as? Data)
+            }
+        })
+    }
         
     public func showPopup(_ type: PopupType, data: Any? = nil) {
         self.currentTimer?.invalidate()
@@ -38,7 +49,7 @@ public class PopupsModel: ObservableObject {
         self.hidePopup()
     }
     
-    public enum PopupType {
+    public enum PopupType: String, RawRepresentable {
         case playNext
         case playLater
         case addedToPlaylist

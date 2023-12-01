@@ -32,7 +32,9 @@ class DownloadCoordinatorManagerModel: ObservableObject {
     func appendDownloader(downloader: HLSDownloader) {
         downloads.append(downloader)
         downloader.downloaderState = .waiting // fires launchDownloads
-        NotificationCenter.default.post(name: Notification.Name("DownloadingChanged\(downloader.video?.videoId ?? "")"), object: nil)
+        if let videoId = downloader.video?.videoId {
+            NotificationCenter.default.post(name: .atwyDownloadingChanged(for: videoId), object: nil)
+        }
     }
 
     func launchDownloads() {
@@ -43,8 +45,8 @@ class DownloadCoordinatorManagerModel: ObservableObject {
             activeDownloaders += 1
         }
         if downloadings.count + pausedDownloadings.count + waitingDownloadings.count == 0 {
-            NotificationCenter.default.post(name: Notification.Name("NoDownloadingsLeft"), object: nil)
+            NotificationCenter.default.post(name: .atwyNoDownloadingsLeft, object: nil)
         }
-        NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+        NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
     }
 }

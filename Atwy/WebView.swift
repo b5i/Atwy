@@ -16,7 +16,7 @@ struct WebViewUI: UIViewControllerRepresentable {
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> WebView {
-        NotificationCenter.default.addObserver(forName: Notification.Name("CookiesSetUp"), object: nil, queue: nil, using: { _ in
+        NotificationCenter.default.addObserver(forName: .atwyCookiesSetUp, object: nil, queue: nil, using: { _ in
             dismiss()
         })
         return WebView()
@@ -33,7 +33,7 @@ class WebView: UIViewController {
     private weak var webView: WKWebView?
     
     func initWebView(configuration: WKWebViewConfiguration) {
-        NotificationCenter.default.addObserver(forName: Notification.Name("GetCookies"), object: nil, queue: nil, using: { _ in
+        NotificationCenter.default.addObserver(forName: .atwyGetCookies, object: nil, queue: nil, using: { _ in
             self.webView?.getCookies(completion: { cookies in
                 sendAndProcessCookies(cookies: cookies)
             })

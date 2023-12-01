@@ -26,11 +26,7 @@ struct FavoritesView: View {
                 ScrollView {
                     LazyVStack {
                         ForEach(favorites.filter({$0.matchesQuery(search)})) { video in
-                            let convertResult = YTVideo(id: Int(video.timestamp.timeIntervalSince1970),
-                                                        videoId: video.videoId,
-                                                        title: video.title,
-                                                        channel: video.channel != nil ? .init(channelId: video.channel!.channelId, name: video.channel?.name) : nil,
-                                                        timeLength: video.timeLength)
+                            let convertResult = video.toYTVideo()
                             
                             Button {
                                 if VideoPlayerModel.shared.video?.videoId != video.videoId {

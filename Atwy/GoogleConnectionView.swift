@@ -51,7 +51,7 @@ struct GoogleConnectionView: View {
                 WebViewUI()
                     .toolbar {
                         Button {
-                            NotificationCenter.default.post(name: Notification.Name("GetCookies"), object: nil)
+                            NotificationCenter.default.post(name: .atwyGetCookies, object: nil)
                         } label: {
                             Image(systemName: "checkmark")
                         }

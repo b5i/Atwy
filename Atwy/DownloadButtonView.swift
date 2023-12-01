@@ -37,7 +37,7 @@ struct DownloadButtonView: View {
         .onAppear {
             reloadCoreData()
             NotificationCenter.default.addObserver(
-                forName: Notification.Name("CoreDataChanged"),
+                forName: .atwyCoreDataChanged,
                 object: nil,
                 queue: nil,
                 using: { _ in
@@ -46,7 +46,7 @@ struct DownloadButtonView: View {
             if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
                 self.downloader = downloader
             } else {
-                NotificationCenter.default.addObserver(forName: Notification.Name("DownloadingChanged\(video.videoId)"), object: nil, queue: nil, using: { _ in
+                NotificationCenter.default.addObserver(forName: .atwyDownloadingChanged(for: video.videoId), object: nil, queue: nil, using: { _ in
                     if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
                         self.downloader = downloader
                     }

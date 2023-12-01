@@ -25,24 +25,24 @@ struct PlayerViewController: UIViewControllerRepresentable {
     @ObservedObject private var VPM = VideoPlayerModel.shared
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name("ApplicationDidEnterBackground"),
-            object: nil,
-            queue: nil,
-            using: { _ in
-                controller.player = nil
-            })
+//        NotificationCenter.default.addObserver(
+//            forName: UIApplication.didEnterBackgroundNotification,
+//            object: nil,
+//            queue: nil,
+//            using: { _ in
+//                controller.player = nil
+//            })
+//        
+//        NotificationCenter.default.addObserver(
+//            forName: UIApplication.didBecomeActiveNotification,
+//            object: nil,
+//            queue: nil,
+//            using: { _ in
+//                controller.player = player
+//            })
         
         NotificationCenter.default.addObserver(
-            forName: Notification.Name("ApplicationDidEnterActive"),
-            object: nil,
-            queue: nil,
-            using: { _ in
-                controller.player = player
-            })
-        
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name("StopPlayer"),
+            forName: .atwyStopPlayer,
             object: nil,
             queue: nil,
             using: { _ in
@@ -93,7 +93,7 @@ struct PlayerViewController: View {
 //            self.currentTime = time.seconds
 //        })
 //        NotificationCenter.default.addObserver(
-//            forName: Notification.Name("ApplicationDidEnterBackground"),
+//            forName: UIApplication.didEnterBackgroundNotification,
 //            object: nil,
 //            queue: nil,
 //            using: { [self] _ in
@@ -101,7 +101,7 @@ struct PlayerViewController: View {
 //            })
 //
 //        NotificationCenter.default.addObserver(
-//            forName: Notification.Name("ApplicationDidEnterActive"),
+//            forName: UIApplication.didBecomeActiveNotification,
 //            object: nil,
 //            queue: nil,
 //            using: { [self] _ in
@@ -110,7 +110,7 @@ struct PlayerViewController: View {
 //            })
 //
 //        NotificationCenter.default.addObserver(
-//            forName: Notification.Name("StopPlayer"),
+//            forName: .atwyStopPlayer,
 //            object: nil,
 //            queue: nil,
 //            using: { [self] _ in
@@ -128,12 +128,6 @@ struct PlayerViewController: View {
 
 #endif
 
-func stopPlayerFromPlaying() {
-    NotificationCenter.default.post(
-        name: Notification.Name("StopPlayer"),
-        object: nil
-    )
-}
 
 class CustomAVPlayer: AVPlayer {
     var imageData: Data?

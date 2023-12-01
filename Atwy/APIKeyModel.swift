@@ -29,7 +29,7 @@ class APIKeyModel: ObservableObject {
                         withAnimation {
                             if !(result?.isDisconnected ?? true) {
                                 self.userAccount = result
-                                NotificationCenter.default.post(name: Notification.Name("CookiesSetUp"), object: nil)
+                                NotificationCenter.default.post(name: .atwyCookiesSetUp, object: nil)
                             } else {
                                 self.userAccount = nil
                             }

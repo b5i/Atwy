@@ -10,7 +10,7 @@ import SwiftUI
 
 var downloads: [HLSDownloader] = [] {
     didSet {
-        NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+        NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
     }
 }
 
@@ -29,7 +29,7 @@ class DownloadingsModel: ObservableObject {
     }
     
     init() {
-        NotificationCenter.default.addObserver(forName: Notification.Name("DownloadingChanged"), object: nil, queue: nil, using: { _ in
+        NotificationCenter.default.addObserver(forName: .atwyDownloadingsChanged, object: nil, queue: nil, using: { _ in
             DispatchQueue.main.async {
                 self.downloadings = downloads
             }

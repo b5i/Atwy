@@ -203,7 +203,7 @@ struct VideoView: View {
             .onAppear {
                 reloadCoreData()
                 NotificationCenter.default.addObserver(
-                    forName: Notification.Name("CoreDataChanged"),
+                    forName: .atwyCoreDataChanged,
                     object: nil,
                     queue: nil,
                     using: { _ in
@@ -557,7 +557,7 @@ struct VideoView2: View {
             .onAppear {
                 reloadCoreData()
                 NotificationCenter.default.addObserver(
-                    forName: Notification.Name("CoreDataChanged"),
+                    forName: .atwyCoreDataChanged,
                     object: nil,
                     queue: nil,
                     using: { _ in

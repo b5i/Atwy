@@ -48,12 +48,6 @@ class HLSDownloader: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(updatePercentage),
-            name: Notification.Name("DownloadPercentageChanged"),
-            object: nil
-        )
     }
     
     public func refreshProgress() {
@@ -61,10 +55,6 @@ class HLSDownloader: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.percentComplete = max(Double(downloadTask.countOfBytesReceived / downloadTask.countOfBytesExpectedToReceive), self.percentComplete)
         }
-        NotificationCenter.default.post(
-            name: Notification.Name("DownloadPercentageChanged"),
-            object: nil
-        )
     }
     
     func downloadVideo(thumbnailData: Data? = nil, videoDescription: String = "") {
@@ -88,7 +78,7 @@ class HLSDownloader: NSObject, ObservableObject {
                     } else {
                         DispatchQueue.main.async {
                             self.downloaderState = .failed
-                            NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+                            NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                         }
                         print("Couldn't get video streaming data, error: \(String(describing: error)).")
                     }
@@ -175,7 +165,7 @@ class HLSDownloader: NSObject, ObservableObject {
                 print("No image")
                 DispatchQueue.main.async {
                     self.downloaderState = .failed
-                    NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+                    NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                 }
                 return
             }
@@ -187,7 +177,7 @@ class HLSDownloader: NSObject, ObservableObject {
             self.downloadTask?.suspend()
             self.downloadTaskState = self.downloadTask!.state
             self.downloaderState = .paused
-            NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+            NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }
     }
 
@@ -196,7 +186,7 @@ class HLSDownloader: NSObject, ObservableObject {
             self.downloadTask?.resume()
             self.downloadTaskState = self.downloadTask!.state
             self.downloaderState = .downloading
-            NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
+            NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }
     }
 
@@ -207,13 +197,7 @@ class HLSDownloader: NSObject, ObservableObject {
                 self.downloadTaskState = self.downloadTask!.state
             }
             self.downloaderState = .inactive
-            NotificationCenter.default.post(name: Notification.Name("DownloadingChanged"), object: nil)
-        }
-    }
-
-    @objc func updatePercentage() {
-        DispatchQueue.main.async {
-            self.objectWillChange.send()
+            NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }
     }
 

@@ -10,42 +10,43 @@ import CoreSpotlight
 import YouTubeKit
 import UIKit
 
+
 struct PersistenceController {
     static let shared = PersistenceController()
     private (set) var spotlightIndexer: YTSpotlightDelegate?
-
+    
     let container: NSPersistentContainer
     
     let context: NSManagedObjectContext
     
-
+    
+    
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Atwy")
-//        container = NSPersistentCloudKitContainer(name: "Atwy")
-//        try? container.initializeCloudKitSchema(options: [])
+        //        container = NSPersistentCloudKitContainer(name: "Atwy")
+        //        try? container.initializeCloudKitSchema(options: [])
         // Add support to group
-        let storeUrl =  FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Antoine-Bollengier.Atwy")!.appendingPathComponent("Atwy.sqlite")
-        let description = NSPersistentStoreDescription()
-        description.shouldInferMappingModelAutomatically = true
-        description.shouldMigrateStoreAutomatically = true
-        description.url = storeUrl
-        description.type = NSSQLiteStoreType
-        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-        container.persistentStoreDescriptions = [NSPersistentStoreDescription(url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Antoine-Bollengier.Atwy")!.appendingPathComponent("Atwy.sqlite"))]
+        let storeUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Antoine-Bollengier.Atwy")!.appendingPathComponent("Atwy.sqlite")
+        let storeDescription = NSPersistentStoreDescription()
+        storeDescription.shouldInferMappingModelAutomatically = true
+        storeDescription.shouldMigrateStoreAutomatically = true
+        storeDescription.url = storeUrl
+        storeDescription.type = NSSQLiteStoreType
+        storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+        container.persistentStoreDescriptions = [storeDescription]
+        
+        
         // End of group support
-//        self.context = container.newBackgroundContext()
-        self.context = container.viewContext
-        self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        spotlightIndexer = YTSpotlightDelegate(forStoreWith: description, coordinator: container.persistentStoreCoordinator)
-        print(spotlightIndexer?.isIndexingEnabled)
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
+        let semamphore = DispatchSemaphore(value: 0)
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
+                
                 /*
                  Typical reasons for an error here include:
                  * The parent directory does not exist, cannot be created, or disallows writing.
@@ -56,23 +57,29 @@ struct PersistenceController {
                  */
                 print("Unresolved error \(error), \(error.userInfo)")
             }
+            semamphore.signal()
         })
+        
+        semamphore.wait()
+        
+        self.spotlightIndexer = YTSpotlightDelegate(forStoreWith: storeDescription, coordinator: container.persistentStoreCoordinator)
+        self.spotlightIndexer?.startSpotlightIndexing()
+        
+        self.context = container.viewContext
         self.context.automaticallyMergesChangesFromParent = true
-
-        let center = NotificationCenter.default
-        let queue = OperationQueue.main
-        let spotlightUpdateObserver = center.addObserver(
-        forName: NSCoreDataCoreSpotlightDelegate.indexDidUpdateNotification, object: nil, queue: queue
-        ) { (notification) in
+        self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
+        NotificationCenter.default.addObserver(forName: NSCoreDataCoreSpotlightDelegate.indexDidUpdateNotification,
+                                               object: nil,
+                                               queue: .main) { (notification) in
             let userInfo = notification.userInfo
             let storeID = userInfo?[NSStoreUUIDKey] as? String
-            let token = userInfo? [NSPersistentHistoryTokenKey] as? NSPersistentHistoryToken
+            let token = userInfo?[NSPersistentHistoryTokenKey] as? NSPersistentHistoryToken
             if let storeID = storeID, let token = token {
-                print("Store with identifier \(storeID) has completed indexing and has processed history token up through \(String(describing: token)).")
+                print("Store with identifier \(storeID) has completed ",
+                      "indexing and has processed history token up through \(String(describing: token)).")
             }
         }
-//        spotlightIndexer?.startSpotlightIndexing()
-
     }
 }
 
@@ -86,7 +93,7 @@ class PersistenceModel: ObservableObject {
     init() {
         controller = PersistenceController.shared
         context = controller.context
-        NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: Notification.Name("CoreDataChanged"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: .atwyCoreDataChanged, object: nil)
     }
 
     @objc func updateContext() {
@@ -145,10 +152,10 @@ class PersistenceModel: ObservableObject {
                 
                 DispatchQueue.main.async {
                     NotificationCenter.default.post(
-                        name: Notification.Name("CoreDataChanged"),
+                        name: .atwyCoreDataChanged,
                         object: nil
                     )
-                    PopupsModel.shared.showPopup(.addedToFavorites, data: newItem.thumbnailData)
+                    NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
                 }
             } catch {
                 print("Couldn't add favorite to context, error: \(error)")
@@ -193,7 +200,7 @@ class PersistenceModel: ObservableObject {
                 try backgroundContext.save()
                 
                 NotificationCenter.default.post(
-                    name: Notification.Name("CoreDataChanged"),
+                    name: .atwyCoreDataChanged,
                     object: nil
                 )
             } catch {
@@ -240,7 +247,7 @@ class PersistenceModel: ObservableObject {
                 try backgroundContext.save()
 
                 NotificationCenter.default.post(
-                    name: Notification.Name("CoreDataChanged"),
+                    name: .atwyCoreDataChanged,
                     object: nil
                 )
             } else {
@@ -275,7 +282,7 @@ class PersistenceModel: ObservableObject {
                 try backgroundContext.save()
                 
                 NotificationCenter.default.post(
-                    name: Notification.Name("CoreDataChanged"),
+                    name: .atwyCoreDataChanged,
                     object: nil
                 )
             } else {
@@ -306,12 +313,24 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.artist = item.channel?.name
             attributeSet.contentDescription = item.videoDescription
             attributeSet.thumbnailData = item.thumbnail
+            attributeSet.containerDisplayName = "Downloaded Video"
+            if attributeSet.keywords != nil {
+                attributeSet.keywords?.append(contentsOf: [item.title, item.channel?.name, item.videoDescription].compactMap({$0}))
+            } else {
+                attributeSet.keywords = [item.title, item.channel?.name, item.videoDescription].compactMap({$0})
+            }
             return attributeSet
         } else if let channel = object as? DownloadedChannel {
             let attributeSet = CSSearchableItemAttributeSet(contentType: .content)
             attributeSet.identifier = channel.channelId
             attributeSet.displayName = channel.name
             attributeSet.thumbnailData = channel.thumbnail
+            attributeSet.containerDisplayName = "Channel"
+            if attributeSet.keywords != nil {
+                attributeSet.keywords?.append(contentsOf: [channel.name].compactMap({$0}))
+            } else {
+                attributeSet.keywords = [channel.name].compactMap({$0})
+            }
             return attributeSet
         } else if let favorite = object as? FavoriteVideo {
             let attributeSet = CSSearchableItemAttributeSet(contentType: .content)
@@ -319,6 +338,25 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.displayName = favorite.title
             attributeSet.artist = favorite.channel?.name
             attributeSet.thumbnailData = favorite.thumbnailData
+            attributeSet.containerDisplayName = "Favorite"
+            if attributeSet.keywords != nil {
+                attributeSet.keywords?.append(contentsOf: [favorite.title, favorite.channel?.name].compactMap({$0}))
+            } else {
+                attributeSet.keywords = [favorite.title, favorite.channel?.name].compactMap({$0})
+            }
+            return attributeSet
+        } else if let chapter = object as? DownloadedVideoChapter {
+            let attributeSet = CSSearchableItemAttributeSet(contentType: .content)
+            attributeSet.identifier = (chapter.video?.videoId ?? "")+String(chapter.startTimeSeconds)
+            attributeSet.displayName = (chapter.title ?? "") + " - " + (chapter.video?.title ?? "")
+            attributeSet.artist = chapter.video?.channel?.name
+            attributeSet.thumbnailData = chapter.thumbnail
+            attributeSet.containerDisplayName = "Video Chapter"
+            if attributeSet.keywords != nil {
+                attributeSet.keywords?.append(contentsOf: [chapter.title].compactMap({$0}))
+            } else {
+                attributeSet.keywords = [chapter.title].compactMap({$0})
+            }
             return attributeSet
         }
         return nil
