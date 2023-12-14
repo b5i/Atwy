@@ -13,7 +13,7 @@ struct ChannelDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @State var channel: YTLittleChannelInfos
-    @State var navigationTitle: String = ""
+    @State private var navigationTitle: String = ""
     @StateObject private var model = Model()
     @State private var needToReload: Bool = true
     @State private var selectedMode: Int = 0
@@ -41,8 +41,17 @@ struct ChannelDetailsView: View {
                             VStack {
                                 ZStack(alignment: .center) {
                                     ChannelBannerRectangleView(channelBannerURL: channelInfos.bannerThumbnails.last?.url)
-                                    ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails[(channelInfos.avatarThumbnails.lastIndex(where: {_ in true})) ?? 1 - 1].url)
-                                        .offset(x: (scrollPosition.y < 0) ? (scrollPosition.y < -150) ? mainGeometry.size.width * 0.3 : scrollPosition.y / 150 * mainGeometry.size.width * 0.3 : 0, y: (scrollPosition.y < 0) ? (scrollPosition.y < -150) ? -150 : -scrollPosition.y : 0)
+                                    let thumbnailsCount = channelInfos.avatarThumbnails.count
+                                    Group {
+                                        if thumbnailsCount == 0 {
+                                            NewWatchVideoView.NoChannelAvatarView()
+                                        } else if thumbnailsCount == 1 {
+                                            ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails.first?.url)
+                                        } else {
+                                            ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails[thumbnailsCount - 2].url) // take the one before the last one
+                                        }
+                                    }
+                                    .offset(x: (scrollPosition.y < 0) ? (scrollPosition.y < -150) ? mainGeometry.size.width * 0.3 : scrollPosition.y / 150 * mainGeometry.size.width * 0.3 : 0, y: (scrollPosition.y < 0) ? (scrollPosition.y < -150) ? -150 : -scrollPosition.y : 0)
                                 }
                                 Text(channelInfos.name ?? "")
                                     .font(.title)
@@ -163,7 +172,7 @@ struct ChannelDetailsView: View {
                                                 }
                                             }
                                         )
-                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7 - 49 - (channelInfos.isSubcribeButtonEnabled == true && channelInfos.subscribeStatus != nil ? 35 : -35)) // 49 for the navigation bar and 35 for the subscribe button
+                                        .frame(width: mainGeometry.size.width, height: mainGeometry.size.height * 0.7 - 49 + (channelInfos.isSubcribeButtonEnabled == true && channelInfos.subscribeStatus != nil ? 35 : 70)) // 49 for the navigation bar and 35 for the subscribe button
                                         .id(selectedCategory)
                                     }
                                 } else {

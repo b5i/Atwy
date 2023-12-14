@@ -11,11 +11,10 @@ import YouTubeKit
 struct GoToChannelContextMenuButtonView: View {
     @State var channel: YTLittleChannelInfos
     var body: some View {
-        NavigationLink(destination: ChannelDetailsView(channel: channel), label: {
-            HStack {
-                Image(systemName: "person.crop.rectangle")
-                Text("Go to channel")
-            }
-        })
+        HStack {
+            Image(systemName: "person.crop.rectangle")
+            Text("Go to channel")
+        }
+        .routeTo(.channelDetails(channel: channel))
     }
 }

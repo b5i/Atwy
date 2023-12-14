@@ -21,7 +21,7 @@ struct ContentView: View {
     private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
     private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
     private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
-    @State private var videoToAdd: YTVideo?
+    @ObservedObject private var MTVM = MainTabViewModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
@@ -31,18 +31,18 @@ struct ContentView: View {
     @ObservedObject private var SM = SheetsModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     var body: some View {
-        TabView {
+        TabView(selection: $MTVM.currentTab) {
             TabBarElement(DestinationView: {
                 if network.connected {
                     SearchView()
                 } else {
                     NoConnectionView()
                 }
-            }, name: "Home", image: "square.stack.fill")
+            }, type: .search, name: "Home", image: "square.stack.fill")
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {FavoritesView()}, name: "Favorites", image: "star.fill")
+            TabBarElement(DestinationView: {FavoritesView()}, type: .favorites, name: "Favorites", image: "star.fill")
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {DownloadedVideosView()}, name: "Downloads", image: "arrow.down.circle.fill")
+            TabBarElement(DestinationView: {DownloadedVideosView()}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill")
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
                 .badge(DM.activeDownloadingsCount)
             TabBarElement(DestinationView: {
@@ -55,7 +55,7 @@ struct ContentView: View {
                 } else {
                     NoConnectionView()
                 }
-            }, name: "Account", image: "person.circle")
+            }, type: .account, name: "Account", image: "person.circle")
         }
         .safeAreaInset(edge: .bottom, content: {
             if !IUTM.userTyping && (!(VPM.player.currentItem == nil && PQM.queue.isEmpty) || VPM.video != nil) {
@@ -126,7 +126,7 @@ struct ContentView: View {
     }
     
     @ViewBuilder
-    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, name: String, image: String) -> some View where Destination: View {
+    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, type: MainTabViewModel.Tab, name: String, image: String) -> some View where Destination: View {
         DestinationView()
             .tabItem {
                 HStack {
@@ -138,6 +138,7 @@ struct ContentView: View {
             }
             .toolbarBackground(.visible, for: .tabBar)
             .toolbarBackground(.ultraThickMaterial, for: .tabBar)
+            .tag(type)
     }
 }
 

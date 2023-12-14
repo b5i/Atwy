@@ -708,7 +708,9 @@ struct NewWatchVideoView: View {
                                                 if let error = error {
                                                     print("Error while unsubscribing to channel: \(error)")
                                                 } else {
-                                                    VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                    DispatchQueue.main.async {
+                                                        VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                    }
                                                 }
                                                 DispatchQueue.main.async {
                                                     self.isFetching = false
@@ -741,7 +743,9 @@ struct NewWatchVideoView: View {
                                                 if let error = error {
                                                     print("Error while subscribing to channel: \(error)")
                                                 } else {
-                                                    VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                    DispatchQueue.main.async {
+                                                        VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = true
+                                                    }
                                                 }
                                                 DispatchQueue.main.async {
                                                     self.isFetching = false
@@ -818,6 +822,8 @@ extension CGImage {
         let width = Int(size.width)
         let height = Int(size.height)
         let totalPixels = width * height
+        
+        guard totalPixels != 0 else { return nil }
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         

@@ -93,7 +93,7 @@ struct AtwyApp: App {
             guard let video = coreDataItem as? DownloadedVideo else { break }
             loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnail, channelAvatarThumbnailData: video.channel?.thumbnail)
         case is FavoriteVideo:
-            guard let video = coreDataItem as? FavoriteVideo else { break }
+            guard let video = coreDataItem as? FavoriteVideo, NetworkReachabilityModel.shared.connected || (PersistenceModel.shared.checkIfDownloaded(videoId: video.videoId) != nil) else { break }
             loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnailData, channelAvatarThumbnailData: video.channel?.thumbnail)
         case is DownloadedVideoChapter:
             guard let chapter = coreDataItem as? DownloadedVideoChapter, let video = chapter.video else { return }
