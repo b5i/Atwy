@@ -23,13 +23,10 @@ struct UsersPlaylistsListView: View {
                         Color.clear.frame(width: 0, height: 20)
                         let playlistsToDisplay: [YTPlaylist] = search.isEmpty ? playlists : playlists.filter({$0.title?.contains(search) ?? false})
                         ForEach(Array(playlistsToDisplay.enumerated()), id: \.offset) { _, playlist in
-                            NavigationLink(
-                                destination: PlaylistDetailsView(playlist: playlist),
-                                label: {
-                                    PlaylistView(playlist: playlist)
-                                        .padding(.horizontal, 5)
-                                })
-                            .frame(width: geometry.size.width, height: 180)
+                            PlaylistView(playlist: playlist)
+                                .padding(.horizontal, 5)
+                                .frame(width: geometry.size.width, height: 180)
+                                .routeTo(.playlistDetails(playlist: playlist))
                         }
                         Color.clear.frame(width: 0, height: (VPM.video != nil) ? 50 : 0)
                     }

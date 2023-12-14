@@ -235,6 +235,15 @@ class PersistenceModel: ObservableObject {
         return !(result?.isEmpty ?? true)
     }
     
+    public func checkIfDownloaded(videoId: String) -> DownloadedVideo? {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        let fetchRequest = DownloadedVideo.fetchRequest()
+        fetchRequest.fetchLimit = 1
+        fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
+        let result = try? backgroundContext.fetch(fetchRequest)
+        return result?.first
+    }
+    
     public func modifyDownloadURLFor(videoId: String, url: String) {
         let backgroundContext = self.controller.container.newBackgroundContext()
         let fetchRequest = DownloadedVideo.fetchRequest()

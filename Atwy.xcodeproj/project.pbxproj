@@ -33,6 +33,10 @@
 		3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */; };
 		3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */; };
 		34AB99AC2B1A7A460083B1DB /* FileManagerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */; };
+		34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */; };
+		34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */; };
+		34B4CC852B1E661B00FAAB48 /* RouteDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */; };
+		34B4CC872B1E69BB00FAAB48 /* LicenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */; };
 		34B5FD9F2ADA84F300367036 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FD9E2ADA84F300367036 /* Assets.xcassets */; };
 		34B5FDA12ADA84FA00367036 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */; };
 		34B5FDA92ADA851600367036 /* AddToQueueContextMenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */; };
@@ -159,6 +163,10 @@
 		3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+matchesQuery.swift"; sourceTree = "<group>"; };
 		3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+matchesQuery.swift"; sourceTree = "<group>"; };
 		34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileManagerModel.swift; sourceTree = "<group>"; };
+		34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewModel.swift; sourceTree = "<group>"; };
+		34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+routeTo.swift"; sourceTree = "<group>"; };
+		34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteDestination.swift; sourceTree = "<group>"; };
+		34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseView.swift; sourceTree = "<group>"; };
 		34B5FD9E2ADA84F300367036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToQueueContextMenuButtonView.swift; sourceTree = "<group>"; };
@@ -400,6 +408,10 @@
 				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
 				34B5FDF42ADA856700367036 /* WebView.swift */,
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
+				34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */,
+				34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */,
+				34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */,
+				34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -552,6 +564,7 @@
 				34B5FE0F2ADA856900367036 /* APIKeyModel.swift in Sources */,
 				34B5FE102ADA856900367036 /* WatchVideoView.swift in Sources */,
 				34B5FE112ADA856900367036 /* SwipeActionsExtensions.swift in Sources */,
+				34B4CC852B1E661B00FAAB48 /* RouteDestination.swift in Sources */,
 				3478F22F2AE9ACB300A0CCB0 /* ElementsInfiniteScrollView.swift in Sources */,
 				34B5FE122ADA856900367036 /* TemporalAlertsViews.swift in Sources */,
 				34B8B2DA2AE0265200C5C07C /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
@@ -576,6 +589,7 @@
 				34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */,
 				34B5FE232ADA856900367036 /* DownloadCoordinatorManagerModel.swift in Sources */,
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
+				34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */,
 				34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */,
 				345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */,
 				34B5FE272ADA856900367036 /* LoadingView.swift in Sources */,
@@ -627,6 +641,7 @@
 				34B5FE4C2ADA856900367036 /* DownloadVideoContextButtonView.swift in Sources */,
 				34B5FE4D2ADA856900367036 /* DownloadStateView.swift in Sources */,
 				34B5FE4E2ADA856900367036 /* UserPreferenceCircleView.swift in Sources */,
+				34B4CC872B1E69BB00FAAB48 /* LicenseView.swift in Sources */,
 				345DC3102AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift in Sources */,
 				34B8B2D72AE0265200C5C07C /* DownloadedChannel+CoreDataClass.swift in Sources */,
 				34B5FE4F2ADA856900367036 /* VideoContextMenuView.swift in Sources */,
@@ -637,6 +652,7 @@
 				347668AA2B0A834D001D2522 /* AddToFavoriteWidgetView.swift in Sources */,
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
 				34B5FE522ADA856900367036 /* DownloadingsView.swift in Sources */,
+				34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */,
 				347668A82B0923F5001D2522 /* ShowSettingsButtonView.swift in Sources */,
 				34B5FE532ADA856900367036 /* ChannelIllustrationView.swift in Sources */,
 			);
@@ -786,7 +802,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -822,7 +838,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -880,7 +896,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = ccd7699b5c80b0008edb6a5758f62215c91632b8;
+				revision = fb6612d95fe676acae5acd72db4e11e6e239019b;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

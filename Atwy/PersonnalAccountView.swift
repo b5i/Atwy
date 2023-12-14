@@ -41,23 +41,20 @@ struct PersonnalAccountView: View {
                                             .frame(width: geometry.size.width, height: likes.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
                                     }
                                     VStack {
-                                        NavigationLink(destination: {
-                                            UsersPlaylistsListView(playlists: libraryContent.playlists)
-                                        }, label: {
-                                            VStack {
-                                                HStack {
-                                                    Text("Playlists")
-                                                        .font(.title2)
-                                                        .padding()
-                                                        .foregroundColor(colorScheme.textColor)
-                                                    Spacer()
-                                                }
-                                                HStack {
-                                                    PlaylistsStackView(playlists: libraryContent.playlists)
-                                                        .frame(width: geometry.size.width)
-                                                }
+                                        VStack {
+                                            HStack {
+                                                Text("Playlists")
+                                                    .font(.title2)
+                                                    .padding()
+                                                    .foregroundColor(colorScheme.textColor)
+                                                Spacer()
                                             }
-                                        })
+                                            HStack {
+                                                PlaylistsStackView(playlists: libraryContent.playlists)
+                                                    .frame(width: geometry.size.width)
+                                            }
+                                        }
+                                        .routeTo(.usersPlaylists(playlists: libraryContent.playlists))
                                     }
                                     .frame(width: geometry.size.width, height: geometry.size.height * 0.3)
                                 }

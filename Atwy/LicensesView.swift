@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct LicensesView: View {
-    private let licenses: [License] = [
-        License(
+public struct LicensesView: View {
+    private let licenses: [LicenseView.License] = [
+        .init(
             name: "InfiniteScrollViews",
             content: """
                 MIT License
@@ -37,7 +37,7 @@ struct LicensesView: View {
             isSelf: true,
             link: URL(string: "https://github.com/b5i/InfiniteScrollViews")!
         ),
-        License(
+        .init(
             name: "YouTubeKit",
             content: """
                 Attribution-ShareAlike 4.0 International
@@ -471,7 +471,7 @@ struct LicensesView: View {
             isSelf: true,
             link: URL(string: "https://github.com/b5i/YouTubeKit")!
         ),
-        License(
+        .init(
             name: "CachedAsyncImage",
             content: """
                 MIT License
@@ -487,7 +487,7 @@ struct LicensesView: View {
             isSelf: false,
             link: URL(string: "https://github.com/lorenzofiamingo/swiftui-cached-async-image")!
         ),
-        License(
+        .init(
             name: "SwipeActions",
             comment: "Andrew = the 🐐",
             content: """
@@ -518,63 +518,34 @@ struct LicensesView: View {
         )
     ]
     
-    var body: some View {
+    public var body: some View {
         VStack {
             List {
                 ForEach(Array(licenses.enumerated()), id: \.offset) { _, license in
-                    NavigationLink(
-                        destination: {
-                            VStack {
-                                HStack {
-                                    Spacer()
-                                    Link(destination: license.link, label: {
-                                        HStack {
-                                            Text("Open in GitHub")
-                                            Spacer()
-                                            Image(systemName: "arrow.up.right")
-                                        }
-                                        .foregroundStyle(.green)
-                                        .padding(.top)
-                                        .padding(.horizontal, 100)
-                                    })
-                                    Spacer()
-                                }
-                                ScrollView {
-                                    Text(license.content)
-                                }
-                                .padding([.horizontal, .bottom])
+                    Group {
+                        Text(license.name)
+                        Text(license.comment)
+                            .foregroundColor(.gray)
+                            .bold()
+                            .font(.system(size: 10))
+                            .frame(alignment: .trailing)
+                        Spacer()
+                        if license.isSelf {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 50)
+                                    .foregroundStyle(.red)
+                                    .frame(width: 80, height: 20)
+                                Text("Homemade")
+                                    .bold()
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.white)
                             }
-                        }, label: {
-                            Text(license.name)
-                            Text(license.comment)
-                                .foregroundColor(.gray)
-                                .bold()
-                                .font(.system(size: 10))
-                                .frame(alignment: .trailing)
-                            Spacer()
-                            if license.isSelf {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 50)
-                                        .foregroundStyle(.red)
-                                        .frame(width: 80, height: 20)
-                                    Text("Homemade")
-                                        .bold()
-                                        .font(.system(size: 9))
-                                        .foregroundStyle(.white)
-                                }
-                            }
-                        })
+                        }
+                    }
+                    .routeTo(.licence(license: license))
                 }
             }
         }
         .navigationTitle("Licenses")
-    }
-    
-    private struct License {
-        var name: String
-        var comment: String = ""
-        var content: String
-        var isSelf: Bool
-        var link: URL
     }
 }

@@ -224,11 +224,11 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.deleteCurrentVideo()
         self.isLoadingVideo = true
         self.video = video
-        if let downloadedVideo = checkIfDownloaded(videoId: video.videoId) {
+        if let downloadedVideo = PersistenceModel.shared.checkIfDownloaded(videoId: video.videoId) {
             let newPlayingItem = AVPlayerItem(
                 asset: .init(url: downloadedVideo.storageLocation),
-                metadatas: getMetadatasForInfos(title: downloadedVideo.title ?? "", channelName: downloadedVideo.channel?.name ?? "", videoDescription: downloadedVideo.videoDescription ?? ""),
-                thumbnailData: thumbnailData)
+                metadatas: getMetadatasForInfos(title: downloadedVideo.title ?? video.title ?? "", channelName: downloadedVideo.channel?.name ?? video.channel?.name ?? "", videoDescription: downloadedVideo.videoDescription ?? ""),
+                thumbnailData: thumbnailData ?? downloadedVideo.thumbnail)
             DispatchQueue.main.async {
                 self.player.replaceCurrentItem(with: newPlayingItem)
                 if let seekTo = seekTo {
@@ -273,16 +273,16 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 self.channelAvatarData = channelAvatarImageData
             }
             Task {
-                let (streamingInfos, error) = await video.fetchStreamingInfosWithDownloadFormats(youtubeModel: YTM)
+                let (streamingInfos, error) = await video.fetchStreamingInfos(youtubeModel: YTM)
                 guard self.video?.videoId == video.videoId else { return }
-                if let streamingInfos = streamingInfos, let streamingURL = streamingInfos.videoInfos.streamingURL {
+                if let streamingInfos = streamingInfos, let streamingURL = streamingInfos.streamingURL {
                     DispatchQueue.main.async {
-                        self.streamingInfos = streamingInfos.videoInfos
+                        self.streamingInfos = streamingInfos
                     }
-                    if let thumbnailURL = streamingInfos.videoInfos.thumbnails.last?.url {
+                    if let thumbnailURL = streamingInfos.thumbnails.last?.url {
                         Task {
                             let thumbnailData = await getImage(from: thumbnailURL)
-                            if self.video?.videoId == streamingInfos.videoInfos.videoId {
+                            if self.video?.videoId == streamingInfos.videoId {
                                 DispatchQueue.main.async {
                                     self.videoThumbnailData = thumbnailData
                                 }
@@ -367,7 +367,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 //                    } else {
                     let newPlayingItem = AVPlayerItem(
                         asset: AVURLAsset(url: streamingURL),
-                        metadatas: getMetadatasForInfos(title: streamingInfos.videoInfos.title ?? "", channelName: streamingInfos.videoInfos.channel?.name ?? "", videoDescription: streamingInfos.videoInfos.videoDescription ?? ""),
+                        metadatas: getMetadatasForInfos(title: streamingInfos.title ?? "", channelName: streamingInfos.channel?.name ?? "", videoDescription: streamingInfos.videoDescription ?? ""),
                         thumbnailData: self.videoThumbnailData)
                         DispatchQueue.main.async {
                             self.player.replaceCurrentItem(with: newPlayingItem)
@@ -424,14 +424,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.objectWillChange.send()
         }
-    }
-
-    private func checkIfDownloaded(videoId: String) -> DownloadedVideo? {
-        let fetchRequest = DownloadedVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-        let result = try? PersistenceModel.shared.context.fetch(fetchRequest)
-        return result?.first
     }
     
     private func getMetadatasForInfos(title: String, channelName: String, videoDescription: String) -> [(value: String, identifier: AVMetadataIdentifier, key: AVMetadataKey? )] {

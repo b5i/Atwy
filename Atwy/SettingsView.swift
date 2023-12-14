@@ -31,7 +31,7 @@ struct SettingsView: View {
                                 .font(.footnote)
                                 .bold()
                                 .foregroundColor(.gray)
-
+                            
                             HStack {
                                 Text("Unlink account")
                                 Image(systemName: "minus.circle")
@@ -53,21 +53,16 @@ struct SettingsView: View {
                         }
                     } else {
                         VStack {
-                            NavigationLink(destination: {
-                                GoogleConnectionView()
-                            }, label: {
-                                HStack {
-                                    Text("Connect your YouTube account")
-                                    Image(systemName: "plus.circle")
-                                        .frame(width: 30, height: 30)
-                                }
-                            })
+                            HStack {
+                                Text("Connect your YouTube account")
+                                Image(systemName: "plus.circle")
+                                    .frame(width: 30, height: 30)
+                            }
+                            .routeTo(.googleConnection)
                         }
                     }
                     List {
-                        NavigationLink(destination: {
-                            AppearanceSettingsView()
-                        }, label: {
+                        Group {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
@@ -79,10 +74,9 @@ struct SettingsView: View {
                             }
                             Text("Appeareance")
                             Spacer()
-                        })
-                        NavigationLink(destination: {
-                            StorageSettingsView()
-                        }, label: {
+                        }
+                        .routeTo(.appearanceSettings)
+                        Group {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
@@ -94,10 +88,9 @@ struct SettingsView: View {
                             }
                             Text("Storage")
                             Spacer()
-                        })
-                        NavigationLink(destination: {
-                            LicensesView()
-                        }, label: {
+                        }
+                        .routeTo(.storageSettings)
+                        Group {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
@@ -109,7 +102,8 @@ struct SettingsView: View {
                             }
                             Text("Licenses")
                             Spacer()
-                        })
+                        }
+                        .routeTo(.licensesSettings)
                     }
                     .frame(height: 200)
                 }

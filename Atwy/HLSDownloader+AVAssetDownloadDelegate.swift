@@ -15,11 +15,13 @@ import UIKit
 extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange) {
+        let expectedSeconds = timeRangeExpectedToLoad.duration.seconds
+        guard timeRangeExpectedToLoad.duration.seconds != 0 else { return }
         var newPercentComplete = 0.0
         for value in loadedTimeRanges {
             let loadedTimeRange: CMTimeRange = value.timeRangeValue
             newPercentComplete +=
-            loadedTimeRange.duration.seconds / timeRangeExpectedToLoad.duration.seconds
+            loadedTimeRange.duration.seconds / expectedSeconds
         }
         DispatchQueue.main.async {
             self.percentComplete = max(newPercentComplete, self.percentComplete)
@@ -56,6 +58,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        guard totalBytesExpectedToWrite != 0 else { return }
         DispatchQueue.main.async {
             self.percentComplete = max(Double(totalBytesWritten) / Double(totalBytesExpectedToWrite), self.percentComplete)
         }

@@ -19,17 +19,14 @@ struct NotConnectedToGoogleView: View {
                     .padding()
                 Text("You are not connected with Google.")
                     .font(.title2)
-                NavigationLink(destination: {
-                    GoogleConnectionView()
-                }, label: {
-                    ZStack(alignment: .center) {
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(LinearGradient(colors: [.blue, .purple, .blue], startPoint: .leading, endPoint: .trailing))
-                            .frame(width: 150, height: 40)
-                        Text("Connect")
-                            .foregroundStyle(.white)
-                    }
-                })
+                ZStack(alignment: .center) {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(LinearGradient(colors: [.blue, .purple, .blue], startPoint: .leading, endPoint: .trailing))
+                        .frame(width: 150, height: 40)
+                    Text("Connect")
+                        .foregroundStyle(.white)
+                }
+                .routeTo(.googleConnection)
                 .padding()
                 Spacer()
             }

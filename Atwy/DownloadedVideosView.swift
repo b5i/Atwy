@@ -27,15 +27,14 @@ struct DownloadedVideosView: View {
                 VStack {
                     if (DM.activeDownloadingsCount != 0) {
                         List {
-                            NavigationLink(destination: DownloadingsView(), label: {
-                                HStack {
-                                    Text("Downloading")
-                                    Spacer()
-                                    Text("\(DM.activeDownloadingsCount)")
-                                        .padding(.horizontal)
-                                    ProgressView()
-                                }
-                            })
+                            HStack {
+                                Text("Downloading")
+                                Spacer()
+                                Text("\(DM.activeDownloadingsCount)")
+                                    .padding(.horizontal)
+                                ProgressView()
+                            }
+                            .routeTo(.downloadings)
                         }
                         .frame(height: 50)
                         .padding()

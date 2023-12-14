@@ -13,45 +13,44 @@ struct ChannelView: View {
     let channel: YTChannel
     var body: some View {
         GeometryReader { geometry in
-            NavigationLink(destination: ChannelDetailsView(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails))) {
+            HStack {
                 HStack {
-                    HStack {
-                        CachedAsyncImage(url: channel.thumbnails.last?.url) { image in
-                            image
-                                .resizable()
-                                .clipShape(Circle())
-                                .frame(width: 125)
-                                .shadow(radius: 3)
-                                .padding(.trailing)
-                        } placeholder: {
-                            ZStack {
-                                Circle()
-                                    .foregroundColor(.black)
-                                ProgressView()
-                            }
+                    CachedAsyncImage(url: channel.thumbnails.last?.url) { image in
+                        image
+                            .resizable()
+                            .clipShape(Circle())
                             .frame(width: 125)
+                            .shadow(radius: 3)
+                            .padding(.trailing)
+                    } placeholder: {
+                        ZStack {
+                            Circle()
+                                .foregroundColor(.black)
+                            ProgressView()
                         }
-                        // Add badges
+                        .frame(width: 125)
                     }
-                    .frame(width: geometry.size.width * 0.5, height: 125, alignment: .center)
-                    VStack {
-                        VStack {
-                            Text(channel.name ?? "")
-                        }
-                        .foregroundColor(colorScheme.textColor)
-                        .truncationMode(.tail)
-                        .frame(height: 125)
-                        Divider()
-                        Text(channel.subscriberCount ?? "")
-                            .foregroundColor(colorScheme.textColor)
-                            .font(.footnote)
-                            .opacity(0.5)
-                            .bold()
-                    }
-                    .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
-                    Spacer()
+                    // Add badges
                 }
+                .frame(width: geometry.size.width * 0.5, height: 125, alignment: .center)
+                VStack {
+                    VStack {
+                        Text(channel.name ?? "")
+                    }
+                    .foregroundColor(colorScheme.textColor)
+                    .truncationMode(.tail)
+                    .frame(height: 125)
+                    Divider()
+                    Text(channel.subscriberCount ?? "")
+                        .foregroundColor(colorScheme.textColor)
+                        .font(.footnote)
+                        .opacity(0.5)
+                        .bold()
+                }
+                .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
+                Spacer()
             }
+            .routeTo(.channelDetails(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails)))
         }
     }
 }
