@@ -40,7 +40,7 @@ struct VideoContextMenuView: View {
 //                Button {
 //                    guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
 //                    let vc = UIActivityViewController(
-//                        activityItems: [FileManager.default.contents(atPath: downloadURL.absoluteString)],
+//                        activityItems: [FileManager.default.contents(atPath: downloadURL.path())],
 //                        applicationActivities: nil
 //                    )
 //                    //vc.excludedActivityTypes = [.]
@@ -51,7 +51,6 @@ struct VideoContextMenuView: View {
 //                }
             } else {
                  DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
-                // Not enabled for the moment
             }
         }
     }

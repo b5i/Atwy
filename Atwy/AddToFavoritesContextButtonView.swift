@@ -13,10 +13,12 @@ struct AddToFavoritesContextButtonView: View, Equatable {
     let imageData: Data?
     var body: some View {
         Button {
-            PersistenceModel.shared.addToFavorites(
-                video: video,
-                imageData: imageData
-            )
+            Task {
+                PersistenceModel.shared.addToFavorites(
+                    video: video,
+                    imageData: imageData
+                )
+            }
         } label: {
             HStack {
                 Text("Add to favorites")

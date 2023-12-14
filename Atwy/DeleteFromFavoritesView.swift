@@ -13,7 +13,9 @@ struct DeleteFromFavoritesView: View {
     let video: YTVideo
     var body: some View {
         Button(role: .destructive) {
-            PersistenceModel.shared.removeFromFavorites(video: video)
+            Task {
+                PersistenceModel.shared.removeFromFavorites(video: video)
+            }
         } label: {
             HStack {
                 Text("Remove Favorite")
