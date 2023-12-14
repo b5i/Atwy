@@ -25,6 +25,8 @@ struct FavoritesView: View {
             GeometryReader { geometry in
                 ScrollView {
                     LazyVStack {
+                        let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
+                        
                         ForEach(favorites.filter({$0.matchesQuery(search)})) { video in
                             let convertResult = video.toYTVideo()
                             
@@ -35,14 +37,8 @@ struct FavoritesView: View {
                                 
                                 SheetsModel.shared.showSheet(.watchVideo)
                             } label: {
-                                if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
-                                    VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnailData, channelAvatarData: video.channel?.thumbnail)
-                                        .frame(width: geometry.size.width, height: 180, alignment: .center)
-                                } else {
-                                    // Big thumbnail view by default
-                                    VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnailData, channelAvatarData: video.channel?.thumbnail)
-                                        .frame(width: geometry.size.width, height: geometry.size.width * 9/16 + 90, alignment: .center)
-                                }
+                                VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnailData, channelAvatarData: video.channel?.thumbnail)
+                                    .frame(width: geometry.size.width, height: propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90, alignment: .center)
                             }
                             .listRowSeparator(.hidden)
                         }
