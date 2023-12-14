@@ -9,7 +9,6 @@ import SwiftUI
 import YouTubeKit
 
 struct DownloadedVideosView: View {
-    @Environment(\.managedObjectContext) private var context
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \DownloadedVideo.timestamp, ascending: true)],
         animation: .default)
@@ -43,10 +42,11 @@ struct DownloadedVideosView: View {
                         //                        List {
                         LazyVStack {
                             let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
+                            let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                             
-                            ForEach(downloadedVideos.filter({$0.matchesQuery(search)}), id: \.timestamp, content: { video in
+                            ForEach(downloadedVideos.filter({$0.matchesQuery(search)})) { (video: DownloadedVideo) in
                                 let convertResult = video.toYTVideo()
-                                                                
+                                
                                 Button {
                                     if VideoPlayerModel.shared.video?.videoId != video.videoId {
                                         VideoPlayerModel.shared.loadVideo(video: convertResult)
@@ -54,11 +54,13 @@ struct DownloadedVideosView: View {
                                     
                                     SheetsModel.shared.showSheet(.watchVideo)
                                 } label: {
-                                    VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnailData, channelAvatarData: video.channel?.thumbnail)
-                                        .frame(width: geometry.size.width, height: propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90, alignment: .center)
+                                    VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnail, channelAvatarData: video.channel?.thumbnail)
+                                        .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
                                 }
                                 .listRowSeparator(.hidden)
-                            })
+                            }
+                            Color.clear
+                                .frame(height: 30)
                         }
     
                         if VPM.video != nil {
