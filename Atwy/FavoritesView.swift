@@ -26,8 +26,9 @@ struct FavoritesView: View {
                 ScrollView {
                     LazyVStack {
                         let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
+                        let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                         
-                        ForEach(favorites.filter({$0.matchesQuery(search)})) { video in
+                        ForEach(favorites.filter({$0.matchesQuery(search)})) { (video: FavoriteVideo) in
                             let convertResult = video.toYTVideo()
                             
                             Button {
@@ -38,7 +39,7 @@ struct FavoritesView: View {
                                 SheetsModel.shared.showSheet(.watchVideo)
                             } label: {
                                 VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnailData, channelAvatarData: video.channel?.thumbnail)
-                                    .frame(width: geometry.size.width, height: propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90, alignment: .center)
+                                    .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
                             }
                             .listRowSeparator(.hidden)
                         }
