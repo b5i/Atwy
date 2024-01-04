@@ -20,19 +20,20 @@ struct GoogleConnectionView: View {
                         .frame(width: 200, height: 200)
                 }
                 Spacer()
-                Text("Instructions")
-                    .font(.title)
-                    .bold()
-                Text("1. Connect to your Google account.")
-                    .padding(.vertical)
-                    .bold()
-                HStack {
-                    Text("2. Click on the ")
+                VStack(alignment: .leading) {
+                    Text("Instructions")
+                        .font(.title)
                         .bold()
-                    Image(systemName: "checkmark")
-                    Text("button.")
+                    Text("1. Connect to your Google account.")
+                        .padding(.vertical)
                         .bold()
+                    Text("2. Click on the ✓ button.")
+                        .bold()
+                    Text("Note: if you are connected on YouTube's website but clicking on the ✓ button doesn't work, you can try to reset the browser by clicking the ↻ button and reconnect again.")
+                        .font(.caption)
+                        .padding(.top)
                 }
+                .padding()
                 Spacer()
                 Button {
                     withAnimation {
@@ -50,6 +51,11 @@ struct GoogleConnectionView: View {
                 #if !os(macOS)
                 WebViewUI()
                     .toolbar {
+                        Button {
+                            NotificationCenter.default.post(name: .atwyResetCookies, object: nil)
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                        }
                         Button {
                             NotificationCenter.default.post(name: .atwyGetCookies, object: nil)
                         } label: {

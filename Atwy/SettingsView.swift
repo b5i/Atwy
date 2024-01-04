@@ -66,6 +66,20 @@ struct SettingsView: View {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
+                                        .foregroundColor(.green)
+                                    Image(systemName: "doc.questionmark.fill")
+                                        .foregroundColor(.white)
+                                }
+                                .frame(width: 30, height: 30)
+                            }
+                            Text("Behavior")
+                            Spacer()
+                        }
+                        .routeTo(.behaviorSettings)
+                        Group {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 5)
                                         .foregroundColor(.blue)
                                     Image(systemName: "textformat.size")
                                         .foregroundColor(.white)
@@ -105,7 +119,7 @@ struct SettingsView: View {
                         }
                         .routeTo(.licensesSettings)
                     }
-                    .frame(height: 200)
+                    .frame(height: 220)
                 }
             }
             .navigationTitle("Account")

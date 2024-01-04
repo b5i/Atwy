@@ -64,6 +64,13 @@ struct AppearanceSettingsView: View {
                             }
                             .frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.75)
                         })
+                        .onAppear {
+                            if let state = PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes {
+                                self.videoViewChoice = state
+                            } else {
+                                self.videoViewChoice = .fullThumbnail
+                            }
+                        }
                     }
                     .navigationTitle("Appearance")
                 }

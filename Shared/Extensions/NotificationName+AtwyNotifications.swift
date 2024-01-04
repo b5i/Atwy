@@ -18,6 +18,8 @@ extension Notification.Name {
     
     static let atwyGetCookies = Notification.Name("GetCookies")
     
+    static let atwyResetCookies = Notification.Name("ResetCookies")
+    
     static let atwyStopPlayer = Notification.Name("StopPlayer")
     
     static let atwyAVPlayerEnded = Notification.Name("AVPlayerEnded")

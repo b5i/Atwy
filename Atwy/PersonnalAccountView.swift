@@ -29,7 +29,7 @@ struct PersonnalAccountView: View {
                             VStack(spacing: 50) {
                                 if let libraryContent = libraryContent {
                                     if let history = libraryContent.history {
-                                        YouTubeBasePlaylistView(playlist: history)
+                                        YouTubeBasePlaylistView(playlist: history, customRoute: .history)
                                             .frame(width: geometry.size.width, height: history.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
                                     }
                                     if let watchLater = libraryContent.watchLater {
