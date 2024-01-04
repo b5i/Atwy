@@ -14,13 +14,13 @@ class PreferencesStorageModel: ObservableObject {
     let jsonEncoder = JSONEncoder()
     let jsonDecoder = JSONDecoder()
     
-    @Published var propetriesState: [Properties : Any] = [:]
+    @Published var propetriesState: [Properties : any Codable] = [:]
     
     init() {
         reloadData()
     }
     
-    public func setNewValueForKey(_ key: Properties, value: Encodable?) {
+    public func setNewValueForKey(_ key: Properties, value: Codable?) {
         if let value = value {
             if let encoded = try? jsonEncoder.encode(value) {
                 UD.setValue(encoded, forKey: key.rawValue)
@@ -42,6 +42,10 @@ class PreferencesStorageModel: ObservableObject {
                     if let value = try? jsonDecoder.decode(Properties.VideoViewModes.self, from: data) {
                         propetriesState.updateValue(value, forKey: property)
                     }
+                case .performanceMode:
+                    if let value = try? jsonDecoder.decode(Properties.PerformanceModes.self, from: data) {
+                        propetriesState.updateValue(value, forKey: property)
+                    }
                 }
             }
         }
@@ -52,6 +56,12 @@ class PreferencesStorageModel: ObservableObject {
         public enum VideoViewModes: Codable {
             case fullThumbnail
             case halfThumbnail
+        }
+        
+        case performanceMode
+        public enum PerformanceModes: Codable {
+            case full
+            case limited
         }
     }
 }

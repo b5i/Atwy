@@ -10,7 +10,8 @@ import YouTubeKit
 
 struct YouTubeBasePlaylistView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var playlist: YTPlaylist?
+    let playlist: YTPlaylist?
+    var customRoute: RouteDestination? = nil
     var body: some View {
         GeometryReader { geometry in
             VStack {
@@ -56,7 +57,7 @@ struct YouTubeBasePlaylistView: View {
                             }
                         }
                     }
-                    .routeTo(.playlistDetails(playlist: playlist))
+                    .routeTo(customRoute ?? .playlistDetails(playlist: playlist))
                 }
             }
         }

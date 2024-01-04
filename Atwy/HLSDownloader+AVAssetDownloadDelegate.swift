@@ -107,6 +107,33 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 return
             }
         } else { // HLS stream download
+//            newPath = URL(string: "\(docDir.absoluteString)\(videoId).mp4")!
+//            let asset = AVAsset(url: location)
+//            let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+//            session?.outputFileType = .mp4
+//            session?.outputURL = newPath
+//            session?.metadata = [
+//                createMetdataItem(value: video?.title ?? "", type: .commonIdentifierTitle),
+//                createMetdataItem(value: video?.title ?? "", type: .quickTimeMetadataTitle),
+//                createMetdataItem(value: video?.channel?.name ?? "", type: .commonIdentifierArtist),
+//                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
+//                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataArtist),
+//                createMetdataItem(value: video?.channel?.name ?? "", type: .quickTimeMetadataArtist)
+//            ]
+//            let semaphore = DispatchSemaphore(value: 0)
+//            let backgroundQueue = DispatchQueue(label: "background_convert\(video?.videoId ?? "")",qos: .background)
+//            backgroundQueue.sync {
+//                print("started export")
+//                _ = docDir.startAccessingSecurityScopedResource()
+//                session?.exportAsynchronously(completionHandler: {
+//                    semaphore.signal()
+//                })
+//                semaphore.wait()
+//                self.location = newPath
+//                docDir.stopAccessingSecurityScopedResource()
+//                print("finished export")
+//            }
+
             newPath = URL(string: "\(docDir.absoluteString)\(videoId).movpkg")!
             _ = docDir.startAccessingSecurityScopedResource()
             guard copyVideoAndDeleteOld(location: location, newLocation: newPath) else {
@@ -118,6 +145,28 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 }
                 return
             }
+//            if let enumerator = FileManager.default.enumerator(atPath: newPath.path()) {
+//                for case let file as String in enumerator where file.hasSuffix(".frag") {
+//                    guard 
+//                        let FragUrl = URL(string: newPath.path() + "/" + file),
+//                        let TSUrl = URL(string: newPath.path() + "/" + file.dropLast(4).appending("ts")),
+//                        let MP4URL = URL(string: TSUrl.path().dropLast(2).appending("mp4"))
+//                    else { continue }
+//                    do {
+//                        try FileManager.default.moveItem(atPath: FragUrl.path(), toPath: TSUrl.path())
+//                    } catch {
+//                        print(error)
+//                    }
+//                    
+//                    let asset = AVAsset(url: TSUrl)
+//                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+//                    session?.outputFileType = .mp4
+//                    session?.outputURL = MP4URL
+//                    session?.exportAsynchronously {
+//                        print("Exported \(TSUrl) at path: \(MP4URL)")
+//                    }
+//                }
+//            }
             docDir.stopAccessingSecurityScopedResource()
         }
         Task {
@@ -169,7 +218,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                         let newChannel = DownloadedChannel(context: backgroundContext)
                         newChannel.channelId = channelId
                         newChannel.name = videoInfos?.0?.channel?.name ?? self.video?.channel?.name
-                        if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(2) ?? self.video?.channel?.thumbnails.maxFor(2) {
+                        if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(3) ?? self.video?.channel?.thumbnails.maxFor(3) {
                             let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                             imageTask.start()
                             imageTask.waitUntilFinished()
@@ -248,5 +297,27 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             }
             return false
         }
+    }
+    
+    private func createMetdataItem(value: String, type: AVMetadataIdentifier, key: AVMetadataKey? = nil) -> AVMetadataItem {
+        let metadataItem = AVMutableMetadataItem()
+        metadataItem.locale = NSLocale.current
+        if let key = key {
+            metadataItem.key = key as any NSCopying & NSObjectProtocol
+        } else {
+            metadataItem.identifier = type
+        }
+        metadataItem.value = value as NSString
+        metadataItem.extendedLanguageTag = "und"
+        return metadataItem
+    }
+
+    private func createArtworkItem(imageData: Data) -> AVMetadataItem {
+        let artwork = AVMutableMetadataItem()
+        artwork.value = UIImage(data: imageData)!.pngData() as (NSCopying & NSObjectProtocol)?
+        artwork.dataType = kCMMetadataBaseDataType_PNG as String
+        artwork.identifier = .commonIdentifierArtwork
+        artwork.extendedLanguageTag = "und"
+        return artwork
     }
 }

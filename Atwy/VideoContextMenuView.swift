@@ -39,41 +39,44 @@ struct VideoContextMenuView: View {
 //            if let downloadURL = downloadURL {
             if downloadURL != nil {
                 RemoveDownloadContextMenuButtonView(video: video)
-//                Button {
-//                    guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController, let downloadPath = FileManager.default.contents(atPath: downloadURL.path()) else { return }
-//                    let asset = AVAsset(url: downloadURL)
-//                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHEVCHighestQuality)
-//                    session?.outputFileType = .mp4
-//                    guard let outputURL = URL(string: "\(downloadURL.deletingLastPathComponent()) temp_export_" + UUID().uuidString + ".mp4") else { return }
-//                    session?.outputURL = outputURL
-//                    session?.metadata = [
-//                        createMetdataItem(value: video.title ?? "", type: .commonIdentifierTitle),
-//                        createMetdataItem(value: video.title ?? "", type: .quickTimeMetadataTitle),
-//                        createMetdataItem(value: video.channel?.name ?? "", type: .commonIdentifierArtist),
-//                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
-//                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataArtist),
-//                        createMetdataItem(value: video.channel?.name ?? "", type: .quickTimeMetadataArtist)
-//                    ]
-//                    session?.exportAsynchronously {
-//                        let vc = UIActivityViewController(
-//                            activityItems: [VideoShareSource(videoURL: outputURL, video: video)],
-//                            applicationActivities: nil
-//                        )
-//                        //vc.excludedActivityTypes = [.]
-//                        DispatchQueue.main.async {
-//                            vc.popoverPresentationController?.sourceView = source.view
-//                            source.present(vc, animated: true)
-//                        }
-//                    }
-//                } label: {
-//                    Text("Share")
-//                }
+                /* to be activated later
+                Button {
+                    guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
+                    let asset = AVAsset(url: downloadURL)
+                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+                    session?.outputFileType = .mp4
+                    guard let outputURL = URL(string: "\(downloadURL.deletingLastPathComponent().path())temp_export_" + UUID().uuidString + ".mp4") else { return }
+                    session?.outputURL = outputURL
+                    session?.metadata = [
+                        createMetdataItem(value: video.title ?? "", type: .commonIdentifierTitle),
+                        createMetdataItem(value: video.title ?? "", type: .quickTimeMetadataTitle),
+                        createMetdataItem(value: video.channel?.name ?? "", type: .commonIdentifierArtist),
+                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
+                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataArtist),
+                        createMetdataItem(value: video.channel?.name ?? "", type: .quickTimeMetadataArtist)
+                    ]
+                    session?.exportAsynchronously {
+                        let vc = UIActivityViewController(
+                            activityItems: [VideoShareSource(videoURL: outputURL, video: video)],
+                            applicationActivities: nil
+                        )
+                        //vc.excludedActivityTypes = [.]
+                        DispatchQueue.main.async {
+                            vc.popoverPresentationController?.sourceView = source.view
+                            source.present(vc, animated: true)
+                        }
+                    }
+                } label: {
+                    Text("Share")
+                }
+                */
             } else {
                 DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
             }
         }
     }
     
+    /* to be activated later
     private func createMetdataItem(value: String, type: AVMetadataIdentifier, key: AVMetadataKey? = nil) -> AVMetadataItem {
         let metadataItem = AVMutableMetadataItem()
         metadataItem.locale = NSLocale.current
@@ -95,44 +98,47 @@ struct VideoContextMenuView: View {
         artwork.extendedLanguageTag = "und"
         return artwork
     }
+     */
 }
-//
-//class VideoShareSource: NSObject, UIActivityItemSource {
-//    let videoURL: URL
-//    let video: YTVideo
-//    
-//    init(videoURL: URL, video: YTVideo) {
-//        self.videoURL = videoURL
-//        self.video = video
-//    }
-//    
-//    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-//        return videoURL
-//    }
-//    
-//    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-//        return videoURL
-//    }
-//        
-//    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
-//        return video.title ?? ""
-//    }
-//    
-//    
-//    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
-//        return UTType.mpeg4Movie.identifier
-//    }
-//    
-//    func activityViewController(_ activityViewController: UIActivityViewController, thumbnailImageForActivityType activityType: UIActivity.ActivityType?, suggestedSize size: CGSize) -> UIImage? {
-//        guard let thumbnailURL = video.thumbnails.first?.url, let imageData = try? Data(contentsOf: thumbnailURL) else { return nil }
-//        return UIImage(data: imageData)
-//    }
-//    
-//    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
-//        let metadata = LPLinkMetadata()
-//        metadata.title = video.title
-//        
-//        metadata.url = videoURL
-//        return metadata
-//    }
-//}
+
+/* to be activated later
+class VideoShareSource: NSObject, UIActivityItemSource {
+    let videoURL: URL
+    let video: YTVideo
+    
+    init(videoURL: URL, video: YTVideo) {
+        self.videoURL = videoURL
+        self.video = video
+    }
+    
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return videoURL
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        return videoURL
+    }
+        
+    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
+        return video.title ?? ""
+    }
+    
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
+        return UTType.mpeg4Movie.identifier
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, thumbnailImageForActivityType activityType: UIActivity.ActivityType?, suggestedSize size: CGSize) -> UIImage? {
+        guard let thumbnailURL = video.thumbnails.first?.url, let imageData = try? Data(contentsOf: thumbnailURL) else { return nil }
+        return UIImage(data: imageData)
+    }
+    
+    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.title = video.title
+        
+        metadata.url = videoURL
+        return metadata
+    }
+}
+*/

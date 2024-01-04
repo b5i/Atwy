@@ -21,8 +21,10 @@ public enum RouteDestination: Hashable {
     
     case channelDetails(channel: YTLittleChannelInfos)
     case playlistDetails(playlist: YTPlaylist)
+    case history
     
     // Settings
+    case behaviorSettings
     case appearanceSettings
     case storageSettings
     case licensesSettings

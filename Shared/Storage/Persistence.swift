@@ -102,63 +102,64 @@ class PersistenceModel: ObservableObject {
     }
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
+        Task {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
-            
-            let newItem = FavoriteVideo(context: backgroundContext)
-            newItem.timestamp = Date()
-            newItem.videoId = video.videoId
-            newItem.title = video.title
-            if let imageData = imageData {
-                newItem.thumbnailData = imageData
-            } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
-                let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
-                imageTask.start()
-                imageTask.waitUntilFinished()
-                backgroundContext.performAndWait {
-                    if let imageData = imageTask.imageData {
-                        newItem.thumbnailData = cropImage(data: imageData)
-                    }
-                }
-            }
-            
-            if let channelId = video.channel?.channelId {
-                let fetchRequest = DownloadedChannel.fetchRequest()
-                fetchRequest.fetchLimit = 1
-                fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                let result = try? backgroundContext.fetch(fetchRequest)
-                
-                if let channel = result?.first {
-                    channel.addToFavorites(newItem)
-                } else {
-                    let newChannel = DownloadedChannel(context: backgroundContext)
-                    newChannel.channelId = channelId
-                    newChannel.name = video.channel?.name
-                    if let channelThumbnailURL = video.channel?.thumbnails.last {
-                        let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
-                        imageTask.start()
-                        imageTask.waitUntilFinished()
-                        backgroundContext.performAndWait {
-                            newChannel.thumbnail = imageTask.imageData
+            backgroundContext.performAndWait {
+                let newItem = FavoriteVideo(context: backgroundContext)
+                newItem.timestamp = Date()
+                newItem.videoId = video.videoId
+                newItem.title = video.title
+                if let imageData = imageData {
+                    newItem.thumbnailData = imageData
+                } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
+                    let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
+                    imageTask.start()
+                    imageTask.waitUntilFinished()
+                    backgroundContext.performAndWait {
+                        if let imageData = imageTask.imageData {
+                            newItem.thumbnailData = cropImage(data: imageData)
                         }
                     }
-                    newChannel.addToFavorites(newItem)
                 }
-            }
-            
-            newItem.timeLength = video.timeLength
-            do {
-                try backgroundContext.save()
                 
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        name: .atwyCoreDataChanged,
-                        object: nil
-                    )
-                    NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
+                if let channelId = video.channel?.channelId {
+                    let fetchRequest = DownloadedChannel.fetchRequest()
+                    fetchRequest.fetchLimit = 1
+                    fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
+                    let result = try? backgroundContext.fetch(fetchRequest)
+                    
+                    if let channel = result?.first {
+                        channel.addToFavorites(newItem)
+                    } else {
+                        let newChannel = DownloadedChannel(context: backgroundContext)
+                        newChannel.channelId = channelId
+                        newChannel.name = video.channel?.name
+                        if let channelThumbnailURL = video.channel?.thumbnails.last {
+                            let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
+                            imageTask.start()
+                            imageTask.waitUntilFinished()
+                            backgroundContext.performAndWait {
+                                newChannel.thumbnail = imageTask.imageData
+                            }
+                        }
+                        newChannel.addToFavorites(newItem)
+                    }
                 }
-            } catch {
-                print("Couldn't add favorite to context, error: \(error)")
+                
+                newItem.timeLength = video.timeLength
+                do {
+                    try backgroundContext.save()
+                    
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(
+                            name: .atwyCoreDataChanged,
+                            object: nil
+                        )
+                        NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
+                    }
+                } catch {
+                    print("Couldn't add favorite to context, error: \(error)")
+                }
             }
         }
         

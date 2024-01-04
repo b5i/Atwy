@@ -25,6 +25,10 @@ public extension View {
                 ChannelDetailsView(channel: channel)
             case .playlistDetails(let playlist):
                 PlaylistDetailsView(playlist: playlist)
+            case .history:
+                HistoryView()
+            case .behaviorSettings:
+                BehaviorSettingsView()
             case .appearanceSettings:
                 AppearanceSettingsView()
             case .storageSettings:

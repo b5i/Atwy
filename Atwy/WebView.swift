@@ -29,14 +29,20 @@ struct WebViewUI: UIViewControllerRepresentable {
 
 class WebView: UIViewController {
     
-    private lazy var url = URL(string: "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com")!
+    private lazy var url = URL(string: "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fm.youtube.com")!
     private weak var webView: WKWebView?
     
     func initWebView(configuration: WKWebViewConfiguration) {
         NotificationCenter.default.addObserver(forName: .atwyGetCookies, object: nil, queue: nil, using: { _ in
             self.webView?.getCookies(completion: { cookies in
-                sendAndProcessCookies(cookies: cookies)
+                if sendAndProcessCookies(cookies: cookies) {
+                    self.webView?.resetCookies()
+                }
             })
+        })
+        NotificationCenter.default.addObserver(forName: .atwyResetCookies, object: nil, queue: nil, using: { _ in
+            self.webView?.resetCookies()
+            self.webView?.load(url: self.url)
         })
         if webView != nil { return }
         let webView = WKWebView(frame: UIScreen.main.bounds, configuration: configuration)
@@ -54,16 +60,23 @@ class WebView: UIViewController {
         if webView == nil { initWebView(configuration: WKWebViewConfiguration()) }
         webView?.load(url: url)
     }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        if let key = change?[.newKey] {
-            print(key)
-        }
-    }
 }
 
 extension WebView: WKNavigationDelegate {
-
+    /* to be activated (block redirections in other apps) https://stackoverflow.com/a/76948270/16456439
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.navigationType == .linkActivated,
+           let url = navigationAction.request.url,
+           url.scheme != "https" && url.scheme != "http" {
+            print("Blocked redirection at \(url)")
+            decisionHandler(.cancel)
+            webView.load(navigationAction.request)
+            return
+        }
+        decisionHandler(.allow)
+        print("Allowed redirection at \(url)")
+    }
+     */
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         decisionHandler(.allow)
     }
@@ -99,8 +112,15 @@ extension WKWebView {
 
     private var httpCookieStore: WKHTTPCookieStore { return WKWebsiteDataStore.default().httpCookieStore }
 
+    func resetCookies() {
+        httpCookieStore.getAllCookies({ cookies in
+            for cookie in cookies {
+                self.httpCookieStore.delete(cookie)
+            }
+        })
+    }
+    
     func getCookies(for domain: String? = nil, completion: @escaping (String) -> Void) {
-//        var cookieDict = [String : AnyObject]()
         httpCookieStore.getAllCookies { cookies in
             completion("\(cookies)")
         }
@@ -108,45 +128,35 @@ extension WKWebView {
 }
 #endif
 
-func sendAndProcessCookies(cookies: String) {
-    let potential1PSID = cookies.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:FALSE\n path:\"/\" isSecure:FALSE>, <NSHTTPCookie\n\tversion:1\n\tname:__Secure-1PSID\n\t")
-    let potential1PSID2 = cookies.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n\tisHTTPOnly: YES\n path:\"/\" isSecure:TRUE isHTTPOnly: YES>, <NSHTTPCookie\n\tversion:1\n\tname:__Secure-1PSID\n\t")
-    var PSID1: String?
-    if var potentialPSID = (potential1PSID.count > 1 ? potential1PSID : potential1PSID2.count > 1 ? potential1PSID2 : nil) {
-        potentialPSID = potentialPSID[1].components(separatedBy: "value:")
-        potentialPSID = potentialPSID[1].components(separatedBy: "\n\texpiresDate")
-        PSID1 = String(potentialPSID[0])
-    } else { return }
-    
-    var potential1PAPISID = cookies.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n path:\"/\" isSecure:TRUE>, <NSHTTPCookie\n\tversion:1\n\tname:__Secure-1PAPISID\n\t")
-    var PAPISID: String?
-    if potential1PAPISID.count > 1 {
-        potential1PAPISID = potential1PAPISID[1].components(separatedBy: "value:")
-        potential1PAPISID = potential1PAPISID[1].components(separatedBy: "\n\texpiresDate")
-        PAPISID = String(potential1PAPISID[0])
-    } else { return }
-    
-    var potentialSAPISID = cookies.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:FALSE\n path:\"/\" isSecure:FALSE>, <NSHTTPCookie\n\tversion:1\n\tname:SAPISID\n\t")
-    var SAPISID: String?
-    if potentialSAPISID.count > 1 {
-        potentialSAPISID = potentialSAPISID[1].components(separatedBy: "value:")
-        potentialSAPISID = potentialSAPISID[1].components(separatedBy: "\n\texpiresDate")
-        SAPISID = String(potentialSAPISID[0])
-    } else { return }
-
-    if let PSID1 = PSID1, let PAPISID = PAPISID, let SAPISID = SAPISID {
-        let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID); __Secure-1PSID=\(PSID1)"
-        let cookies = finalString.data(using: .utf8)!
-        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                    kSecAttrType as String: "Cookies",
-                                    kSecAttrService as String: "YouTube",
-                                    kSecValueData as String: cookies]
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else { print("Failed to add cookies in the Keychain, error: \(status)"); return }
-        DispatchQueue.main.async {
-            APIKeyModel.shared.googleCookies = finalString
-        }
-    } else {
-        print("Could not get cookies")
+func sendAndProcessCookies(cookies: String) -> Bool {
+    func extractCookie(withName name: String, from cookiesString: String) -> String? {
+        let potentialCookie = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n path:\"/\" isSecure:TRUE>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
+        let potentialCookie2 = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n\tisHTTPOnly: YES\n path:\"/\" isSecure:TRUE isHTTPOnly: YES>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
+        let potentialCookie3 = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:FALSE\n path:\"/\" isSecure:FALSE>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
+        var cookie: String?
+        if var potentialCookie = (potentialCookie.count > 1 ? potentialCookie : potentialCookie2.count > 1 ? potentialCookie2 : potentialCookie3.count > 1 ? potentialCookie3 : nil) { // The cookie can take multiple forms, this operation checks with 3 potentials forms.
+            potentialCookie = potentialCookie[1].components(separatedBy: "value:")
+            potentialCookie = potentialCookie[1].components(separatedBy: "\n\texpiresDate")
+            cookie = String(potentialCookie[0])
+        } else { print("Could not extract cookie with name: \(name)."); return nil }
+        
+        return cookie
     }
+    
+    guard var PSID1: String = extractCookie(withName: "__Secure-1PSID", from: cookies) else { return false }
+    guard var PAPISID: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
+    guard var SAPISID: String = extractCookie(withName: "SAPISID", from: cookies) else { return false }
+    
+    let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID); __Secure-1PSID=\(PSID1)"
+    let cookies = finalString.data(using: .utf8)!
+    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                kSecAttrType as String: "Cookies",
+                                kSecAttrService as String: "YouTube",
+                                kSecValueData as String: cookies]
+    let status = SecItemAdd(query as CFDictionary, nil)
+    guard status == errSecSuccess else { print("Failed to add cookies in the Keychain, error: \(status)"); return false }
+    DispatchQueue.main.async {
+        APIKeyModel.shared.googleCookies = finalString
+    }
+    return true
 }
