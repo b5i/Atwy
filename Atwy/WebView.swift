@@ -143,9 +143,9 @@ func sendAndProcessCookies(cookies: String) -> Bool {
         return cookie
     }
     
-    guard var PSID1: String = extractCookie(withName: "__Secure-1PSID", from: cookies) else { return false }
-    guard var PAPISID: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
-    guard var SAPISID: String = extractCookie(withName: "SAPISID", from: cookies) else { return false }
+    guard let PSID1: String = extractCookie(withName: "__Secure-1PSID", from: cookies) else { return false }
+    guard let PAPISID: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
+    guard let SAPISID: String = extractCookie(withName: "SAPISID", from: cookies) else { return false }
     
     let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID); __Secure-1PSID=\(PSID1)"
     let cookies = finalString.data(using: .utf8)!

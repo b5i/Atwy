@@ -26,10 +26,11 @@ struct VideoAppreciationView: View {
                         Text((likeStatus == .liked ? VPM.moreVideoInfos?.likesCount.likeButtonClickedNewValue : VPM.moreVideoInfos?.likesCount.defaultState) ?? "")
                             .foregroundStyle(.white)
                         Button {
-                            if VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .liked {
-                                DispatchQueue.main.async {
-                                    VPM.isFetchingAppreciation = true
-                                }
+                            DispatchQueue.main.async {
+                                VPM.isFetchingAppreciation = true
+                            }
+                            switch likeStatus {
+                            case .liked:
                                 VPM.video?.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
                                         print("Error while removing like from video: \(error)")
@@ -42,10 +43,7 @@ struct VideoAppreciationView: View {
                                         VPM.isFetchingAppreciation = false
                                     }
                                 })
-                            } else if VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .nothing {
-                                DispatchQueue.main.async {
-                                    VPM.isFetchingAppreciation = true
-                                }
+                            case .disliked, .nothing:
                                 VPM.video?.likeVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
                                         print("Error while liking video: \(error)")
@@ -60,7 +58,7 @@ struct VideoAppreciationView: View {
                                 })
                             }
                         } label: {
-                            Image(systemName: VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .liked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                            Image(systemName: likeStatus == .liked ? "hand.thumbsup.fill" : "hand.thumbsup")
                                 .foregroundStyle(.white)
                         }
                         .frame(width: 40, height: 40)
@@ -75,10 +73,11 @@ struct VideoAppreciationView: View {
                                 .padding(.vertical)
                                 .frame(height: 45)
                             Button {
-                                if VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .disliked {
-                                    DispatchQueue.main.async {
-                                        VPM.isFetchingAppreciation = true
-                                    }
+                                DispatchQueue.main.async {
+                                    VPM.isFetchingAppreciation = true
+                                }
+                                switch likeStatus {
+                                case .disliked:
                                     VPM.video?.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                         if let error = error {
                                             print("Error while removing dislike from video: \(error)")
@@ -91,11 +90,8 @@ struct VideoAppreciationView: View {
                                             VPM.isFetchingAppreciation = false
                                         }
                                     })
-                                } else if VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .nothing {
-                                    DispatchQueue.main.async {
-                                        VPM.isFetchingAppreciation = true
-                                    }
-                                    VPM.video?.likeVideo(youtubeModel: YTM, result: { error in
+                                case .nothing, .liked:
+                                    VPM.video?.dislikeVideo(youtubeModel: YTM, result: { error in
                                         if let error = error {
                                             print("Error while disliking video: \(error)")
                                         } else {
@@ -109,7 +105,7 @@ struct VideoAppreciationView: View {
                                     })
                                 }
                             } label: {
-                                Image(systemName: VPM.moreVideoInfos?.authenticatedInfos?.likeStatus == .disliked ? "hand.thumbsdown.fill" : "hand.thumbsdown")
+                                Image(systemName: likeStatus == .disliked ? "hand.thumbsdown.fill" : "hand.thumbsdown")
                                     .foregroundStyle(.white)
                             }
                             .frame(width: 40, height: 40)

@@ -74,7 +74,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                             if let contentLength = format.contentLength {
                                 let storageText: String = contentLength > 1_000_000_000 ? String(contentLength / 1_000_000_000) + "GB" : contentLength > 1_000_000 ? String(contentLength / 1_000_000) + "MB" : String(contentLength / 1_000) + "KB"
                                 if let audioFormat = format as? VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat {
-                                    Text("\((audioFormat.averageBitrate ?? 0) / 1_000)kbps - \(storageText)")
+                                    Text("\(audioFormat.formatLocaleInfos?.displayName ?? "") - \((audioFormat.averageBitrate ?? 0) / 1_000)kbps - \(storageText)")
                                 }
                             }
                         }
