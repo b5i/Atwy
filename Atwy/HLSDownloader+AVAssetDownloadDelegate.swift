@@ -67,11 +67,13 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     /// Tells the delegate that the task finished transferring data (HLS download).
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard !self.startedEndProcedure else { return /* Already started the end procedure. */}
+        guard !self.startedEndProcedure else { return /* Already started the end procedure. */ }
         if let error = error {
             print("Finished with error: \(error.localizedDescription)")
-            percentComplete = 0.0
-            downloaderState = .failed
+            DispatchQueue.main.async {
+                self.percentComplete = 0.0
+                self.downloaderState = .failed
+            }
             if let location = self.location {
                 do {
                     try FileManager.default.removeItem(at: location)
@@ -107,32 +109,34 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 return
             }
         } else { // HLS stream download
-//            newPath = URL(string: "\(docDir.absoluteString)\(videoId).mp4")!
-//            let asset = AVAsset(url: location)
-//            let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
-//            session?.outputFileType = .mp4
-//            session?.outputURL = newPath
-//            session?.metadata = [
-//                createMetdataItem(value: video?.title ?? "", type: .commonIdentifierTitle),
-//                createMetdataItem(value: video?.title ?? "", type: .quickTimeMetadataTitle),
-//                createMetdataItem(value: video?.channel?.name ?? "", type: .commonIdentifierArtist),
-//                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
-//                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataArtist),
-//                createMetdataItem(value: video?.channel?.name ?? "", type: .quickTimeMetadataArtist)
-//            ]
-//            let semaphore = DispatchSemaphore(value: 0)
-//            let backgroundQueue = DispatchQueue(label: "background_convert\(video?.videoId ?? "")",qos: .background)
-//            backgroundQueue.sync {
-//                print("started export")
-//                _ = docDir.startAccessingSecurityScopedResource()
-//                session?.exportAsynchronously(completionHandler: {
-//                    semaphore.signal()
-//                })
-//                semaphore.wait()
-//                self.location = newPath
-//                docDir.stopAccessingSecurityScopedResource()
-//                print("finished export")
-//            }
+            /*
+            newPath = URL(string: "\(docDir.absoluteString)\(videoId).mp4")!
+            let asset = AVAsset(url: location)
+            let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+            session?.outputFileType = .mp4
+            session?.outputURL = newPath
+            session?.metadata = [
+                createMetdataItem(value: video?.title ?? "", type: .commonIdentifierTitle),
+                createMetdataItem(value: video?.title ?? "", type: .quickTimeMetadataTitle),
+                createMetdataItem(value: video?.channel?.name ?? "", type: .commonIdentifierArtist),
+                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
+                createMetdataItem(value: video?.channel?.name ?? "", type: .iTunesMetadataArtist),
+                createMetdataItem(value: video?.channel?.name ?? "", type: .quickTimeMetadataArtist)
+            ]
+            let semaphore = DispatchSemaphore(value: 0)
+            let backgroundQueue = DispatchQueue(label: "background_convert\(video?.videoId ?? "")",qos: .background)
+            backgroundQueue.sync {
+                print("started export")
+                _ = docDir.startAccessingSecurityScopedResource()
+                session?.exportAsynchronously(completionHandler: {
+                    semaphore.signal()
+                })
+                semaphore.wait()
+                self.location = newPath
+                docDir.stopAccessingSecurityScopedResource()
+                print("finished export")
+            }
+            */
 
             newPath = URL(string: "\(docDir.absoluteString)\(videoId).movpkg")!
             _ = docDir.startAccessingSecurityScopedResource()
@@ -145,28 +149,30 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 }
                 return
             }
-//            if let enumerator = FileManager.default.enumerator(atPath: newPath.path()) {
-//                for case let file as String in enumerator where file.hasSuffix(".frag") {
-//                    guard 
-//                        let FragUrl = URL(string: newPath.path() + "/" + file),
-//                        let TSUrl = URL(string: newPath.path() + "/" + file.dropLast(4).appending("ts")),
-//                        let MP4URL = URL(string: TSUrl.path().dropLast(2).appending("mp4"))
-//                    else { continue }
-//                    do {
-//                        try FileManager.default.moveItem(atPath: FragUrl.path(), toPath: TSUrl.path())
-//                    } catch {
-//                        print(error)
-//                    }
-//                    
-//                    let asset = AVAsset(url: TSUrl)
-//                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
-//                    session?.outputFileType = .mp4
-//                    session?.outputURL = MP4URL
-//                    session?.exportAsynchronously {
-//                        print("Exported \(TSUrl) at path: \(MP4URL)")
-//                    }
-//                }
-//            }
+            /*
+            if let enumerator = FileManager.default.enumerator(atPath: newPath.path()) {
+                for case let file as String in enumerator where file.hasSuffix(".frag") {
+                    guard 
+                        let FragUrl = URL(string: newPath.path() + "/" + file),
+                        let TSUrl = URL(string: newPath.path() + "/" + file.dropLast(4).appending("ts")),
+                        let MP4URL = URL(string: TSUrl.path().dropLast(2).appending("mp4"))
+                    else { continue }
+                    do {
+                        try FileManager.default.moveItem(atPath: FragUrl.path(), toPath: TSUrl.path())
+                    } catch {
+                        print(error)
+                    }
+                    
+                    let asset = AVAsset(url: TSUrl)
+                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+                    session?.outputFileType = .mp4
+                    session?.outputURL = MP4URL
+                    session?.exportAsynchronously {
+                        print("Exported \(TSUrl) at path: \(MP4URL)")
+                    }
+                }
+            }
+             */
             docDir.stopAccessingSecurityScopedResource()
         }
         Task {
