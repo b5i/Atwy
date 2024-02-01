@@ -14,7 +14,7 @@ struct VideoAppreciationView: View {
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
-        if NM.connected, let likeStatus = VPM.moreVideoInfos?.authenticatedInfos?.likeStatus {
+        if NM.connected {
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -22,10 +22,12 @@ struct VideoAppreciationView: View {
                         .opacity(0.3)
                         .frame(height: 45)
                     HStack {
+                        let likeStatus = VPM.moreVideoInfos?.authenticatedInfos?.likeStatus
                         Spacer()
                         Text((likeStatus == .liked ? VPM.moreVideoInfos?.likesCount.likeButtonClickedNewValue : VPM.moreVideoInfos?.likesCount.defaultState) ?? "")
                             .foregroundStyle(.white)
                         Button {
+                            guard let likeStatus = likeStatus else { return }
                             DispatchQueue.main.async {
                                 VPM.isFetchingAppreciation = true
                             }
@@ -73,6 +75,7 @@ struct VideoAppreciationView: View {
                                 .padding(.vertical)
                                 .frame(height: 45)
                             Button {
+                                guard let likeStatus = likeStatus else { return }
                                 DispatchQueue.main.async {
                                     VPM.isFetchingAppreciation = true
                                 }
