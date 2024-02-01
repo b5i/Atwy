@@ -31,7 +31,7 @@ class WebView: UIViewController {
     
     private lazy var url = URL(string: "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fm.youtube.com")!
     private weak var webView: WKWebView?
-    
+        
     func initWebView(configuration: WKWebViewConfiguration) {
         NotificationCenter.default.addObserver(forName: .atwyGetCookies, object: nil, queue: nil, using: { _ in
             self.webView?.getCookies(completion: { cookies in
@@ -50,7 +50,6 @@ class WebView: UIViewController {
         webView.allowsBackForwardNavigationGestures = false
         webView.allowsLinkPreview = false
         webView.uiDelegate = self
-        webView.addObserver(self, forKeyPath: "URL", context: nil)
         view.addSubview(webView)
         self.webView = webView
     }
