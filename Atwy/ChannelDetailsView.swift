@@ -300,7 +300,7 @@ struct ChannelDetailsView: View {
                 DispatchQueue.main.async {
                     self.continuationsFetchingStates[category] = true
                 }
-                                
+                
                 switch category {
                 case .directs:
                     channelInfos.getChannelContentContinuation(ChannelInfosResponse.Directs.self, youtubeModel: YTM, result: { response, error in
