@@ -14,7 +14,7 @@ class PreferencesStorageModel: ObservableObject {
     let jsonEncoder = JSONEncoder()
     let jsonDecoder = JSONDecoder()
     
-    @Published var propetriesState: [Properties : any Codable] = [:]
+    @Published private(set) var propetriesState: [Properties : any Codable] = [:]
     
     init() {
         reloadData()
@@ -46,6 +46,14 @@ class PreferencesStorageModel: ObservableObject {
                     if let value = try? jsonDecoder.decode(Properties.PerformanceModes.self, from: data) {
                         propetriesState.updateValue(value, forKey: property)
                     }
+                case .isLoggerActivated:
+                    if let value = try? jsonDecoder.decode(Bool.self, from: data) {
+                        propetriesState.updateValue(value, forKey: property)
+                    }
+                case .loggerCacheLimit:
+                    if let value = try? jsonDecoder.decode(Optional<Int>.self, from: data) {
+                        propetriesState.updateValue(value, forKey: property)
+                    }
                 }
             }
         }
@@ -63,5 +71,8 @@ class PreferencesStorageModel: ObservableObject {
             case full
             case limited
         }
+        
+        case isLoggerActivated
+        case loggerCacheLimit
     }
 }

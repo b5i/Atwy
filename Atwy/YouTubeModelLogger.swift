@@ -16,12 +16,30 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
     
     @Published var logs: [any GenericRequestLog] = []
     
-    @Published var isLogging: Bool = false
+    @Published var isLogging: Bool = false {
+        didSet {
+            PreferencesStorageModel.shared.setNewValueForKey(.isLoggerActivated, value: self.isLogging)
+        }
+    }
     
-    @Published var maximumCacheSize: Int? = nil
+    @Published var maximumCacheSize: Int? = nil {
+        didSet {
+            PreferencesStorageModel.shared.setNewValueForKey(.loggerCacheLimit, value: self.maximumCacheSize)
+        }
+    }
     
     init() {
         self.clearLocalLogFiles()
+        if let loggerActiveStatus = PreferencesStorageModel.shared.propetriesState[.isLoggerActivated] as? Bool {
+            DispatchQueue.main.async {
+                self.isLogging = loggerActiveStatus
+            }
+        }
+        if let cacheLimit = PreferencesStorageModel.shared.propetriesState[.loggerCacheLimit] as? Int? {
+            DispatchQueue.main.async {
+                self.maximumCacheSize = cacheLimit
+            }
+        }
     }
     
     func clearLocalLogFiles() {
@@ -40,7 +58,7 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
     }
     
     /// Returns nil if the log does not exist
-    func exportLog(withId logId: UUID) -> URL? {
+    func exportLog(withId logId: UUID, showCredentials: Bool) -> URL? {
         guard let log = logs.first(where: {$0.id == logId}) else { return nil }
         return createZip(withName: logId.uuidString, files: [
             ("infos", """
@@ -52,22 +70,22 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
             ),
             ("request", """
             url: \(String(describing: log.request?.url))
-            httpFields: \(String(describing: log.request?.allHTTPHeaderFields))
-            httpBody: \(String(decoding: log.request?.httpBody ?? Data(), as: UTF8.self))
+            httpFields: \(showCredentials ? String(describing: log.request?.allHTTPHeaderFields) : "Credentials hidden")
+            httpBody: \(showCredentials ? String(decoding: log.request?.httpBody ?? Data(), as: UTF8.self) : "Credentials hidden")
             httpMethod: \(String(describing: log.request?.httpMethod))
             cachePolicy: \(String(describing: log.request?.cachePolicy.rawValue))
             """),
             ("responseData", String(decoding: log.responseData ?? Data(), as: UTF8.self)),
             ("result", getResultString(fromLog: log))
         ])
-        
-        func getResultString<L: GenericRequestLog>(fromLog log: L) -> String {
-            switch log.result {
-            case .success(let response):
-                return String(describing: response)
-            case .failure(let error):
-                return "Error: \(String(describing: error))"
-            }
+    }
+    
+    func getResultString<L: GenericRequestLog>(fromLog log: L) -> String {
+        switch log.result {
+        case .success(let response):
+            return String(describing: response)
+        case .failure(let error):
+            return "Error: \(String(describing: error))"
         }
     }
     
