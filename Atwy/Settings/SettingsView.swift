@@ -108,6 +108,20 @@ struct SettingsView: View {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
+                                        .foregroundColor(.red)
+                                    Image(systemName: "list.bullet.clipboard")
+                                        .foregroundColor(.white)
+                                }
+                                .frame(width: 30, height: 30)
+                            }
+                            Text("Logger")
+                            Spacer()
+                        }
+                        .routeTo(.loggerSettings)
+                        Group {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 5)
                                         .foregroundColor(.orange)
                                     Image(systemName: "book.fill")
                                         .foregroundColor(.white)
@@ -119,7 +133,7 @@ struct SettingsView: View {
                         }
                         .routeTo(.licensesSettings)
                     }
-                    .frame(height: 220)
+                    .frame(height: 275)
                 }
             }
             .navigationTitle("Account")

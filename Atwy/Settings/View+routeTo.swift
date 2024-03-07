@@ -33,6 +33,8 @@ public extension View {
                 AppearanceSettingsView()
             case .storageSettings:
                 StorageSettingsView()
+            case .loggerSettings:
+                LoggerSettingsView()
             case .licensesSettings:
                 LicensesView()
             }
