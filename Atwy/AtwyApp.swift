@@ -26,6 +26,9 @@ struct AtwyApp: App {
         Task {
             FileManagerModel.shared.fetchNewDownloadedVideosPaths()
         }
+        if YTM.logger == nil {
+            YTM.logger = YouTubeModelLogger.shared
+        }
     }
     var body: some Scene {
         WindowGroup {

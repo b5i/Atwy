@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */; };
 		340995622A759EC9004F9AAF /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 340995612A759EC9004F9AAF /* SwipeActions */; };
+		341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */; };
+		341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
 		3457B4772AE4182300390A5A /* NoConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4762AE4182200390A5A /* NoConnectionView.swift */; };
 		3457B4792AE41C1F00390A5A /* NotConnectedToGoogleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */; };
@@ -144,6 +146,8 @@
 
 /* Begin PBXFileReference section */
 		3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadImageOperation.swift; sourceTree = "<group>"; };
+		341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerSettingsView.swift; sourceTree = "<group>"; };
+		341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModelLogger.swift; sourceTree = "<group>"; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		344ED4A12928D85100DB56EA /* Atwy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Atwy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3457B4762AE4182200390A5A /* NoConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoConnectionView.swift; sourceTree = "<group>"; };
@@ -280,6 +284,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		341A36362B9A1C2C0047EF1B /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				34B5FDF32ADA856700367036 /* AppearanceSettingsView.swift */,
+				34B5FDF92ADA856800367036 /* LicensesView.swift */,
+				34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */,
+				34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */,
+				346F3AEE2B45FDCA00599B08 /* BehaviorSettingsView.swift */,
+				34B5FDDD2ADA856500367036 /* PreferencesStorageModel.swift */,
+				34B5FDD52ADA856400367036 /* SettingsView.swift */,
+				345DC3132AE54229007AE044 /* ShowSettingsButton.swift */,
+				347668A72B0923F5001D2522 /* ShowSettingsButtonView.swift */,
+				34B5FE052ADA856900367036 /* UserPreferenceCircleView.swift */,
+				341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		34320DFD297324C700B2CAE8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -328,6 +350,7 @@
 		34B5FE632ADA876C00367036 /* Atwy */ = {
 			isa = PBXGroup;
 			children = (
+				341A36362B9A1C2C0047EF1B /* Settings */,
 				34B5FDA62ADA851600367036 /* AddToFavoritesContextButtonView.swift */,
 				347668A92B0A834D001D2522 /* AddToFavoriteWidgetView.swift */,
 				34B5FDA72ADA851600367036 /* AddToPlaylistContextMenuButtonView.swift */,
@@ -336,11 +359,9 @@
 				34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */,
 				34B5FDA52ADA851600367036 /* AddToQueueSwipeActionButtonsView.swift */,
 				34B5FDC62ADA856200367036 /* APIKeyModel.swift */,
-				34B5FDF32ADA856700367036 /* AppearanceSettingsView.swift */,
 				34B5FD9E2ADA84F300367036 /* Assets.xcassets */,
 				34B5FE5E2ADA85B900367036 /* Atwy.entitlements */,
 				34B5FDE32ADA856600367036 /* AtwyApp.swift */,
-				346F3AEE2B45FDCA00599B08 /* BehaviorSettingsView.swift */,
 				34B5FDF62ADA856800367036 /* CachedAsyncImage.swift */,
 				34B5FDFF2ADA856800367036 /* ChannelAvatarCircleView.swift */,
 				34B5FDD72ADA856400367036 /* ChannelBannerRectangleView.swift */,
@@ -375,8 +396,6 @@
 				3457B4802AE4328100390A5A /* HLSDownloader+AVAssetDownloadDelegate.swift */,
 				34B5FE612ADA85C000367036 /* Info.plist */,
 				34B5FDE72ADA856600367036 /* IsUserTypingModel.swift */,
-				34B5FDF92ADA856800367036 /* LicensesView.swift */,
-				34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */,
 				34B5FDDE2ADA856500367036 /* LoadingView.swift */,
 				34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */,
 				34B5FDD02ADA856300367036 /* NetworkReachability.swift */,
@@ -391,25 +410,20 @@
 				34B5FDD12ADA856300367036 /* PlaylistDetailsView.swift */,
 				34B5FDFC2ADA856800367036 /* PlaylistView.swift */,
 				345DC3112AE53ECC007AE044 /* PopupsModel.swift */,
-				34B5FDDD2ADA856500367036 /* PreferencesStorageModel.swift */,
 				34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */,
 				34B5FDFD2ADA856800367036 /* PrivacyIconView.swift */,
 				34B5FDDF2ADA856500367036 /* RemoveDownloadContextMenuButtonView.swift */,
 				34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */,
 				34B5FE002ADA856800367036 /* SearchView.swift */,
-				34B5FDD52ADA856400367036 /* SettingsView.swift */,
 				34B5FDF72ADA856800367036 /* ShareChannelView.swift */,
 				34B5FDCE2ADA856300367036 /* ShazamProcessing.swift */,
 				345DC30B2AE538A2007AE044 /* SheetsModel.swift */,
 				345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */,
-				345DC3132AE54229007AE044 /* ShowSettingsButton.swift */,
-				347668A72B0923F5001D2522 /* ShowSettingsButtonView.swift */,
 				34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */,
 				34B5FE012ADA856800367036 /* SubscribeButtonView.swift */,
 				34B5FDC82ADA856200367036 /* SwipeActionsExtensions.swift */,
 				34B5FDC92ADA856200367036 /* TemporalAlertsViews.swift */,
 				34B5FDE02ADA856500367036 /* URLRequestExtension.swift */,
-				34B5FE052ADA856900367036 /* UserPreferenceCircleView.swift */,
 				34B5FDEC2ADA856600367036 /* UsersPlaylistsListView.swift */,
 				34B5FDD82ADA856400367036 /* VideoAppreciationView.swift */,
 				34B5FE062ADA856900367036 /* VideoContextMenuView.swift */,
@@ -421,12 +435,12 @@
 				34B5FDE22ADA856500367036 /* VideoView.swift */,
 				346F3AEA2B45CE7100599B08 /* View+centered.swift */,
 				34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */,
-				34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */,
 				34B5FE662ADA944E00367036 /* ViewRepresentable.swift */,
 				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
 				34B5FDF42ADA856700367036 /* WebView.swift */,
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
 				346F3AF02B46C2C700599B08 /* ElementsInfiniteScrollView.swift */,
+				341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -589,7 +603,9 @@
 				34B5FE172ADA856900367036 /* ShazamProcessing.swift in Sources */,
 				34B5FE192ADA856900367036 /* NetworkReachability.swift in Sources */,
 				3457B47B2AE41D7600390A5A /* GoogleConnectionView.swift in Sources */,
+				341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */,
 				34B5FE1A2ADA856900367036 /* PlaylistDetailsView.swift in Sources */,
+				341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */,
 				34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */,
 				34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */,
 				3459BDBC2AE165D1001859D8 /* VideoCustomContextMenu.swift in Sources */,
@@ -916,7 +932,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = 543a5d9c54071a3da29853f444639034dd4a0dc3;
+				revision = c81f40de23e12183caae91512343b48f8b612289;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
