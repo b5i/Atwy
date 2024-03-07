@@ -41,7 +41,7 @@ struct HistoryView: View {
         @Environment(\.colorScheme) private var colorScheme
 
         let videoSize: CGSize
-        let videoGroup: (groupTitle: String, videosArray: [(YTVideo, suppressToken: String?)])
+        let videoGroup: HistoryResponse.HistoryBlock
         @State private var isExpanded: Bool = true
         var body: some View {
             VStack {
@@ -66,7 +66,7 @@ struct HistoryView: View {
                 .zIndex(1)
                 
                 VStack {
-                    ForEach(Array(videoGroup.videosArray.map({$0.0}).enumerated()), id: \.offset) { _, video in
+                    ForEach(Array(videoGroup.videosArray.map({$0.video}).enumerated()), id: \.offset) { _, video in
                         VideoFromSearchView(video: video)
                             .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
                     }
@@ -91,17 +91,20 @@ struct HistoryView: View {
                 self.historyResponse = nil
                 self.error = nil
             }
-            HistoryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { response, error in
-                if let response = response {
+            HistoryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let response):
                     DispatchQueue.main.async {
                         self.historyResponse = response
-                        self.isFetching = false
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        self.error = error?.localizedDescription ?? "No error."
-                        self.isFetching = false
+                        self.error = error.localizedDescription
                     }
+                }
+                DispatchQueue.main.async {
+                    self.isFetching = false
                 }
             })
         }

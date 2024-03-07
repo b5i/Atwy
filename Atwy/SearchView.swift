@@ -211,17 +211,18 @@ struct SearchView: View {
                 self.isFetching = true
                 self.error = nil
             }
-            HomeScreenResponse.sendRequest(youtubeModel: YTM, data: [:], result: { response, error in
-                if let response = response {
+            HomeScreenResponse.sendRequest(youtubeModel: YTM, data: [:], result: { result in
+                switch result {
+                case .success(let response):
                     self.homeResponse = response
                     DispatchQueue.main.async {
                         self.items = response.results
                         self.isFetching = false
                         end?()
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        self.error = error?.localizedDescription
+                        self.error = error.localizedDescription
                         self.isFetching = false
                         self.items = []
                         end?()
@@ -236,8 +237,9 @@ struct SearchView: View {
                     self.isFetchingContination = true
                 }
                 
-                HomeScreenResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { response, error in
-                    if let response = response {
+                HomeScreenResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
+                    switch result {
+                    case .success(let response):
                         self.homeResponse?.mergeContinuation(response)
                         DispatchQueue.main.async {
                             if let results = self.homeResponse?.results {
@@ -246,7 +248,7 @@ struct SearchView: View {
                             }
                             end?()
                         }
-                    } else {
+                    case .failure(let error):
                         print("Couldn't fetch home screen continuation: \(String(describing: error))")
                         DispatchQueue.main.async {
                             end?()
@@ -267,17 +269,18 @@ struct SearchView: View {
                 self.isFetching = true
                 self.error = nil
             }
-            SearchResponse.sendRequest(youtubeModel: YTM, data: [.query: search], result: { response, error in
-                if let response = response {
+            SearchResponse.sendRequest(youtubeModel: YTM, data: [.query: search], result: { result in
+                switch result {
+                case .success(let response):
                     self.searchResponse = response
                     DispatchQueue.main.async {
                         self.items = response.results
                         self.isFetching = false
                         end?()
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        self.error = error?.localizedDescription
+                        self.error = error.localizedDescription
                         self.isFetching = false
                         self.items = []
                         end?()
@@ -292,8 +295,9 @@ struct SearchView: View {
                     self.isFetchingContination = true
                 }
                 
-                SearchResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { response, error in
-                    if let response = response {
+                SearchResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
+                    switch result {
+                    case .success(let response):
                         self.searchResponse?.mergeContinuation(response)
                         DispatchQueue.main.async {
                             if let results = self.searchResponse?.results {
@@ -302,7 +306,7 @@ struct SearchView: View {
                             }
                             end?()
                         }
-                    } else {
+                    case .failure(let error):
                         print("Couldn't fetch search screen continuation: \(String(describing: error))")
                         DispatchQueue.main.async {
                             end?()
@@ -319,7 +323,7 @@ struct SearchView: View {
 
     func refreshAutoCompletionEntries() {
         Task {
-            let (result, _) = await AutoCompletionResponse.sendRequest(youtubeModel: YTM, data: [.query: self.search])
+            let result = try? await AutoCompletionResponse.sendRequest(youtubeModel: YTM, data: [.query: self.search])
             DispatchQueue.main.async {
                 self.autoCompletion = result?.autoCompletionEntries ?? []
             }

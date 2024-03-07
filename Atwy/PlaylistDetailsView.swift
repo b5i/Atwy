@@ -137,16 +137,20 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingInfos = true
                 }
-                PlaylistInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: playlist.playlistId], useCookies: true, result: { response, error in
-                    DispatchQueue.main.async {
-                        self.playlistInfos = response
-                        if response?.playlistId == nil {
-                            self.playlistInfos?.playlistId = playlist.playlistId
+                PlaylistInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: playlist.playlistId], useCookies: true, result: { result in
+                    switch result {
+                    case .success(let response):
+                        DispatchQueue.main.async {
+                            self.playlistInfos = response
+                            if response.playlistId == nil {
+                                self.playlistInfos?.playlistId = playlist.playlistId
+                            }
                         }
-                        self.isFetchingInfos = false
-                    }
-                    if let error = error {
+                    case .failure(let error):
                         print("Error while fetching playlist infos: \(error.localizedDescription)")
+                    }
+                    DispatchQueue.main.async {
+                        self.isFetchingInfos = false
                     }
                 })
             }
@@ -157,15 +161,15 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingContinuation = true
                 }
-                PlaylistInfosResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { response, error in
-                    DispatchQueue.main.async {
-                        if let response = response {
-                            self.playlistInfos?.mergeWithContinuation(response)
-                        }
-                        self.isFetchingContinuation = false
+                PlaylistInfosResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { result in
+                    switch result {
+                    case .success(let response):
+                        self.playlistInfos?.mergeWithContinuation(response)
+                    case .failure(let error):
+                        print("Error while fetching playlist infos: \(error)")
                     }
-                    if let error = error {
-                        print("Error while fetching playlist infos: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.isFetchingContinuation = false
                     }
                 })
             }
@@ -173,8 +177,9 @@ struct PlaylistDetailsView: View {
         
         public func removeFromPlaylist(videoIdInPlaylist: String) {
             if let playlistInfos = playlistInfos, let playlistId = playlistInfos.playlistId, playlistInfos.userInteractions.isEditable ?? false {
-                RemoveVideoFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { response, _ in
-                    if let response = response {
+                RemoveVideoFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { result in
+                    switch result {
+                    case .success(let response):
                         if response.success, let removedVideoIndex =
                             playlistInfos.videoIdsInPlaylist?.firstIndex(where: { $0 == videoIdInPlaylist }) {
                             DispatchQueue.main.async {
@@ -182,6 +187,8 @@ struct PlaylistDetailsView: View {
                                 self.playlistInfos?.results.remove(at: removedVideoIndex)
                             }
                         }
+                    case .failure(let error):
+                        print("Couldn't remove video from playlist: \(error)")
                     }
                 })
             }
@@ -193,8 +200,9 @@ struct PlaylistDetailsView: View {
                 if let videoBeforeIdInPlaylist = videoBeforeIdInPlaylist {
                     data[.videoBeforeId] = videoBeforeIdInPlaylist
                 }
-                MoveVideoInPlaylistResponse.sendRequest(youtubeModel: YTM, data: data, result: { response, _ in
-                    if let response = response {
+                MoveVideoInPlaylistResponse.sendRequest(youtubeModel: YTM, data: data, result: { result in
+                    switch result {
+                    case .success(let response):
                         if response.success {
                             if videoBeforeIdInPlaylist != nil, let videoBeforeIndex = playlistInfos.videoIdsInPlaylist?.firstIndex(where: {$0 == videoBeforeIdInPlaylist}), let movingVideoIndex = playlistInfos.videoIdsInPlaylist?.firstIndex(where: {$0 == videoIdInPlaylist}) {
                                 DispatchQueue.main.async {
@@ -213,6 +221,8 @@ struct PlaylistDetailsView: View {
                                 }
                             }
                         }
+                    case .failure(let error):
+                        print("Couldn't move video in playlist: \(error)")
                     }
                 })
             }

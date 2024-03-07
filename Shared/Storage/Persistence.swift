@@ -41,6 +41,7 @@ struct PersistenceController {
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
+        
         let semamphore = DispatchSemaphore(value: 0)
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
@@ -59,7 +60,6 @@ struct PersistenceController {
             }
             semamphore.signal()
         })
-        
         semamphore.wait()
         
         self.spotlightIndexer = YTSpotlightDelegate(forStoreWith: storeDescription, coordinator: container.persistentStoreCoordinator)
@@ -80,6 +80,7 @@ struct PersistenceController {
                       "indexing and has processed history token up through \(String(describing: token)).")
             }
         }
+         
     }
 }
 

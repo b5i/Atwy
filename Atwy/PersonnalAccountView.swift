@@ -81,13 +81,17 @@ struct PersonnalAccountView: View {
         DispatchQueue.main.async {
             self.isFetching = true
         }
-        AccountLibraryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { response, error in
-            DispatchQueue.main.async {
-                self.libraryContent = response
-                self.isFetching = false
-            }
-            if let error = error {
+        AccountLibraryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { result in
+            switch result {
+            case .success(let response):
+                DispatchQueue.main.async {
+                    self.libraryContent = response
+                }
+            case .failure(let error):
                 print("Error while fetching account's library: \(String(describing: error)).")
+            }
+            DispatchQueue.main.async {
+                self.isFetching = false
             }
         })
     }

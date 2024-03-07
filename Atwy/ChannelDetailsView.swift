@@ -66,8 +66,8 @@ struct ChannelDetailsView: View {
                             }
                         }
                         HStack {
-                            Text(channelInfos.publicIdentifier ?? "")
-                            if channelInfos.publicIdentifier != nil, channelInfos.subscribersCount != nil {
+                            Text(channelInfos.handle ?? "")
+                            if channelInfos.handle != nil, channelInfos.subscribersCount != nil {
                                 Text(" • ")
                             }
                             Text(channelInfos.subscribersCount ?? "")
@@ -86,14 +86,18 @@ struct ChannelDetailsView: View {
                                     DispatchQueue.main.async {
                                         self.isChangingSubscriptionStatus = true
                                     }
-                                    var error: (any Error)?
-                                    if subscribeStatus {
-                                        error = await channel.unsubscribe(youtubeModel: YTM)
-                                    } else {
-                                        error = await channel.subscribe(youtubeModel: YTM)
+                                    var actionError: (any Error)?
+                                    do {
+                                        if subscribeStatus {
+                                            try await channel.unsubscribe(youtubeModel: YTM)
+                                        } else {
+                                            try await channel.subscribe(youtubeModel: YTM)
+                                        }
+                                    } catch {
+                                        actionError = error
                                     }
                                     DispatchQueue.main.async {
-                                        if error == nil {
+                                        if actionError == nil {
                                             withAnimation {
                                                 model.channelInfos?.subscribeStatus?.toggle()
                                             }
@@ -264,14 +268,16 @@ struct ChannelDetailsView: View {
                 self.isFetchingChannelInfos = true
                 self.channelInfos = nil
             }
-            ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channel.channelId], result: { response, error in
-                DispatchQueue.main.async {
-                    self.channelInfos = response
-                    self.isFetchingChannelInfos = false
-                    end?()
-                }
-                if let error = error {
-                    print("Couldn't fetch channel infos: \(error.localizedDescription)")
+            ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channel.channelId], result: { result in
+                switch result {
+                case .success(let response):
+                    DispatchQueue.main.async {
+                        self.channelInfos = response
+                        self.isFetchingChannelInfos = false
+                        end?()
+                    }
+                case .failure(let error):
+                    print("Couldn't fetch channel infos: \(error)")
                 }
             })
         }
@@ -282,14 +288,18 @@ struct ChannelDetailsView: View {
                     self.channelInfos?.channelContentStore.removeValue(forKey: category)
                     self.fetchingStates[category] = true
                 }
-                ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channelId, .params: requestParams], result: { response, error in
+                ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channelId, .params: requestParams], result: { result in
+                    switch result {
+                    case .success(let response):
+                        DispatchQueue.main.async {
+                            self.channelInfos?.channelContentStore[category] = response.currentContent
+                            self.channelInfos?.channelContentContinuationStore[category] = response.channelContentContinuationStore[category]
+                        }
+                    case .failure(let error):
+                        print("Error while fetching \(category): \(error)")
+                    }
                     DispatchQueue.main.async {
                         self.fetchingStates[category] = false
-                        self.channelInfos?.channelContentStore[category] = response?.currentContent
-                        self.channelInfos?.channelContentContinuationStore[category] = response?.channelContentContinuationStore[category]
-                    }
-                    if let error = error {
-                        print("Error while fetching \(category): \(error.localizedDescription)")
                     }
                 })
             }
@@ -303,47 +313,47 @@ struct ChannelDetailsView: View {
                 
                 switch category {
                 case .directs:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Directs.self, youtubeModel: YTM, result: { response, error in
-                        if let response = response {
+                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Directs.self, youtubeModel: YTM, result: { result in
+                        switch result {
+                        case .success(let response):
                             DispatchQueue.main.async {
                                 self.channelInfos?.mergeListableChannelContentContinuation(response)
                             }
-                        }
-                        if let error = error {
-                            print("Error while fetching \(category): \(error.localizedDescription)")
+                        case .failure(let error):
+                            print("Error while fetching \(category): \(error)")
                         }
                     })
                 case .playlists:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Playlists.self, youtubeModel: YTM, result: { response, error in
-                        if let response = response {
+                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Playlists.self, youtubeModel: YTM, result: { result in
+                        switch result {
+                        case .success(let response):
                             DispatchQueue.main.async {
                                 self.channelInfos?.mergeListableChannelContentContinuation(response)
                             }
-                        }
-                        if let error = error {
-                            print("Error while fetching \(category): \(error.localizedDescription)")
+                        case .failure(let error):
+                            print("Error while fetching \(category): \(error)")
                         }
                     })
                 case .shorts:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Shorts.self, youtubeModel: YTM, result: { response, error in
-                        if let response = response {
+                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Shorts.self, youtubeModel: YTM, result: { result in
+                        switch result {
+                        case .success(let response):
                             DispatchQueue.main.async {
                                 self.channelInfos?.mergeListableChannelContentContinuation(response)
                             }
-                        }
-                        if let error = error {
-                            print("Error while fetching \(category): \(error.localizedDescription)")
+                        case .failure(let error):
+                            print("Error while fetching \(category): \(error)")
                         }
                     })
                 case .videos:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Videos.self, youtubeModel: YTM, result: { response, error in
-                        if let response = response {
+                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Videos.self, youtubeModel: YTM, result: { result in
+                        switch result {
+                        case .success(let response):
                             DispatchQueue.main.async {
                                 self.channelInfos?.mergeListableChannelContentContinuation(response)
                             }
-                        }
-                        if let error = error {
-                            print("Error while fetching \(category): \(error.localizedDescription)")
+                        case .failure(let error):
+                            print("Error while fetching \(category): \(error)")
                         }
                     })
                 default:
