@@ -441,9 +441,14 @@ struct VideoView2: View {
                             VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: $isFavorite, downloadURL: $downloadURL)
                         } label: {
                             Image(systemName: "ellipsis")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
                                 .foregroundStyle(colorScheme.textColor)
+                                .contentShape(Rectangle())
                                 .padding(.top, 10)
                         }
+                        .frame(width: 20, height: 20)
                         Spacer()
                     }
                     .frame(alignment: .top)
