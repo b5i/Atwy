@@ -57,11 +57,14 @@ class APIKeyModel: ObservableObject {
     }
 
     func getUserInfos(result: @escaping (AccountInfosResponse?) -> Void) {
-        AccountInfosResponse.sendRequest(youtubeModel: YTM, data: [:], result: { accountInfos, error in
-            if let error = error {
+        AccountInfosResponse.sendRequest(youtubeModel: YTM, data: [:], result: { responseResult in
+            switch responseResult {
+            case .success(let response):
+                result(response)
+            case .failure(let error):
                 print("Couldn't get account infos, error: \(error).")
+                result(nil)
             }
-            result(accountInfos)
         })
     }
 

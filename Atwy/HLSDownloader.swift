@@ -74,15 +74,24 @@ class HLSDownloader: NSObject, ObservableObject {
             if let downloadURL = downloadData?.url {
                 downloadHLS(downloadURL: downloadURL, videoDescription: videoDescription, video: video, thumbnailData: thumbnailData)
             } else {
-                self.video?.fetchStreamingInfos(youtubeModel: YTM, infos: { response, error in
-                    if let streamingURL = response?.streamingURL {
-                        self.downloadHLS(downloadURL: streamingURL, videoDescription: response?.videoDescription ?? "", video: video, thumbnailData: thumbnailData)
-                    } else {
+                self.video?.fetchStreamingInfos(youtubeModel: YTM, infos: { result in
+                    switch result {
+                    case .success(let response):
+                        if let streamingURL = response.streamingURL {
+                            self.downloadHLS(downloadURL: streamingURL, videoDescription: response.videoDescription ?? "", video: video, thumbnailData: thumbnailData)
+                        } else {
+                            print("Couldn't get video streaming url.")
+                            DispatchQueue.main.async {
+                                self.downloaderState = .failed
+                                NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
+                            }
+                        }
+                    case .failure(let error):
+                        print("Couldn't get video streaming data, error: \(String(describing: error)).")
                         DispatchQueue.main.async {
                             self.downloaderState = .failed
                             NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                         }
-                        print("Couldn't get video streaming data, error: \(String(describing: error)).")
                     }
                 })
             }

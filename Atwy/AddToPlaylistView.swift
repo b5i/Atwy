@@ -206,14 +206,15 @@ struct AddToPlaylistView: View {
                 self.hasError = false
                 self.isFetching = true
             }
-            video.fetchAllPossibleHostPlaylists(youtubeModel: YTM, result: { response, error in
-                if let response = response {
+            video.fetchAllPossibleHostPlaylists(youtubeModel: YTM, result: { result in
+                switch result {
+                case .success(let response):
                     DispatchQueue.main.async {
                         self.isFetching = false
                         self.hasError = false
                         self.response = response
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
                         self.isFetching = false
                         self.hasError = true
@@ -228,8 +229,9 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isCreatingPlaylist = true
                 }
-                CreatePlaylistResponse.sendRequest(youtubeModel: YTM, data: [.query: title, .params: privacy.rawValue, .movingVideoId: video.videoId], result: { response, error in
-                    if let response = response {
+                CreatePlaylistResponse.sendRequest(youtubeModel: YTM, data: [.query: title, .params: privacy.rawValue, .movingVideoId: video.videoId], result: { result in
+                    switch result {
+                    case .success(let response):
                         if let newPlaylistId = response.createdPlaylistId {
                             DispatchQueue.main.async {
                                 self.response?.playlistsAndStatus.insert((YTPlaylist(playlistId: newPlaylistId, title: title, privacy: privacy), true), at: 0)
@@ -238,7 +240,7 @@ struct AddToPlaylistView: View {
                         } else {
                             end?(true)
                         }
-                    } else {
+                    case .failure(let error):
                         print("Couldn't create playlist, error: \(String(describing: error)).")
                         end?(true)
                     }
@@ -254,14 +256,15 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isModifyingPlaylistWithId.insert(playlist.playlistId)
                 }
-                AddVideoToPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { response, error in
-                    if let response = response {
+                AddVideoToPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
+                    switch result {
+                    case .success(let response):
                         if response.success, let playlistIndexToModify = self.response?.playlistsAndStatus.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {
                             DispatchQueue.main.async {
                                 self.response?.playlistsAndStatus[playlistIndexToModify].isVideoPresentInside = true
                             }
                         }
-                    } else {
+                    case .failure(let error):
                         print("Couldn't add video to playlist, error: \(String(describing: error)).")
                     }
                     DispatchQueue.main.async {
@@ -276,14 +279,15 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isModifyingPlaylistWithId.insert(playlist.playlistId)
                 }
-                RemoveVideoByIdFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { response, error in
-                    if let response = response {
+                RemoveVideoByIdFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
+                    switch result {
+                    case .success(let response):
                         if response.success, let playlistIndexToModify = self.response?.playlistsAndStatus.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {
                             DispatchQueue.main.async {
                                 self.response?.playlistsAndStatus[playlistIndexToModify].isVideoPresentInside = false
                             }
                         }
-                    } else {
+                    case .failure(let error):
                         print("Couldn't add video to playlist, error: \(String(describing: error)).")
                     }
                     DispatchQueue.main.async {

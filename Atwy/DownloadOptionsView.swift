@@ -31,11 +31,13 @@ struct DownloadOptionsView: View {
         }
         .onAppear {
             if content == nil {
-                video.fetchStreamingInfosWithDownloadFormats(youtubeModel: YTM, infos: { response, error in
-                    DispatchQueue.main.async {
-                        self.content = response
-                    }
-                    if let error = error {
+                video.fetchStreamingInfosWithDownloadFormats(youtubeModel: YTM, infos: { result in
+                    switch result {
+                    case .success(let response):
+                        DispatchQueue.main.async {
+                            self.content = response
+                        }
+                    case .failure(let error):
                         print("Error while fetching download formats for video, error: \(error).")
                     }
                 })

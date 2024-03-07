@@ -14,7 +14,7 @@ struct VideoAppreciationView: View {
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
-        if NM.connected {
+        if NM.connected && VPM.moreVideoInfos != nil {
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)

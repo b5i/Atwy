@@ -177,12 +177,12 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         }
         Task {
             let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
-            let videoInfos = await self.video?.fetchMoreInfos(youtubeModel: YTM)
+            let videoInfos = try? await self.video?.fetchMoreInfos(youtubeModel: YTM)
             backgroundContext.performAndWait {
                 let newVideo = DownloadedVideo(context: backgroundContext)
                 newVideo.timestamp = Date()
                 newVideo.storageLocation = newPath
-                newVideo.title = videoInfos?.0?.videoTitle ?? self.video?.title
+                newVideo.title = videoInfos?.videoTitle ?? self.video?.title
                 if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(videoId)/hqdefault.jpg") {
                     let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                     imageTask.start()
@@ -192,10 +192,10 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     }
                 }
                 newVideo.timeLength = self.video?.timeLength
-                newVideo.timePosted = videoInfos?.0?.timePosted.postedDate
+                newVideo.timePosted = videoInfos?.timePosted.postedDate
                 newVideo.videoId = videoId
                 
-                for chapter in videoInfos?.0?.chapters ?? [] {
+                for chapter in videoInfos?.chapters ?? [] {
                     guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
                     let chapterEntity = DownloadedVideoChapter(context: backgroundContext)
                     chapterEntity.shortTimeDescription = chapter.timeDescriptions.shortTimeDescription
@@ -223,8 +223,8 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     } else {
                         let newChannel = DownloadedChannel(context: backgroundContext)
                         newChannel.channelId = channelId
-                        newChannel.name = videoInfos?.0?.channel?.name ?? self.video?.channel?.name
-                        if let channelThumbnailURL = videoInfos?.0?.channel?.thumbnails.maxFor(3) ?? self.video?.channel?.thumbnails.maxFor(3) {
+                        newChannel.name = videoInfos?.channel?.name ?? self.video?.channel?.name
+                        if let channelThumbnailURL = videoInfos?.channel?.thumbnails.maxFor(3) ?? self.video?.channel?.thumbnails.maxFor(3) {
                             let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                             imageTask.start()
                             imageTask.waitUntilFinished()
