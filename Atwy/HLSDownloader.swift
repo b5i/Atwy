@@ -213,11 +213,22 @@ class HLSDownloader: NSObject, ObservableObject {
     }
 
     enum HLSDownloaderState: Equatable {
+        /// The downloader successfully downloaded its video.
         case success
+        
+        /// The downloader is waiting for download slots to open.
         case waiting
+        
+        /// The downloader is actively downloading its video.
         case downloading
+        
+        /// The downloader is paused.
         case paused
+        
+        /// The downloader failed to download its video.
         case failed
+        
+        /// The download has been canceled and the downloader does nothing.
         case inactive
     }
 }

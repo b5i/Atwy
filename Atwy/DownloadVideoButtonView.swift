@@ -10,9 +10,9 @@ import YouTubeKit
 
 struct DownloadVideoButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var video: YTVideo
-    @State var isShort: Bool = false
-    @State var videoThumbnailData: Data?
+    let video: YTVideo
+    var isShort: Bool = false
+    let videoThumbnailData: Data?
     @Binding var downloader: HLSDownloader?
     var body: some View {
         Button {

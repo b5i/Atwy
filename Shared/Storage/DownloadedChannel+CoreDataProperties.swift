@@ -37,6 +37,14 @@ extension DownloadedChannel {
             $0.timestamp < $1.timestamp
         }
     }
+    
+    public var wrapped: WrappedDownloadedChannel {
+        return WrappedDownloadedChannel(
+            channelId: self.channelId,
+            name: self.name,
+            thumbnail: self.thumbnail
+        )
+    }
 }
 
 // MARK: Generated accessors for videos
@@ -75,4 +83,10 @@ extension DownloadedChannel {
 
 extension DownloadedChannel : Identifiable {
 
+}
+
+public struct WrappedDownloadedChannel {
+    public var channelId: String
+    public var name: String?
+    public var thumbnail: Data?
 }

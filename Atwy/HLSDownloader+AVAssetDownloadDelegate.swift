@@ -237,6 +237,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 newVideo.videoDescription = videoDescription
                 do {
                     try backgroundContext.save()
+                    PersistenceModel.shared.currentData.addDownloadedVideo(videoId: videoId, storageLocation: newPath)
                     DispatchQueue.main.async {
                         self.percentComplete = 100
                         self.downloaderState = .success

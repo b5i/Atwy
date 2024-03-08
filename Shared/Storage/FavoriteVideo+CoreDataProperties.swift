@@ -27,6 +27,27 @@ extension FavoriteVideo {
     public override func awakeFromInsert() {
         timestamp = Date()
     }
+    
+    public var wrapped: WrappedFavoriteVideo {
+        return WrappedFavoriteVideo(
+            videoId: self.videoId,
+            timeLength: self.timeLength,
+            timePosted: self.timePosted,
+            timestamp: self.timestamp,
+            thumbnailData: self.thumbnailData,
+            title: self.title
+        )
+    }
 }
 
 extension FavoriteVideo : Identifiable {}
+
+public struct WrappedFavoriteVideo {
+    public var videoId: String
+    public var timeLength: String?
+    /// Note: isn't used for the moment
+    public var timePosted: String?
+    public var timestamp: Date
+    public var thumbnailData: Data?
+    public var title: String?
+}

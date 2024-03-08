@@ -54,6 +54,10 @@ class PreferencesStorageModel: ObservableObject {
                     if let value = try? jsonDecoder.decode(Optional<Int>.self, from: data) {
                         propetriesState.updateValue(value, forKey: property)
                     }
+                case .showCredentials:
+                    if let value = try? jsonDecoder.decode(Bool.self, from: data) {
+                        propetriesState.updateValue(value, forKey: property)
+                    }
                 }
             }
         }
@@ -74,5 +78,6 @@ class PreferencesStorageModel: ObservableObject {
         
         case isLoggerActivated
         case loggerCacheLimit
+        case showCredentials
     }
 }

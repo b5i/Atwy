@@ -11,7 +11,7 @@ import YouTubeKit
 
 struct RemoveDownloadContextMenuButtonView: View {
     @Environment(\.managedObjectContext) private var context
-    @State var video: YTVideo
+    let video: YTVideo
     var body: some View {
         Button(role: .destructive) {
             Task {
@@ -20,6 +20,7 @@ struct RemoveDownloadContextMenuButtonView: View {
                 }
                 PersistenceModel.shared.removeDownloadFromCoreData(videoId: video.videoId)
                 downloads.removeAll(where: {$0.video?.videoId == video.videoId})
+                NotificationCenter.default.post(name: .atwyDownloadingChanged(for: video.videoId), object: nil)
                 PopupsModel.shared.showPopup(.deletedDownload)
             }
         } label: {

@@ -93,5 +93,6 @@ struct BehaviorSettingsView: View {
                 }
             }
         }
+        .navigationTitle("Behavior")
     }
 }

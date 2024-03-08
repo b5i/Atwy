@@ -35,7 +35,23 @@ struct StorageSettingsView: View {
                         }
                     }
                 })
+                Section("Keychain", content: {
+                    VStack {
+                        HStack {
+                            Text("Remove cookies")
+                            Spacer()
+                            Button("Remove") {
+                                APIKeyModel.shared.deleteAccount()
+                            }
+                        }
+                        Text("Force remove the cookies from the Keychain, can be useful if you can't connect your account (the button does nothing). This button has the same effect as the \"unlink account\" button when an account is connected.")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundStyle(.gray)
+                            .font(.caption)
+                    }
+                })
             }
         }
+        .navigationTitle("Storage")
     }
 }

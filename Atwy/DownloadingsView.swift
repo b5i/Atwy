@@ -14,6 +14,8 @@ struct DownloadingsView: View {
     @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
+    
+    @State private var observer: (any NSObjectProtocol)? = nil
     var body: some View {
         VStack {
             Button {
@@ -72,7 +74,7 @@ struct DownloadingsView: View {
                                     .opacity(0.7)
                             }
                             .frame(width: 200, height: 50)
-                            DownloadStateView(displayRemainingTime: true, downloaded: false, video: video, isShort: downloader.isShort, downloader: downloader)
+                            DownloadButtonView(video: video)
                         }
                         .contextMenu {
                             DownloadingItemsContextMenuView(downloader: downloader)
@@ -121,9 +123,14 @@ struct DownloadingsView: View {
         }
         .padding(.vertical)
         .onAppear {
-            NotificationCenter.default.addObserver(forName: .atwyNoDownloadingsLeft, object: nil, queue: nil, using: { _ in
+            self.observer = NotificationCenter.default.addObserver(forName: .atwyNoDownloadingsLeft, object: nil, queue: nil, using: { _ in
                 dismiss()
             })
+        }
+        .onDisappear {
+            if let observer = self.observer {
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
     }
 

@@ -10,11 +10,12 @@ import YouTubeKit
 
 struct DownloadButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var downloader: HLSDownloader?
-    @State private var downloadURL: URL?
+    @State private var downloader: HLSDownloader? = nil
+    @State private var observer: (any NSObjectProtocol)? = nil
     var isShort: Bool = false
     let video: YTVideo
     var videoThumbnailData: Data? = nil
+    var downloadURL: URL?
     @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     var body: some View {
         VStack {
@@ -22,40 +23,63 @@ struct DownloadButtonView: View {
                Image(systemName: "arrow.down.circle.fill")
                    .frame(width: 20, height: 20)
             } else if let downloader = downloader {
-                    if downloader.downloaderState == .inactive || downloader.downloaderState == .failed {
-                        if downloader.downloaderState != .waiting && downloader.downloaderState != .downloading && downloader.downloaderState != .success {
-                            DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
-                        }
-                    } else {
-                        DownloadStateView(downloaded: (downloadURL != nil), video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: downloader)
+                StateWithDownloaderView(
+                    downloader: downloader,
+                    successView: {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .frame(width: 20, height: 20)
+                    },
+                    waitingView: {
+                        ProgressView()
+                            .frame(width: 25, height: 25)
+                            .padding()
+                    },
+                    downloadingOrPausedView: {
+                        DownloadStateView(downloader: downloader)
+                    },
+                    failedOrInactiveView: {
+                        DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
                     }
+                )
             } else {
                 DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
             }
         }
         .frame(width: 25, height: 25)
         .onAppear {
-            reloadCoreData()
-            NotificationCenter.default.addObserver(
-                forName: .atwyCoreDataChanged,
-                object: nil,
-                queue: nil,
-                using: { _ in
-                    reloadCoreData()
-                })
             if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
                 self.downloader = downloader
             } else {
-                NotificationCenter.default.addObserver(forName: .atwyDownloadingChanged(for: video.videoId), object: nil, queue: nil, using: { _ in
-                    if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
-                        self.downloader = downloader
-                    }
+                self.observer = NotificationCenter.default.addObserver(forName: .atwyDownloadingChanged(for: video.videoId), object: nil, queue: nil, using: { _ in
+                    self.downloader = downloads.first(where: {$0.video?.videoId == video.videoId})
                 })
+            }
+        }
+        .onDisappear {
+            if let observer = self.observer {
+                NotificationCenter.default.removeObserver(observer)
             }
         }
     }
     
-    private func reloadCoreData() {
-        self.downloadURL = URL(string: PersistenceModel.shared.getStorageLocationFor(video: video) ?? "")
+    struct StateWithDownloaderView<Success: View, Waiting: View, Downloading: View, Failed: View>: View {
+        @ObservedObject var downloader: HLSDownloader
+        
+        @ViewBuilder var successView: () -> Success
+        @ViewBuilder var waitingView: () -> Waiting
+        @ViewBuilder var downloadingOrPausedView: () -> Downloading
+        @ViewBuilder var failedOrInactiveView: () -> Failed
+        var body: some View {
+            switch downloader.downloaderState {
+            case .success:
+                successView()
+            case .waiting:
+                waitingView()
+            case .downloading, .paused:
+                downloadingOrPausedView()
+            case .failed, .inactive:
+                failedOrInactiveView()
+            }
+        }
     }
 }

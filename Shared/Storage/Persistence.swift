@@ -91,218 +91,282 @@ class PersistenceModel: ObservableObject {
     var controller: PersistenceController
     var context: NSManagedObjectContext
     
+    var currentData: PersistenceData
+    
     init() {
-        controller = PersistenceController.shared
-        context = controller.context
+        self.controller = PersistenceController.shared
+        self.context = controller.context
+        self.currentData = PersistenceData(downloadedVideoIds: [], favoriteVideoIds: [])
+        self.currentData = getPersistenceData()
         NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: .atwyCoreDataChanged, object: nil)
     }
 
     @objc func updateContext() {
-        context = controller.context
-        self.objectWillChange.send()
+        Task {
+            self.context = controller.context
+            self.update()
+        }
+    }
+    
+    private func update() {
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
+    }
+    
+    public func getPersistenceData() -> PersistenceData {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        return backgroundContext.performAndWait {
+            let downloadsFetchRequest = DownloadedVideo.fetchRequest()
+            downloadsFetchRequest.returnsObjectsAsFaults = false
+            
+            let favoritesFetchRequest = FavoriteVideo.fetchRequest()
+            favoritesFetchRequest.returnsObjectsAsFaults = false
+            
+            let downloads: [PersistenceData.VideoIdAndLocation]
+            let favorites: [String]
+            do {
+                downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
+                favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
+            } catch {
+                print("Error while refreshing data")
+                return self.currentData
+            }
+            
+            return PersistenceData(
+                downloadedVideoIds: downloads,
+                favoriteVideoIds: favorites
+            )
+        }
     }
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
-        Task {
         let backgroundContext = self.controller.container.newBackgroundContext()
-            backgroundContext.performAndWait {
-                let newItem = FavoriteVideo(context: backgroundContext)
-                newItem.timestamp = Date()
-                newItem.videoId = video.videoId
-                newItem.title = video.title
-                if let imageData = imageData {
-                    newItem.thumbnailData = imageData
-                } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
-                    let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
-                    imageTask.start()
-                    imageTask.waitUntilFinished()
-                    backgroundContext.performAndWait {
-                        if let imageData = imageTask.imageData {
-                            newItem.thumbnailData = cropImage(data: imageData)
-                        }
+        backgroundContext.performAndWait {
+            let newItem = FavoriteVideo(context: backgroundContext)
+            newItem.timestamp = Date()
+            newItem.videoId = video.videoId
+            newItem.title = video.title
+            if let imageData = imageData {
+                newItem.thumbnailData = imageData
+            } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
+                let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
+                imageTask.start()
+                imageTask.waitUntilFinished()
+                backgroundContext.performAndWait {
+                    if let imageData = imageTask.imageData {
+                        newItem.thumbnailData = cropImage(data: imageData)
                     }
-                }
-                
-                if let channelId = video.channel?.channelId {
-                    let fetchRequest = DownloadedChannel.fetchRequest()
-                    fetchRequest.fetchLimit = 1
-                    fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                    let result = try? backgroundContext.fetch(fetchRequest)
-                    
-                    if let channel = result?.first {
-                        channel.addToFavorites(newItem)
-                    } else {
-                        let newChannel = DownloadedChannel(context: backgroundContext)
-                        newChannel.channelId = channelId
-                        newChannel.name = video.channel?.name
-                        if let channelThumbnailURL = video.channel?.thumbnails.last {
-                            let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
-                            imageTask.start()
-                            imageTask.waitUntilFinished()
-                            backgroundContext.performAndWait {
-                                newChannel.thumbnail = imageTask.imageData
-                            }
-                        }
-                        newChannel.addToFavorites(newItem)
-                    }
-                }
-                
-                newItem.timeLength = video.timeLength
-                do {
-                    try backgroundContext.save()
-                    
-                    DispatchQueue.main.async {
-                        NotificationCenter.default.post(
-                            name: .atwyCoreDataChanged,
-                            object: nil
-                        )
-                        NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
-                    }
-                } catch {
-                    print("Couldn't add favorite to context, error: \(error)")
                 }
             }
+            
+            if let channelId = video.channel?.channelId {
+                let fetchRequest = DownloadedChannel.fetchRequest()
+                fetchRequest.fetchLimit = 1
+                fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
+                let result = try? backgroundContext.fetch(fetchRequest)
+                
+                if let channel = result?.first {
+                    channel.addToFavorites(newItem)
+                } else {
+                    let newChannel = DownloadedChannel(context: backgroundContext)
+                    newChannel.channelId = channelId
+                    newChannel.name = video.channel?.name
+                    if let channelThumbnailURL = video.channel?.thumbnails.last {
+                        let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
+                        imageTask.start()
+                        imageTask.waitUntilFinished()
+                        backgroundContext.performAndWait {
+                            newChannel.thumbnail = imageTask.imageData
+                        }
+                    }
+                    newChannel.addToFavorites(newItem)
+                }
+            }
+            
+            newItem.timeLength = video.timeLength
+            do {
+                try backgroundContext.save()
+                
+                self.currentData.addFavoriteVideo(videoId: video.videoId)
+                self.update()
+                
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
+                }
+            } catch {
+                print("Couldn't add favorite to context, error: \(error)")
+            }
+        }
+    }
+        
+    func cropImage(data: Data) -> Data? {
+        guard let uiImage = UIImage(data: data) else { return nil }
+        let portionToCut = (uiImage.size.height - uiImage.size.width * 9/16) / 2
+        
+        // Scale cropRect to handle images larger than shown-on-screen size
+        let cropZone = CGRect(x: 0,
+                              y: portionToCut,
+                              width: uiImage.size.width,
+                              height: uiImage.size.height - portionToCut * 2)
+        
+        // Perform cropping in Core Graphics
+        guard let cutImageRef: CGImage = uiImage.cgImage?.cropping(to: cropZone)
+        else {
+            return nil
         }
         
-        @Sendable func cropImage(data: Data) -> Data? {
-            guard let uiImage = UIImage(data: data) else { return nil }
-            let portionToCut = (uiImage.size.height - uiImage.size.width * 9/16) / 2
-            
-            // Scale cropRect to handle images larger than shown-on-screen size
-            let cropZone = CGRect(x: 0,
-                                  y: portionToCut,
-                                  width: uiImage.size.width,
-                                  height: uiImage.size.height - portionToCut * 2)
-            
-            // Perform cropping in Core Graphics
-            guard let cutImageRef: CGImage = uiImage.cgImage?.cropping(to: cropZone)
-            else {
-                return nil
-            }
-            
-            // Return image to UIImage
-            let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
-            return croppedImage.pngData()
-        }
+        // Return image to UIImage
+        let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
+        return croppedImage.pngData()
     }
     
     public func removeFromFavorites(video: YTVideo) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = FavoriteVideo.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
-        do {
-            let fetchResult = try backgroundContext.fetch(fetchRequest)
-            for favorite in fetchResult {
-                if let channel = favorite.channel, channel.videosArray.count == 0, channel.favoritesArray.count == 1 {
-                    backgroundContext.delete(channel)
-                }
-                backgroundContext.delete(favorite)
-            }
+        backgroundContext.performAndWait {
             do {
+                let request = FavoriteVideo.fetchRequest()
+                
+                request.predicate = NSPredicate(format: "videoId == %@", video.videoId)
+
+                let result = try backgroundContext.fetch(request)
+                
+                result.forEach({ backgroundContext.delete($0) })
+
                 try backgroundContext.save()
                 
+                self.currentData.removeFavoriteVideo(videoId: video.videoId)
                 NotificationCenter.default.post(
                     name: .atwyCoreDataChanged,
                     object: nil
                 )
+                self.update()
             } catch {
                 // handle the Core Data error
                 print(error)
             }
-        } catch {
-            print("Can't fetch the favorites list.")
-            print(error)
-        }
-    }
-    
-    public func getStorageLocationFor(video: YTVideo) -> String? {
-        let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = DownloadedVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
-        let result = try? backgroundContext.fetch(fetchRequest)
-        if let video = result?.first {
-            return video.storageLocation.absoluteString
-        } else {
-            return nil
         }
     }
 
     public func checkIfFavorite(video: YTVideo) -> Bool {
-        let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = FavoriteVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", video.videoId)
-        let result = try? backgroundContext.fetch(fetchRequest)
-        return !(result?.isEmpty ?? true)
+        return self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
     }
     
-    public func checkIfDownloaded(videoId: String) -> DownloadedVideo? {
+    public func getDownloadedVideo(videoId: String) -> WrappedDownloadedVideo? {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = DownloadedVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-        let result = try? backgroundContext.fetch(fetchRequest)
-        return result?.first
+        return backgroundContext.performAndWait {
+            let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.fetchLimit = 1
+            fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
+            let result = try? backgroundContext.fetch(fetchRequest)
+            return result?.first?.wrapped
+        }
+    }
+    
+    public func isVideoDownloaded(videoId: String) -> PersistenceData.VideoIdAndLocation? {
+        return self.currentData.downloadedVideoIds.first(where: {$0.videoId == videoId})
     }
     
     public func modifyDownloadURLFor(videoId: String, url: String) {
-        let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = DownloadedVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-        do {
-            let fetchResult = try backgroundContext.fetch(fetchRequest)
-            if let newObject = fetchResult.first, let newStorageLocation = URL(string: url) {
-                newObject.storageLocation = newStorageLocation
-                try backgroundContext.save()
+        self.controller.container.performBackgroundTask({ backgroundContext in
+            guard let videoIndex = self.currentData.downloadedVideoIds.firstIndex(where: {$0.videoId == videoId}), let newStorageLocation = URL(string: url) else { return }
+            
+            let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.fetchLimit = 1
+            fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
+            do {
+                let fetchResult = try backgroundContext.fetch(fetchRequest)
+                if let newObject = fetchResult.first, let newStorageLocation = URL(string: url) {
+                    newObject.storageLocation = newStorageLocation
+                    try backgroundContext.save()
 
-                NotificationCenter.default.post(
-                    name: .atwyCoreDataChanged,
-                    object: nil
-                )
-            } else {
-                print("no item found")
+                    NotificationCenter.default.post(
+                        name: .atwyCoreDataChanged,
+                        object: nil
+                    )
+                    
+                    self.currentData.replaceDownloadedVideoURLAtIndex(videoIndex, by: newStorageLocation)
+                } else {
+                    print("no item found")
+                }
+            } catch {
+                print("can't modify to context")
+                print(error)
             }
-        } catch {
-            print("can't modify to context")
-            print(error)
-        }
+             
+        })
     }
     
     public func removeDownloadFromCoreData(videoId: String) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        let fetchRequest = DownloadedVideo.fetchRequest()
-        fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-        do {
-            let fetchResult = try backgroundContext.fetch(fetchRequest)
-            if let newObject = fetchResult.first {
-                if FileManager.default.fileExists(atPath: newObject.storageLocation.absoluteString) {
-                    do {
-                        try FileManager.default.removeItem(at: newObject.storageLocation)
-                    } catch {
-                        print("can't delete file")
-                        print(error)
+        backgroundContext.performAndWait {
+            let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
+            
+            do {
+                let result = try backgroundContext.fetch(fetchRequest)
+                                
+                for video in result {
+                    if FileManager.default.fileExists(atPath: video.storageLocation.absoluteString) {
+                        FileManagerModel.shared.removeVideoDownload(videoId: video.videoId)
                     }
+                    if let channel = video.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
+                        backgroundContext.delete(channel)
+                    }
+                    backgroundContext.delete(video)
                 }
-                if let channel = newObject.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
-                    backgroundContext.delete(channel)
-                }
-                backgroundContext.delete(newObject)
+                
                 try backgroundContext.save()
+                
                 
                 NotificationCenter.default.post(
                     name: .atwyCoreDataChanged,
                     object: nil
                 )
-            } else {
-                print("no item found")
+                
+                self.currentData.removeDownloadedVideo(videoId: videoId)
+                 
+                self.update()
+            } catch {
+                print(error)
             }
-            
-        } catch {
-            print("can't execute fetch request in context")
-            print(error)
+        }
+    }
+    
+    struct PersistenceData: Identifiable {
+        typealias VideoIdAndLocation = (videoId: String, storageLocation: URL)
+        
+        private(set) var id = UUID()
+        
+        private(set) var downloadedVideoIds: [VideoIdAndLocation]
+        
+        private(set) var favoriteVideoIds: [String]
+        
+        mutating func addDownloadedVideo(videoId: String, storageLocation: URL) {
+            self.downloadedVideoIds.append((videoId, storageLocation))
+            self.id = UUID()
+        }
+        
+        mutating func removeDownloadedVideo(videoId: String) {
+            self.downloadedVideoIds.removeAll(where: {$0.videoId == videoId})
+            self.id = UUID()
+        }
+        
+        mutating func replaceDownloadedVideoURLAtIndex(_ index: Int, by newStorageLocation: URL) {
+            if downloadedVideoIds.count > index {
+                self.downloadedVideoIds[index].storageLocation = newStorageLocation
+                self.id = UUID()
+            }
+        }
+        
+        mutating func addFavoriteVideo(videoId: String) {
+            self.favoriteVideoIds.append(videoId)
+            self.id = UUID()
+        }
+        
+        mutating func removeFavoriteVideo(videoId: String) {
+            self.favoriteVideoIds.removeAll(where: {$0 == videoId})
+            self.id = UUID()
         }
     }
 }

@@ -13,10 +13,10 @@ import LinkPresentation
 struct VideoContextMenuView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data?
-    @Binding var isFavorite: Bool
-    @Binding var downloadURL: URL? // The two are bindings to get refreshed as soon as their values are modified in the parent view
+    let video: YTVideo
+    var videoThumbnailData: Data?
+    let isFavorite: Bool
+    let isDownloaded: Bool
     var body: some View {
         Group {
             if NRM.connected {
@@ -37,7 +37,7 @@ struct VideoContextMenuView: View {
                 )
             }
 //            if let downloadURL = downloadURL {
-            if downloadURL != nil {
+            if isDownloaded {
                 RemoveDownloadContextMenuButtonView(video: video)
                 /* to be activated later
                 Button {
