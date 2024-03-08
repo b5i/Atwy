@@ -12,6 +12,7 @@ struct AddToFavoriteWidgetView: View {
     let video: YTVideo
     let imageData: Data?
     @State private var isFavorite: Bool = false
+    @State private var observer: (any NSObjectProtocol)? = nil
     var body: some View {
         Button {
             if isFavorite {
@@ -34,13 +35,18 @@ struct AddToFavoriteWidgetView: View {
         }
         .onAppear {
             reloadCoreData()
-            NotificationCenter.default.addObserver(
+            self.observer = NotificationCenter.default.addObserver(
                 forName: .atwyCoreDataChanged,
                 object: nil,
                 queue: nil,
                 using: { _ in
                     reloadCoreData()
                 })
+        }
+        .onDisappear {
+            if let observer = self.observer {
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
     }
     

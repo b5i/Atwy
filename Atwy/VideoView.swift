@@ -12,15 +12,22 @@ import YouTubeKit
 
 struct VideoView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var video: YTVideo
-    @State var downloadURL: URL?
-    @State var thumbnailData: Data?
-    @State var isShort: Bool = false
-    @State var isFavorite: Bool = false
+    let video: YTVideo
+    var thumbnailData: Data?
+    var isShort: Bool = false
     @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
+    @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
+        let isFavorite: Bool = {
+            return PM.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
+        }()
+        
+        let downloadLocation: URL? = {
+            return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
+        }()
+        
         GeometryReader { geometry in
             HStack(spacing: 3) {
                 VStack {
@@ -84,7 +91,7 @@ struct VideoView: View {
                             if video.timePosted != nil || video.viewCount != nil {
                                 Divider()
                             }
-                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData)
+                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(colorScheme.textColor)
                         }
                     }
@@ -109,7 +116,7 @@ struct VideoView: View {
                 .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
             }
             .contextMenu {
-                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: $isFavorite, downloadURL: $downloadURL)
+                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
             }
             .swipeAction(
                 leadingActions: { context in
@@ -200,16 +207,6 @@ struct VideoView: View {
                         }
                     }
                 }, minimumSwipeDistance: 50)
-            .onAppear {
-                reloadCoreData()
-                NotificationCenter.default.addObserver(
-                    forName: .atwyCoreDataChanged,
-                    object: nil,
-                    queue: nil,
-                    using: { _ in
-                        reloadCoreData()
-                    })
-            }
         }
     }
     
@@ -322,26 +319,26 @@ struct VideoView: View {
             return Image(uiImage: croppedImage)
         }
     }
-    
-    //        }
-
-    private func reloadCoreData() {
-        self.downloadURL = URL(string: PersistenceModel.shared.getStorageLocationFor(video: video) ?? "")
-        self.isFavorite = PersistenceModel.shared.checkIfFavorite(video: video)
-    }
 }
 
 struct VideoView2: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var video: YTVideo
-    @State var thumbnailData: Data?
-    @State var ownerThumbnailData: Data?
-    @State var isShort: Bool = false
-    @State var downloadURL: URL?
-    @State var isFavorite: Bool = false
+    let video: YTVideo
+    var thumbnailData: Data?
+    var ownerThumbnailData: Data?
+    var isShort: Bool = false
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
+    @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
+        let isFavorite: Bool = {
+            return PM.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
+        }()
+        
+        let downloadLocation: URL? = {
+            return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
+        }()
+        
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
@@ -434,11 +431,11 @@ struct VideoView2: View {
                     Spacer()
                     VStack {
                         if video.timeLength != "live" {
-                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData)
+                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(colorScheme.textColor)
                         }
                         Menu {
-                            VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: $isFavorite, downloadURL: $downloadURL)
+                            VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
                         } label: {
                             Image(systemName: "ellipsis")
                                 .resizable()
@@ -463,7 +460,7 @@ struct VideoView2: View {
             }
             .background(colorScheme.backgroundColor)
             .contextMenu {
-                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: $isFavorite, downloadURL: $downloadURL)
+                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
             }
 //            .contextMenuWrapper(menuItems: [
 //                UIDeferredMenuElement({ result in
@@ -559,21 +556,6 @@ struct VideoView2: View {
                     }
                 }
             }, minimumSwipeDistance: 50)
-            .onAppear {
-                reloadCoreData()
-                NotificationCenter.default.addObserver(
-                    forName: .atwyCoreDataChanged,
-                    object: nil,
-                    queue: nil,
-                    using: { _ in
-                        reloadCoreData()
-                    })
-            }
         }
-    }
-    
-    private func reloadCoreData() {
-        self.downloadURL = URL(string: PersistenceModel.shared.getStorageLocationFor(video: video) ?? "")
-        self.isFavorite = PersistenceModel.shared.checkIfFavorite(video: video)
     }
 }

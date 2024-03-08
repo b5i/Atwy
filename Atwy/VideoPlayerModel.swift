@@ -224,7 +224,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.deleteCurrentVideo()
         self.isLoadingVideo = true
         self.video = video
-        if let downloadedVideo = PersistenceModel.shared.checkIfDownloaded(videoId: video.videoId) {
+        if let downloadedVideo = PersistenceModel.shared.getDownloadedVideo(videoId: video.videoId) {
             let newPlayingItem = AVPlayerItem(
                 asset: .init(url: downloadedVideo.storageLocation),
                 metadatas: getMetadatasForInfos(title: downloadedVideo.title ?? video.title ?? "", channelName: downloadedVideo.channel?.name ?? video.channel?.name ?? "", videoDescription: downloadedVideo.videoDescription ?? ""),

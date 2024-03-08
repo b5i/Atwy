@@ -61,32 +61,52 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
     func exportLog(withId logId: UUID, showCredentials: Bool) -> URL? {
         guard let log = logs.first(where: {$0.id == logId}) else { return nil }
         return createZip(withName: logId.uuidString, files: [
-            ("infos", """
-            id: \(log.id.uuidString)
-            date: \(log.date.formatted())
-            expectedResultType: \(String(describing: log.expectedResultType))
-            providedParameters: \(String(describing: log.providedParameters))
-            """
-            ),
-            ("request", """
-            url: \(String(describing: log.request?.url))
-            httpFields: \(showCredentials ? String(describing: log.request?.allHTTPHeaderFields) : "Credentials hidden")
-            httpBody: \(showCredentials ? String(decoding: log.request?.httpBody ?? Data(), as: UTF8.self) : "Credentials hidden")
-            httpMethod: \(String(describing: log.request?.httpMethod))
-            cachePolicy: \(String(describing: log.request?.cachePolicy.rawValue))
-            """),
-            ("responseData", String(decoding: log.responseData ?? Data(), as: UTF8.self)),
-            ("result", getResultString(fromLog: log))
+            ("infos", Self.getTextForSelection(log: log, category: .baseInfos, showCredentials: showCredentials)),
+            ("request", Self.getTextForSelection(log: log, category: .requestInfos, showCredentials: showCredentials)),
+            ("responseData", Self.getTextForSelection(log: log, category: .responseData, showCredentials: showCredentials)),
+            ("result", Self.getTextForSelection(log: log, category: .response, showCredentials: showCredentials))
         ])
     }
     
-    func getResultString<L: GenericRequestLog>(fromLog log: L) -> String {
+    static func getTextForSelection(log: any GenericRequestLog, category: LogCategory, showCredentials: Bool) -> String {
+        switch category {
+        case .baseInfos:
+            return """
+                    id: \(log.id.uuidString)
+                    date: \(log.date.formatted())
+                    expectedResultType: \(String(describing: log.expectedResultType))
+                    providedParameters: \(String(describing: log.providedParameters))
+                    """
+        case .requestInfos:
+            return """
+                    url: \(String(describing: log.request?.url))
+                    httpFields: \(showCredentials ? String(describing: log.request?.allHTTPHeaderFields) : "Credentials hidden")
+                    httpBody: \(showCredentials ? String(decoding: log.request?.httpBody ?? Data(), as: UTF8.self) : "Credentials hidden")
+                    httpMethod: \(String(describing: log.request?.httpMethod))
+                    cachePolicy: \(String(describing: log.request?.cachePolicy.rawValue))
+                    """
+        case .responseData:
+            return String(decoding: log.responseData ?? Data(), as: UTF8.self)
+        case .response:
+            let newLog = log
+            return self.getResultString(fromLog: newLog)
+        }
+    }
+    
+    static func getResultString<L: GenericRequestLog>(fromLog log: L) -> String {
         switch log.result {
         case .success(let response):
             return String(describing: response)
         case .failure(let error):
             return "Error: \(String(describing: error))"
         }
+    }
+    
+    enum LogCategory {
+        case baseInfos
+        case requestInfos
+        case responseData
+        case response
     }
     
     /// Name should not finish with .zip, fileName from the files should also not have an extension

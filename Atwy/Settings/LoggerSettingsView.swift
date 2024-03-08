@@ -16,17 +16,28 @@ struct LoggerSettingsView: View {
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @ObservedObject private var logger = YouTubeModelLogger.shared
     
+    @State private var showCredentials: Bool
+    
+    init() {
+        /// Maybe using AppStorage would be better
+        if let state = PreferencesStorageModel.shared.propetriesState[.showCredentials] as? Bool {
+            self._showCredentials = State(wrappedValue: state)
+        } else {
+            self._showCredentials = State(wrappedValue: false)
+        }
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             List {
                 Section("Logger") {
                     let loggerActivatedBinding: Binding<Bool> = Binding(get: {
-                        return logger.isLogging
+                        return self.logger.isLogging
                     }, set: { newValue in
                         if newValue {
-                            logger.startLogging()
+                            self.logger.startLogging()
                         } else {
-                            logger.stopLogging()
+                            self.logger.stopLogging()
                         }
                     })
                     HStack {
@@ -66,15 +77,27 @@ struct LoggerSettingsView: View {
                         }
                     }
                     VStack {
-                        Text("Logs")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("Exported logs can contain cookies and therefore make sure that you trust who's going to have access to them.")
+                        let showCredentialsBinding: Binding<Bool> = Binding(get: {
+                            return self.showCredentials
+                        }, set: { newValue in
+                            self.showCredentials = newValue
+                            self.PSM.setNewValueForKey(.showCredentials, value: newValue)
+                        })
+                        Toggle(isOn: showCredentialsBinding, label: {
+                            Text("Show credentials")
+                        })
+                        Text("Exported logs can contain cookies and therefore make sure that you trust who's going to have access to them. Disabling this option will hide the credentials in the UI and in log exports.")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.caption)
                             .foregroundStyle(.gray)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    VStack {
+                        Text("Logs")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         List {
                             ForEach(logger.logs, id: \.id) { log in
-                                LogView(log: log)
+                                LogView(log: log, showCredentials: showCredentials)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true, content: {
                                     Button(role: .destructive) {
                                         withAnimation {
@@ -91,7 +114,7 @@ struct LoggerSettingsView: View {
                     VStack {
                         Button {
                             withAnimation {
-                                logger.clearLogs()
+                                self.logger.clearLogs()
                             }
                         } label: {
                             Text("Clear logs")
@@ -104,7 +127,7 @@ struct LoggerSettingsView: View {
                     }
                     VStack {
                         Button {
-                            logger.clearLocalLogFiles()
+                            self.logger.clearLocalLogFiles()
                         } label: {
                             Text("Clear log files")
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -115,14 +138,23 @@ struct LoggerSettingsView: View {
                             .foregroundStyle(.gray)
                     }
                 }
+                .onAppear {
+                    if let state = self.PSM.propetriesState[.showCredentials] as? Bool {
+                        self.showCredentials = state
+                    } else {
+                        self.showCredentials = false
+                    }
+                }
             }
         }
+        .navigationTitle("Logger")
     }
     
     struct LogView: View {
         @ObservedObject private var logger = YouTubeModelLogger.shared
         
         let log: any GenericRequestLog
+        let showCredentials: Bool
         var body: some View {
             HStack {
                 Text("\(String(describing: log.expectedResultType)) at \(log.date.formatted(date: .numeric, time: .standard))")
@@ -135,7 +167,7 @@ struct LoggerSettingsView: View {
                     .onTapGesture {
                         Task {
                             guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
-                            if let url = logger.exportLog(withId: log.id, showCredentials: true) {
+                            if let url = logger.exportLog(withId: log.id, showCredentials: showCredentials) {
                                 let vc = UIActivityViewController(
                                     activityItems: [LogShareSource(archiveURL: url)],
                                     applicationActivities: nil
@@ -168,7 +200,7 @@ struct LoggerSettingsView: View {
             .frame(maxWidth: .infinity)
             .onTapGesture {
                 guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
-                let vc = UIHostingController(rootView: DetailledLogView(log: log))
+                let vc = UIHostingController(rootView: DetailledLogView(log: log, showCredentials: showCredentials))
                 
                 // https://forums.developer.apple.com/forums/thread/45898?answerId=134244022#134244022
                 // find the controller that is already presenting a sheet and put a sheet onto its sheet
@@ -196,6 +228,7 @@ struct LoggerSettingsView: View {
     
     struct DetailledLogView: View {
         let log: any GenericRequestLog
+        let showCredentials: Bool
                 
         @State private var copiedToClipboard: Bool = false {
             didSet {
@@ -209,11 +242,11 @@ struct LoggerSettingsView: View {
         
         @State private var resetClipboardIconTimer: Timer? = nil
         
-        @State private var currentCategory: LogCategory = .baseInfos
+        @State private var currentCategory: YouTubeModelLogger.LogCategory = .baseInfos
         var body: some View {
             VStack {
                 HStack {
-                    let categoryBinding: Binding<LogCategory> = Binding(get: {
+                    let categoryBinding: Binding<YouTubeModelLogger.LogCategory> = Binding(get: {
                         return self.currentCategory
                     }, set: { newValue in
                         if self.currentCategory != newValue {
@@ -224,13 +257,13 @@ struct LoggerSettingsView: View {
                     })
                     Picker("", selection: categoryBinding) {
                         Text("Base infos")
-                            .tag(LogCategory.baseInfos)
+                            .tag(YouTubeModelLogger.LogCategory.baseInfos)
                         Text("Request infos")
-                            .tag(LogCategory.requestInfos)
+                            .tag(YouTubeModelLogger.LogCategory.requestInfos)
                         Text("Response data")
-                            .tag(LogCategory.responseData)
+                            .tag(YouTubeModelLogger.LogCategory.responseData)
                         Text("Response result")
-                            .tag(LogCategory.response)
+                            .tag(YouTubeModelLogger.LogCategory.response)
                     }
                     .pickerStyle(.menu)
                     Spacer()
@@ -239,7 +272,7 @@ struct LoggerSettingsView: View {
                         .scaledToFit()
                         .animation(.default, value: copiedToClipboard)
                         .onTapGesture {
-                            UIPasteboard.general.string = getTextForSelection(category: currentCategory)
+                            UIPasteboard.general.string = YouTubeModelLogger.getTextForSelection(log: log, category: currentCategory, showCredentials: showCredentials)
                             self.copiedToClipboard = true
                         }
                         .frame(width: 20, height: 20)
@@ -247,42 +280,10 @@ struct LoggerSettingsView: View {
                 }
                 .padding()
                 ScrollView {
-                    Text(getTextForSelection(category: currentCategory))
+                    Text(YouTubeModelLogger.getTextForSelection(log: log, category: currentCategory, showCredentials: showCredentials))
                 }
                 .padding()
             }
-        }
-        
-        func getTextForSelection(category: LogCategory) -> String {
-            switch currentCategory {
-            case .baseInfos:
-                return """
-                        id: \(log.id.uuidString)
-                        date: \(log.date.formatted())
-                        expectedResultType: \(String(describing: log.expectedResultType))
-                        providedParameters: \(String(describing: log.providedParameters))
-                        """
-            case .requestInfos:
-                return """
-                        url: \(String(describing: log.request?.url))
-                        httpFields: \(String(describing: log.request?.allHTTPHeaderFields))
-                        httpBody: \(String(decoding: log.request?.httpBody ?? Data(), as: UTF8.self))
-                        httpMethod: \(String(describing: log.request?.httpMethod))
-                        cachePolicy: \(String(describing: log.request?.cachePolicy.rawValue))
-                        """
-            case .responseData:
-                return String(decoding: log.responseData ?? Data(), as: UTF8.self)
-            case .response:
-                let newLog = log
-                return YouTubeModelLogger.shared.getResultString(fromLog: newLog)
-            }
-        }
-        
-        enum LogCategory {
-            case baseInfos
-            case requestInfos
-            case responseData
-            case response
         }
     }
 }

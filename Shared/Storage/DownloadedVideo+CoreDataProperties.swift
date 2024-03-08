@@ -15,8 +15,9 @@ extension DownloadedVideo {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<DownloadedVideo> {
         return NSFetchRequest<DownloadedVideo>(entityName: "DownloadedVideo")
     }
-
+    
     @NSManaged public var videoId: String
+    
     @NSManaged public var videoDescription: String?
     @NSManaged public var title: String?
     @NSManaged public var timestamp: Date
@@ -24,6 +25,7 @@ extension DownloadedVideo {
     @NSManaged public var timePosted: String?
     @NSManaged public var thumbnail: Data?
     @NSManaged public var storageLocation: URL
+
     @NSManaged public var channel: DownloadedChannel?
     @NSManaged public var chapters: NSSet?
 
@@ -37,6 +39,21 @@ extension DownloadedVideo {
         return set.sorted {
             $0.startTimeSeconds < $1.startTimeSeconds
         }
+    }
+    
+    public var wrapped: WrappedDownloadedVideo {
+        return WrappedDownloadedVideo(
+            videoId: self.videoId,
+            videoDescription: self.videoDescription,
+            title: self.title,
+            channel: self.channel?.wrapped,
+            timestamp: self.timestamp,
+            timeLength: self.timeLength,
+            timePosted: self.timePosted,
+            thumbnail: self.thumbnail,
+            storageLocation: self.storageLocation,
+            chaptersArray: self.chaptersArray
+        )
     }
 }
 
@@ -59,4 +76,19 @@ extension DownloadedVideo {
 
 extension DownloadedVideo : Identifiable {
 
+}
+
+public struct WrappedDownloadedVideo {
+    public var videoId: String
+    
+    public var videoDescription: String?
+    public var title: String?
+    public var channel: WrappedDownloadedChannel?
+    public var timestamp: Date
+    public var timeLength: String?
+    public var timePosted: String?
+    public var thumbnail: Data?
+    public var storageLocation: URL
+    
+    public var chaptersArray: [DownloadedVideoChapter]
 }

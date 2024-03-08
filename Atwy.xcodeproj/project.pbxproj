@@ -298,6 +298,7 @@
 				347668A72B0923F5001D2522 /* ShowSettingsButtonView.swift */,
 				34B5FE052ADA856900367036 /* UserPreferenceCircleView.swift */,
 				341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */,
+				34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -419,7 +420,6 @@
 				34B5FDCE2ADA856300367036 /* ShazamProcessing.swift */,
 				345DC30B2AE538A2007AE044 /* SheetsModel.swift */,
 				345DC30F2AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift */,
-				34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */,
 				34B5FE012ADA856800367036 /* SubscribeButtonView.swift */,
 				34B5FDC82ADA856200367036 /* SwipeActionsExtensions.swift */,
 				34B5FDC92ADA856200367036 /* TemporalAlertsViews.swift */,

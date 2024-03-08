@@ -24,6 +24,7 @@ struct NewWatchVideoView: View {
     @State private var animateEndPoint: UnitPoint = .bottomTrailing
     @State private var showQueue: Bool = false
     @State private var showDescription: Bool = false
+    @State private var observer: (any NSObjectProtocol)? = nil
     @Namespace private var animation
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
@@ -90,9 +91,14 @@ struct NewWatchVideoView: View {
                                         .shadow(radius: 10)
                                         .onAppear {
                                             if UIApplication.shared.applicationState == .background {
-                                                NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil, using: { _ in
+                                                self.observer = NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil, using: { _ in
                                                     presentationMode.wrappedValue.dismiss()
                                                 })
+                                            }
+                                        }
+                                        .onDisappear {
+                                            if let observer = self.observer {
+                                                NotificationCenter.default.removeObserver(observer)
                                             }
                                         }
                                     } else if VPM.isLoadingVideo {

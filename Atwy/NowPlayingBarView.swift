@@ -14,9 +14,17 @@ struct NowPlayingBarView: View {
     @State var isSettingsSheetPresented: Bool = false
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @State private var downloadURL: URL?
-    @State private var isFavorite: Bool = false
+    @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
+        let isFavorite: Bool = {
+            guard let videoId = VPM.video?.videoId else { return false }
+            return PM.currentData.favoriteVideoIds.contains(where: {$0 == videoId})
+        }()
+        
+        let downloadLocation: URL? = {
+            guard let videoId = VPM.video?.videoId else { return nil }
+            return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == videoId})?.storageLocation
+        }()
         ZStack {
             Rectangle()
                 .fill(.ultraThickMaterial)
@@ -89,17 +97,6 @@ struct NowPlayingBarView: View {
                 }
                 .matchedGeometryEffect(id: "BGVIEW", in: sheetAnimation)
         }
-        .onAppear {
-            reloadCoreData()
-            NotificationCenter.default.addObserver(
-                forName: .atwyCoreDataChanged,
-                object: nil,
-                queue: nil,
-                using: { _ in
-                    reloadCoreData()
-                }
-            )
-        }
         .overlay(alignment: .bottom) {
             Rectangle().fill(.gray.opacity(0.1))
                 .frame(height: 1)
@@ -107,7 +104,7 @@ struct NowPlayingBarView: View {
         .frame(height: 70)
         .contextMenu {
             if let video = VPM.video {
-                VideoContextMenuView(video: video, videoThumbnailData: VPM.videoThumbnailData, isFavorite: $isFavorite, downloadURL: $downloadURL)
+                VideoContextMenuView(video: video, videoThumbnailData: VPM.videoThumbnailData, isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
             }
         } preview: {
             if let video = VPM.video {
@@ -119,16 +116,6 @@ struct NowPlayingBarView: View {
             withAnimation {
                 isSheetPresented = true
             }
-        }
-    }
-    
-    private func reloadCoreData() {
-        if let video = VPM.video {
-            self.downloadURL = URL(string: PersistenceModel.shared.getStorageLocationFor(video: video) ?? "")
-            self.isFavorite = PersistenceModel.shared.checkIfFavorite(video: video)
-        } else {
-            self.downloadURL = nil
-            self.isFavorite = false
         }
     }
 }
