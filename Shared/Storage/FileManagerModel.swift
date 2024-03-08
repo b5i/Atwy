@@ -16,14 +16,19 @@ class FileManagerModel: ObservableObject {
     func fetchNewDownloadedVideosPaths() {
 #if !os(macOS)
         let (currentVideos, fetchResult) = getDownloadedVideosPath()
+        var downloadsToModify: [(videoId: String, newLocation: URL)] = []
+        var downloadsToRemove: [String] = [] // array of videoIds
         for video in fetchResult {
             let potentialPath = currentVideos.first(where: {$0.absoluteString.contains(video.videoId)})
-            if let potentialPath = potentialPath {
-                PersistenceModel.shared.modifyDownloadURLFor(videoId: video.videoId, url: potentialPath.absoluteString)
+            if let newPath = potentialPath {
+                downloadsToModify.append((video.videoId, newPath))
             } else {
-                PersistenceModel.shared.removeDownloadFromCoreData(videoId: video.videoId)
+                downloadsToRemove.append(video.videoId)
             }
         }
+        
+        PersistenceModel.shared.removeDownloadsFromCoreData(videoIds: downloadsToRemove)
+        PersistenceModel.shared.modifyDownloadURLsFor(videos: downloadsToModify)
 #endif
     }
     
@@ -65,32 +70,6 @@ class FileManagerModel: ObservableObject {
             self.filesRemovedProgress = true
         }
         return downloadedVideoIds
-        
-        /*
-         
-         let fetchRequest = DownloadedVideo.fetchRequest()
-         do {
-         let fetchResult = try PersistenceModel.shared.context.fetch(fetchRequest)
-         let newFileList = fileList
-         for (index, file) in newFileList.enumerated() where file.pathExtension == "movpkg" {
-         do {
-         if !fetchResult.contains(where: {$0.videoId == file.lastPathComponent.replacingOccurrences(of: ".movpkg", with: "")}) {
-         try FileManager.default.removeItem(at: file)
-         fileList.remove(at: index - newFileList.count + fileList.count)
-         }
-         } catch {
-         print("Couldn't delete file: \(error.localizedDescription)")
-         }
-         }
-         DispatchQueue.main.async {
-         self.filesRemovedProgress = true
-         }
-         return fetchResult
-         } catch {
-         print(error)
-         }
-         return []
-         */
     }
     
     func getAllFiles() -> [URL] {
