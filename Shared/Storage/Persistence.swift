@@ -189,6 +189,12 @@ class PersistenceModel: ObservableObject {
                 try backgroundContext.save()
                 
                 self.currentData.addFavoriteVideo(videoId: video.videoId)
+                /*
+                    NotificationCenter.default.post(
+                        name: .atwyCoreDataChanged,
+                        object: nil
+                    )
+                 */
                 self.update()
                 
                 DispatchQueue.main.async {
@@ -247,6 +253,34 @@ class PersistenceModel: ObservableObject {
             }
         }
     }
+    
+    public func modifyDownloadURLsFor(videos: [(videoId: String, newLocation: URL)]) {
+        self.controller.container.performBackgroundTask({ backgroundContext in
+            let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.returnsObjectsAsFaults = false
+            do {
+                let result = try backgroundContext.fetch(fetchRequest)
+                
+                for video in videos {
+                    guard let videoIndex = self.currentData.downloadedVideoIds.firstIndex(where: {$0.videoId == video.videoId}), let videoObject = result.first(where: {$0.videoId == video.videoId}) else { return }
+                    
+                    videoObject.storageLocation = video.newLocation
+                    self.currentData.replaceDownloadedVideoURLAtIndex(videoIndex, by: video.newLocation)
+                    
+                }
+                
+                try backgroundContext.save()
+                
+                NotificationCenter.default.post(
+                    name: .atwyCoreDataChanged,
+                    object: nil
+                )
+                self.update()
+            } catch {
+                print("Couldn't update URLs: \(error)")
+            }
+        })
+    }
 
     public func checkIfFavorite(video: YTVideo) -> Bool {
         return self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
@@ -265,36 +299,6 @@ class PersistenceModel: ObservableObject {
     
     public func isVideoDownloaded(videoId: String) -> PersistenceData.VideoIdAndLocation? {
         return self.currentData.downloadedVideoIds.first(where: {$0.videoId == videoId})
-    }
-    
-    public func modifyDownloadURLFor(videoId: String, url: String) {
-        self.controller.container.performBackgroundTask({ backgroundContext in
-            guard let videoIndex = self.currentData.downloadedVideoIds.firstIndex(where: {$0.videoId == videoId}), let newStorageLocation = URL(string: url) else { return }
-            
-            let fetchRequest = DownloadedVideo.fetchRequest()
-            fetchRequest.fetchLimit = 1
-            fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-            do {
-                let fetchResult = try backgroundContext.fetch(fetchRequest)
-                if let newObject = fetchResult.first, let newStorageLocation = URL(string: url) {
-                    newObject.storageLocation = newStorageLocation
-                    try backgroundContext.save()
-
-                    NotificationCenter.default.post(
-                        name: .atwyCoreDataChanged,
-                        object: nil
-                    )
-                    
-                    self.currentData.replaceDownloadedVideoURLAtIndex(videoIndex, by: newStorageLocation)
-                } else {
-                    print("no item found")
-                }
-            } catch {
-                print("can't modify to context")
-                print(error)
-            }
-             
-        })
     }
     
     public func removeDownloadFromCoreData(videoId: String) {
@@ -325,6 +329,45 @@ class PersistenceModel: ObservableObject {
                 )
                 
                 self.currentData.removeDownloadedVideo(videoId: videoId)
+                 
+                self.update()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    public func removeDownloadsFromCoreData(videoIds: [String]) {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        backgroundContext.performAndWait {
+            let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.returnsObjectsAsFaults = false
+            
+            do {
+                let result = try backgroundContext.fetch(fetchRequest)
+                                
+                for video in result {
+                    if videoIds.contains(video.videoId) {
+                        if let channel = video.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
+                            backgroundContext.delete(channel)
+                        }
+                        backgroundContext.delete(video)
+                        
+                        if FileManager.default.fileExists(atPath: video.storageLocation.absoluteString) {
+                            FileManagerModel.shared.removeVideoDownload(videoId: video.videoId)
+                        }
+                        
+                        self.currentData.removeDownloadedVideo(videoId: video.videoId)
+                    }
+                }
+                
+                try backgroundContext.save()
+                
+                
+                NotificationCenter.default.post(
+                    name: .atwyCoreDataChanged,
+                    object: nil
+                )
                  
                 self.update()
             } catch {
