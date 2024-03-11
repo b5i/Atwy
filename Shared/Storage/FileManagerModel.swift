@@ -21,7 +21,9 @@ class FileManagerModel: ObservableObject {
         for video in fetchResult {
             let potentialPath = currentVideos.first(where: {$0.absoluteString.contains(video.videoId)})
             if let newPath = potentialPath {
-                downloadsToModify.append((video.videoId, newPath))
+                if newPath != video.storageLocation {
+                    downloadsToModify.append((video.videoId, newPath))
+                }
             } else {
                 downloadsToRemove.append(video.videoId)
             }
@@ -32,7 +34,7 @@ class FileManagerModel: ObservableObject {
 #endif
     }
     
-    func getDownloadedVideosPath() -> ([URL], [PersistenceModel.PersistenceData.VideoIdAndLocation]) {
+    func getDownloadedVideosPath() -> (newURLs: [URL], currentStates: [PersistenceModel.PersistenceData.VideoIdAndLocation]) {
         var files = getAllFiles()
         let coreDataVideos = removeNonDownloadedVideos(fileList: &files)
         return (files, coreDataVideos)

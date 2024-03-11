@@ -142,7 +142,7 @@ class PersistenceModel: ObservableObject {
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
+        backgroundContext.perform {
             let newItem = FavoriteVideo(context: backgroundContext)
             newItem.timestamp = Date()
             newItem.videoId = video.videoId
@@ -155,7 +155,7 @@ class PersistenceModel: ObservableObject {
                 imageTask.waitUntilFinished()
                 backgroundContext.performAndWait {
                     if let imageData = imageTask.imageData {
-                        newItem.thumbnailData = cropImage(data: imageData)
+                        newItem.thumbnailData = self.cropImage(data: imageData)
                     }
                 }
             }
@@ -229,7 +229,7 @@ class PersistenceModel: ObservableObject {
     
     public func removeFromFavorites(video: YTVideo) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
+        backgroundContext.perform {
             do {
                 let request = FavoriteVideo.fetchRequest()
                 
@@ -303,7 +303,7 @@ class PersistenceModel: ObservableObject {
     
     public func removeDownloadFromCoreData(videoId: String) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
+        backgroundContext.perform {
             let fetchRequest = DownloadedVideo.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
             
@@ -339,7 +339,7 @@ class PersistenceModel: ObservableObject {
     
     public func removeDownloadsFromCoreData(videoIds: [String]) {
         let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
+        backgroundContext.perform {
             let fetchRequest = DownloadedVideo.fetchRequest()
             fetchRequest.returnsObjectsAsFaults = false
             

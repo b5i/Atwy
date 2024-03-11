@@ -19,11 +19,12 @@ struct HistoryView: View {
                     .centered()
             } else if let historyResponse = model.historyResponse {
                 GeometryReader { geometry in
-                    ScrollView {
+                    List {
                         ForEach(Array(historyResponse.videosAndTime.enumerated()), id: \.offset) { _, videoGroup in
                             VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), videoGroup: videoGroup)
                         }
                     }
+                    .listStyle(.plain)
                 }
             } else if let error = model.error {
                 Text("Error: " + error)
