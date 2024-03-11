@@ -449,6 +449,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     withAnimation {
                         self.moreVideoInfos = response
                     }
+                                    
                     if self.chapters == nil {
                         withAnimation {
                             self.chapters = response.chapters?.compactMap({ chapter in

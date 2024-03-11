@@ -144,14 +144,17 @@ struct NewWatchVideoView: View {
                                     .offset(x: (showQueue || showDescription) ? -geometry.size.width * 0.55 : 0, y: (showQueue || showDescription) ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
                                 if !(showQueue || showDescription) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text(VPM.video?.title ?? "")
+                                        let videoTitle = VPM.video?.title ?? VPM.streamingInfos?.title ?? VPM.moreVideoInfos?.videoTitle ?? ""
+                                        Text(videoTitle)
                                             .font(.callout)
                                             .lineLimit(2)
                                             .padding(.trailing)
                                             .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.065, alignment: .leading)
                                             .multilineTextAlignment(.leading)
                                             .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
-                                        Text(VPM.video?.channel?.name ?? "")
+                                        
+                                        let channelName: String = VPM.video?.channel?.name ?? VPM.streamingInfos?.channel?.name ?? VPM.moreVideoInfos?.channel?.name ?? ""
+                                        Text(channelName)
                                             .font(.subheadline)
                                             .lineLimit(2)
                                             .padding(.trailing)

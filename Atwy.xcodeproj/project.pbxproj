@@ -351,6 +351,7 @@
 		34B5FE632ADA876C00367036 /* Atwy */ = {
 			isa = PBXGroup;
 			children = (
+				34BA6E412B9F309C0020EF41 /* VideoViews */,
 				341A36362B9A1C2C0047EF1B /* Settings */,
 				34B5FDA62ADA851600367036 /* AddToFavoritesContextButtonView.swift */,
 				347668A92B0A834D001D2522 /* AddToFavoriteWidgetView.swift */,
@@ -374,24 +375,14 @@
 				34B5FDF22ADA856700367036 /* ContentView.swift */,
 				3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */,
 				34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */,
-				34B5FDE52ADA856600367036 /* DeleteFromFavoritesView.swift */,
 				3457B47C2AE4304900390A5A /* Download.swift */,
-				3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */,
-				34B5FDFB2ADA856800367036 /* DownloadButtonView.swift */,
 				34B5FDDA2ADA856400367036 /* DownloadCoordinatorManagerModel.swift */,
 				34B5FDFE2ADA856800367036 /* DownloadedVideosView.swift */,
 				34B5FE082ADA856900367036 /* DownloadingItemsContextMenuView.swift */,
 				3457B4822AE432BF00390A5A /* DownloadingsModel.swift */,
 				34B5FE092ADA856900367036 /* DownloadingsView.swift */,
-				34B5FDCB2ADA856300367036 /* DownloadOptionsView.swift */,
-				34B5FE042ADA856900367036 /* DownloadStateView.swift */,
-				34B5FDF82ADA856800367036 /* DownloadSwipeActionsView.swift */,
-				34B5FE072ADA856900367036 /* DownloadVideoButtonView.swift */,
-				34B5FE032ADA856900367036 /* DownloadVideoContextButtonView.swift */,
 				34B5FDD32ADA856400367036 /* FavoritesView.swift */,
 				3457B47A2AE41D7600390A5A /* GoogleConnectionView.swift */,
-				34B5FDEA2ADA856600367036 /* GoToChannelContextMenuButtonView.swift */,
-				34B5FDD42ADA856400367036 /* GoToChannelSwipeActionButtonView.swift */,
 				346F3AE82B45CCC500599B08 /* HistoryView.swift */,
 				34B5FDDC2ADA856500367036 /* HLSDownloader.swift */,
 				3457B4802AE4328100390A5A /* HLSDownloader+AVAssetDownloadDelegate.swift */,
@@ -413,7 +404,6 @@
 				345DC3112AE53ECC007AE044 /* PopupsModel.swift */,
 				34B5FDA02ADA84FA00367036 /* Preview Assets.xcassets */,
 				34B5FDFD2ADA856800367036 /* PrivacyIconView.swift */,
-				34B5FDDF2ADA856500367036 /* RemoveDownloadContextMenuButtonView.swift */,
 				34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */,
 				34B5FE002ADA856800367036 /* SearchView.swift */,
 				34B5FDF72ADA856800367036 /* ShareChannelView.swift */,
@@ -426,13 +416,9 @@
 				34B5FDE02ADA856500367036 /* URLRequestExtension.swift */,
 				34B5FDEC2ADA856600367036 /* UsersPlaylistsListView.swift */,
 				34B5FDD82ADA856400367036 /* VideoAppreciationView.swift */,
-				34B5FE062ADA856900367036 /* VideoContextMenuView.swift */,
-				3459BDBB2AE165D1001859D8 /* VideoCustomContextMenu.swift */,
-				34B5FDFA2ADA856800367036 /* VideoFromSearchView.swift */,
 				34B5FE022ADA856800367036 /* VideoPlayer.swift */,
 				34B5FDEE2ADA856700367036 /* VideoPlayerModel.swift */,
 				34B5FE682ADAC1A600367036 /* VideoThumbnailsManager.swift */,
-				34B5FDE22ADA856500367036 /* VideoView.swift */,
 				346F3AEA2B45CE7100599B08 /* View+centered.swift */,
 				34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */,
 				34B5FE662ADA944E00367036 /* ViewRepresentable.swift */,
@@ -467,6 +453,28 @@
 				34B5FDD22ADA856400367036 /* Persistence.swift */,
 			);
 			path = Storage;
+			sourceTree = "<group>";
+		};
+		34BA6E412B9F309C0020EF41 /* VideoViews */ = {
+			isa = PBXGroup;
+			children = (
+				34B5FDE52ADA856600367036 /* DeleteFromFavoritesView.swift */,
+				3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */,
+				34B5FDFB2ADA856800367036 /* DownloadButtonView.swift */,
+				34B5FDCB2ADA856300367036 /* DownloadOptionsView.swift */,
+				34B5FE042ADA856900367036 /* DownloadStateView.swift */,
+				34B5FDF82ADA856800367036 /* DownloadSwipeActionsView.swift */,
+				34B5FE072ADA856900367036 /* DownloadVideoButtonView.swift */,
+				34B5FE032ADA856900367036 /* DownloadVideoContextButtonView.swift */,
+				34B5FDEA2ADA856600367036 /* GoToChannelContextMenuButtonView.swift */,
+				34B5FDD42ADA856400367036 /* GoToChannelSwipeActionButtonView.swift */,
+				34B5FDDF2ADA856500367036 /* RemoveDownloadContextMenuButtonView.swift */,
+				34B5FE062ADA856900367036 /* VideoContextMenuView.swift */,
+				3459BDBB2AE165D1001859D8 /* VideoCustomContextMenu.swift */,
+				34B5FDFA2ADA856800367036 /* VideoFromSearchView.swift */,
+				34B5FDE22ADA856500367036 /* VideoView.swift */,
+			);
+			path = VideoViews;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -932,7 +940,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = a524666296d50d2875bf9208af538803fa37c77e;
+				revision = 944b262ca6b8172e8ac13b337433f319bd5cb525;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
