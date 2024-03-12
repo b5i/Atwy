@@ -170,6 +170,7 @@ struct ChannelDetailsView: View {
                                         ElementsInfiniteScrollView(
                                             items: itemsBinding,
                                             shouldReloadScrollView: $shouldReloadScrollView,
+                                            shouldAddBottomSpacing: true,
                                             fetchMoreResultsAction: {
                                                 if !(model.fetchingStates[selectedCategory] ?? false) {
                                                     model.fetchContentsContinuation(for: selectedCategory)

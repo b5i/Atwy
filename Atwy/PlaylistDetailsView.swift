@@ -12,7 +12,7 @@ import YouTubeKit
 struct PlaylistDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
-    @State var playlist: YTPlaylist
+    let playlist: YTPlaylist
     @State private var navigationTitle: String = ""
     @State private var shouldReloadScrollView: Bool = false
     @StateObject private var model = Model()

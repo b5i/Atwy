@@ -12,7 +12,8 @@ import SwipeActions
 struct DefaultElementsInfiniteScrollView: View {
     @Binding var items: [any YTSearchResult]
     @Binding var shouldReloadScrollView: Bool
-    @State var fetchNewResultsAtKLast: Int = 5
+    var fetchNewResultsAtKLast: Int = 5
+    var shouldAddBottomSpacing: Bool = false // add the height of the navigationbar to the bottom
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     
@@ -20,6 +21,8 @@ struct DefaultElementsInfiniteScrollView: View {
     var fetchMoreResultsAction: (() -> Void)?
     var body: some View {
         GeometryReader { geometry in
+            // We could switch to List very easily but a performance check is needed as we already use a lazyvstack
+            // List {
             ScrollView {
                 LazyVStack {
                     let itemsCount = items.count
@@ -87,8 +90,11 @@ struct DefaultElementsInfiniteScrollView: View {
                             }
                         }
                     }
+                    
+                    Color.clear.frame(height: shouldAddBottomSpacing ? 49 : 0)
                 }
             }
+            // .listStyle(.plain)
             .refreshable {
                 refreshAction?{}
             }

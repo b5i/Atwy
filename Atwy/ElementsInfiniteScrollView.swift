@@ -11,7 +11,8 @@ import YouTubeKit
 struct ElementsInfiniteScrollView: View {
     @Binding var items: [any YTSearchResult]
     @Binding var shouldReloadScrollView: Bool
-    @State var fetchNewResultsAtKLast: Int = 5
+    var fetchNewResultsAtKLast: Int = 5
+    var shouldAddBottomSpacing = false
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     
@@ -32,6 +33,7 @@ struct ElementsInfiniteScrollView: View {
                 items: $items,
                 shouldReloadScrollView: $shouldReloadScrollView,
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
+                shouldAddBottomSpacing: shouldAddBottomSpacing,
                 refreshAction: refreshAction,
                 fetchMoreResultsAction: fetchMoreResultsAction
             )
