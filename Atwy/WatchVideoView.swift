@@ -188,7 +188,7 @@ struct NewWatchVideoView: View {
                                 Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
                                 VideoAppreciationView()
                                     .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                    .frame(width: VPM.moreVideoInfos?.likesCount.defaultState != "" ? (APIM.userAccount != nil ? 180 : 110) : 0)
+                                    .frame(width: ((VPM.moreVideoInfos?.likesCount.defaultState ?? "") != "") ? (APIM.userAccount != nil ? 180 : 110) : 0)
                                 if let video = VPM.video {
                                     if NRM.connected {
                                         ZStack {

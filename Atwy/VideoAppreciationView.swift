@@ -24,7 +24,7 @@ struct VideoAppreciationView: View {
                     HStack {
                         let likeStatus = VPM.moreVideoInfos?.authenticatedInfos?.likeStatus
                         Spacer()
-                        Text((likeStatus == .liked ? VPM.moreVideoInfos?.likesCount.likeButtonClickedNewValue : VPM.moreVideoInfos?.likesCount.defaultState) ?? "")
+                        Text((likeStatus == .liked ? VPM.moreVideoInfos?.likesCount.clickedState : VPM.moreVideoInfos?.likesCount.defaultState) ?? "")
                             .foregroundStyle(.white)
                         Button {
                             guard let likeStatus = likeStatus else { return }
