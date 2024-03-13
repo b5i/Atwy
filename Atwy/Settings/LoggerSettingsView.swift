@@ -60,7 +60,7 @@ struct LoggerSettingsView: View {
                             .foregroundStyle(.gray)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    if let maximumCacheSize = self.logger.maximumCacheSize {
+                    if self.logger.maximumCacheSize != nil {
                         VStack {
                             let cacheLimitBinding: Binding<Int> = Binding(get: {
                                 self.logger.maximumCacheSize ?? 5

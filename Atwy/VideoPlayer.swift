@@ -25,6 +25,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
 #endif
     var audioSession = AVAudioSession.sharedInstance()
     @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedObject private var PSM = PreferencesStorageModel.shared
         
     func makeUIViewController(context: Context) -> AVPlayerViewController {
 //        NotificationCenter.default.addObserver(
@@ -53,19 +54,20 @@ struct PlayerViewController: UIViewControllerRepresentable {
         
 
         player.allowsExternalPlayback = true
-        player.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
+        player.audiovisualBackgroundPlaybackPolicy = ((PSM.propetriesState[.backgroundPlayback] as? Bool) ?? true) ? .continuesIfPossible : .pauses
         player.preventsDisplaySleepDuringVideoPlayback = true
         player.automaticallyWaitsToMinimizeStalling = true
 #if !os(macOS)
         controller.allowsVideoFrameAnalysis = true
 #endif
-        controller.allowsPictureInPicturePlayback = true
-        controller.canStartPictureInPictureAutomaticallyFromInline = true
+        controller.allowsPictureInPicturePlayback =  true
+        controller.canStartPictureInPictureAutomaticallyFromInline = (PSM.propetriesState[.automaticPiP] as? Bool) ?? true
         controller.exitsFullScreenWhenPlaybackEnds = true
         
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
+        /*
         observerrr = controller.observe(\.videoBounds, changeHandler: { controllerrr, _ in
             print("Changed: \(controllerrr.videoBounds)")
             if controllerrr.videoBounds != .zero {
@@ -89,6 +91,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
 //                }
             }
         })
+         */
         return controller
     }
 
