@@ -22,6 +22,7 @@ class PreferencesStorageModel: ObservableObject {
     
     public func setNewValueForKey(_ key: Properties, value: Codable?) {
         if let value = value {
+            guard type(of: value) == key.getExpectedType() else { print("Attempt to save property failed: received \(String(describing: value)) of type \(type(of: value)) but expected value of type \(key.getExpectedType())."); return }
             if let encoded = try? jsonEncoder.encode(value) {
                 UD.setValue(encoded, forKey: key.rawValue)
             } else {
@@ -37,27 +38,8 @@ class PreferencesStorageModel: ObservableObject {
     private func reloadData() {
         for property in Properties.allCases where UD.object(forKey: property.rawValue) != nil {
             if let data = UD.object(forKey: property.rawValue) as? Data {
-                switch property {
-                case .videoViewMode:
-                    if let value = try? jsonDecoder.decode(Properties.VideoViewModes.self, from: data) {
-                        propetriesState.updateValue(value, forKey: property)
-                    }
-                case .performanceMode:
-                    if let value = try? jsonDecoder.decode(Properties.PerformanceModes.self, from: data) {
-                        propetriesState.updateValue(value, forKey: property)
-                    }
-                case .isLoggerActivated:
-                    if let value = try? jsonDecoder.decode(Bool.self, from: data) {
-                        propetriesState.updateValue(value, forKey: property)
-                    }
-                case .loggerCacheLimit:
-                    if let value = try? jsonDecoder.decode(Optional<Int>.self, from: data) {
-                        propetriesState.updateValue(value, forKey: property)
-                    }
-                case .showCredentials:
-                    if let value = try? jsonDecoder.decode(Bool.self, from: data) {
-                        propetriesState.updateValue(value, forKey: property)
-                    }
+                if let value = try? jsonDecoder.decode(property.getExpectedType(), from: data) {
+                    propetriesState.updateValue(value, forKey: property)
                 }
             }
         }
@@ -75,9 +57,24 @@ class PreferencesStorageModel: ObservableObject {
             case full
             case limited
         }
+        case automaticPiP
+        case backgroundPlayback
         
         case isLoggerActivated
         case loggerCacheLimit
         case showCredentials
+        
+        func getExpectedType() -> any Codable.Type {
+            switch self {
+            case .videoViewMode:
+                return VideoViewModes.self
+            case .performanceMode:
+                return PerformanceModes.self
+            case .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials:
+                return Bool.self
+            case .loggerCacheLimit:
+                return Int.self
+            }
+        }
     }
 }
