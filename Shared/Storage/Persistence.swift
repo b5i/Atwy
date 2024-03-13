@@ -141,24 +141,28 @@ class PersistenceModel: ObservableObject {
     }
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
+        guard !self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId}) else { return }
         let backgroundContext = self.controller.container.newBackgroundContext()
         backgroundContext.perform {
             let newItem = FavoriteVideo(context: backgroundContext)
             newItem.timestamp = Date()
             newItem.videoId = video.videoId
             newItem.title = video.title
+            
+            var thumbnailData: Data?
             if let imageData = imageData {
-                newItem.thumbnailData = imageData
+                thumbnailData = imageData
             } else if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                 let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                 imageTask.start()
                 imageTask.waitUntilFinished()
                 backgroundContext.performAndWait {
                     if let imageData = imageTask.imageData {
-                        newItem.thumbnailData = self.cropImage(data: imageData)
+                        thumbnailData = self.cropImage(data: imageData)
                     }
                 }
             }
+            newItem.thumbnailData = thumbnailData
             
             if let channelId = video.channel?.channelId {
                 let fetchRequest = DownloadedChannel.fetchRequest()
@@ -198,7 +202,7 @@ class PersistenceModel: ObservableObject {
                 self.update()
                 
                 DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": newItem.thumbnailData as Any])
+                    NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": thumbnailData as Any])
                 }
             } catch {
                 print("Couldn't add favorite to context, error: \(error)")
