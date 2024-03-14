@@ -11,41 +11,24 @@ import YouTubeKit
 struct DownloadingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var DM = DownloadingsModel.shared
-    @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
+    @ObservedObject private var PM = PersistenceModel.shared
     
     @State private var observer: (any NSObjectProtocol)? = nil
     var body: some View {
         VStack {
             Button {
-                for downloader in DCMM.downloadings {
+                for downloader in DM.downloadings.values {
                     downloader.cancelDownload()
                 }
-                for downloader in DCMM.waitingDownloadings {
-                    downloader.cancelDownload()
-                }
-                for downloader in DCMM.pausedDownloadings {
-                    downloader.cancelDownload()
-                }
-                downloads = []
-                NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
-                PopupsModel.shared.showPopup(.cancelledDownload)
             } label: {
                 Text("Cancel all downloadings")
             }
             .buttonStyle(.bordered)
             List {
-                let downloadersAndVideos: [(HLSDownloader, YTVideo)] =
-                    DM.downloadings
-                    .filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused})
-                    .compactMap({ downloader in
-                        if let video = downloader.video {
-                            return (downloader, video)
-                        }
-                        return nil
-                    })
-                ForEach(downloadersAndVideos, id: \.0.self) { downloader, video in
+                ForEach(DM.activeDownloadings.sorted(by: {$0.creationDate < $1.creationDate})) { downloader in
+                    let video = downloader.video
                         HStack {
                             VStack {
 #if os(macOS)
@@ -74,7 +57,10 @@ struct DownloadingsView: View {
                                     .opacity(0.7)
                             }
                             .frame(width: 200, height: 50)
-                            DownloadButtonView(video: video)
+                            let downloadLocation: URL? = {
+                                return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
+                            }()
+                            DownloadButtonView(video: video, downloadURL: downloadLocation)
                         }
                         .contextMenu {
                             DownloadingItemsContextMenuView(downloader: downloader)
@@ -85,9 +71,8 @@ struct DownloadingsView: View {
                             DownloadSwipeActionsView(downloader: downloader)
                         })
                         .onTapGesture {
-                            let video = downloader.video!
-                            if VideoPlayerModel.shared.video?.videoId != video.videoId {
-                                VideoPlayerModel.shared.loadVideo(video: video)
+                            if VideoPlayerModel.shared.video?.videoId != downloader.video.videoId {
+                                VideoPlayerModel.shared.loadVideo(video: downloader.video)
                             }
                             SheetsModel.shared.showSheet(.watchVideo)
                         }
@@ -136,12 +121,8 @@ struct DownloadingsView: View {
 
     private func deleteItem(at offsets: IndexSet) {
         for item in offsets {
-            let selectedDownloader = DM.downloadings.filter({$0.downloaderState == .downloading || $0.downloaderState == .waiting || $0.downloaderState == .paused})[item]
-            withAnimation {
-                selectedDownloader.cancelDownload()
-                downloads.removeAll(where: {$0.video?.videoId == selectedDownloader.video!.videoId})
-                DownloadCoordinatorManagerModel.shared.launchDownloads()
-            }
+            let selectedDownloader = DM.activeDownloadings.sorted(by: {$0.creationDate < $1.creationDate})[item]
+            DownloadingsModel.shared.cancelDownloadFor(downloader: selectedDownloader)
         }
     }
 }

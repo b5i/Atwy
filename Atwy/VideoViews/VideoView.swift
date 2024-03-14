@@ -15,7 +15,6 @@ struct VideoView: View {
     let video: YTVideo
     var thumbnailData: Data?
     var isShort: Bool = false
-    @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var PM = PersistenceModel.shared

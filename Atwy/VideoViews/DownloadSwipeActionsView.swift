@@ -8,42 +8,27 @@
 import SwiftUI
 
 struct DownloadSwipeActionsView: View {
-    @StateObject var downloader: HLSDownloader
+    @ObservedObject var downloader: HLSDownloader
     var body: some View {
-        if downloader.downloadTask?.state == .suspended {
-            Button {
+        Button {
+            if downloader.downloadTask?.state == .suspended {
                 downloader.resumeDownload()
                 PopupsModel.shared.showPopup(.resumedDownload, data: downloader.state.thumbnailData)
-            } label: {
-                ZStack {
-                    Rectangle()
-                        .tint(.orange)
-                    Image(systemName: "play")
-                        .tint(.white)
-                }
-            }
-            .tint(.orange)
-        } else if downloader.downloadTask?.state == .running {
-            Button {
+            } else {
                 downloader.pauseDownload()
                 PopupsModel.shared.showPopup(.pausedDownload, data: downloader.state.thumbnailData)
-            } label: {
-                ZStack {
-                    Rectangle()
-                        .tint(.orange)
-                    Image(systemName: "pause")
-                        .tint(.white)
-                }
             }
-            .tint(.orange)
+        } label: {
+            ZStack {
+                Rectangle()
+                    .tint(.orange)
+                Image(systemName: downloader.downloadTask?.state == .suspended ? "play" : "pause")
+                    .tint(.white)
+            }
         }
+        .tint(.orange)
         Button {
-            withAnimation {
-                downloader.cancelDownload()
-                downloads.removeAll(where: {$0.video?.videoId == downloader.video!.videoId})
-                DownloadCoordinatorManagerModel.shared.launchDownloads()
-                PopupsModel.shared.showPopup(.cancelledDownload, data: downloader.state.thumbnailData)
-            }
+            DownloadingsModel.shared.cancelDownloadFor(downloader: downloader)
         } label: {
             ZStack {
                 Rectangle()

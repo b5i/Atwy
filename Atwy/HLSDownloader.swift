@@ -11,31 +11,25 @@ import CoreData
 import SwiftUI
 import YouTubeKit
 
-class HLSDownloader: NSObject, ObservableObject {
+class HLSDownloader: NSObject, ObservableObject, Identifiable {
 
-    @Published var video: YTVideo?
+    let video: YTVideo
     @Published var state = Download()
 
-    var DCMM = DownloadCoordinatorManagerModel.shared
-
     @Published var downloaderState: HLSDownloaderState = .inactive {
-        didSet (newValue) {
-            switch newValue {
+        didSet {
+            switch downloaderState {
             case .waiting:
+                DownloadingsModel.shared.launchDownloads()
+            case .failed, .success:
+                DownloadingsModel.shared.removeDownloader(downloader: self)
+            case .inactive, .paused, .downloading:
                 break
-            case .downloading:
-                break
-            case .failed:
-                if let videoId = self.video?.videoId {
-                    downloads.removeAll(where: {$0.video?.videoId == videoId})
-                }
-                fallthrough
-            case .inactive, .success, .paused:
-                DCMM.launchDownloads()
             }
         }
     }
     @Published var percentComplete: Double = 0.0
+    let creationDate = Date()
     var location: URL?
     var isFavorite: Bool?
     var videoDescription: String?
@@ -46,7 +40,8 @@ class HLSDownloader: NSObject, ObservableObject {
     var startedEndProcedure: Bool = false
     @Published var downloadTaskState: URLSessionTask.State = .canceling
 
-    override init() {
+    init(video: YTVideo) {
+        self.video = video
         super.init()
     }
     
@@ -64,42 +59,36 @@ class HLSDownloader: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.downloaderState = .downloading
         }
-        if let video = video {
-            state.title = ""
-            state.owner = ""
-            state.location = ""
-            percentComplete = 0.0
-            location = nil
-            self.videoDescription = nil
-            if let downloadURL = downloadData?.url {
-                downloadHLS(downloadURL: downloadURL, videoDescription: videoDescription, video: video, thumbnailData: thumbnailData)
-            } else {
-                self.video?.fetchStreamingInfos(youtubeModel: YTM, infos: { result in
-                    switch result {
-                    case .success(let response):
-                        if let streamingURL = response.streamingURL {
-                            self.downloadHLS(downloadURL: streamingURL, videoDescription: response.videoDescription ?? "", video: video, thumbnailData: thumbnailData)
-                        } else {
-                            print("Couldn't get video streaming url.")
-                            DispatchQueue.main.async {
-                                self.downloaderState = .failed
-                                NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
-                            }
-                        }
-                    case .failure(let error):
-                        print("Couldn't get video streaming data, error: \(String(describing: error)).")
+        state.title = ""
+        state.owner = ""
+        state.location = ""
+        percentComplete = 0.0
+        location = nil
+        self.videoDescription = nil
+        if let downloadURL = downloadData?.url {
+            downloadHLS(downloadURL: downloadURL, videoDescription: videoDescription, video: video, thumbnailData: thumbnailData)
+        } else {
+            self.video.fetchStreamingInfos(youtubeModel: YTM, infos: { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let response):
+                    if let streamingURL = response.streamingURL {
+                        self.downloadHLS(downloadURL: streamingURL, videoDescription: response.videoDescription ?? "", video: self.video, thumbnailData: thumbnailData)
+                    } else {
+                        print("Couldn't get video streaming url.")
                         DispatchQueue.main.async {
                             self.downloaderState = .failed
                             NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                         }
                     }
-                })
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.downloaderState = .failed
-                DownloadCoordinatorManagerModel.shared.launchDownloads()
-            }
+                case .failure(let error):
+                    print("Couldn't get video streaming data, error: \(String(describing: error)).")
+                    DispatchQueue.main.async {
+                        self.downloaderState = .failed
+                        NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
+                    }
+                }
+            })
         }
     }
 
@@ -204,11 +193,10 @@ class HLSDownloader: NSObject, ObservableObject {
     func cancelDownload() {
         DispatchQueue.main.async {
             self.downloadTask?.cancel()
-            if self.downloadTask != nil {
-                self.downloadTaskState = self.downloadTask!.state
+            if let downloadTaskState = self.downloadTask?.state {
+                self.downloadTaskState = downloadTaskState
             }
             self.downloaderState = .inactive
-            NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }
     }
 

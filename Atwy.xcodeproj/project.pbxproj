@@ -71,7 +71,6 @@
 		34B5FE1F2ADA856900367036 /* View+hapticFeedbackOnTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */; };
 		34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDD72ADA856400367036 /* ChannelBannerRectangleView.swift */; };
 		34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDD82ADA856400367036 /* VideoAppreciationView.swift */; };
-		34B5FE232ADA856900367036 /* DownloadCoordinatorManagerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDDA2ADA856400367036 /* DownloadCoordinatorManagerModel.swift */; };
 		34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDDC2ADA856500367036 /* HLSDownloader.swift */; };
 		34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDDD2ADA856500367036 /* PreferencesStorageModel.swift */; };
 		34B5FE272ADA856900367036 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDDE2ADA856500367036 /* LoadingView.swift */; };
@@ -124,6 +123,7 @@
 		34B8B2DE2AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8B2D42AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift */; };
 		34B8B2F32AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8B2F12AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift */; };
 		34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8B2F22AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift */; };
+		34BA6E462BA316470020EF41 /* DownloadingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */; };
 		34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */; };
 		34C488A32B06A94D00755EB6 /* CustomNavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */; };
 		34E2652B2B1A50DF007BB226 /* StorageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */; };
@@ -208,7 +208,6 @@
 		34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+hapticFeedbackOnTap.swift"; sourceTree = "<group>"; };
 		34B5FDD72ADA856400367036 /* ChannelBannerRectangleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelBannerRectangleView.swift; sourceTree = "<group>"; };
 		34B5FDD82ADA856400367036 /* VideoAppreciationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAppreciationView.swift; sourceTree = "<group>"; };
-		34B5FDDA2ADA856400367036 /* DownloadCoordinatorManagerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadCoordinatorManagerModel.swift; sourceTree = "<group>"; };
 		34B5FDDC2ADA856500367036 /* HLSDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HLSDownloader.swift; sourceTree = "<group>"; };
 		34B5FDDD2ADA856500367036 /* PreferencesStorageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStorageModel.swift; sourceTree = "<group>"; };
 		34B5FDDE2ADA856500367036 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
@@ -263,6 +262,7 @@
 		34B8B2D42AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		34B8B2F12AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+CoreDataClass.swift"; sourceTree = "<group>"; };
 		34B8B2F22AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadingsHeaderView.swift; sourceTree = "<group>"; };
 		34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationName+AtwyNotifications.swift"; sourceTree = "<group>"; };
 		34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationTitle.swift; sourceTree = "<group>"; };
 		34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSettingsView.swift; sourceTree = "<group>"; };
@@ -353,14 +353,9 @@
 			children = (
 				34BA6E412B9F309C0020EF41 /* VideoViews */,
 				341A36362B9A1C2C0047EF1B /* Settings */,
-				34B5FDA62ADA851600367036 /* AddToFavoritesContextButtonView.swift */,
 				347668A92B0A834D001D2522 /* AddToFavoriteWidgetView.swift */,
-				34B5FDA72ADA851600367036 /* AddToPlaylistContextMenuButtonView.swift */,
-				34B5FDA82ADA851600367036 /* AddToPlaylistSwipeActionButtonView.swift */,
-				34B5FDA32ADA851600367036 /* AddToPlaylistView.swift */,
-				34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */,
-				34B5FDA52ADA851600367036 /* AddToQueueSwipeActionButtonsView.swift */,
 				34B5FDC62ADA856200367036 /* APIKeyModel.swift */,
+				34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */,
 				34B5FD9E2ADA84F300367036 /* Assets.xcassets */,
 				34B5FE5E2ADA85B900367036 /* Atwy.entitlements */,
 				34B5FDE32ADA856600367036 /* AtwyApp.swift */,
@@ -376,7 +371,6 @@
 				3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */,
 				34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */,
 				3457B47C2AE4304900390A5A /* Download.swift */,
-				34B5FDDA2ADA856400367036 /* DownloadCoordinatorManagerModel.swift */,
 				34B5FDFE2ADA856800367036 /* DownloadedVideosView.swift */,
 				34B5FE082ADA856900367036 /* DownloadingItemsContextMenuView.swift */,
 				3457B4822AE432BF00390A5A /* DownloadingsModel.swift */,
@@ -458,6 +452,12 @@
 		34BA6E412B9F309C0020EF41 /* VideoViews */ = {
 			isa = PBXGroup;
 			children = (
+				34B5FDA62ADA851600367036 /* AddToFavoritesContextButtonView.swift */,
+				34B5FDA72ADA851600367036 /* AddToPlaylistContextMenuButtonView.swift */,
+				34B5FDA82ADA851600367036 /* AddToPlaylistSwipeActionButtonView.swift */,
+				34B5FDA32ADA851600367036 /* AddToPlaylistView.swift */,
+				34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */,
+				34B5FDA52ADA851600367036 /* AddToQueueSwipeActionButtonsView.swift */,
 				34B5FDE52ADA856600367036 /* DeleteFromFavoritesView.swift */,
 				3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */,
 				34B5FDFB2ADA856800367036 /* DownloadButtonView.swift */,
@@ -585,6 +585,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34B5FE692ADAC1A600367036 /* VideoThumbnailsManager.swift in Sources */,
+				34BA6E462BA316470020EF41 /* DownloadingsHeaderView.swift in Sources */,
 				346F3AEF2B45FDCA00599B08 /* BehaviorSettingsView.swift in Sources */,
 				34B5FDA92ADA851600367036 /* AddToQueueContextMenuButtonView.swift in Sources */,
 				34B5FDAA2ADA851600367036 /* AddToPlaylistView.swift in Sources */,
@@ -628,7 +629,6 @@
 				345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */,
 				34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */,
 				34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */,
-				34B5FE232ADA856900367036 /* DownloadCoordinatorManagerModel.swift in Sources */,
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
 				34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */,
 				34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */,

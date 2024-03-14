@@ -15,8 +15,7 @@ struct DownloadButtonView: View {
     var isShort: Bool = false
     let video: YTVideo
     var videoThumbnailData: Data? = nil
-    var downloadURL: URL?
-    @ObservedObject private var DCMM = DownloadCoordinatorManagerModel.shared
+    let downloadURL: URL?
     var body: some View {
         VStack {
             if downloadURL != nil {
@@ -47,11 +46,11 @@ struct DownloadButtonView: View {
         }
         .frame(width: 25, height: 25)
         .onAppear {
-            if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
+            if let downloader = DownloadingsModel.shared.downloadings[video.videoId] {
                 self.downloader = downloader
             } else {
                 self.observer = NotificationCenter.default.addObserver(forName: .atwyDownloadingChanged(for: video.videoId), object: nil, queue: nil, using: { _ in
-                    self.downloader = downloads.first(where: {$0.video?.videoId == video.videoId})
+                    self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
                 })
             }
         }

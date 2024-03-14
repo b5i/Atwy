@@ -15,29 +15,28 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
     @State private var formats: VideoInfosWithDownloadFormatsResponse?
     let video: YTVideo
     let videoThumbnailData: Data?
+    
+    @ObservedObject private var DM = DownloadingsModel.shared
     var body: some View {
         Menu(content: {
             if let formats = formats {
                 Section("Video formats") {
                     ForEach(Array((formats.downloadFormats).enumerated()).filter({$0.element as? VideoFormat != nil}).filter({$0.element.mimeType == "video/mp4"}), id: \.offset) { _, format in
                         Button {
-                            if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
-                                if downloader.downloaderState != .downloading && downloader.downloaderState != .success {
+                            if let downloader = DM.downloadings[video.videoId] {
+                                if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
-                                    downloader.video = video
                                     downloader.state.thumbnailData = videoThumbnailData
-                                    
-                                    DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
+                                    downloader.downloaderState = .waiting
+                                    DM.launchDownloads()
                                 }
                             } else {
-                                let downloader = HLSDownloader()
+                                let downloader = HLSDownloader(video: self.video)
                                 downloader.downloadData = format
 
-                                downloader.video = video
                                 downloader.state.thumbnailData = videoThumbnailData
-                                DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
-                                    
+                                DM.addDownloader(downloader)
                             }
                         } label: {
                             if let contentLength = format.contentLength {
@@ -52,23 +51,23 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                 Section("Audio formats") {
                     ForEach(Array((formats.downloadFormats).enumerated()).filter({$0.element as? AudioFormat != nil}).filter({$0.element.mimeType == "audio/mp4"}), id: \.offset) { _, format in
                         Button {
-                            if let downloader = downloads.first(where: {$0.video?.videoId == video.videoId}) {
-                                if downloader.downloaderState != .downloading && downloader.downloaderState != .success {
+                            if let downloader = DM.downloadings[video.videoId] {
+                                if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
-                                    downloader.video = video
                                     downloader.state.thumbnailData = videoThumbnailData
+                                    downloader.downloaderState = .waiting
                                     
-                                    DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
+                                    DM.launchDownloads()
+                                    
                                 }
                             } else {
-                                let downloader = HLSDownloader()
+                                let downloader = HLSDownloader(video: self.video)
                                 downloader.downloadData = format
                                 
-                                downloader.video = video
                                 downloader.state.thumbnailData = videoThumbnailData
                                 
-                                DownloadCoordinatorManagerModel.shared.appendDownloader(downloader: downloader)
+                                DM.addDownloader(downloader)
                             }
                         } label: {
                             if let contentLength = format.contentLength {
