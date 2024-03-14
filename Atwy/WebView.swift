@@ -35,7 +35,7 @@ class WebView: UIViewController {
     func initWebView(configuration: WKWebViewConfiguration) {
         NotificationCenter.default.addObserver(forName: .atwyGetCookies, object: nil, queue: nil, using: { _ in
             self.webView?.getCookies(completion: { cookies in
-                if sendAndProcessCookies(cookies: cookies) {
+                if APIKeyModel.shared.sendAndProcessCookies(cookies: cookies) {
                     self.webView?.resetCookies()
                 }
             })
@@ -126,36 +126,3 @@ extension WKWebView {
     }
 }
 #endif
-
-func sendAndProcessCookies(cookies: String) -> Bool {
-    func extractCookie(withName name: String, from cookiesString: String) -> String? {
-        let potentialCookie = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n path:\"/\" isSecure:TRUE>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
-        let potentialCookie2 = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:TRUE\n\tisHTTPOnly: YES\n path:\"/\" isSecure:TRUE isHTTPOnly: YES>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
-        let potentialCookie3 = cookiesString.components(separatedBy: "domain:.youtube.com\n\tpartition:none\n\tsameSite:none\n\tpath:/\n\tisSecure:FALSE\n path:\"/\" isSecure:FALSE>, <NSHTTPCookie\n\tversion:1\n\tname:\(name)\n\t")
-        var cookie: String?
-        if var potentialCookie = (potentialCookie.count > 1 ? potentialCookie : potentialCookie2.count > 1 ? potentialCookie2 : potentialCookie3.count > 1 ? potentialCookie3 : nil) { // The cookie can take multiple forms, this operation checks with 3 potentials forms.
-            potentialCookie = potentialCookie[1].components(separatedBy: "value:")
-            potentialCookie = potentialCookie[1].components(separatedBy: "\n\texpiresDate")
-            cookie = String(potentialCookie[0])
-        } else { print("Could not extract cookie with name: \(name)."); return nil }
-        
-        return cookie
-    }
-    
-    guard let PSID1: String = extractCookie(withName: "__Secure-1PSID", from: cookies) else { return false }
-    guard let PAPISID: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
-    guard let SAPISID: String = extractCookie(withName: "SAPISID", from: cookies) else { return false }
-    
-    let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID); __Secure-1PSID=\(PSID1)"
-    let cookies = finalString.data(using: .utf8)!
-    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                kSecAttrType as String: "Cookies",
-                                kSecAttrService as String: "YouTube",
-                                kSecValueData as String: cookies]
-    let status = SecItemAdd(query as CFDictionary, nil)
-    guard status == errSecSuccess else { print("Failed to add cookies in the Keychain, error: \(status)"); return false }
-    DispatchQueue.main.async {
-        APIKeyModel.shared.googleCookies = finalString
-    }
-    return true
-}
