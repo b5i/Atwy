@@ -125,6 +125,7 @@
 		34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8B2F22AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift */; };
 		34BA6E462BA316470020EF41 /* DownloadingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */; };
 		34BA6E482BA3207C0020EF41 /* AddToFavoritesButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA6E472BA3207C0020EF41 /* AddToFavoritesButtonView.swift */; };
+		34BA6E4A2BA3489F0020EF41 /* View+customHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA6E492BA3489F0020EF41 /* View+customHeaderView.swift */; };
 		34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */; };
 		34C488A32B06A94D00755EB6 /* CustomNavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */; };
 		34E2652B2B1A50DF007BB226 /* StorageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */; };
@@ -265,6 +266,7 @@
 		34B8B2F22AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadingsHeaderView.swift; sourceTree = "<group>"; };
 		34BA6E472BA3207C0020EF41 /* AddToFavoritesButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToFavoritesButtonView.swift; sourceTree = "<group>"; };
+		34BA6E492BA3489F0020EF41 /* View+customHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+customHeaderView.swift"; sourceTree = "<group>"; };
 		34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationName+AtwyNotifications.swift"; sourceTree = "<group>"; };
 		34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationTitle.swift; sourceTree = "<group>"; };
 		34E2652A2B1A50DE007BB226 /* StorageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSettingsView.swift; sourceTree = "<group>"; };
@@ -353,11 +355,8 @@
 		34B5FE632ADA876C00367036 /* Atwy */ = {
 			isa = PBXGroup;
 			children = (
-				34BA6E412B9F309C0020EF41 /* VideoViews */,
-				341A36362B9A1C2C0047EF1B /* Settings */,
 				347668A92B0A834D001D2522 /* AddToFavoriteWidgetView.swift */,
 				34B5FDC62ADA856200367036 /* APIKeyModel.swift */,
-				34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */,
 				34B5FD9E2ADA84F300367036 /* Assets.xcassets */,
 				34B5FE5E2ADA85B900367036 /* Atwy.entitlements */,
 				34B5FDE32ADA856600367036 /* AtwyApp.swift */,
@@ -372,11 +371,14 @@
 				34B5FDF22ADA856700367036 /* ContentView.swift */,
 				3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */,
 				34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */,
+				346F3AEC2B45F68600599B08 /* DefaultElementsInfiniteScrollView.swift */,
 				3457B47C2AE4304900390A5A /* Download.swift */,
 				34B5FDFE2ADA856800367036 /* DownloadedVideosView.swift */,
 				34B5FE082ADA856900367036 /* DownloadingItemsContextMenuView.swift */,
+				34BA6E452BA316470020EF41 /* DownloadingsHeaderView.swift */,
 				3457B4822AE432BF00390A5A /* DownloadingsModel.swift */,
 				34B5FE092ADA856900367036 /* DownloadingsView.swift */,
+				346F3AF02B46C2C700599B08 /* ElementsInfiniteScrollView.swift */,
 				34B5FDD32ADA856400367036 /* FavoritesView.swift */,
 				3457B47A2AE41D7600390A5A /* GoogleConnectionView.swift */,
 				346F3AE82B45CCC500599B08 /* HistoryView.swift */,
@@ -387,7 +389,6 @@
 				34B5FDDE2ADA856500367036 /* LoadingView.swift */,
 				34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */,
 				34B5FDD02ADA856300367036 /* NetworkReachability.swift */,
-				346F3AEC2B45F68600599B08 /* DefaultElementsInfiniteScrollView.swift */,
 				3457B4762AE4182200390A5A /* NoConnectionView.swift */,
 				3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */,
 				34B5FDC32ADA856100367036 /* NowPlayingBarView.swift */,
@@ -402,6 +403,7 @@
 				34B5FDFD2ADA856800367036 /* PrivacyIconView.swift */,
 				34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */,
 				34B5FE002ADA856800367036 /* SearchView.swift */,
+				341A36362B9A1C2C0047EF1B /* Settings */,
 				34B5FDF72ADA856800367036 /* ShareChannelView.swift */,
 				34B5FDCE2ADA856300367036 /* ShazamProcessing.swift */,
 				345DC30B2AE538A2007AE044 /* SheetsModel.swift */,
@@ -415,14 +417,15 @@
 				34B5FE022ADA856800367036 /* VideoPlayer.swift */,
 				34B5FDEE2ADA856700367036 /* VideoPlayerModel.swift */,
 				34B5FE682ADAC1A600367036 /* VideoThumbnailsManager.swift */,
+				34BA6E412B9F309C0020EF41 /* VideoViews */,
 				346F3AEA2B45CE7100599B08 /* View+centered.swift */,
 				34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */,
 				34B5FE662ADA944E00367036 /* ViewRepresentable.swift */,
 				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
 				34B5FDF42ADA856700367036 /* WebView.swift */,
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
-				346F3AF02B46C2C700599B08 /* ElementsInfiniteScrollView.swift */,
 				341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */,
+				34BA6E492BA3489F0020EF41 /* View+customHeaderView.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -651,6 +654,7 @@
 				34B5FE332ADA856900367036 /* GoToChannelContextMenuButtonView.swift in Sources */,
 				34B5FE352ADA856900367036 /* UsersPlaylistsListView.swift in Sources */,
 				34B5FE362ADA856900367036 /* PlayingQueueModel.swift in Sources */,
+				34BA6E4A2BA3489F0020EF41 /* View+customHeaderView.swift in Sources */,
 				3457B47D2AE4304900390A5A /* Download.swift in Sources */,
 				3457B4832AE432C000390A5A /* DownloadingsModel.swift in Sources */,
 				34B5FE372ADA856900367036 /* VideoPlayerModel.swift in Sources */,
