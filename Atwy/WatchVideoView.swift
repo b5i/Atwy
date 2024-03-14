@@ -705,8 +705,7 @@ struct NewWatchVideoView: View {
                                         Circle()
                                             .foregroundStyle(.gray)
                                         ProgressView()
-                                            .padding(.horizontal)
-                                            .frame(width: 10, height: 10)
+                                            .padding()
                                     }
                                     .frame(width: 24, height: 24)
                                     .clipShape(Circle())

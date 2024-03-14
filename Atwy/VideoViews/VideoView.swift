@@ -433,6 +433,7 @@ struct VideoView2: View {
                             DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(colorScheme.textColor)
                         }
+                        /* to be reinstated later
                         Menu {
                             VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
                         } label: {
@@ -445,9 +446,13 @@ struct VideoView2: View {
                                 .padding(.top, 10)
                         }
                         .frame(width: 20, height: 20)
+                         */
+                        AddToFavoritesButtonView(video: video, imageData: thumbnailData)
+                            .foregroundStyle(colorScheme.textColor)
                         Spacer()
                     }
                     .frame(alignment: .top)
+                    .padding(.trailing, 5)
                     if !(video.channel?.thumbnails.isEmpty ?? true) && ownerThumbnailData != nil {
                         Spacer()
                     }
