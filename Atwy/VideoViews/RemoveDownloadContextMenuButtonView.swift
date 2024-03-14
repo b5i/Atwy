@@ -19,8 +19,6 @@ struct RemoveDownloadContextMenuButtonView: View {
                     VideoPlayerModel.shared.deleteCurrentVideo()
                 }
                 PersistenceModel.shared.removeDownloadFromCoreData(videoId: video.videoId)
-                downloads.removeAll(where: {$0.video?.videoId == video.videoId})
-                NotificationCenter.default.post(name: .atwyDownloadingChanged(for: video.videoId), object: nil)
                 PopupsModel.shared.showPopup(.deletedDownload)
             }
         } label: {

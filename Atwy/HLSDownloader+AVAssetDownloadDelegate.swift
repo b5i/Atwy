@@ -88,19 +88,12 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     func processEndOfDownload(videoData: Data? = nil) {
         self.startedEndProcedure = true
-        guard let videoId = self.video?.videoId else {
-            print("self.video?.videoId = \(String(describing: self.video?.videoId)) is not defined.")
-            DispatchQueue.main.async {
-                self.downloaderState = .failed
-            }
-            return
-        }
         guard let location = self.location, let docDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else { return }
         let newPath: URL
         
         // Normal video
         if let videoData = videoData {
-            newPath = URL(string: "\(docDir.absoluteString)\(videoId).mp4")!
+            newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).mp4")!
             guard FileManager.default.createFile(atPath: newPath.path(), contents: videoData) else {
                 print("Couldn't create a new file with video's contents.")
                 DispatchQueue.main.async {
@@ -138,7 +131,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             }
             */
 
-            newPath = URL(string: "\(docDir.absoluteString)\(videoId).movpkg")!
+            newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).movpkg")!
             _ = docDir.startAccessingSecurityScopedResource()
             guard copyVideoAndDeleteOld(location: location, newLocation: newPath) else {
                 print("Couldn't copy/remove the new video's contents.")
@@ -177,13 +170,13 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         }
         Task {
             let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
-            let videoInfos = try? await self.video?.fetchMoreInfos(youtubeModel: YTM)
+            let videoInfos = try? await self.video.fetchMoreInfos(youtubeModel: YTM)
             backgroundContext.performAndWait {
                 let newVideo = DownloadedVideo(context: backgroundContext)
                 newVideo.timestamp = Date()
                 newVideo.storageLocation = newPath
-                newVideo.title = videoInfos?.videoTitle ?? self.video?.title
-                if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(videoId)/hqdefault.jpg") {
+                newVideo.title = videoInfos?.videoTitle ?? self.video.title
+                if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(self.video.videoId)/hqdefault.jpg") {
                     let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                     imageTask.start()
                     imageTask.waitUntilFinished()
@@ -191,9 +184,9 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                         newVideo.thumbnail = cropImage(data: imageData)
                     }
                 }
-                newVideo.timeLength = self.video?.timeLength
+                newVideo.timeLength = self.video.timeLength
                 newVideo.timePosted = videoInfos?.timePosted.postedDate
-                newVideo.videoId = videoId
+                newVideo.videoId = self.video.videoId
                 
                 for chapter in videoInfos?.chapters ?? [] {
                     guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
@@ -212,7 +205,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     newVideo.addToChapters(chapterEntity)
                 }
                 
-                if let channelId = self.video?.channel?.channelId {
+                if let channelId = self.video.channel?.channelId {
                     let fetchRequest = DownloadedChannel.fetchRequest()
                     fetchRequest.fetchLimit = 1
                     fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
@@ -223,8 +216,8 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     } else {
                         let newChannel = DownloadedChannel(context: backgroundContext)
                         newChannel.channelId = channelId
-                        newChannel.name = videoInfos?.channel?.name ?? self.video?.channel?.name
-                        if let channelThumbnailURL = videoInfos?.channel?.thumbnails.maxFor(3) ?? self.video?.channel?.thumbnails.maxFor(3) {
+                        newChannel.name = videoInfos?.channel?.name ?? self.video.channel?.name
+                        if let channelThumbnailURL = videoInfos?.channel?.thumbnails.maxFor(3) ?? self.video.channel?.thumbnails.maxFor(3) {
                             let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                             imageTask.start()
                             imageTask.waitUntilFinished()
@@ -237,7 +230,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 newVideo.videoDescription = videoDescription
                 do {
                     try backgroundContext.save()
-                    PersistenceModel.shared.currentData.addDownloadedVideo(videoId: videoId, storageLocation: newPath)
+                    PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.video.videoId, storageLocation: newPath)
                     DispatchQueue.main.async {
                         self.percentComplete = 100
                         self.downloaderState = .success

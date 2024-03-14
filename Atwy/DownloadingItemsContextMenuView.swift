@@ -31,19 +31,12 @@ struct DownloadingItemsContextMenuView: View {
                 }
             }
         }
-        if let video = downloader.video {
-            Button(role: .destructive) {
-                withAnimation {
-                    downloader.cancelDownload()
-                    downloads.removeAll(where: {$0.video?.videoId == video.videoId})
-                    DownloadCoordinatorManagerModel.shared.launchDownloads()
-                }
-                PopupsModel.shared.showPopup(.cancelledDownload, data: downloader.state.thumbnailData)
-            } label: {
-                HStack {
-                    Text("Cancel Download")
-                    Image(systemName: "trash")
-                }
+        Button(role: .destructive) {
+            DownloadingsModel.shared.cancelDownloadFor(downloader: downloader)
+        } label: {
+            HStack {
+                Text("Cancel Download")
+                Image(systemName: "trash")
             }
         }
     }

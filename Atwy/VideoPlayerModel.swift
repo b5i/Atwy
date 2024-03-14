@@ -133,7 +133,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
     lazy var controller = AVPlayerViewController()
     var nowPlayingSession: MPNowPlayingSession?
     #endif
-    var downloader = HLSDownloader()
     @Published var streamingInfos: VideoInfosResponse?
     @Published var videoThumbnailData: Data? {
         didSet {
@@ -383,14 +382,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
 #if !os(macOS)
                     try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
 #endif
-                    
-                    let potentialDownloader = downloads.last(where: {$0.video?.videoId == VideoPlayerModel.shared.video?.videoId})
-                    if let potentialDownloader = potentialDownloader {
-                        self.downloader = potentialDownloader
-                    } else {
-                        self.downloader = HLSDownloader()
-                    }
-                    
+                                        
                     self.fetchMoreInfosForVideo()
                     self.player.play()
                     DispatchQueue.main.async {

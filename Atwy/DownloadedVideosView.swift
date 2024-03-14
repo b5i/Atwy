@@ -14,7 +14,6 @@ struct DownloadedVideosView: View {
         animation: .default)
     private var downloadedVideos: FetchedResults<DownloadedVideo>
     @State private var search: String = ""
-    @ObservedObject private var DM = DownloadingsModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var NPM = navigationPathModel
     @ObservedObject private var APIM = APIKeyModel.shared
@@ -24,20 +23,7 @@ struct DownloadedVideosView: View {
         NavigationStack {
             GeometryReader { geometry in
                 VStack {
-                    if (DM.activeDownloadingsCount != 0) {
-                        List {
-                            HStack {
-                                Text("Downloading")
-                                Spacer()
-                                Text("\(DM.activeDownloadingsCount)")
-                                    .padding(.horizontal)
-                                ProgressView()
-                            }
-                            .routeTo(.downloadings)
-                        }
-                        .frame(height: 50)
-                        .padding()
-                    }
+                    DownloadingsHeaderView()
                     ScrollView {
                         //                        List {
                         LazyVStack {
@@ -62,7 +48,7 @@ struct DownloadedVideosView: View {
                             Color.clear
                                 .frame(height: 30)
                         }
-    
+                        
                         if VPM.video != nil {
                             Color.clear
                                 .frame(height: 50)

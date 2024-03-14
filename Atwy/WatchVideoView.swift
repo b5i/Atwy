@@ -29,6 +29,8 @@ struct NewWatchVideoView: View {
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
+    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -196,16 +198,19 @@ struct NewWatchVideoView: View {
                                                 .foregroundStyle(.white)
                                                 .opacity(0.3)
                                                 .frame(height: 45)
-                                            DownloadButtonView(video: video, videoThumbnailData: VPM.videoThumbnailData)
+                                            let downloadLocation: URL? = {
+                                                return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
+                                            }()
+                                            DownloadButtonView(video: video, videoThumbnailData: VPM.videoThumbnailData, downloadURL: downloadLocation)
                                                 .foregroundStyle(.white)
                                         }
                                         .opacity(!(showQueue || showDescription) ? 1 : 0)
                                         .frame(width: 60)
                                         .padding(.horizontal, 10)
                                         .contextMenu(menuItems: {
-                                            if downloads.contains(where: {$0.video?.videoId == video.videoId}) {
+                                            if DM.downloadings[video.videoId] != nil {
                                                 Button(role: .destructive) {
-                                                    DownloadingsModel.shared.cancelDownloadFor(video.videoId)
+                                                    DownloadingsModel.shared.cancelDownloadFor(videoId: video.videoId)
                                                 } label: {
                                                     HStack {
                                                         Text("Cancel Download")
