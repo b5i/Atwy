@@ -16,6 +16,7 @@ public extension View {
         })
     }
 }
+
 public struct CustomNavigationHeaderView<HeaderView: View>: UIViewControllerRepresentable {
     @ViewBuilder public var headerView: () -> HeaderView
     let height: CGFloat
