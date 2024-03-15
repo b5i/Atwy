@@ -39,6 +39,22 @@
 		347AE2562A6C65490099DDE7 /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 347AE2552A6C65490099DDE7 /* YouTubeKit */; };
 		3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */; };
 		3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */; };
+		349ED12F2BA38ADE00F4B805 /* LiveActivitesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */; };
+		349ED1362BA38CAC00F4B805 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 349ED1352BA38CAC00F4B805 /* WidgetKit.framework */; };
+		349ED1382BA38CAC00F4B805 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 349ED1372BA38CAC00F4B805 /* SwiftUI.framework */; };
+		349ED13B2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED13A2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift */; };
+		349ED13D2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED13C2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift */; };
+		349ED1432BA38CAD00F4B805 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 349ED1422BA38CAD00F4B805 /* Assets.xcassets */; };
+		349ED1472BA38CAD00F4B805 /* AtwyWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 349ED1342BA38CAC00F4B805 /* AtwyWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		349ED14B2BA38EC200F4B805 /* NotificationName+AtwyNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */; };
+		349ED14C2BA38EC200F4B805 /* ColorSchemeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */; };
+		349ED14D2BA3939C00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED13C2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift */; };
+		349ED14E2BA4AAE900F4B805 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B5FDC42ADA856100367036 /* CircularProgressView.swift */; };
+		349ED1502BA4D96100F4B805 /* BackgroundFetchActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED14F2BA4D96100F4B805 /* BackgroundFetchActivity.swift */; };
+		349ED1532BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1522BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift */; };
+		349ED1552BA4FA4F00F4B805 /* BackgroundFetchOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1542BA4FA4F00F4B805 /* BackgroundFetchOperation.swift */; };
+		349ED1572BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1562BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift */; };
+		349ED1592BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1582BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift */; };
 		34AB99AC2B1A7A460083B1DB /* FileManagerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */; };
 		34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */; };
 		34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */; };
@@ -133,6 +149,16 @@
 		34E2652F2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652E2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		349ED1452BA38CAD00F4B805 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 344ED4992928D85100DB56EA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 349ED1332BA38CAC00F4B805;
+			remoteInfo = AtwyWidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		34E265292B1A3EF0007BB226 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -140,6 +166,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				349ED1472BA38CAD00F4B805 /* AtwyWidgetsExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -178,6 +205,19 @@
 		3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomElementsInfiniteScrollView.swift; sourceTree = "<group>"; };
 		3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+matchesQuery.swift"; sourceTree = "<group>"; };
 		3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+matchesQuery.swift"; sourceTree = "<group>"; };
+		349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitesManager.swift; sourceTree = "<group>"; };
+		349ED1342BA38CAC00F4B805 /* AtwyWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AtwyWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		349ED1352BA38CAC00F4B805 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		349ED1372BA38CAC00F4B805 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		349ED13A2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtwyWidgetsBundle.swift; sourceTree = "<group>"; };
+		349ED13C2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtwyWidgetsLiveActivity.swift; sourceTree = "<group>"; };
+		349ED1422BA38CAD00F4B805 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		349ED1442BA38CAD00F4B805 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		349ED14F2BA4D96100F4B805 /* BackgroundFetchActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundFetchActivity.swift; sourceTree = "<group>"; };
+		349ED1522BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadingsProgressActivity.swift; sourceTree = "<group>"; };
+		349ED1542BA4FA4F00F4B805 /* BackgroundFetchOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundFetchOperation.swift; sourceTree = "<group>"; };
+		349ED1562BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundFetchOperation+defaultImplementations.swift"; sourceTree = "<group>"; };
+		349ED1582BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundFetchActivity+defaultImplementations.swift"; sourceTree = "<group>"; };
 		34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileManagerModel.swift; sourceTree = "<group>"; };
 		34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewModel.swift; sourceTree = "<group>"; };
 		34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+routeTo.swift"; sourceTree = "<group>"; };
@@ -285,6 +325,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		349ED1312BA38CAC00F4B805 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				349ED1382BA38CAC00F4B805 /* SwiftUI.framework in Frameworks */,
+				349ED1362BA38CAC00F4B805 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -311,6 +360,8 @@
 			isa = PBXGroup;
 			children = (
 				34320DFE297324C700B2CAE8 /* Messages.framework */,
+				349ED1352BA38CAC00F4B805 /* WidgetKit.framework */,
+				349ED1372BA38CAC00F4B805 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -322,6 +373,7 @@
 				345DC3082AE45FB3007AE044 /* DISCLAIMER.md */,
 				3457B49B2AE43A0C00390A5A /* README.md */,
 				34B5FE632ADA876C00367036 /* Atwy */,
+				349ED1392BA38CAC00F4B805 /* AtwyWidgets */,
 				34320DFD297324C700B2CAE8 /* Frameworks */,
 				344ED4A22928D85100DB56EA /* Products */,
 			);
@@ -331,8 +383,20 @@
 			isa = PBXGroup;
 			children = (
 				344ED4A12928D85100DB56EA /* Atwy.app */,
+				349ED1342BA38CAC00F4B805 /* AtwyWidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		349ED1392BA38CAC00F4B805 /* AtwyWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				349ED13A2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift */,
+				349ED13C2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift */,
+				349ED1422BA38CAD00F4B805 /* Assets.xcassets */,
+				349ED1442BA38CAD00F4B805 /* Info.plist */,
+			);
+			path = AtwyWidgets;
 			sourceTree = "<group>";
 		};
 		34AB99A62B1A79C20083B1DB /* Shared */ = {
@@ -347,6 +411,7 @@
 		34AB99A72B1A79DF0083B1DB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */,
 				34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */,
 			);
 			path = Extensions;
@@ -367,7 +432,6 @@
 				34B5FE0A2ADA856900367036 /* ChannelIllustrationView.swift */,
 				34B5FDE62ADA856600367036 /* ChannelView.swift */,
 				34B5FDC42ADA856100367036 /* CircularProgressView.swift */,
-				34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */,
 				34B5FDF22ADA856700367036 /* ContentView.swift */,
 				3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */,
 				34C488A22B06A94D00755EB6 /* CustomNavigationTitle.swift */,
@@ -426,6 +490,12 @@
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
 				341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */,
 				34BA6E492BA3489F0020EF41 /* View+customHeaderView.swift */,
+				349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */,
+				349ED14F2BA4D96100F4B805 /* BackgroundFetchActivity.swift */,
+				349ED1542BA4FA4F00F4B805 /* BackgroundFetchOperation.swift */,
+				349ED1582BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift */,
+				349ED1562BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift */,
+				349ED1522BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -499,6 +569,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				349ED1462BA38CAD00F4B805 /* PBXTargetDependency */,
 			);
 			name = Atwy;
 			packageProductDependencies = (
@@ -510,6 +581,23 @@
 			productReference = 344ED4A12928D85100DB56EA /* Atwy.app */;
 			productType = "com.apple.product-type.application";
 		};
+		349ED1332BA38CAC00F4B805 /* AtwyWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 349ED1482BA38CAD00F4B805 /* Build configuration list for PBXNativeTarget "AtwyWidgetsExtension" */;
+			buildPhases = (
+				349ED1302BA38CAC00F4B805 /* Sources */,
+				349ED1312BA38CAC00F4B805 /* Frameworks */,
+				349ED1322BA38CAC00F4B805 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AtwyWidgetsExtension;
+			productName = AtwyWidgetsExtension;
+			productReference = 349ED1342BA38CAC00F4B805 /* AtwyWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -520,11 +608,14 @@
 				KnownAssetTags = (
 					New,
 				);
-				LastSwiftUpdateCheck = 1510;
+				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					344ED4A02928D85100DB56EA = {
 						CreatedOnToolsVersion = 14.1;
+					};
+					349ED1332BA38CAC00F4B805 = {
+						CreatedOnToolsVersion = 15.3;
 					};
 				};
 			};
@@ -547,6 +638,7 @@
 			projectRoot = "";
 			targets = (
 				344ED4A02928D85100DB56EA /* Atwy */,
+				349ED1332BA38CAC00F4B805 /* AtwyWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -560,6 +652,14 @@
 				34B5FD9F2ADA84F300367036 /* Assets.xcassets in Resources */,
 				34B5FDA12ADA84FA00367036 /* Preview Assets.xcassets in Resources */,
 				345DC3092AE45FB3007AE044 /* DISCLAIMER.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		349ED1322BA38CAC00F4B805 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				349ED1432BA38CAD00F4B805 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -605,7 +705,9 @@
 				34B5FE0D2ADA856900367036 /* CircularProgressView.swift in Sources */,
 				34C488A32B06A94D00755EB6 /* CustomNavigationTitle.swift in Sources */,
 				34B8B2DE2AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift in Sources */,
+				349ED1572BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift in Sources */,
 				34B5FE0E2ADA856900367036 /* ChannelDetailsView.swift in Sources */,
+				349ED14D2BA3939C00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
 				34B5FE0F2ADA856900367036 /* APIKeyModel.swift in Sources */,
 				34B5FE102ADA856900367036 /* WatchVideoView.swift in Sources */,
 				34B5FE112ADA856900367036 /* SwipeActionsExtensions.swift in Sources */,
@@ -623,6 +725,7 @@
 				341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */,
 				34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */,
 				34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */,
+				349ED1532BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift in Sources */,
 				3459BDBC2AE165D1001859D8 /* VideoCustomContextMenu.swift in Sources */,
 				34B5FE1B2ADA856900367036 /* Persistence.swift in Sources */,
 				346F3AF12B46C2C700599B08 /* ElementsInfiniteScrollView.swift in Sources */,
@@ -638,6 +741,7 @@
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
 				34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */,
 				34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */,
+				349ED1502BA4D96100F4B805 /* BackgroundFetchActivity.swift in Sources */,
 				345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */,
 				34B5FE272ADA856900367036 /* LoadingView.swift in Sources */,
 				346F3AEB2B45CE7100599B08 /* View+centered.swift in Sources */,
@@ -689,6 +793,7 @@
 				34B5FE4A2ADA856900367036 /* SubscribeButtonView.swift in Sources */,
 				34B5FE4B2ADA856900367036 /* VideoPlayer.swift in Sources */,
 				3457B4792AE41C1F00390A5A /* NotConnectedToGoogleView.swift in Sources */,
+				349ED1592BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift in Sources */,
 				34B5FE4C2ADA856900367036 /* DownloadVideoContextButtonView.swift in Sources */,
 				34B5FE4D2ADA856900367036 /* DownloadStateView.swift in Sources */,
 				34B5FE4E2ADA856900367036 /* UserPreferenceCircleView.swift in Sources */,
@@ -698,10 +803,12 @@
 				34B5FE4F2ADA856900367036 /* VideoContextMenuView.swift in Sources */,
 				34B8B2D92AE0265200C5C07C /* DownloadedVideoChapter+CoreDataClass.swift in Sources */,
 				34B5FE502ADA856900367036 /* DownloadVideoButtonView.swift in Sources */,
+				349ED12F2BA38ADE00F4B805 /* LiveActivitesManager.swift in Sources */,
 				34B8B2DD2AE0265200C5C07C /* DownloadedVideo+CoreDataClass.swift in Sources */,
 				340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */,
 				347668AA2B0A834D001D2522 /* AddToFavoriteWidgetView.swift in Sources */,
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
+				349ED1552BA4FA4F00F4B805 /* BackgroundFetchOperation.swift in Sources */,
 				34B5FE522ADA856900367036 /* DownloadingsView.swift in Sources */,
 				34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */,
 				347668A82B0923F5001D2522 /* ShowSettingsButtonView.swift in Sources */,
@@ -710,7 +817,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		349ED1302BA38CAC00F4B805 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				349ED13B2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift in Sources */,
+				349ED14B2BA38EC200F4B805 /* NotificationName+AtwyNotifications.swift in Sources */,
+				349ED14E2BA4AAE900F4B805 /* CircularProgressView.swift in Sources */,
+				349ED14C2BA38EC200F4B805 /* ColorSchemeExtension.swift in Sources */,
+				349ED13D2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		349ED1462BA38CAD00F4B805 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 349ED1332BA38CAC00F4B805 /* AtwyWidgetsExtension */;
+			targetProxy = 349ED1452BA38CAD00F4B805 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		344ED4B22928D85200DB56EA /* Debug */ = {
@@ -845,6 +972,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Atwy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -854,7 +982,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -881,6 +1009,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Atwy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -890,7 +1019,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -900,6 +1029,69 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
+			};
+			name = Release;
+		};
+		349ED1492BA38CAD00F4B805 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QDH78FDX85;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AtwyWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AtwyWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy.AtwyWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		349ED14A2BA38CAD00F4B805 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QDH78FDX85;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AtwyWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AtwyWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy.AtwyWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -920,6 +1112,15 @@
 			buildConfigurations = (
 				344ED4B52928D85200DB56EA /* Debug */,
 				344ED4B62928D85200DB56EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		349ED1482BA38CAD00F4B805 /* Build configuration list for PBXNativeTarget "AtwyWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				349ED1492BA38CAD00F4B805 /* Debug */,
+				349ED14A2BA38CAD00F4B805 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

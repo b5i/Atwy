@@ -11,9 +11,14 @@ import CoreData
 import SwiftUI
 import YouTubeKit
 
+protocol HLSDownloaderDelegate {
+    func percentageChanged(_ newPercentage: CGFloat, downloader: HLSDownloader)
+}
+
 class HLSDownloader: NSObject, ObservableObject, Identifiable {
 
     let video: YTVideo
+    var delegate: HLSDownloaderDelegate? = nil
     @Published var state = Download()
 
     @Published var downloaderState: HLSDownloaderState = .inactive {
@@ -29,6 +34,13 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         }
     }
     @Published var percentComplete: Double = 0.0
+    
+    var expectedBytes: (receivedBytes: Int, totalBytes: Int) = (0, 0) {
+        didSet {
+            self.delegate?.percentageChanged(percentComplete, downloader: self)
+        }
+    }
+    
     let creationDate = Date()
     var location: URL?
     var isFavorite: Bool?
@@ -49,8 +61,13 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         guard let downloadTask = downloadTask else { return }
         
         guard downloadTask.countOfBytesExpectedToReceive != 0 && downloadTask.countOfBytesExpectedToReceive != NSURLSessionTransferSizeUnknown else { return }
+        
+        self.expectedBytes = (Int(downloadTask.countOfBytesReceived), Int(downloadTask.countOfBytesExpectedToReceive))
+        
+        
+        let newPercentage = max(Double(downloadTask.countOfBytesReceived / downloadTask.countOfBytesExpectedToReceive), self.percentComplete)
         DispatchQueue.main.async {
-            self.percentComplete = max(Double(downloadTask.countOfBytesReceived / downloadTask.countOfBytesExpectedToReceive), self.percentComplete)
+            self.percentComplete = newPercentage
         }
     }
     
@@ -62,6 +79,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         state.title = ""
         state.owner = ""
         state.location = ""
+        expectedBytes = (0, 0)
         percentComplete = 0.0
         location = nil
         self.videoDescription = nil

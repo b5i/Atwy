@@ -45,12 +45,6 @@ struct PlaylistDetailsView: View {
                         }
                     }
                     .customHeaderView({
-                        /*
-                        ZStack {
-                            Rectangle()
-                                .foregroundStyle(.clear)
-                                .frame(width: geometry.size.width, height: (playlist.channel?.name != nil ? 30 : 0) + ((model.playlistInfos?.viewCount != nil || playlist.timePosted != nil || model.playlistInfos?.videoCount != nil) ? 30 : 0))
-                                .background(.ultraThickMaterial)*/
                             VStack {
                                 if let channelName = playlist.channel?.name {
                                     Text(channelName)
@@ -97,47 +91,6 @@ struct PlaylistDetailsView: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            /*
-            .overlay(alignment: .top, content: {
-                ZStack {
-                    Rectangle()
-                        .foregroundStyle(.clear)
-                        .frame(width: geometry.size.width, height: (playlist.channel?.name != nil ? 30 : 0) + ((model.playlistInfos?.viewCount != nil || playlist.timePosted != nil || model.playlistInfos?.videoCount != nil) ? 30 : 0))
-                        .background(.ultraThickMaterial)
-                    VStack {
-                        if let channelName = playlist.channel?.name {
-                            Text(channelName)
-                                .font(.title3)
-                                .frame(height: 30)
-                        }
-                        if model.playlistInfos?.viewCount != nil || playlist.timePosted != nil || model.playlistInfos?.videoCount != nil {
-                            HStack {
-                                Text(model.playlistInfos?.videoCount ?? "")
-                                    .foregroundColor(colorScheme.textColor)
-                                    .font(.footnote)
-                                    .opacity(0.5)
-                                if (model.playlistInfos?.viewCount != nil || playlist.timePosted != nil) && model.playlistInfos?.videoCount != nil {
-                                    Divider()
-                                }
-                                Text(model.playlistInfos?.viewCount ?? "")
-                                    .foregroundColor(colorScheme.textColor)
-                                    .font(.footnote)
-                                    .opacity(0.5)
-                                if model.playlistInfos?.viewCount != nil, playlist.timePosted != nil {
-                                    Divider()
-                                }
-                                Text(playlist.timePosted ?? "")
-                                    .foregroundColor(colorScheme.textColor)
-                                    .font(.footnote)
-                                    .opacity(0.5)
-                            }
-                            .frame(height: 20)
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .frame(width: geometry.size.width, height: topPaddingForInformations)
-            })*/
         }
 #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -271,3 +224,4 @@ struct PlaylistDetailsView: View {
         }
     }
 }
+

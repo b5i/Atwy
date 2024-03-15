@@ -57,6 +57,7 @@ class PreferencesStorageModel: ObservableObject {
             case full
             case limited
         }
+        case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
         
@@ -70,7 +71,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self

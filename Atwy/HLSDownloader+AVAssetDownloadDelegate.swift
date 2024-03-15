@@ -23,6 +23,8 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             newPercentComplete +=
             loadedTimeRange.duration.seconds / expectedSeconds
         }
+        
+        self.expectedBytes = (Int(assetDownloadTask.countOfBytesReceived), Int(assetDownloadTask.countOfBytesExpectedToReceive))
         DispatchQueue.main.async {
             self.percentComplete = max(newPercentComplete, self.percentComplete)
         }
@@ -59,6 +61,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         guard totalBytesExpectedToWrite != 0 else { return }
+        self.expectedBytes = (Int(totalBytesWritten), Int(totalBytesExpectedToWrite))
         DispatchQueue.main.async {
             self.percentComplete = max(Double(totalBytesWritten) / Double(totalBytesExpectedToWrite), self.percentComplete)
         }
@@ -70,6 +73,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         guard !self.startedEndProcedure else { return /* Already started the end procedure. */ }
         if let error = error {
             print("Finished with error: \(error.localizedDescription)")
+            self.expectedBytes = (0, 0)
             DispatchQueue.main.async {
                 self.percentComplete = 0.0
                 self.downloaderState = .failed
@@ -231,6 +235,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 do {
                     try backgroundContext.save()
                     PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.video.videoId, storageLocation: newPath)
+                    self.expectedBytes = (0, 0)
                     DispatchQueue.main.async {
                         self.percentComplete = 100
                         self.downloaderState = .success

@@ -7,15 +7,30 @@
 
 import Foundation
 import UIKit
+import Combine
+import BackgroundTasks
 
-class DownloadingsModel: ObservableObject {
-    
+class DownloadingsModel: ObservableObject, HLSDownloaderDelegate {
     static let shared = DownloadingsModel()
     
     @Published private(set) var downloadings: [String: HLSDownloader] = [:] // the video'id and its downloader
         
+    let downloadersChangePublisher = PassthroughSubject<DownloadingsProgressAttributes.ContentState, Never>()
+            
     var activeDownloadingsCount: Int {
          return activeDownloadings.count
+    }
+    
+    var globalDownloadingsProgress: CGFloat {
+        let downloadingsCount = activeDownloadingsCount
+        guard downloadingsCount != 0 else { return 1 }
+
+        let totalReceivedBytes = CGFloat(activeDownloadings.reduce(0, {$0 + $1.expectedBytes.receivedBytes}))
+        let totalExpectedBytes = CGFloat(activeDownloadings.reduce(0, {$0 + $1.expectedBytes.totalBytes}))
+        
+        guard totalExpectedBytes != 0 else { return 1 }
+        
+        return CGFloat(max(min(totalReceivedBytes / totalExpectedBytes, 1), 0))
     }
     
     /// Downloading, waiting or paused downloader.
@@ -32,14 +47,19 @@ class DownloadingsModel: ObservableObject {
     
     init() {
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil, using: { _ in
-            for activeDownloading in self.activeDownloadings {
-                activeDownloading.refreshProgress()
-            }
+            self.refreshDownloadingsProgress()
         })
+    }
+    
+    public func refreshDownloadingsProgress() {
+        for activeDownloading in self.activeDownloadings {
+            activeDownloading.refreshProgress()
+        }
     }
     
     /// If ``downloadings`` already contains a downloader whose videoId is identical to the one that's going to be appended, it will be replaced by the new one.
     public func addDownloader(_ downloader: HLSDownloader) {
+        downloader.delegate = self
         DispatchQueue.main.async {
             self.downloadings.updateValue(downloader, forKey: downloader.video.videoId)
             downloader.downloaderState = .waiting // fires launchDownloads
@@ -61,6 +81,7 @@ class DownloadingsModel: ObservableObject {
     
     public func removeDownloader(downloader: HLSDownloader) {
         downloader.cancelDownload()
+        downloader.delegate = nil
         self.downloadings.removeValue(forKey: downloader.video.videoId)
         NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.video.videoId), object: nil)
         self.launchDownloads()
@@ -72,9 +93,21 @@ class DownloadingsModel: ObservableObject {
             guard activeDownloaders < 3 else { break }
             waitingDownloading.downloadVideo()
             activeDownloaders += 1
+            if #available(iOS 16.1, *), LiveActivitesManager.shared.activities[.downloadingsProgress] == nil {
+                DownloadingsProgressActivity.setupOnManager(attributes: .init(), state: .modelState)
+            }
         }
         if activeDownloadingsCount == 0 {
             NotificationCenter.default.post(name: .atwyNoDownloadingsLeft, object: nil)
+            self.updatePublisher()
         }
+    }
+    
+    public func percentageChanged(_ newPercentage: CGFloat, downloader: HLSDownloader) {
+        self.updatePublisher()
+    }
+    
+    private func updatePublisher() {
+        self.downloadersChangePublisher.send(.modelState)
     }
 }

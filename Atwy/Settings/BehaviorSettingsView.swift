@@ -11,6 +11,7 @@ struct BehaviorSettingsView: View {
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     @State private var performanceChoice: PreferencesStorageModel.Properties.PerformanceModes
+    @State private var liveActivities: Bool
     @State private var automaticPiP: Bool
     @State private var backgroundPlayback: Bool
     
@@ -20,6 +21,11 @@ struct BehaviorSettingsView: View {
             self._performanceChoice = State(wrappedValue: state)
         } else {
             self._performanceChoice = State(wrappedValue: .full)
+        }
+        if let state = PreferencesStorageModel.shared.propetriesState[.liveActivitiesEnabled] as? Bool {
+            self._liveActivities = State(wrappedValue: state)
+        } else {
+            self._liveActivities = State(wrappedValue: true)
         }
         if let state = PreferencesStorageModel.shared.propetriesState[.automaticPiP] as? Bool {
             self._automaticPiP = State(wrappedValue: state)
@@ -95,6 +101,31 @@ struct BehaviorSettingsView: View {
                     Text("Enabling the limited performance mode will use less CPU and RAM while using the app. It will use other UI components that could make your experience a bit more laggy if the app was working smoothly before but it could make it more smooth if the app was very laggy before.")
                         .foregroundStyle(.gray)
                         .font(.caption)
+                }
+                Section("Live activities") {
+                    VStack {
+                        let liveActivitiesBinding: Binding<Bool> = Binding(get: {
+                            return self.liveActivities
+                        }, set: { newValue in
+                            PSM.setNewValueForKey(.liveActivitiesEnabled, value: newValue)
+                            if #available(iOS 16.1, *) {
+                                if self.liveActivities, !newValue {
+                                    DownloadingsProgressActivity.stop()
+                                } else if !self.liveActivities, newValue, DownloadingsModel.shared.activeDownloadingsCount != 0 {
+                                    DownloadingsProgressActivity.setupOnManager(attributes: .init(), state: .modelState)
+                                }
+                            }
+                            self.liveActivities = newValue
+                        })
+                        Toggle(isOn: liveActivitiesBinding, label: {
+                            Text("Live Activities")
+                        })
+                        Text("Enabling Live Activities will show a Live Activity giving informations on the current downloadings.")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 Section("Picture in Picture") {
                     VStack {

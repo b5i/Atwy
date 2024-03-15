@@ -9,6 +9,8 @@ import SwiftUI
 import CoreSpotlight
 import YouTubeKit
 import AVFoundation
+import BackgroundTasks
+import ActivityKit
 
 class NavigationPathModel: ObservableObject {
     @Published var path = NavigationPath()
@@ -23,6 +25,10 @@ struct AtwyApp: App {
     @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
     init() {
+        if #available(iOS 16.1, *) {
+            DownloadingsProgressActivity.registerTask()
+        }
+        
         Task {
             FileManagerModel.shared.fetchNewDownloadedVideosPaths()
         }

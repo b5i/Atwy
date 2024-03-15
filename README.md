@@ -8,6 +8,7 @@ An app to watch YouTube with some nice features like:
 - Background playing
 - Connection with your Google account possible
 - Spotlight integration
+- Live Activities for downloads.
 - Very lightweight
 
 ## Disclaimer
