@@ -20,8 +20,8 @@ struct HistoryView: View {
             } else if let historyResponse = model.historyResponse {
                 GeometryReader { geometry in
                     List {
-                        ForEach(Array(historyResponse.videosAndTime.enumerated()), id: \.offset) { _, videoGroup in
-                            VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), videoGroup: videoGroup)
+                        ForEach(Array(historyResponse.historyParts.enumerated()), id: \.offset) { _, historyPart in
+                            VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
                         }
                     }
                     .listStyle(.plain)
@@ -42,12 +42,12 @@ struct HistoryView: View {
         @Environment(\.colorScheme) private var colorScheme
 
         let videoSize: CGSize
-        let videoGroup: HistoryResponse.HistoryBlock
+        let historyPart: HistoryResponse.HistoryBlock
         @State private var isExpanded: Bool = true
         var body: some View {
             VStack {
                 HStack {
-                    Text(videoGroup.groupTitle)
+                    Text(historyPart.groupTitle)
                         .font(.largeTitle)
                         .foregroundStyle(colorScheme.textColor)
                     Spacer()
@@ -67,7 +67,7 @@ struct HistoryView: View {
                 .zIndex(1)
                 
                 VStack {
-                    ForEach(Array(videoGroup.videosArray.map({$0.video}).enumerated()), id: \.offset) { _, video in
+                    ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video}).enumerated()), id: \.offset) { _, video in
                         VideoFromSearchView(video: video)
                             .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
                     }
