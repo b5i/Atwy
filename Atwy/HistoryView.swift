@@ -20,8 +20,14 @@ struct HistoryView: View {
             } else if let historyResponse = model.historyResponse {
                 GeometryReader { geometry in
                     List {
-                        ForEach(Array(historyResponse.historyParts.enumerated()), id: \.offset) { _, historyPart in
+                        ForEach(Array(historyResponse.results.enumerated()), id: \.offset) { _, historyPart in
                             VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
+                        }
+                        if self.model.historyResponse?.continuationToken != nil {
+                            Color.clear.frame(width: 0, height: 0)
+                                .onAppear {
+                                    self.model.fetchContinuation()
+                                }
                         }
                     }
                     .listStyle(.plain)
@@ -86,6 +92,8 @@ struct HistoryView: View {
         @Published var error: String?
         @Published var isFetching: Bool = false
         
+        private var isFetchingContinuation: Bool = false
+        
         func fetchHistory() {
             DispatchQueue.main.async {
                 self.isFetching = true
@@ -106,6 +114,31 @@ struct HistoryView: View {
                 }
                 DispatchQueue.main.async {
                     self.isFetching = false
+                }
+            })
+        }
+        
+        func fetchContinuation() {
+            guard !self.isFetchingContinuation, let historyResponse = self.historyResponse, historyResponse.continuationToken != nil else { return }
+            DispatchQueue.main.async {
+                self.error = nil
+            }
+            self.isFetchingContinuation = true
+            
+            historyResponse.fetchContinuation(youtubeModel: YTM, result: { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .success(let continuation):
+                    DispatchQueue.main.async {
+                        self.historyResponse?.mergeContinuation(continuation)
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        self.error = error.localizedDescription
+                    }
+                }
+                DispatchQueue.main.async {
+                    self.isFetchingContinuation = false
                 }
             })
         }
