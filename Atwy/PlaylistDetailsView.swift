@@ -30,10 +30,10 @@ struct PlaylistDetailsView: View {
                 } else {
                     VStack {
                         if model.playlistInfos?.results != nil {
-                            let videosBinding = Binding(get: {
+                            let videosBinding: Binding<[any YTSearchResult]> = Binding(get: {
                                 return model.playlistInfos?.results ?? []
                             }, set: { newValue in
-                                model.playlistInfos?.results = newValue
+                                model.playlistInfos?.results = newValue.compactMap({$0 as? YTVideo})
                             })
                             ElementsInfiniteScrollView(
                                 items: videosBinding,
