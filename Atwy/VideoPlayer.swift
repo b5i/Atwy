@@ -67,6 +67,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
+        
         /*
         observerrr = controller.observe(\.videoBounds, changeHandler: { controllerrr, _ in
             print("Changed: \(controllerrr.videoBounds)")

@@ -127,8 +127,7 @@ struct VideoView: View {
                                     VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                                 }
                                 let PQM = PlayingQueueModel.shared
-                                PQM.queue.insert(video, at: 0)
-                                PQM.indexQueue()
+                                PQM.addVideoToTopOfQueue(video: video)
                                 PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
                             }
                         },
@@ -150,8 +149,7 @@ struct VideoView: View {
                                     VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                                 }
                                 let PQM = PlayingQueueModel.shared
-                                PQM.queue.append(video)
-                                PQM.indexQueue()
+                                PQM.addVideoToBottomOfQueue(video: video)
                                 PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
                             }
                         },
@@ -483,8 +481,7 @@ struct VideoView2: View {
                             VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                         }
                         let PQM = PlayingQueueModel.shared
-                        PQM.queue.insert(video, at: 0)
-                        PQM.indexQueue()
+                        PQM.addVideoToTopOfQueue(video: video)
                         PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
                         context.state.wrappedValue = .closed
                     },
@@ -504,8 +501,7 @@ struct VideoView2: View {
                             VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                         }
                         let PQM = PlayingQueueModel.shared
-                        PQM.queue.append(video)
-                        PQM.indexQueue()
+                        PQM.addVideoToBottomOfQueue(video: video)
                         PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
                         context.state.wrappedValue = .closed
                     },

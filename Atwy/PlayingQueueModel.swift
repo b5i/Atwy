@@ -5,19 +5,28 @@
 //  Created by Antoine Bollengier on 28.01.23.
 //
 
-import Foundation
+import SwiftUI
 import YouTubeKit
 
 class PlayingQueueModel: ObservableObject {
-
+    
     static let shared = PlayingQueueModel()
-
-    @Published var queue: [YTVideo] = [] {
+    
+    @Published private(set) var queue: [YTVideo] = [] {
         didSet {
             if (VideoPlayerModel.shared.video == nil) && !VideoPlayerModel.shared.isLoadingVideo && queue != oldValue {
                 loadNextVideo()
             }
         }
+    }
+    
+    var queueBinding: Binding<[YTVideo]> {
+        Binding(get: {
+            return self.queue
+        }, set: { newValue in
+            self.queue = newValue
+            self.indexQueue()
+        })
     }
 
     init () {
@@ -27,14 +36,19 @@ class PlayingQueueModel: ObservableObject {
             }
         })
     }
-
-    private func loadNextVideo() {
-        if let video = queue.first {
-            VideoPlayerModel.shared.loadVideo(video: video)
-            self.queue.removeFirst()
-            VideoPlayerModel.shared.player.play()
-        }
+    
+    func addVideoToTopOfQueue(video: YTVideo) {
+        self.queue.insert(video, at: 0)
         self.indexQueue()
+    }
+    
+    func addVideoToBottomOfQueue(video: YTVideo) {
+        self.queue.append(video)
+        self.indexQueue()
+    }
+    
+    func clearQueue() {
+        self.queue.removeAll()
     }
 
     func indexQueue() {
@@ -65,5 +79,13 @@ class PlayingQueueModel: ObservableObject {
             self.indexQueue()
             VideoPlayerModel.shared.player.play()
         }
+    }
+    
+    private func loadNextVideo() {
+        if let video = queue.first {
+            VideoPlayerModel.shared.loadVideo(video: video)
+            self.queue.removeFirst()
+        }
+        self.indexQueue()
     }
 }

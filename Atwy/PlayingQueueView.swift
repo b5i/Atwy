@@ -22,11 +22,10 @@ struct PlayingQueueView: View {
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical)
-            List($PQM.queue, id: \.id, editActions: [.move, .delete]) { $video in
+            List(PQM.queueBinding, id: \.id, editActions: [.move, .delete]) { $video in
                 Button {
                     if let videoId = video.id {
                         PQM.loadVideoWithID(videoId)
-                        PQM.indexQueue()
                     }
                 } label: {
                     HStack {
