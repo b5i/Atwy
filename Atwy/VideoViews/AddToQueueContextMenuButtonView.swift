@@ -16,8 +16,7 @@ struct AddToQueueContextMenuButtonView: View {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PlayingQueueModel.shared.queue.insert(video, at: 0)
-            PlayingQueueModel.shared.indexQueue()
+            PlayingQueueModel.shared.addVideoToTopOfQueue(video: video)
             PopupsModel.shared.showPopup(.playNext, data: videoThumbnailData)
         } label: {
             HStack {
@@ -29,8 +28,7 @@ struct AddToQueueContextMenuButtonView: View {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PlayingQueueModel.shared.queue.append(video)
-            PlayingQueueModel.shared.indexQueue()
+            PlayingQueueModel.shared.addVideoToBottomOfQueue(video: video)
             PopupsModel.shared.showPopup(.playLater, data: videoThumbnailData)
         } label: {
             HStack {

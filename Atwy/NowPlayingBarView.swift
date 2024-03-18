@@ -82,6 +82,7 @@ struct NowPlayingBarView: View {
                         Spacer()
                         //                            }
                         Button {
+                            PlayingQueueModel.shared.clearQueue()
                             withAnimation {
                                 VPM.deleteCurrentVideo()
                             }

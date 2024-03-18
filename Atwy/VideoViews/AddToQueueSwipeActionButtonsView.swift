@@ -17,8 +17,7 @@ struct AddToQueueSwipeActionButtonsView: View {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PQM.queue.insert(video, at: 0)
-            PQM.indexQueue()
+            PQM.addVideoToTopOfQueue(video: video)
             PopupsModel.shared.showPopup(.playNext, data: videoThumbnailData)
         } label: {
             ZStack {
@@ -33,8 +32,7 @@ struct AddToQueueSwipeActionButtonsView: View {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PQM.queue.append(video)
-            PQM.indexQueue()
+            PQM.addVideoToBottomOfQueue(video: video)
             PopupsModel.shared.showPopup(.playLater, data: videoThumbnailData)
         } label: {
             ZStack {
