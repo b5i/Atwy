@@ -11,14 +11,14 @@ import YouTubeKit
 struct AddToQueueSwipeActionButtonsView: View {
     let video: YTVideo
     let videoThumbnailData: Data?
-    @ObservedObject var PQM = PlayingQueueModel.shared
     var body: some View {
         Button {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PQM.addVideoToTopOfQueue(video: video)
             PopupsModel.shared.showPopup(.playNext, data: videoThumbnailData)
+
+            VideoPlayerModel.shared.addVideoToTopQueue(video: video)
         } label: {
             ZStack {
                 Rectangle()
@@ -32,8 +32,9 @@ struct AddToQueueSwipeActionButtonsView: View {
             if let videoThumbnailData = videoThumbnailData {
                 VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
             }
-            PQM.addVideoToBottomOfQueue(video: video)
             PopupsModel.shared.showPopup(.playLater, data: videoThumbnailData)
+            
+            VideoPlayerModel.shared.addVideoToBottomQueue(video: video)
         } label: {
             ZStack {
                 Rectangle()

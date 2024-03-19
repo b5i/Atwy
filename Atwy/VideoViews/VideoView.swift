@@ -122,14 +122,11 @@ struct VideoView: View {
                     SwipeAction(
                         action: {
                             context.state.wrappedValue = .closed
-                            Task {
-                                if let videoThumbnailData = thumbnailData {
-                                    VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                                }
-                                let PQM = PlayingQueueModel.shared
-                                PQM.addVideoToTopOfQueue(video: video)
-                                PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
+                            if let videoThumbnailData = thumbnailData {
+                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                             }
+                            VideoPlayerModel.shared.addVideoToTopQueue(video: video)
+                            PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
                         },
                         label: { _ in
                             Image(systemName: "text.line.first.and.arrowtriangle.forward")
@@ -144,14 +141,11 @@ struct VideoView: View {
                     SwipeAction(
                         action: {
                             context.state.wrappedValue = .closed
-                            Task {
-                                if let videoThumbnailData = thumbnailData {
-                                    VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                                }
-                                let PQM = PlayingQueueModel.shared
-                                PQM.addVideoToBottomOfQueue(video: video)
-                                PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
+                            if let videoThumbnailData = thumbnailData {
+                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                             }
+                            VideoPlayerModel.shared.addVideoToBottomQueue(video: video)
+                            PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
                         },
                         label: { _ in
                             Image(systemName: "text.line.last.and.arrowtriangle.forward")
@@ -480,8 +474,7 @@ struct VideoView2: View {
                         if let videoThumbnailData = thumbnailData {
                             VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                         }
-                        let PQM = PlayingQueueModel.shared
-                        PQM.addVideoToTopOfQueue(video: video)
+                        VideoPlayerModel.shared.addVideoToTopQueue(video: video)
                         PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
                         context.state.wrappedValue = .closed
                     },
@@ -500,8 +493,7 @@ struct VideoView2: View {
                         if let videoThumbnailData = thumbnailData {
                             VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
                         }
-                        let PQM = PlayingQueueModel.shared
-                        PQM.addVideoToBottomOfQueue(video: video)
+                        VideoPlayerModel.shared.addVideoToBottomQueue(video: video)
                         PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
                         context.state.wrappedValue = .closed
                     },

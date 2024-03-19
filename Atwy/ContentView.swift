@@ -27,7 +27,6 @@ struct ContentView: View {
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var DM = DownloadingsModel.shared
-    @ObservedObject private var PQM = PlayingQueueModel.shared
     @ObservedObject private var SM = SheetsModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     var body: some View {
@@ -58,7 +57,7 @@ struct ContentView: View {
             }, type: .account, name: "Account", image: "person.circle")
         }
         .safeAreaInset(edge: .bottom, content: {
-            if !IUTM.userTyping && (!(VPM.player.currentItem == nil && PQM.queue.isEmpty) || VPM.video != nil) {
+            if !IUTM.userTyping && VPM.currentItem != nil {
                 NowPlayingBarView(
                     sheetAnimation: sheetAnimation,
                     isSheetPresented: watchVideoBinding,
@@ -66,6 +65,7 @@ struct ContentView: View {
                 )
             }
         })
+        .animation(.spring, value: !IUTM.userTyping && VPM.currentItem != nil)
         .overlay(alignment: .bottom, content: {
             ZStack {
                 let imageData = PM.shownPopup?.data as? Data

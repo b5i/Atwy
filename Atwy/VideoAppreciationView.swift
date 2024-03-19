@@ -14,7 +14,7 @@ struct VideoAppreciationView: View {
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
-        if NM.connected && VPM.moreVideoInfos != nil {
+        if NM.connected, let currentItem = VPM.currentItem, let moreVideoInfos = currentItem.moreVideoInfos {
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -22,9 +22,9 @@ struct VideoAppreciationView: View {
                         .opacity(0.3)
                         .frame(height: 45)
                     HStack {
-                        let likeStatus = VPM.moreVideoInfos?.authenticatedInfos?.likeStatus
+                        let likeStatus = moreVideoInfos.authenticatedInfos?.likeStatus
                         Spacer()
-                        Text((likeStatus == .liked ? VPM.moreVideoInfos?.likesCount.clickedState : VPM.moreVideoInfos?.likesCount.defaultState) ?? "")
+                        Text((likeStatus == .liked ? moreVideoInfos.likesCount.clickedState : moreVideoInfos.likesCount.defaultState) ?? "")
                             .foregroundStyle(.white)
                         Button {
                             guard let likeStatus = likeStatus else { return }
@@ -33,12 +33,12 @@ struct VideoAppreciationView: View {
                             }
                             switch likeStatus {
                             case .liked:
-                                VPM.video?.removeLikeFromVideo(youtubeModel: YTM, result: { error in
+                                currentItem.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
                                         print("Error while removing like from video: \(error)")
                                     } else {
                                         DispatchQueue.main.async {
-                                            VPM.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
+                                            currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
                                         }
                                     }
                                     DispatchQueue.main.async {
@@ -46,12 +46,12 @@ struct VideoAppreciationView: View {
                                     }
                                 })
                             case .disliked, .nothing:
-                                VPM.video?.likeVideo(youtubeModel: YTM, result: { error in
+                                currentItem.video.likeVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
                                         print("Error while liking video: \(error)")
                                     } else {
                                         DispatchQueue.main.async {
-                                            VPM.moreVideoInfos?.authenticatedInfos?.likeStatus = .liked
+                                            currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .liked
                                         }
                                     }
                                     DispatchQueue.main.async {
@@ -81,12 +81,12 @@ struct VideoAppreciationView: View {
                                 }
                                 switch likeStatus {
                                 case .disliked:
-                                    VPM.video?.removeLikeFromVideo(youtubeModel: YTM, result: { error in
+                                    currentItem.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                         if let error = error {
                                             print("Error while removing dislike from video: \(error)")
                                         } else {
                                             DispatchQueue.main.async {
-                                                VPM.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
+                                                currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
                                             }
                                         }
                                         DispatchQueue.main.async {
@@ -94,12 +94,12 @@ struct VideoAppreciationView: View {
                                         }
                                     })
                                 case .nothing, .liked:
-                                    VPM.video?.dislikeVideo(youtubeModel: YTM, result: { error in
+                                    currentItem.video.dislikeVideo(youtubeModel: YTM, result: { error in
                                         if let error = error {
                                             print("Error while disliking video: \(error)")
                                         } else {
                                             DispatchQueue.main.async {
-                                                VPM.moreVideoInfos?.authenticatedInfos?.likeStatus = .disliked
+                                                currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .disliked
                                             }
                                         }
                                         DispatchQueue.main.async {

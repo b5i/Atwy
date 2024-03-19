@@ -28,7 +28,7 @@ struct UsersPlaylistsListView: View {
                                 .frame(width: geometry.size.width, height: 180)
                                 .routeTo(.playlistDetails(playlist: playlist))
                         }
-                        Color.clear.frame(width: 0, height: (VPM.video != nil) ? 50 : 0)
+                        Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 50 : 0)
                     }
                 })
 #if os(macOS)

@@ -19,7 +19,7 @@ struct VideoFromSearchView: View {
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         Button {
-            if VideoPlayerModel.shared.video?.videoId != video.videoId {
+            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
                 VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarData)
             }
             SheetsModel.shared.showSheet(.watchVideo)

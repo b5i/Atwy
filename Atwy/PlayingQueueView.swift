@@ -12,7 +12,6 @@ struct PlayingQueueView: View {
     @Environment(\.editMode) private var editMode
 #endif
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var PQM = PlayingQueueModel.shared
     @ObservedObject private var VTM = VideoThumbnailsManager.main
     var body: some View {
         GeometryReader { geometry in
@@ -22,11 +21,28 @@ struct PlayingQueueView: View {
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical)
-            List(PQM.queueBinding, id: \.id, editActions: [.move, .delete]) { $video in
-                Button {
-                    if let videoId = video.id {
-                        PQM.loadVideoWithID(videoId)
+            let queueBinding: Binding<[YTAVPlayerItem]> = Binding(get: {
+                return VideoPlayerModel.shared.player.items().compactMap({$0 as? YTAVPlayerItem}).filter({$0 != VideoPlayerModel.shared.currentItem})
+            }, set: { newValue in
+                VideoPlayerModel.shared.player.items().forEach {
+                    if $0 != VideoPlayerModel.shared.currentItem {
+                        VideoPlayerModel.shared.player.remove($0)
                     }
+                }
+                for item in newValue.reversed() {
+                    VideoPlayerModel.shared.player.insert(item, after: VideoPlayerModel.shared.currentItem)
+                }
+            })
+            List(queueBinding, id: \.self, editActions: [.move, .delete]) { $video in
+                Button {
+                    for item in VideoPlayerModel.shared.player.items().compactMap({$0 as? YTAVPlayerItem}) {
+                        if item == video {
+                            break
+                        } else {
+                            VideoPlayerModel.shared.player.remove(item)
+                        }
+                    }
+                    VideoPlayerModel.shared.player.advanceToNextItem()
                 } label: {
                     HStack {
                         Image(systemName: "line.3.horizontal")
@@ -38,7 +54,7 @@ struct PlayingQueueView: View {
                                     .scaledToFit()
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             } else {
-                                CachedAsyncImage(url: video.thumbnails.first?.url, content: { content, _ in
+                                CachedAsyncImage(url: video.video.thumbnails.first?.url, content: { content, _ in
                                     switch content {
                                     case .empty:
                                         Rectangle()
@@ -58,10 +74,10 @@ struct PlayingQueueView: View {
                         }
                         .frame(width: 70, height: 40)
                         VStack {
-                            Text(video.title ?? "")
+                            Text(video.videoTitle ?? "")
                                 .font(.system(size: 15))
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(video.channel?.name ?? "")
+                            Text(video.channelName ?? "")
                                 .font(.system(size: 13))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -69,9 +85,9 @@ struct PlayingQueueView: View {
                     .listRowSeparator(.hidden)
                     .padding()
                     .contextMenu(menuItems: {
-                        AddToQueueContextMenuButtonView(video: video, videoThumbnailData: VTM.images[video.videoId])
+                        AddToQueueContextMenuButtonView(video: video.video, videoThumbnailData: VTM.images[video.videoId])
                     }, preview: {
-                        VideoView(video: video, thumbnailData: VTM.images[video.videoId])
+                        VideoView(video: video.video, thumbnailData: VTM.images[video.videoId])
                     })
                 }
                 .buttonStyle(.plain)

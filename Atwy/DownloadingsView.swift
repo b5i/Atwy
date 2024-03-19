@@ -71,7 +71,7 @@ struct DownloadingsView: View {
                             DownloadSwipeActionsView(downloader: downloader)
                         })
                         .onTapGesture {
-                            if VideoPlayerModel.shared.video?.videoId != downloader.video.videoId {
+                            if VideoPlayerModel.shared.currentItem?.videoId != downloader.video.videoId {
                                 VideoPlayerModel.shared.loadVideo(video: downloader.video)
                             }
                             SheetsModel.shared.showSheet(.watchVideo)
