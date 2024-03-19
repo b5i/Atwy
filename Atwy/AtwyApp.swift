@@ -112,7 +112,7 @@ struct AtwyApp: App {
         }
         
         func loadVideoAndOpenSheet(video: YTVideo, videoThumbnailData: Data? = nil, channelAvatarThumbnailData: Data? = nil, seekTo: Double? = nil) {
-            if VideoPlayerModel.shared.video?.videoId != video.videoId {
+            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
                 VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarThumbnailData, seekTo: seekTo)
             } else if let seekTo = seekTo, !VideoPlayerModel.shared.isLoadingVideo {
                 VideoPlayerModel.shared.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))

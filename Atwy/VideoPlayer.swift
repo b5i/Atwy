@@ -67,7 +67,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
-        
         /*
         observerrr = controller.observe(\.videoBounds, changeHandler: { controllerrr, _ in
             print("Changed: \(controllerrr.videoBounds)")
@@ -93,6 +92,10 @@ struct PlayerViewController: UIViewControllerRepresentable {
             }
         })
          */
+        //print(controller.perform(NSSelectorFromString("customControlItems")))
+        //print(controller.perform(NSSelectorFromString("customControlsView")))
+        
+        
         return controller
     }
 
@@ -158,6 +161,6 @@ struct PlayerViewController: View {
 #endif
 
 
-class CustomAVPlayer: AVPlayer {
+class CustomAVPlayer: AVQueuePlayer {
     var imageData: Data?
 }

@@ -114,7 +114,7 @@ struct NewWatchVideoView: View {
                                     if showQueue || showDescription {
                                         ZStack {
                                             VStack(alignment: .leading) {
-                                                Text(VPM.video?.title ?? "")
+                                                Text(VPM.currentItem?.video.title ?? "")
                                                     .font(.system(size: 500))
                                                     .minimumScaleFactor(0.01)
                                                     .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
@@ -122,7 +122,7 @@ struct NewWatchVideoView: View {
                                                     .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
                                                 Divider()
                                                     .frame(height: 1)
-                                                Text(VPM.video?.channel?.name ?? "")
+                                                Text(VPM.currentItem?.video.channel?.name ?? "")
                                                     .font(.system(size: 500))
                                                     .minimumScaleFactor(0.01)
                                                     .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
@@ -146,7 +146,7 @@ struct NewWatchVideoView: View {
                                     .offset(x: (showQueue || showDescription) ? -geometry.size.width * 0.55 : 0, y: (showQueue || showDescription) ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
                                 if !(showQueue || showDescription) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        let videoTitle = VPM.video?.title ?? VPM.streamingInfos?.title ?? VPM.moreVideoInfos?.videoTitle ?? ""
+                                        let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
                                         Text(videoTitle)
                                             .font(.callout)
                                             .lineLimit(2)
@@ -155,7 +155,7 @@ struct NewWatchVideoView: View {
                                             .multilineTextAlignment(.leading)
                                             .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
                                         
-                                        let channelName: String = VPM.video?.channel?.name ?? VPM.streamingInfos?.channel?.name ?? VPM.moreVideoInfos?.channel?.name ?? ""
+                                        let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.channel?.name ?? ""
                                         Text(channelName)
                                             .font(.subheadline)
                                             .lineLimit(2)
@@ -190,8 +190,8 @@ struct NewWatchVideoView: View {
                                 Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
                                 VideoAppreciationView()
                                     .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                    .frame(width: ((VPM.moreVideoInfos?.likesCount.defaultState ?? "") != "") ? (APIM.userAccount != nil ? 180 : 110) : 0)
-                                if let video = VPM.video {
+                                    .frame(width: ((VPM.currentItem?.moreVideoInfos?.likesCount.defaultState ?? "") != "") ? (APIM.userAccount != nil ? 180 : 110) : 0)
+                                if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
                                     if NRM.connected {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 8)
@@ -201,7 +201,7 @@ struct NewWatchVideoView: View {
                                             let downloadLocation: URL? = {
                                                 return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
                                             }()
-                                            DownloadButtonView(video: video, videoThumbnailData: VPM.videoThumbnailData, downloadURL: downloadLocation)
+                                            DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
                                                 .foregroundStyle(.white)
                                         }
                                         .opacity(!(showQueue || showDescription) ? 1 : 0)
@@ -220,7 +220,7 @@ struct NewWatchVideoView: View {
                                             }
                                         })
                                     }
-                                    AddToFavoriteWidgetView(video: video, imageData: VPM.videoThumbnailData)
+                                    AddToFavoriteWidgetView(video: video, imageData: VPM.currentItem?.videoThumbnailData)
                                         .opacity(!(showQueue || showDescription) ? 1 : 0)
                                         .frame(width: 60)
                                         .padding(.trailing, 10)
@@ -268,7 +268,7 @@ struct NewWatchVideoView: View {
                                 //                                        }
                                 //                                    }
                                 //                            }
-                                if let videoDescription = VPM.streamingInfos?.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() ?? VPM.videoDescription {
+                                if let videoDescription = VPM.currentItem?.videoDescription {
                                     ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
                                         VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
                                     })
@@ -294,7 +294,7 @@ struct NewWatchVideoView: View {
                             .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
                         Spacer()
                         HStack {
-                            let hasDescription = VPM.streamingInfos?.videoDescription ?? VPM.videoDescription ?? VPM.moreVideoInfos?.videoDescription?.compactMap({$0.text}).joined() ?? "" != ""
+                            let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
                             Spacer()
                             Button {
                                 withAnimation(.interpolatingSpring(duration: 0.3)) {
@@ -441,7 +441,7 @@ struct NewWatchVideoView: View {
         }
     }
     
-    private func getChapterInText(_ text: String) -> [VideoPlayerModel.Chapter] {
+    private func getChapterInText(_ text: String) -> [YTAVPlayerItem.Chapter] {
 //        00:00 - intro
 //        00:00- intro
 //        00:00 intro
@@ -458,7 +458,7 @@ struct NewWatchVideoView: View {
         let chapterTitleMatches: [String] = chapterTitleRegex.matches(in: text, range: .init(text.startIndex..., in: text)).map({ match in
             return (text as NSString).substring(with: match.range) as String
         })
-        var finalChapters: [VideoPlayerModel.Chapter] = []
+        var finalChapters: [YTAVPlayerItem.Chapter] = []
         if chapterBeforeTitleMatches.count == chapterTitleMatches.count * 2 {
             var newChapterBeforeTitleMatches: [String] = []
             for i in 0..<chapterBeforeTitleMatches.count {
@@ -490,7 +490,7 @@ struct NewWatchVideoView: View {
     }
     
     private struct ChaptersView: View {
-        typealias Chapter = VideoPlayerModel.Chapter
+        typealias Chapter = YTAVPlayerItem.Chapter
         let geometry: GeometryProxy
         let chapterAction: (Chapter) -> Void
         @State private var lastScrolled: Int = 0
@@ -498,7 +498,7 @@ struct NewWatchVideoView: View {
         
         var body: some View {
             VStack {
-                if let chapters = VPM.chapters {
+                if let chapters = VPM.currentItem?.chapters {
                     HStack {
                         Text("Chapters")
                             .foregroundColor(.gray)
@@ -663,17 +663,17 @@ struct NewWatchVideoView: View {
         @ObservedObject private var APIM = APIKeyModel.shared
         var body: some View {
             ZStack {
-                if let channelAvatar = (VPM.streamingInfos?.channel?.thumbnails.maxFor(2) ?? VPM.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.video?.channel?.thumbnails.maxFor(2) {
+                if let channelAvatar = (VPM.currentItem?.streamingInfos.channel?.thumbnails.maxFor(2) ?? VPM.currentItem?.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.currentItem?.video.channel?.thumbnails.maxFor(2) {
                     CachedAsyncImage(url: channelAvatar.url) { _, imageData in
                         if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
                             AvatarCircleView(image: uiImage, makeGradient: makeGradient)
-                        } else if let imageData = VPM.channelAvatarData, let image = UIImage(data: imageData) {
+                        } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
                             AvatarCircleView(image: image, makeGradient: makeGradient)
                         } else {
                             NoAvatarCircle(makeGradient: makeGradient)
                         }
                     }
-                } else if let imageData = VPM.channelAvatarData, let image = UIImage(data: imageData) {
+                } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
                     AvatarCircleView(image: image, makeGradient: makeGradient)
                 } else {
                     NoAvatarCircle(makeGradient: makeGradient)
@@ -698,7 +698,7 @@ struct NewWatchVideoView: View {
                         }
                     }
                     .overlay(alignment: .bottomTrailing, content: {
-                        if let subscriptionStatus = VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = VPM.moreVideoInfos?.channel {
+                        if let subscriptionStatus = VPM.currentItem?.moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = VPM.currentItem?.moreVideoInfos?.channel {
                             if APIM.userAccount != nil && APIM.googleCookies != "" {
                                 if isFetching {
                                     ZStack {
@@ -722,7 +722,7 @@ struct NewWatchVideoView: View {
                                                     print("Error while unsubscribing to channel: \(error)")
                                                 } else {
                                                     DispatchQueue.main.async {
-                                                        VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
+                                                        VPM.currentItem?.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
                                                     }
                                                 }
                                                 DispatchQueue.main.async {
@@ -757,7 +757,7 @@ struct NewWatchVideoView: View {
                                                     print("Error while subscribing to channel: \(error)")
                                                 } else {
                                                     DispatchQueue.main.async {
-                                                        VPM.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = true
+                                                        VPM.currentItem?.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = true
                                                     }
                                                 }
                                                 DispatchQueue.main.async {

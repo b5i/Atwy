@@ -81,7 +81,7 @@ struct PlaylistDetailsView: View {
                     }, height: topPaddingForInformations)
                     //.padding(.top, topPaddingForInformations)
                 }
-                if VPM.video != nil {
+                if VPM.currentItem != nil {
                     Color.clear.frame(width: 0, height: 70)
                 }
             }

@@ -34,7 +34,7 @@ struct DownloadedVideosView: View {
                                 let convertResult = video.toYTVideo()
                                 
                                 Button {
-                                    if VideoPlayerModel.shared.video?.videoId != video.videoId {
+                                    if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
                                         VideoPlayerModel.shared.loadVideo(video: convertResult)
                                     }
                                     
@@ -49,7 +49,7 @@ struct DownloadedVideosView: View {
                                 .frame(height: 30)
                         }
                         
-                        if VPM.video != nil {
+                        if VPM.currentItem != nil {
                             Color.clear
                                 .frame(height: 50)
                         }

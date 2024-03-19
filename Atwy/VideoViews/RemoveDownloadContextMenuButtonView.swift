@@ -15,7 +15,7 @@ struct RemoveDownloadContextMenuButtonView: View {
     var body: some View {
         Button(role: .destructive) {
             Task {
-                if VideoPlayerModel.shared.video?.videoId == video.videoId {
+                if VideoPlayerModel.shared.currentItem?.videoId == video.videoId {
                     VideoPlayerModel.shared.deleteCurrentVideo()
                 }
                 PersistenceModel.shared.removeDownloadFromCoreData(videoId: video.videoId)

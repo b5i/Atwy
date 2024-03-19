@@ -17,12 +17,12 @@ struct NowPlayingBarView: View {
     @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
         let isFavorite: Bool = {
-            guard let videoId = VPM.video?.videoId else { return false }
+            guard let videoId = VPM.currentItem?.videoId else { return false }
             return PM.currentData.favoriteVideoIds.contains(where: {$0 == videoId})
         }()
         
         let downloadLocation: URL? = {
-            guard let videoId = VPM.video?.videoId else { return nil }
+            guard let videoId = VPM.currentItem?.videoId else { return nil }
             return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == videoId})?.storageLocation
         }()
         ZStack {
@@ -50,7 +50,7 @@ struct NowPlayingBarView: View {
                                         }
 #endif
                                     }
-                            } else if let thumbnail = VPM.video?.thumbnails.first {
+                            } else if let thumbnail = VPM.currentItem?.video.thumbnails.first {
                                 CachedAsyncImage(url: thumbnail.url, content: { image, _ in
                                     switch image {
                                     case .success(let image):
@@ -68,8 +68,8 @@ struct NowPlayingBarView: View {
                         .matchedGeometryEffect(id: "VIDEO", in: sheetAnimation)
                         Spacer()
                         VStack {
-                            if VPM.video != nil {
-                                Text(VPM.video?.title ?? "No title")
+                            if let currentVideoTitle = VPM.currentItem?.video.title {
+                                Text(currentVideoTitle)
                                     .truncationMode(.tail)
                                     .foregroundColor(colorScheme.textColor)
                             } else {
@@ -82,7 +82,6 @@ struct NowPlayingBarView: View {
                         Spacer()
                         //                            }
                         Button {
-                            PlayingQueueModel.shared.clearQueue()
                             withAnimation {
                                 VPM.deleteCurrentVideo()
                             }
@@ -104,11 +103,11 @@ struct NowPlayingBarView: View {
         }
         .frame(height: 70)
         .contextMenu {
-            if let video = VPM.video {
-                VideoContextMenuView(video: video, videoThumbnailData: VPM.videoThumbnailData, isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
+            if let video = VPM.currentItem?.video {
+                VideoContextMenuView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
             }
         } preview: {
-            if let video = VPM.video {
+            if let video = VPM.currentItem?.video {
                 VideoView(video: video)
             }
         }
