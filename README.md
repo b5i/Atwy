@@ -6,6 +6,7 @@ An app to watch YouTube with some nice features like:
 - Shareplay
 - Download
 - Background playing
+- Playing queue
 - Connection with your Google account possible
 - Spotlight integration
 - Live Activities for downloads

@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct LoadingView: View {
+    var customText: String? = nil
     var body: some View {
         VStack {
             ProgressView()
                 .foregroundColor(.gray)
                 .padding(.bottom, 0.3)
-            Text("LOADING")
+            Text("LOADING" + ((customText == nil) ? "" : " ") + (customText?.uppercased() ?? ""))
                 .foregroundColor(.gray)
                 .font(.caption2)
         }

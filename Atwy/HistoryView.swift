@@ -19,15 +19,17 @@ struct HistoryView: View {
                     .centered()
             } else if let historyResponse = model.historyResponse {
                 GeometryReader { geometry in
-                    List {
-                        ForEach(Array(historyResponse.results.enumerated()), id: \.offset) { _, historyPart in
-                            VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
-                        }
-                        if self.model.historyResponse?.continuationToken != nil {
-                            Color.clear.frame(width: 0, height: 0)
-                                .onAppear {
-                                    self.model.fetchContinuation()
-                                }
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(Array(historyResponse.results.enumerated()), id: \.offset) { _, historyPart in
+                                VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
+                            }
+                            if self.model.historyResponse?.continuationToken != nil {
+                                Color.clear.frame(width: 0, height: 0)
+                                    .onAppear {
+                                        self.model.fetchContinuation()
+                                    }
+                            }
                         }
                     }
                     .listStyle(.plain)
@@ -46,7 +48,7 @@ struct HistoryView: View {
     
     struct VideoGroupView: View {
         @Environment(\.colorScheme) private var colorScheme
-
+        
         let videoSize: CGSize
         let historyPart: HistoryResponse.HistoryBlock
         @State private var isExpanded: Bool = true
@@ -62,28 +64,33 @@ struct HistoryView: View {
                         .scaledToFit()
                         .frame(width: 15, height: 15)
                         .rotationEffect(.degrees(isExpanded ? 0 : -90))
-                        .onTapGesture {
-                            withAnimation(.spring, {
-                                isExpanded.toggle()
-                            })
-                        }
+                        .animation(.smooth, value: isExpanded)
                         .foregroundStyle(colorScheme.textColor)
                 }
-                .padding([.horizontal, .top])
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.spring, {
+                        isExpanded.toggle()
+                    })
+                }
+                .frame(height: 50, alignment: .top)
+                .background(colorScheme.backgroundColor)
                 .zIndex(1)
+                .animation(nil, value: isExpanded)
+                Spacer()
                 
-                VStack {
-                    ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video}).enumerated()), id: \.offset) { _, video in
-                        VideoFromSearchView(video: video)
-                            .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
-                    }
+                
+                ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video}).enumerated()), id: \.offset) { _, video in
+                    VideoFromSearchView(video: video)
+                        .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
                 }
                 .opacity(isExpanded ? 1 : 0)
                 .frame(height: isExpanded ? nil : 0)
-                .clipped()
-                
+                .disabled(!isExpanded)
                 //                        ElementsInfiniteScrollView(items: model.getBindingFromGroup(videoGroup), shouldReloadScrollView: $shouldReloadScrollView)
             }
+            .clipped()
         }
     }
     

@@ -24,8 +24,12 @@ class APIKeyModel: ObservableObject {
             } else {
                 YTM.cookies = googleCookies
                 YTM.alwaysUseCookies = true
+                DispatchQueue.main.async {
+                    self.isFetchingAccountInfos = true
+                }
                 getUserInfos { result in
                     DispatchQueue.main.async {
+                        self.isFetchingAccountInfos = false
                         withAnimation {
                             if !(result?.isDisconnected ?? true) {
                                 self.userAccount = result
@@ -39,7 +43,8 @@ class APIKeyModel: ObservableObject {
             }
         }
     }
-    @Published var userAccount: AccountInfosResponse?
+    @Published private(set) var userAccount: AccountInfosResponse?
+    @Published private(set) var isFetchingAccountInfos: Bool = false
 
     init() {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
