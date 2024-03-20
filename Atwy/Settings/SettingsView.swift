@@ -51,6 +51,8 @@ struct SettingsView: View {
                             }
                             .padding(.vertical)
                         }
+                    } else if APIM.isFetchingAccountInfos {
+                        LoadingView(customText: "account infos.")
                     } else {
                         VStack {
                             HStack {
