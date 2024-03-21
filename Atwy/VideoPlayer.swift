@@ -71,31 +71,24 @@ struct PlayerViewController: UIViewControllerRepresentable {
         observerrr = controller.observe(\.videoBounds, changeHandler: { controllerrr, _ in
             print("Changed: \(controllerrr.videoBounds)")
             if controllerrr.videoBounds != .zero {
-//                guard let controllerContentView = controllerrr.view?.subviews.first(where: { String(describing: type(of: $0)) == "AVPlayerViewControllerContentView" }) else { print("Could not find controllerContentView"); return }
-//                guard let chromelessControlsView = controllerContentView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileChromelessControlsView" }) else { print("Could not find chromelessControlsViewController"); return }
-//                guard let auxiliaryControlsView = chromelessControlsView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileAuxiliaryControlsView" }) else { print("Could not find auxiliaryControlsView"); return }
-//                var imageView = auxiliaryControlsView.subviews[0].subviews[0] as! UIImageView
-//                imageView.image = UIImage(systemName: "play")
-//                imageView.image.add
-//                print("djo")
-//                var buttonType: AnyClass = NSClassFromString("AVMenuButton")!
-//                var button: UIView = buttonType.init() as! UIView
-//                button.addSubview(UIImageView(image: UIImage(systemName: "play")))
-//                auxiliaryControlsView.addSubview(button)
-//                print(auxiliaryControlsView)
-//                guard let chromelessControlsViewController = controllerContentView.child.first(where: { String(describing: type(of: $0)) == "AVMobileChromelessControlsViewController" }) else { print("Could not find chromelessControlsViewController"); return }
-//                for controllerSubview in controllerrr.view?.subviews ?? [] {
-//                    if String(describing: type(of: controllerSubview)) == "AVPlayerViewControllerContentView" {
-//                        for
-//                    }
-//                }
+                guard let controllerContentView = controllerrr.view?.subviews.first(where: { String(describing: type(of: $0)) == "AVPlayerViewControllerContentView" }) else { print("Could not find controllerContentView"); return }
+                guard let chromelessControlsView = controllerContentView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileChromelessControlsView" }) else { print("Could not find chromelessControlsViewController"); return }
+                guard let auxiliaryControlsView = chromelessControlsView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileAuxiliaryControlsView" }) else { print("Could not find auxiliaryControlsView"); return }
+                var imageView = auxiliaryControlsView.subviews[0].subviews[0] as! UIImageView
+                imageView.image = UIImage(systemName: "play")
+                print("djo")
+                var buttonType: AnyClass = NSClassFromString("AVMenuButton")!
+                var button: UIView = buttonType.init() as! UIView
+                button.addSubview(UIImageView(image: UIImage(systemName: "play")))
+                auxiliaryControlsView.addSubview(button)
+                print(auxiliaryControlsView)
             }
         })
          */
+
         //print(controller.perform(NSSelectorFromString("customControlItems")))
         //print(controller.perform(NSSelectorFromString("customControlsView")))
-        
-        
+                
         return controller
     }
 
@@ -163,4 +156,26 @@ struct PlayerViewController: View {
 
 class CustomAVPlayer: AVQueuePlayer {
     var imageData: Data?
+}
+
+extension UIView {    
+    func findAllChildsWithType(_ typeName: String) -> [UIView] {
+        var list: [UIView] = []
+        for subview in subviews {
+            if String(describing: type(of: subview)) == typeName {
+                list.append(subview)
+            }
+            list.append(contentsOf: subview.findAllChildsWithType(typeName))
+        }
+        return list
+    }
+    
+    func getAllChilds() -> [UIView] {
+        var childs: [UIView] = []
+        for subview in subviews {
+            childs.append(subview)
+            childs.append(contentsOf: subview.getAllChilds())
+        }
+        return childs
+    }
 }

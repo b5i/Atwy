@@ -28,13 +28,13 @@ struct AtwyApp: App {
         if #available(iOS 16.1, *) {
             DownloadingsProgressActivity.registerTask()
         }
-        
         Task {
             FileManagerModel.shared.fetchNewDownloadedVideosPaths()
         }
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
         }
+        
     }
     var body: some Scene {
         WindowGroup {
