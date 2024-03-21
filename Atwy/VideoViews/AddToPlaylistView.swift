@@ -16,6 +16,11 @@ struct AddToPlaylistView: View {
     @State private var newPlaylistName: String = ""
     @State private var selectedPrivacy: Int = 0
     @StateObject private var model = Model()
+    
+    var filteredPlaylists: [(playlist: YTPlaylist, isVideoPresentInside: Bool)] {
+        return self.model.response?.playlistsAndStatus.filter({$0.playlist.matchQuery(self.search)}) ?? []
+    }
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -39,7 +44,7 @@ struct AddToPlaylistView: View {
                                         .frame(width: 20, height: 20)
                                 }
                             }
-                            ForEach(Array(availablePlaylists.playlistsAndStatus.filter({(search.isEmpty) ? true : $0.0.title?.contains(search) ?? false}).enumerated()), id: \.offset) { row in
+                            ForEach(Array(self.filteredPlaylists.enumerated()), id: \.offset) { row in
                                 getPlaylistRowView(playlist: row.element.playlist, isVideoContained: row.element.isVideoPresentInside)
                             }
                         })
