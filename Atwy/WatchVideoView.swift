@@ -116,6 +116,7 @@ struct NewWatchVideoView: View {
                                             VStack(alignment: .leading) {
                                                 Text(VPM.currentItem?.video.title ?? "")
                                                     .font(.system(size: 500))
+                                                    .foregroundStyle(.white)
                                                     .minimumScaleFactor(0.01)
                                                     .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
                                                     .frame(height: geometry.size.height * 0.1)
@@ -124,6 +125,7 @@ struct NewWatchVideoView: View {
                                                     .frame(height: 1)
                                                 Text(VPM.currentItem?.video.channel?.name ?? "")
                                                     .font(.system(size: 500))
+                                                    .foregroundStyle(.white)
                                                     .minimumScaleFactor(0.01)
                                                     .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
                                                     .frame(height: geometry.size.height * 0.05)
@@ -149,6 +151,7 @@ struct NewWatchVideoView: View {
                                         let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
                                         Text(videoTitle)
                                             .font(.callout)
+                                            .foregroundStyle(.white)
                                             .lineLimit(2)
                                             .padding(.trailing)
                                             .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.065, alignment: .leading)
@@ -282,6 +285,7 @@ struct NewWatchVideoView: View {
                                     Text(LocalizedStringKey(videoDescription))
                                         .blendMode(.difference)
                                         .padding(.horizontal)
+                                        .foregroundStyle(.white)
                                     Color.clear.frame(height: 15)
                                 }
                             }
@@ -661,6 +665,7 @@ struct NewWatchVideoView: View {
         @State private var isFetching: Bool = false
         @ObservedObject private var VPM = VideoPlayerModel.shared
         @ObservedObject private var APIM = APIKeyModel.shared
+        @ObservedObject private var NM = NetworkReachabilityModel.shared
         var body: some View {
             ZStack {
                 if let channelAvatar = (VPM.currentItem?.streamingInfos.channel?.thumbnails.maxFor(2) ?? VPM.currentItem?.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.currentItem?.video.channel?.thumbnails.maxFor(2) {
@@ -680,7 +685,7 @@ struct NewWatchVideoView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing, content: {
-                if let currentItem = VPM.currentItem {
+                if let currentItem = VPM.currentItem, NM.connected {
                     SubscribeButtonOverlayView(currentItem: currentItem)
                 }
             })

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SubscribeButtonView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
     @State private var isFetching: Bool = false
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
@@ -47,10 +49,10 @@ struct SubscribeButtonView: View {
                                     })
                                 } label: {
                                     Text("Unsubsribe")
-                                        .foregroundColor(.red)
+                                        .foregroundColor(colorScheme.backgroundColor)
                                 }
                                 .buttonStyle(.borderedProminent)
-                                .tint(.white)
+                                .tint(colorScheme.textColor)
                             } else {
                                 Button {
                                     DispatchQueue.main.async {

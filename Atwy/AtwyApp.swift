@@ -18,6 +18,7 @@ class NavigationPathModel: ObservableObject {
 
 let navigationPathModel = NavigationPathModel()
 
+
 @main
 struct AtwyApp: App {
     @State private var showChannelPopup: Bool = false

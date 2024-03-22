@@ -17,7 +17,7 @@ struct NotConnectedToGoogleView: View {
                     .scaledToFit()
                     .frame(width: 150)
                     .padding()
-                Text("You are not connected with Google.")
+                Text("You are not connected to Google.")
                     .font(.title2)
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 20)

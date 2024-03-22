@@ -108,9 +108,9 @@ struct ChannelDetailsView: View {
                             } label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
-                                        .foregroundStyle(subscribeStatus ? .white : .red)
+                                        .foregroundStyle(subscribeStatus ? colorScheme.textColor : .red)
                                     Text(subscribeStatus ? "Subscribed" : "Subscribe")
-                                        .foregroundStyle(subscribeStatus ? .red : .white)
+                                        .foregroundStyle(subscribeStatus ? colorScheme.backgroundColor == .white ? .white : .red : .white)
                                         .font(.callout)
                                 }
                                 .frame(width: 100, height: 35)
