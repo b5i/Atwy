@@ -27,7 +27,7 @@ struct AddToPlaylistView: View {
                 if model.isFetching {
                     LoadingView()
                 } else {
-                    if let availablePlaylists = model.response {
+                    if model.response?.playlistsAndStatus.isEmpty == false {
                         ScrollView(.vertical, content: {
                             if showNewPlaylistForm {
                                 PlaylistCreationView(showNewPlaylistForm: $showNewPlaylistForm, model: model)
