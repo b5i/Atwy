@@ -38,6 +38,7 @@ class APIKeyModel: ObservableObject {
                                 self.userAccount = nil
                             }
                         }
+                        SearchView.Model.shared.getVideos()
                     }
                 }
             }
