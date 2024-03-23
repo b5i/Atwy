@@ -105,6 +105,7 @@ struct NewWatchVideoView: View {
                                         }
                                     } else if VPM.isLoadingVideo {
                                         LoadingView()
+                                            .tint(.white)
                                             .frame(alignment: .center)
                                     }
                                     //                                    VideoPlayer(player: player)
@@ -741,6 +742,7 @@ struct NewWatchVideoView: View {
                                 Circle()
                                     .foregroundStyle(.gray)
                                 ProgressView()
+                                    .controlSize(.mini)
                                     .padding()
                             }
                             .frame(width: 24, height: 24)
