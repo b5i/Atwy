@@ -13,6 +13,7 @@
 		3417B2142BAA0816001D354C /* SharePlayCoordinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */; };
 		341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */; };
 		341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */; };
+		3421ED5E2BB232EE00F3D29D /* YTVideoShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
 		3457B4772AE4182300390A5A /* NoConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4762AE4182200390A5A /* NoConnectionView.swift */; };
 		3457B4792AE41C1F00390A5A /* NotConnectedToGoogleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */; };
@@ -41,6 +42,7 @@
 		347AE2562A6C65490099DDE7 /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 347AE2552A6C65490099DDE7 /* YouTubeKit */; };
 		3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */; };
 		3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */; };
+		3491FE0A2BB21CE70040CFAF /* YTVideo+showShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */; };
 		349ED12F2BA38ADE00F4B805 /* LiveActivitesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */; };
 		349ED1362BA38CAC00F4B805 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 349ED1352BA38CAC00F4B805 /* WidgetKit.framework */; };
 		349ED1382BA38CAC00F4B805 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 349ED1372BA38CAC00F4B805 /* SwiftUI.framework */; };
@@ -182,6 +184,7 @@
 		3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayCoordinationManager.swift; sourceTree = "<group>"; };
 		341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerSettingsView.swift; sourceTree = "<group>"; };
 		341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModelLogger.swift; sourceTree = "<group>"; };
+		3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTVideoShareSource.swift; sourceTree = "<group>"; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		344ED4A12928D85100DB56EA /* Atwy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Atwy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3457B4762AE4182200390A5A /* NoConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoConnectionView.swift; sourceTree = "<group>"; };
@@ -210,6 +213,7 @@
 		3478F22E2AE9ACB300A0CCB0 /* CustomElementsInfiniteScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomElementsInfiniteScrollView.swift; sourceTree = "<group>"; };
 		3483A7802AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+matchesQuery.swift"; sourceTree = "<group>"; };
 		3483A7832AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+matchesQuery.swift"; sourceTree = "<group>"; };
+		3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YTVideo+showShareSheet.swift"; sourceTree = "<group>"; };
 		349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitesManager.swift; sourceTree = "<group>"; };
 		349ED1342BA38CAC00F4B805 /* AtwyWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AtwyWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		349ED1352BA38CAC00F4B805 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -504,6 +508,8 @@
 				3417B2112BAA07C5001D354C /* YTAVPlayerItem.swift */,
 				3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */,
 				34C16D522BACE5BA00CACC0D /* YTPlaylist+matchQuery.swift */,
+				3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */,
+				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -715,6 +721,7 @@
 				34B8B2DE2AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift in Sources */,
 				349ED1572BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift in Sources */,
 				34B5FE0E2ADA856900367036 /* ChannelDetailsView.swift in Sources */,
+				3491FE0A2BB21CE70040CFAF /* YTVideo+showShareSheet.swift in Sources */,
 				349ED14D2BA3939C00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
 				34B5FE0F2ADA856900367036 /* APIKeyModel.swift in Sources */,
 				34B5FE102ADA856900367036 /* WatchVideoView.swift in Sources */,
@@ -820,6 +827,7 @@
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
 				349ED1552BA4FA4F00F4B805 /* BackgroundFetchOperation.swift in Sources */,
 				34B5FE522ADA856900367036 /* DownloadingsView.swift in Sources */,
+				3421ED5E2BB232EE00F3D29D /* YTVideoShareSource.swift in Sources */,
 				34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */,
 				347668A82B0923F5001D2522 /* ShowSettingsButtonView.swift in Sources */,
 				34B5FE532ADA856900367036 /* ChannelIllustrationView.swift in Sources */,

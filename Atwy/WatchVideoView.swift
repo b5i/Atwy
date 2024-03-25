@@ -228,6 +228,24 @@ struct NewWatchVideoView: View {
                                         .opacity(!(showQueue || showDescription) ? 1 : 0)
                                         .frame(width: 60)
                                         .padding(.trailing, 10)
+                                    Button {
+                                        video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
+                                    } label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .foregroundStyle(.white)
+                                                .opacity(0.3)
+                                                .frame(height: 45)
+                                            Image(systemName: "square.and.arrow.up")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 30)
+                                                .foregroundStyle(.white)
+                                        }
+                                    }
+                                    .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                    .frame(width: 60)
+                                    .padding(.trailing, 10)
                                     if NRM.connected {
                                         Button {
                                             CoordinationManager.shared.prepareToPlay(video)

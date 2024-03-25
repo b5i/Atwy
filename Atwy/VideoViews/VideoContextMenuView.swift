@@ -19,6 +19,9 @@ struct VideoContextMenuView: View {
     let isDownloaded: Bool
     var body: some View {
         Group {
+            Section("Queue") {
+                AddToQueueContextMenuButtonView(video: video, videoThumbnailData: videoThumbnailData)
+            }
             if NRM.connected {
                 if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
                     AddToPlaylistContextMenuButtonView(video: video)
@@ -27,7 +30,15 @@ struct VideoContextMenuView: View {
                     GoToChannelContextMenuButtonView(channel: channel)
                 }
             }
-            AddToQueueContextMenuButtonView(video: video, videoThumbnailData: videoThumbnailData)
+            Button {
+                video.showShareSheet(thumbnailData: videoThumbnailData)
+            } label: {
+                HStack {
+                    Text("Share")
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+            
             if isFavorite {
                 DeleteFromFavoritesView(video: video)
             } else {
@@ -67,7 +78,7 @@ struct VideoContextMenuView: View {
                         }
                     }
                 } label: {
-                    Text("Share")
+                    Text("Export")
                 }
                 */
             } else {
@@ -100,45 +111,3 @@ struct VideoContextMenuView: View {
     }
      */
 }
-
-/* to be activated later
-class VideoShareSource: NSObject, UIActivityItemSource {
-    let videoURL: URL
-    let video: YTVideo
-    
-    init(videoURL: URL, video: YTVideo) {
-        self.videoURL = videoURL
-        self.video = video
-    }
-    
-    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        return videoURL
-    }
-    
-    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        return videoURL
-    }
-        
-    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
-        return video.title ?? ""
-    }
-    
-    
-    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
-        return UTType.mpeg4Movie.identifier
-    }
-    
-    func activityViewController(_ activityViewController: UIActivityViewController, thumbnailImageForActivityType activityType: UIActivity.ActivityType?, suggestedSize size: CGSize) -> UIImage? {
-        guard let thumbnailURL = video.thumbnails.first?.url, let imageData = try? Data(contentsOf: thumbnailURL) else { return nil }
-        return UIImage(data: imageData)
-    }
-    
-    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
-        let metadata = LPLinkMetadata()
-        metadata.title = video.title
-        
-        metadata.url = videoURL
-        return metadata
-    }
-}
-*/
