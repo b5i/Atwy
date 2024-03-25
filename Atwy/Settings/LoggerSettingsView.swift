@@ -164,65 +164,20 @@ struct LoggerSettingsView: View {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        Task {
-                            guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
-                            if let url = logger.exportLog(withId: log.id, showCredentials: showCredentials) {
-                                let vc = UIActivityViewController(
-                                    activityItems: [LogShareSource(archiveURL: url)],
-                                    applicationActivities: nil
-                                )
-                                
-                                // https://forums.developer.apple.com/forums/thread/45898?answerId=134244022#134244022
-                                // find the controller that is already presenting a sheet and put a sheet onto its sheet
-                                var parentController: UIViewController? = source
-                                while((parentController?.presentedViewController != nil) &&
-                                      parentController != parentController?.presentedViewController){
-                                    parentController = parentController?.presentedViewController;
-                                }
-                                
-                                let finalController: UIViewController
-                                
-                                if let parentController = parentController {
-                                    finalController = parentController
-                                } else {
-                                    finalController = source
-                                }
-                                DispatchQueue.main.async {
-                                    vc.popoverPresentationController?.sourceView = finalController.view
-                                    vc.popoverPresentationController?.barButtonItem = finalController.navigationItem.rightBarButtonItem
-                                    finalController.present(vc, animated: true)
-                                }
-                            }
-                        }
-                    }
             }
             .frame(maxWidth: .infinity)
             .onTapGesture {
-                guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
-                let vc = UIHostingController(rootView: DetailledLogView(log: log, showCredentials: showCredentials))
-                
-                // https://forums.developer.apple.com/forums/thread/45898?answerId=134244022#134244022
-                // find the controller that is already presenting a sheet and put a sheet onto its sheet
-                var parentController: UIViewController? = source
-                while((parentController?.presentedViewController != nil) &&
-                      parentController != parentController?.presentedViewController){
-                    parentController = parentController?.presentedViewController;
-                }
-                
-                let finalController: UIViewController
-                
-                if let parentController = parentController {
-                    finalController = parentController
-                } else {
-                    finalController = source
-                }
-                DispatchQueue.main.async {
-                    vc.popoverPresentationController?.sourceView = finalController.view
-                    vc.popoverPresentationController?.barButtonItem = finalController.navigationItem.rightBarButtonItem
-                    finalController.present(vc, animated: true)
-                }
+                self.showShareLogSheet()
             }
+        }
+        
+        private func showShareLogSheet() {
+            guard let url = logger.exportLog(withId: log.id, showCredentials: showCredentials) else { return }
+            let vc = UIActivityViewController(
+                activityItems: [LogShareSource(archiveURL: url)],
+                applicationActivities: nil
+            )
+            SheetsModel.shared.showSuperSheet(withViewController: vc)
         }
     }
     
@@ -306,7 +261,6 @@ class LogShareSource: NSObject, UIActivityItemSource {
     func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
         return archiveURL.lastPathComponent
     }
-    
     
     func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String {
         return UTType.zip.identifier

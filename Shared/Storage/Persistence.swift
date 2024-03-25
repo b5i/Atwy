@@ -289,7 +289,7 @@ class PersistenceModel: ObservableObject {
     public func checkIfFavorite(video: YTVideo) -> Bool {
         return self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
     }
-    
+        
     public func getDownloadedVideo(videoId: String) -> WrappedDownloadedVideo? {
         let backgroundContext = self.controller.container.newBackgroundContext()
         return backgroundContext.performAndWait {
