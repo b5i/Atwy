@@ -106,12 +106,22 @@ struct PlaylistDetailsView: View {
                     Image(systemName: "chevron.left")
                 }
             }
+            // TODO: add the share option here too
 #else
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
+                }
+            }
+            if self.playlist.playlistId.hasPrefix("PL") || self.playlist.playlistId.hasPrefix("VLPL") { // avoid private playlists like history and watch later
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        self.playlist.showShareSheet()
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
                 }
             }
 #endif

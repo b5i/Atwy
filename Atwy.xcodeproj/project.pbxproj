@@ -14,6 +14,10 @@
 		341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */; };
 		341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */; };
 		3421ED5E2BB232EE00F3D29D /* YTVideoShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */; };
+		3421ED602BB37DC800F3D29D /* YouTubeChannelShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */; };
+		3421ED622BB37DD200F3D29D /* YTPlaylistShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */; };
+		3421ED642BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED632BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift */; };
+		3421ED662BB3800000F3D29D /* YTPlaylist+showShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED652BB3800000F3D29D /* YTPlaylist+showShareSheet.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
 		3457B4772AE4182300390A5A /* NoConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4762AE4182200390A5A /* NoConnectionView.swift */; };
 		3457B4792AE41C1F00390A5A /* NotConnectedToGoogleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */; };
@@ -185,6 +189,10 @@
 		341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerSettingsView.swift; sourceTree = "<group>"; };
 		341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModelLogger.swift; sourceTree = "<group>"; };
 		3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTVideoShareSource.swift; sourceTree = "<group>"; };
+		3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeChannelShareSource.swift; sourceTree = "<group>"; };
+		3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlaylistShareSource.swift; sourceTree = "<group>"; };
+		3421ED632BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeChannel+showShareSheet.swift"; sourceTree = "<group>"; };
+		3421ED652BB3800000F3D29D /* YTPlaylist+showShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YTPlaylist+showShareSheet.swift"; sourceTree = "<group>"; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		344ED4A12928D85100DB56EA /* Atwy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Atwy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3457B4762AE4182200390A5A /* NoConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoConnectionView.swift; sourceTree = "<group>"; };
@@ -509,6 +517,10 @@
 				3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */,
 				34C16D522BACE5BA00CACC0D /* YTPlaylist+matchQuery.swift */,
 				3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */,
+				3421ED632BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift */,
+				3421ED652BB3800000F3D29D /* YTPlaylist+showShareSheet.swift */,
+				3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */,
+				3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */,
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
 			);
 			path = Atwy;
@@ -747,6 +759,7 @@
 				34B5FE1B2ADA856900367036 /* Persistence.swift in Sources */,
 				346F3AF12B46C2C700599B08 /* ElementsInfiniteScrollView.swift in Sources */,
 				34B5FE1C2ADA856900367036 /* FavoritesView.swift in Sources */,
+				3421ED622BB37DD200F3D29D /* YTPlaylistShareSource.swift in Sources */,
 				34B5FE1D2ADA856900367036 /* GoToChannelSwipeActionButtonView.swift in Sources */,
 				34B5FE1E2ADA856900367036 /* SettingsView.swift in Sources */,
 				34B5FE672ADA944E00367036 /* ViewRepresentable.swift in Sources */,
@@ -784,6 +797,7 @@
 				34B5FE3A2ADA856900367036 /* ObservedScrollView.swift in Sources */,
 				34E2652D2B1A6898007BB226 /* DownloadedVideo+toYTVideo.swift in Sources */,
 				34E2652B2B1A50DF007BB226 /* StorageSettingsView.swift in Sources */,
+				3421ED662BB3800000F3D29D /* YTPlaylist+showShareSheet.swift in Sources */,
 				34E2652F2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift in Sources */,
 				34B5FE3B2ADA856900367036 /* ContentView.swift in Sources */,
 				34B5FE3C2ADA856900367036 /* AppearanceSettingsView.swift in Sources */,
@@ -796,6 +810,7 @@
 				34B5FE422ADA856900367036 /* LicensesView.swift in Sources */,
 				34B5FE432ADA856900367036 /* VideoFromSearchView.swift in Sources */,
 				34B5FE442ADA856900367036 /* DownloadButtonView.swift in Sources */,
+				3421ED642BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift in Sources */,
 				34B5FE452ADA856900367036 /* PlaylistView.swift in Sources */,
 				34B5FE462ADA856900367036 /* PrivacyIconView.swift in Sources */,
 				34B8B2D82AE0265200C5C07C /* DownloadedChannel+CoreDataProperties.swift in Sources */,
@@ -819,6 +834,7 @@
 				34B5FE4F2ADA856900367036 /* VideoContextMenuView.swift in Sources */,
 				34B8B2D92AE0265200C5C07C /* DownloadedVideoChapter+CoreDataClass.swift in Sources */,
 				34B5FE502ADA856900367036 /* DownloadVideoButtonView.swift in Sources */,
+				3421ED602BB37DC800F3D29D /* YouTubeChannelShareSource.swift in Sources */,
 				349ED12F2BA38ADE00F4B805 /* LiveActivitesManager.swift in Sources */,
 				34B8B2DD2AE0265200C5C07C /* DownloadedVideo+CoreDataClass.swift in Sources */,
 				340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */,
