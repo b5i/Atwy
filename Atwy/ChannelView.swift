@@ -52,5 +52,15 @@ struct ChannelView: View {
             }
             .routeTo(.channelDetails(channel: .init(channelId: channel.channelId, name: channel.name, thumbnails: channel.thumbnails)))
         }
+        .contextMenu {
+            Button(action: {
+                self.channel.showShareSheet()
+            }, label: {
+                Text("Share")
+                Image(systemName: "square.and.arrow.up")
+                    .resizable()
+                    .scaledToFit()
+            })
+        }
     }
 }

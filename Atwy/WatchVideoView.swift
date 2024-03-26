@@ -239,7 +239,7 @@ struct NewWatchVideoView: View {
                                             Image(systemName: "square.and.arrow.up")
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: 30)
+                                                .frame(width: 18)
                                                 .foregroundStyle(.white)
                                         }
                                     }
@@ -984,5 +984,3 @@ struct AirPlayButton: UIViewRepresentable {
     
     typealias UIViewType = AVRoutePickerView
 }
-
-

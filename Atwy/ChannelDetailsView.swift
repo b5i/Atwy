@@ -212,12 +212,20 @@ struct ChannelDetailsView: View {
                             Image(systemName: "chevron.left")
                         }
                     }
+                    // TODO: add the share option here too
 #else
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button {
                             dismiss()
                         } label: {
                             Image(systemName: "chevron.left")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            self.channel.showShareSheet()
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
                         }
                     }
 #endif

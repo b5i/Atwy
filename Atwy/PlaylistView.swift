@@ -64,6 +64,14 @@ struct PlaylistView: View {
                 if let channel = playlist.channel {
                     GoToChannelContextMenuButtonView(channel: channel)
                 }
+                Button(action: {
+                    self.playlist.showShareSheet()
+                }, label: {
+                    Text("Share")
+                    Image(systemName: "square.and.arrow.up")
+                        .resizable()
+                        .scaledToFit()
+                })
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .routeTo(.playlistDetails(playlist: playlist))
