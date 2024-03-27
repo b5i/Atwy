@@ -29,6 +29,7 @@
 		3457B49C2AE43A0C00390A5A /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3457B49B2AE43A0C00390A5A /* README.md */; };
 		3459BDBC2AE165D1001859D8 /* VideoCustomContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3459BDBB2AE165D1001859D8 /* VideoCustomContextMenu.swift */; };
 		3459BDBE2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */; };
+		345DA1942BB4DFB4002FB283 /* SortingModeSelectionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1932BB4DFB4002FB283 /* SortingModeSelectionModifier.swift */; };
 		345DC3062AE45E2B007AE044 /* Atwy.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3042AE45E2B007AE044 /* Atwy.xcdatamodeld */; };
 		345DC3092AE45FB3007AE044 /* DISCLAIMER.md in Resources */ = {isa = PBXBuildFile; fileRef = 345DC3082AE45FB3007AE044 /* DISCLAIMER.md */; };
 		345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC30B2AE538A2007AE044 /* SheetsModel.swift */; };
@@ -205,6 +206,7 @@
 		3457B49B2AE43A0C00390A5A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3459BDBB2AE165D1001859D8 /* VideoCustomContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCustomContextMenu.swift; sourceTree = "<group>"; };
 		3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadAdaptativeFormatsContextMenuView.swift; sourceTree = "<group>"; };
+		345DA1932BB4DFB4002FB283 /* SortingModeSelectionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortingModeSelectionModifier.swift; sourceTree = "<group>"; };
 		345DC3052AE45E2B007AE044 /* Atwy.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Atwy.xcdatamodel; sourceTree = "<group>"; };
 		345DC3082AE45FB3007AE044 /* DISCLAIMER.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DISCLAIMER.md; sourceTree = "<group>"; };
 		345DC30B2AE538A2007AE044 /* SheetsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetsModel.swift; sourceTree = "<group>"; };
@@ -522,6 +524,7 @@
 				3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */,
 				3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */,
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
+				345DA1932BB4DFB4002FB283 /* SortingModeSelectionModifier.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -764,6 +767,7 @@
 				34B5FE1E2ADA856900367036 /* SettingsView.swift in Sources */,
 				34B5FE672ADA944E00367036 /* ViewRepresentable.swift in Sources */,
 				3457B4772AE4182300390A5A /* NoConnectionView.swift in Sources */,
+				345DA1942BB4DFB4002FB283 /* SortingModeSelectionModifier.swift in Sources */,
 				34B5FE1F2ADA856900367036 /* View+hapticFeedbackOnTap.swift in Sources */,
 				345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */,
 				34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */,

@@ -46,6 +46,14 @@ class PreferencesStorageModel: ObservableObject {
     }
     
     public enum Properties: String, CaseIterable {
+        case favoritesSortingMode
+        case downloadsSortingMode
+        public enum SortingModes: Codable {
+            case newest, oldest
+            case title
+            case channelName
+        }
+        
         case videoViewMode
         public enum VideoViewModes: Codable {
             case fullThumbnail
@@ -67,6 +75,8 @@ class PreferencesStorageModel: ObservableObject {
         
         func getExpectedType() -> any Codable.Type {
             switch self {
+            case .favoritesSortingMode, .downloadsSortingMode:
+                return SortingModes.self
             case .videoViewMode:
                 return VideoViewModes.self
             case .performanceMode:
