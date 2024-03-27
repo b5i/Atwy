@@ -29,7 +29,7 @@ struct FavoritesView: View {
                         let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
                         let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                         
-                        ForEach(favorites.filter({$0.matchesQuery(search)})) { (video: FavoriteVideo) in
+                        ForEach(sortedVideos.filter({$0.matchesQuery(search)})) { (video: FavoriteVideo) in
                             let convertResult = video.toYTVideo()
                             
                             Button {
@@ -62,62 +62,26 @@ struct FavoritesView: View {
                 
                 .autocorrectionDisabled(true)
                 .navigationTitle("Favorites")
-            /*
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing, content: {
-                        Menu {
-                            Button {
-                                
-                            } label: {
-                                Text("Newest")
-                                Image(systemName: "arrow.up.to.line.compact")
-                                    .resizable()
-                                    .scaledToFit()
-                            }
-                            Button {
-                                
-                            } label: {
-                                Text("Oldest")
-                                Image(systemName: "arrow.down.to.line.compact")
-                                    .resizable()
-                                    .scaledToFit()
-                            }
-                            Button {
-                                
-                            } label: {
-                                Text("Title")
-                                Image(systemName: "music.note")
-                                    .resizable()
-                                    .scaledToFit()
-                            }
-                            Button {
-                                
-                            } label: {
-                                Text("Channel")
-                                Image(systemName: "music.mic")
-                                    .resizable()
-                                    .scaledToFit()
-                            }
-                        } label: {
-                            ZStack {
-                                Circle()
-                                    .fill(colorScheme.textColor.opacity(0.5))
-                                    .frame(width: 30)
-                                Circle()
-                                    .fill(.regularMaterial)
-                                    .frame(width: 30)
-                                Image(systemName: "line.3.horizontal.decrease") // or arrow.up.and.down.text.horizontal arrow.up.arrow.down.circle
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 18)
-                            }
-                        }
-                    })
-                }*/
+                .sortingModeSelectorButton(forPropertyType: .favoritesSortingMode)
                 .customNavigationTitleWithRightIcon {
                     ShowSettingsButtonView()
                 }
         }
+    }
+    
+    var sortedVideos: [FavoriteVideo] {
+        return self.favorites.sorted(by: {
+            switch (self.PSM.propetriesState[.favoritesSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
+            case .newest:
+                return $0.timestamp > $1.timestamp
+            case .oldest:
+                return $0.timestamp < $1.timestamp
+            case .title:
+                return ($0.title ?? "") < ($1.title ?? "")
+            case .channelName:
+                return ($0.channel?.name ?? "") < ($1.channel?.name ?? "")
+            }
+        })
     }
 }
 
