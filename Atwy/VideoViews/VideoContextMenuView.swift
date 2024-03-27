@@ -19,70 +19,73 @@ struct VideoContextMenuView: View {
     let isDownloaded: Bool
     var body: some View {
         Group {
-            Section("Queue") {
+            Section {
+                if NRM.connected {
+                    if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
+                        AddToPlaylistContextMenuButtonView(video: video)
+                    }
+                    if let channel = video.channel {
+                        GoToChannelContextMenuButtonView(channel: channel)
+                    }
+                }
+                Button {
+                    video.showShareSheet(thumbnailData: videoThumbnailData)
+                } label: {
+                    HStack {
+                        Text("Share")
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+            }
+            Section {
                 AddToQueueContextMenuButtonView(video: video, videoThumbnailData: videoThumbnailData)
             }
-            if NRM.connected {
-                if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
-                    AddToPlaylistContextMenuButtonView(video: video)
+            Section {
+                if isFavorite {
+                    DeleteFromFavoritesView(video: video)
+                } else {
+                    AddToFavoritesContextButtonView(
+                        video: video,
+                        imageData: videoThumbnailData
+                    )
                 }
-                if let channel = video.channel {
-                    GoToChannelContextMenuButtonView(channel: channel)
+                //            if let downloadURL = downloadURL {
+                if isDownloaded {
+                    RemoveDownloadContextMenuButtonView(video: video)
+                    /* to be activated later
+                     Button {
+                     guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
+                     let asset = AVAsset(url: downloadURL)
+                     let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
+                     session?.outputFileType = .mp4
+                     guard let outputURL = URL(string: "\(downloadURL.deletingLastPathComponent().path())temp_export_" + UUID().uuidString + ".mp4") else { return }
+                     session?.outputURL = outputURL
+                     session?.metadata = [
+                     createMetdataItem(value: video.title ?? "", type: .commonIdentifierTitle),
+                     createMetdataItem(value: video.title ?? "", type: .quickTimeMetadataTitle),
+                     createMetdataItem(value: video.channel?.name ?? "", type: .commonIdentifierArtist),
+                     createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
+                     createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataArtist),
+                     createMetdataItem(value: video.channel?.name ?? "", type: .quickTimeMetadataArtist)
+                     ]
+                     session?.exportAsynchronously {
+                     let vc = UIActivityViewController(
+                     activityItems: [VideoShareSource(videoURL: outputURL, video: video)],
+                     applicationActivities: nil
+                     )
+                     //vc.excludedActivityTypes = [.]
+                     DispatchQueue.main.async {
+                     vc.popoverPresentationController?.sourceView = source.view
+                     source.present(vc, animated: true)
+                     }
+                     }
+                     } label: {
+                     Text("Export")
+                     }
+                     */
+                } else {
+                    DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
                 }
-            }
-            Button {
-                video.showShareSheet(thumbnailData: videoThumbnailData)
-            } label: {
-                HStack {
-                    Text("Share")
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
-            
-            if isFavorite {
-                DeleteFromFavoritesView(video: video)
-            } else {
-                AddToFavoritesContextButtonView(
-                    video: video,
-                    imageData: videoThumbnailData
-                )
-            }
-//            if let downloadURL = downloadURL {
-            if isDownloaded {
-                RemoveDownloadContextMenuButtonView(video: video)
-                /* to be activated later
-                Button {
-                    guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
-                    let asset = AVAsset(url: downloadURL)
-                    let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
-                    session?.outputFileType = .mp4
-                    guard let outputURL = URL(string: "\(downloadURL.deletingLastPathComponent().path())temp_export_" + UUID().uuidString + ".mp4") else { return }
-                    session?.outputURL = outputURL
-                    session?.metadata = [
-                        createMetdataItem(value: video.title ?? "", type: .commonIdentifierTitle),
-                        createMetdataItem(value: video.title ?? "", type: .quickTimeMetadataTitle),
-                        createMetdataItem(value: video.channel?.name ?? "", type: .commonIdentifierArtist),
-                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataTrackSubTitle),
-                        createMetdataItem(value: video.channel?.name ?? "", type: .iTunesMetadataArtist),
-                        createMetdataItem(value: video.channel?.name ?? "", type: .quickTimeMetadataArtist)
-                    ]
-                    session?.exportAsynchronously {
-                        let vc = UIActivityViewController(
-                            activityItems: [VideoShareSource(videoURL: outputURL, video: video)],
-                            applicationActivities: nil
-                        )
-                        //vc.excludedActivityTypes = [.]
-                        DispatchQueue.main.async {
-                            vc.popoverPresentationController?.sourceView = source.view
-                            source.present(vc, animated: true)
-                        }
-                    }
-                } label: {
-                    Text("Export")
-                }
-                */
-            } else {
-                DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
             }
         }
     }
