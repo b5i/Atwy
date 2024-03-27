@@ -10,6 +10,7 @@ import CoreData
 import YouTubeKit
 
 struct FavoritesView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \FavoriteVideo.timestamp, ascending: true)],
         animation: .default)
@@ -61,6 +62,58 @@ struct FavoritesView: View {
                 
                 .autocorrectionDisabled(true)
                 .navigationTitle("Favorites")
+            /*
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing, content: {
+                        Menu {
+                            Button {
+                                
+                            } label: {
+                                Text("Newest")
+                                Image(systemName: "arrow.up.to.line.compact")
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Oldest")
+                                Image(systemName: "arrow.down.to.line.compact")
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Title")
+                                Image(systemName: "music.note")
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                            Button {
+                                
+                            } label: {
+                                Text("Channel")
+                                Image(systemName: "music.mic")
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(colorScheme.textColor.opacity(0.5))
+                                    .frame(width: 30)
+                                Circle()
+                                    .fill(.regularMaterial)
+                                    .frame(width: 30)
+                                Image(systemName: "line.3.horizontal.decrease") // or arrow.up.and.down.text.horizontal arrow.up.arrow.down.circle
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 18)
+                            }
+                        }
+                    })
+                }*/
                 .customNavigationTitleWithRightIcon {
                     ShowSettingsButtonView()
                 }
