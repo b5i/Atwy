@@ -682,25 +682,34 @@ struct NewWatchVideoView: View {
     struct ChannelAvatarView: View {
         let makeGradient: (UIImage) -> Void
         @State private var isFetching: Bool = false
+        @State private var showChannel: Bool = false
         @ObservedObject private var VPM = VideoPlayerModel.shared
         @ObservedObject private var APIM = APIKeyModel.shared
         @ObservedObject private var NM = NetworkReachabilityModel.shared
         var body: some View {
             ZStack {
-                if let channelAvatar = (VPM.currentItem?.streamingInfos.channel?.thumbnails.maxFor(2) ?? VPM.currentItem?.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.currentItem?.video.channel?.thumbnails.maxFor(2) {
-                    CachedAsyncImage(url: channelAvatar.url) { _, imageData in
-                        if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
-                            AvatarCircleView(image: uiImage, makeGradient: makeGradient)
-                        } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
-                            AvatarCircleView(image: image, makeGradient: makeGradient)
-                        } else {
-                            NoAvatarCircle(makeGradient: makeGradient)
+                Button {
+                    self.showChannel.toggle()
+                } label: {
+                    if let channelAvatar = (VPM.currentItem?.streamingInfos.channel?.thumbnails.maxFor(2) ?? VPM.currentItem?.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? VPM.currentItem?.video.channel?.thumbnails.maxFor(2) {
+                        CachedAsyncImage(url: channelAvatar.url) { _, imageData in
+                            if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
+                                AvatarCircleView(image: uiImage, makeGradient: makeGradient)
+                            } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
+                                AvatarCircleView(image: image, makeGradient: makeGradient)
+                            } else {
+                                NoAvatarCircle(makeGradient: makeGradient)
+                            }
                         }
+                    } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
+                        AvatarCircleView(image: image, makeGradient: makeGradient)
+                    } else {
+                        NoAvatarCircle(makeGradient: makeGradient)
                     }
-                } else if let imageData = VPM.currentItem?.channelAvatarImageData, let image = UIImage(data: imageData) {
-                    AvatarCircleView(image: image, makeGradient: makeGradient)
-                } else {
-                    NoAvatarCircle(makeGradient: makeGradient)
+                }.sheet(isPresented: $showChannel) {
+                    if let channel = VPM.currentItem?.video.channel {
+                        ChannelDetailsView(channel: channel)
+                    }
                 }
             }
             .overlay(alignment: .bottomTrailing, content: {
