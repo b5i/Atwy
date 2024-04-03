@@ -20,6 +20,7 @@ At this time, contributing to Atwy with code is not possible as it is a personna
 
 ## Known Issues
 - Videos that have more than one audio track (multiple languages) aren't played in the right language.
+- (temporal) The account's library section is not showing properly (YouTubeKit bug).
 
 ### Note
 At this time, Atwy is still in a very early stage with a lot improvements, refactoring and bug fixes still to come.
