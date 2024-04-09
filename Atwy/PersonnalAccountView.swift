@@ -13,11 +13,12 @@ struct PersonnalAccountView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedObject private var NPM = NavigationPathModel.shared
     @State private var libraryContent: AccountLibraryResponse?
     @State private var isFetching: Bool = false
     var body: some View {
         GeometryReader { geometry in
-            NavigationStack {
+            NavigationStack(path: $NPM.connectedAccountTabPath) {
                 VStack {
                     if isFetching {
                         Spacer()
@@ -64,6 +65,7 @@ struct PersonnalAccountView: View {
                         .scrollIndicators(.hidden)
                     }
                 }
+                .routeContainer()
                 .navigationTitle("Playlists")
                 .customNavigationTitleWithRightIcon {
                     ShowSettingsButtonView()

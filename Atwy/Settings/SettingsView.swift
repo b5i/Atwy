@@ -13,10 +13,11 @@ struct SettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var APIM = APIKeyModel.shared
+    @ObservedObject var NPM = NavigationPathModel.shared
     @State private var showingConfirmation: Bool = false
     @State private var showInstructions: Bool = true
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $NPM.settingsSheetPath) {
             ScrollView {
                 VStack {
                     UserPreferenceCircleView()
@@ -152,6 +153,7 @@ struct SettingsView: View {
                     .frame(height: 330)
                 }
             }
+            .routeContainer()
             .navigationTitle("Account")
             #if os(macOS)
             .toolbar(content: {

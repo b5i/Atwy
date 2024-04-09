@@ -15,12 +15,12 @@ struct DownloadedVideosView: View {
     private var downloadedVideos: FetchedResults<DownloadedVideo>
     @State private var search: String = ""
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var NPM = navigationPathModel
+    @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $NPM.downloadsTabPath) {
             GeometryReader { geometry in
                 VStack {
                     DownloadingsHeaderView()
@@ -68,6 +68,7 @@ struct DownloadedVideosView: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
+            .routeContainer()
         }
     }
     

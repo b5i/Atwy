@@ -16,13 +16,13 @@ struct FavoritesView: View {
         animation: .default)
     private var favorites: FetchedResults<FavoriteVideo>
     @State private var search: String = ""
-    @ObservedObject private var NPM = navigationPathModel
+    @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
+    @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $NPM.favoritesTabPath) {
             GeometryReader { geometry in
                 ScrollView {
                     LazyVStack {
@@ -54,6 +54,7 @@ struct FavoritesView: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
+            .routeContainer()
 #if os(macOS)
                 .searchable(text: $search, placement: .toolbar)
 #else
@@ -70,18 +71,21 @@ struct FavoritesView: View {
     }
     
     var sortedVideos: [FavoriteVideo] {
-        return self.favorites.filter({$0.matchesQuery(search)}).sorted(by: {
-            switch (self.PSM.propetriesState[.favoritesSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
-            case .newest:
-                return $0.timestamp > $1.timestamp
-            case .oldest:
-                return $0.timestamp < $1.timestamp
-            case .title:
-                return ($0.title ?? "") < ($1.title ?? "")
-            case .channelName:
-                return ($0.channel?.name ?? "") < ($1.channel?.name ?? "")
-            }
-        })
+        return self.favorites
+            .filter({$0.matchesQuery(search)})
+            .conditionnalFilter(mainCondition: !NM.connected, {PersistenceModel.shared.isVideoDownloaded(videoId: $0.videoId) != nil})
+            .sorted(by: {
+                switch (self.PSM.propetriesState[.favoritesSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
+                case .newest:
+                    return $0.timestamp > $1.timestamp
+                case .oldest:
+                    return $0.timestamp < $1.timestamp
+                case .title:
+                    return ($0.title ?? "") < ($1.title ?? "")
+                case .channelName:
+                    return ($0.channel?.name ?? "") < ($1.channel?.name ?? "")
+                }
+            })
     }
 }
 

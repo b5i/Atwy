@@ -18,17 +18,19 @@ struct ContentView: View {
     @Namespace private var sheetAnimation
     @State private var errorText = ""
     @State private var showOverlay: Bool = true
+    private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
     private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
     private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
-    @ObservedObject private var MTVM = MainTabViewModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var DM = DownloadingsModel.shared
     @ObservedObject private var PM = PopupsModel.shared
+    @ObservedObject private var NPM = NavigationPathModel.shared
+    @ObservedObject private var SM = SheetsModel.shared
     var body: some View {
-        TabView(selection: $MTVM.currentTab) {
+        TabView(selection: $NPM.currentTab) {
             TabBarElement(DestinationView: {
                 if network.connected {
                     SearchView()
@@ -105,10 +107,27 @@ struct ContentView: View {
             }
         })
         .animation(.spring, value: !IUTM.userTyping && VPM.currentItem != nil)
+        .sheet(isPresented: addToPlaylistBinding, content: {
+            if let video = SM.shownSheet?.data as? YTVideo {
+                AddToPlaylistView(video: video)
+            } else {
+                Color.clear.frame(width: 0, height: 0)
+                    .onAppear {
+                        self.addToPlaylistBinding.wrappedValue = false
+                    }
+            }
+        })
+        .sheet(isPresented: settingsSheetBinding, content: {
+            SettingsView()
+        })
+        .sheet(isPresented: watchVideoBinding, content: {
+            WatchVideoView()
+                .presentationDragIndicator(.hidden)
+        })
     }
     
     @ViewBuilder
-    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, type: MainTabViewModel.Tab, name: String, image: String) -> some View where Destination: View {
+    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, type: NavigationPathModel.Tab, name: String, image: String) -> some View where Destination: View {
         DestinationView()
             .tabItem {
                 HStack {

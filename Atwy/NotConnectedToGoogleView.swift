@@ -31,6 +31,7 @@ struct NotConnectedToGoogleView: View {
                 Spacer()
             }
             .padding(.bottom)
+            .routeContainer()
         }
     }
 }

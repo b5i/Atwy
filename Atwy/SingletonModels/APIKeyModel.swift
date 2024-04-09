@@ -15,32 +15,14 @@ class APIKeyModel: ObservableObject {
 
     @Published var googleCookies: String = "" {
         didSet {
-            if googleCookies == "" {
+            if self.googleCookies == "" {
                 YTM.cookies = ""
                 YTM.alwaysUseCookies = false
                 DispatchQueue.main.async {
                     self.userAccount = nil
                 }
             } else {
-                YTM.cookies = googleCookies
-                YTM.alwaysUseCookies = true
-                DispatchQueue.main.async {
-                    self.isFetchingAccountInfos = true
-                }
-                getUserInfos { result in
-                    DispatchQueue.main.async {
-                        self.isFetchingAccountInfos = false
-                        withAnimation {
-                            if !(result?.isDisconnected ?? true) {
-                                self.userAccount = result
-                                NotificationCenter.default.post(name: .atwyCookiesSetUp, object: nil)
-                            } else {
-                                self.userAccount = nil
-                            }
-                        }
-                        SearchView.Model.shared.getVideos()
-                    }
-                }
+                self.updateAccount()
             }
         }
     }
@@ -61,8 +43,31 @@ class APIKeyModel: ObservableObject {
             self.googleCookies = String(data: cookiesData, encoding: .utf8) ?? ""
         }
     }
+    
+    func updateAccount() {
+        guard self.googleCookies != "" else { return }
+        YTM.cookies = self.googleCookies
+        YTM.alwaysUseCookies = true
+        DispatchQueue.main.async {
+            self.isFetchingAccountInfos = true
+        }
+        self.getUserInfos { result in
+            DispatchQueue.main.async {
+                self.isFetchingAccountInfos = false
+                withAnimation {
+                    if !(result?.isDisconnected ?? true) {
+                        self.userAccount = result
+                        NotificationCenter.default.post(name: .atwyCookiesSetUp, object: nil)
+                    } else {
+                        self.userAccount = nil
+                    }
+                }
+                SearchView.Model.shared.getVideos()
+            }
+        }
+    }
 
-    func getUserInfos(result: @escaping (AccountInfosResponse?) -> Void) {
+    private func getUserInfos(result: @escaping (AccountInfosResponse?) -> Void) {
         AccountInfosResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { responseResult in
             switch responseResult {
             case .success(let response):

@@ -55,6 +55,7 @@ struct AddToPlaylistView: View {
                     }
                 }
             }
+            .routeContainer()
             .onAppear {
                 if model.response == nil, model.isFetching != true {
                     model.getAvailablePlaylists(video: video)

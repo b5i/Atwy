@@ -166,16 +166,12 @@ struct VideoView: View {
                                         .foregroundStyle(.white)
                                 },
                                 background: { _ in
-                                    NavigationLink(
-                                        destination:
-                                            ChannelDetailsView(channel: channel).onAppear {
-                                                context.state.wrappedValue = .closed
-                                            }
-                                        , label: {
-                                            Rectangle()
-                                                .fill(.cyan)
+                                    Rectangle()
+                                        .fill(.cyan)
+                                        .routeTo(.channelDetails(channel: channel))
+                                        .onDisappear {
+                                            context.state.wrappedValue = .closed
                                         }
-                                    )
                                 }
                             )
                         }
@@ -404,7 +400,7 @@ struct VideoView2: View {
                                 .padding(.top, 3)
                             }
                         }
-                        .routeTo(.channelDetails(channel: channel))
+                        .routeTo(NRM.connected ? .channelDetails(channel: channel) : nil)
                     }
                     VStack(alignment: .leading) {
                         Text(video.title ?? "")
@@ -521,16 +517,12 @@ struct VideoView2: View {
                                     .foregroundStyle(.white)
                             },
                             background: { _ in
-                                NavigationLink(
-                                    destination:
-                                        ChannelDetailsView(channel: channel).onAppear {
-                                            context.state.wrappedValue = .closed
-                                        }
-                                    , label: {
-                                        Rectangle()
-                                            .fill(.cyan)
+                                Rectangle()
+                                    .fill(.cyan)
+                                    .routeTo(.channelDetails(channel: channel))
+                                    .onDisappear {
+                                        context.state.wrappedValue = .closed
                                     }
-                                )
                             }
                         )
                     }
