@@ -763,6 +763,7 @@ struct WatchVideoView: View {
                                 Circle()
                                     .foregroundStyle(.gray)
                                 ProgressView()
+                                    .foregroundStyle(.white)
                                     .controlSize(.mini)
                                     .padding()
                             }

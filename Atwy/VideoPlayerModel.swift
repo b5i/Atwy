@@ -141,6 +141,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         Task {
             do {
                 let newItem = try await YTAVPlayerItem(video: video)
+                guard self.loadingVideo?.videoId == newItem.videoId else { return }
                 // Not enabled for the moment
                 // https://stackoverflow.com/questions/47953605/avplayer-play-network-video-with-separate-audio-url-without-downloading-the-fi
                 //                    if let otherLanguageAudio = streamingInfos.downloadFormats.first(where: { audioFormat in
