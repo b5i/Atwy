@@ -32,6 +32,7 @@ struct PlayingQueueView: View {
                 for item in newValue.reversed() {
                     VideoPlayerModel.shared.player.insert(item, after: VideoPlayerModel.shared.currentItem)
                 }
+                VideoPlayerModel.shared.player.updateEndAction()
             })
             List(queueBinding, id: \.self, editActions: [.move, .delete]) { $video in
                 Button {
@@ -43,6 +44,7 @@ struct PlayingQueueView: View {
                         }
                     }
                     VideoPlayerModel.shared.player.advanceToNextItem()
+                    VideoPlayerModel.shared.player.updateEndAction()
                 } label: {
                     HStack {
                         Image(systemName: "line.3.horizontal")

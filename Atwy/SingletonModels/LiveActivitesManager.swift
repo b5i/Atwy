@@ -24,6 +24,20 @@ class LiveActivitesManager {
         }
     }
     
+    func removeAllActivities() {
+        Task {
+            if #available(iOS 16.1, *) {
+                for activity in Activity<DownloadingsProgressActivity.ActivityAttributesType>.activities {
+                    if #available(iOS 16.2, *) {
+                        await activity.end(nil, dismissalPolicy: .immediate)
+                    } else {
+                        await activity.end(using: nil, dismissalPolicy: .immediate)
+                    }
+                }
+            }
+        }
+    }
+    
     @available(iOS 16.1, *)
     private func updateActivity<T: BackgroundFetchActivity>(withNewState newState: T.ActivityAttributesType, type: T.Type) {
         guard let currentActivity = self.activities[T.activityType] else { return }

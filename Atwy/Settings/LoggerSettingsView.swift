@@ -185,10 +185,7 @@ struct LoggerSettingsView: View {
         }
         
         private func showDetailsSheet() {
-            let vc = UIActivityViewController(
-                activityItems: [DetailledLogView(log: self.log, showCredentials: self.showCredentials)],
-                applicationActivities: nil
-            )
+            let vc = UIHostingController(rootView: DetailledLogView(log: self.log, showCredentials: self.showCredentials))
             SheetsModel.shared.showSuperSheet(withViewController: vc)
         }
     }

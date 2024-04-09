@@ -24,6 +24,14 @@ struct AtwyApp: App {
     @State private var currentChannel: String?
     @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
+    @ObservedObject private var SM = SheetsModel.shared
+    
+    private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
+    private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
+    private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
+    
+    private var appWillTerminateObserver: NSObjectProtocol
+    
     init() {
         if #available(iOS 16.1, *) {
             DownloadingsProgressActivity.registerTask()
@@ -34,7 +42,13 @@ struct AtwyApp: App {
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
         }
+        // remove all the live activites in case the app crashes and the user relaunch it
+        LiveActivitesManager.shared.removeAllActivities()
         
+        // remove the live activites when the user terminate the app, does not take effect if the app crashed (TODO?)
+        self.appWillTerminateObserver = NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { _ in
+            LiveActivitesManager.shared.removeAllActivities()
+        }
     }
     var body: some Scene {
         WindowGroup {
@@ -89,6 +103,23 @@ struct AtwyApp: App {
                 }
             }
             .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)
+            .sheet(isPresented: addToPlaylistBinding, content: {
+                if let video = SM.shownSheet?.data as? YTVideo {
+                    AddToPlaylistView(video: video)
+                } else {
+                    Color.clear.frame(width: 0, height: 0)
+                        .onAppear {
+                            self.addToPlaylistBinding.wrappedValue = false
+                        }
+                }
+            })
+            .sheet(isPresented: settingsSheetBinding, content: {
+                SettingsView()
+            })
+            .sheet(isPresented: watchVideoBinding, content: {
+                WatchVideoView()
+                    .presentationDragIndicator(.hidden)
+            })
         }
     }
     

@@ -23,7 +23,6 @@ struct DownloadSwipeActionsView: View {
                 Rectangle()
                     .tint(.orange)
                 Image(systemName: downloader.downloadTask?.state == .suspended ? "play" : "pause")
-                    .tint(.white)
             }
         }
         .tint(.orange)
@@ -34,7 +33,6 @@ struct DownloadSwipeActionsView: View {
                 Rectangle()
                     .tint(.red)
                 Image(systemName: "trash")
-                    .tint(.white)
             }
         }
         .tint(.red)

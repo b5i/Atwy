@@ -18,7 +18,6 @@ struct ContentView: View {
     @Namespace private var sheetAnimation
     @State private var errorText = ""
     @State private var showOverlay: Bool = true
-    private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
     private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
     private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
     @ObservedObject private var MTVM = MainTabViewModel.shared
@@ -27,7 +26,6 @@ struct ContentView: View {
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var DM = DownloadingsModel.shared
-    @ObservedObject private var SM = SheetsModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     var body: some View {
         TabView(selection: $MTVM.currentTab) {
@@ -58,16 +56,6 @@ struct ContentView: View {
                 }
             }, type: .account, name: "Account", image: "person.circle")
         }
-        .safeAreaInset(edge: .bottom, content: {
-            if !IUTM.userTyping && VPM.currentItem != nil {
-                NowPlayingBarView(
-                    sheetAnimation: sheetAnimation,
-                    isSheetPresented: watchVideoBinding,
-                    isSettingsSheetPresented: settingsSheetBinding.wrappedValue
-                )
-            }
-        })
-        .animation(.spring, value: !IUTM.userTyping && VPM.currentItem != nil)
         .overlay(alignment: .bottom, content: {
             ZStack {
                 let imageData = PM.shownPopup?.data as? Data
@@ -107,24 +95,16 @@ struct ContentView: View {
             UITabBar.appearance().scrollEdgeAppearance = appearance
             #endif
         }
-        .sheet(isPresented: addToPlaylistBinding, content: {
-            if let video = SM.shownSheet?.data as? YTVideo {
-                AddToPlaylistView(video: video)
-            } else {
-                Color.clear.frame(width: 0, height: 0)
-                    .onAppear {
-                        self.addToPlaylistBinding.wrappedValue = false
-                    }
+        .safeAreaInset(edge: .bottom, content: {
+            if !IUTM.userTyping && VPM.currentItem != nil {
+                NowPlayingBarView(
+                    sheetAnimation: sheetAnimation,
+                    isSheetPresented: watchVideoBinding,
+                    isSettingsSheetPresented: settingsSheetBinding.wrappedValue
+                )
             }
         })
-        .sheet(isPresented: settingsSheetBinding, content: {
-            SettingsView()
-        })
-        .sheet(isPresented: watchVideoBinding, onDismiss: {
-        }, content: {
-            WatchVideoView()
-                .presentationDragIndicator(.hidden)
-        })
+        .animation(.spring, value: !IUTM.userTyping && VPM.currentItem != nil)
     }
     
     @ViewBuilder
