@@ -58,12 +58,13 @@ struct ChannelDetailsView: View {
                                     .bold()
                             }
                             .frame(height: 150)
+                            /*
                             .onAppear {
                                 navigationTitle = ""
                             }
                             .onDisappear {
                                 navigationTitle = channelInfos.name ?? ""
-                            }
+                            }*/
                         }
                         HStack {
                             Text(channelInfos.handle ?? "")
