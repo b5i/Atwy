@@ -81,7 +81,7 @@ struct PersonnalAccountView: View {
         DispatchQueue.main.async {
             self.isFetching = true
         }
-        AccountLibraryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { result in
+        AccountLibraryResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { result in
             switch result {
             case .success(let response):
                 DispatchQueue.main.async {

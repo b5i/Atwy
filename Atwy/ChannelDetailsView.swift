@@ -89,9 +89,9 @@ struct ChannelDetailsView: View {
                                     var actionError: (any Error)?
                                     do {
                                         if subscribeStatus {
-                                            try await channel.unsubscribe(youtubeModel: YTM)
+                                            try await channel.unsubscribeThrowing(youtubeModel: YTM)
                                         } else {
-                                            try await channel.subscribe(youtubeModel: YTM)
+                                            try await channel.subscribeThrowing(youtubeModel: YTM)
                                         }
                                     } catch {
                                         actionError = error
@@ -277,7 +277,7 @@ struct ChannelDetailsView: View {
                 self.isFetchingChannelInfos = true
                 self.channelInfos = nil
             }
-            ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channel.channelId], result: { result in
+            ChannelInfosResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.browseId: channel.channelId], result: { result in
                 switch result {
                 case .success(let response):
                     DispatchQueue.main.async {
@@ -297,7 +297,7 @@ struct ChannelDetailsView: View {
                     self.channelInfos?.channelContentStore.removeValue(forKey: category)
                     self.fetchingStates[category] = true
                 }
-                ChannelInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: channelId, .params: requestParams], result: { result in
+                ChannelInfosResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.browseId: channelId, .params: requestParams], result: { result in
                     switch result {
                     case .success(let response):
                         DispatchQueue.main.async {

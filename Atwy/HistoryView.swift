@@ -107,7 +107,7 @@ struct HistoryView: View {
                 self.historyResponse = nil
                 self.error = nil
             }
-            HistoryResponse.sendRequest(youtubeModel: YTM, data: [:], result: { [weak self] result in
+            HistoryResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let response):

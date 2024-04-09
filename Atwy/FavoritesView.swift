@@ -29,7 +29,7 @@ struct FavoritesView: View {
                         let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
                         let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                         
-                        ForEach(sortedVideos.filter({$0.matchesQuery(search)})) { (video: FavoriteVideo) in
+                        ForEach(sortedVideos) { (video: FavoriteVideo) in
                             let convertResult = video.toYTVideo()
                             
                             Button {
@@ -70,7 +70,7 @@ struct FavoritesView: View {
     }
     
     var sortedVideos: [FavoriteVideo] {
-        return self.favorites.sorted(by: {
+        return self.favorites.filter({$0.matchesQuery(search)}).sorted(by: {
             switch (self.PSM.propetriesState[.favoritesSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
             case .newest:
                 return $0.timestamp > $1.timestamp

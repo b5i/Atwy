@@ -164,10 +164,13 @@ struct LoggerSettingsView: View {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .contentShape(Rectangle())
+                    .onTapGesture {
+                        self.showShareLogSheet()
+                    }
             }
             .frame(maxWidth: .infinity)
             .onTapGesture {
-                self.showShareLogSheet()
+                self.showDetailsSheet()
             }
         }
         
@@ -175,6 +178,14 @@ struct LoggerSettingsView: View {
             guard let url = logger.exportLog(withId: log.id, showCredentials: showCredentials) else { return }
             let vc = UIActivityViewController(
                 activityItems: [LogShareSource(archiveURL: url)],
+                applicationActivities: nil
+            )
+            SheetsModel.shared.showSuperSheet(withViewController: vc)
+        }
+        
+        private func showDetailsSheet() {
+            let vc = UIActivityViewController(
+                activityItems: [DetailledLogView(log: self.log, showCredentials: self.showCredentials)],
                 applicationActivities: nil
             )
             SheetsModel.shared.showSuperSheet(withViewController: vc)

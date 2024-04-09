@@ -37,9 +37,7 @@ struct VideoAppreciationView: View {
                                     if let error = error {
                                         print("Error while removing like from video: \(error)")
                                     } else {
-                                        DispatchQueue.main.async {
-                                            currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
-                                        }
+                                        currentItem.setNewLikeStatus(.nothing)
                                     }
                                     DispatchQueue.main.async {
                                         VPM.isFetchingAppreciation = false
@@ -50,9 +48,7 @@ struct VideoAppreciationView: View {
                                     if let error = error {
                                         print("Error while liking video: \(error)")
                                     } else {
-                                        DispatchQueue.main.async {
-                                            currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .liked
-                                        }
+                                        currentItem.setNewLikeStatus(.liked)
                                     }
                                     DispatchQueue.main.async {
                                         VPM.isFetchingAppreciation = false
@@ -85,9 +81,7 @@ struct VideoAppreciationView: View {
                                         if let error = error {
                                             print("Error while removing dislike from video: \(error)")
                                         } else {
-                                            DispatchQueue.main.async {
-                                                currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .nothing
-                                            }
+                                            currentItem.setNewLikeStatus(.nothing)
                                         }
                                         DispatchQueue.main.async {
                                             VPM.isFetchingAppreciation = false
@@ -98,9 +92,7 @@ struct VideoAppreciationView: View {
                                         if let error = error {
                                             print("Error while disliking video: \(error)")
                                         } else {
-                                            DispatchQueue.main.async {
-                                                currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus = .disliked
-                                            }
+                                            currentItem.setNewLikeStatus(.disliked)
                                         }
                                         DispatchQueue.main.async {
                                             VPM.isFetchingAppreciation = false

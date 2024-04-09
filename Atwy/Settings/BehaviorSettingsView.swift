@@ -46,14 +46,14 @@ struct BehaviorSettingsView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .foregroundStyle(.ultraThickMaterial)
                         HStack {
-                            if performanceChoice == .limited {
+                            if self.performanceChoice == .limited {
                                 Spacer()
                             }
                             RoundedRectangle(cornerRadius: 10)
                                 .foregroundStyle(.orange)
                                 .frame(width: geometry.size.width * 0.28, height: geometry.size.height * 0.08)
                                 .padding(.horizontal)
-                            if performanceChoice != .limited {
+                            if self.performanceChoice != .limited {
                                 Spacer()
                             }
                         }
@@ -69,8 +69,8 @@ struct BehaviorSettingsView: View {
                             }
                             .onTapGesture {
                                 withAnimation(.spring) {
-                                    performanceChoice = .full
-                                    PSM.setNewValueForKey(.performanceMode, value: PreferencesStorageModel.Properties.PerformanceModes.full)
+                                    self.performanceChoice = .full
+                                    self.PSM.setNewValueForKey(.performanceMode, value: PreferencesStorageModel.Properties.PerformanceModes.full)
                                 }
                             }
                             Spacer()
@@ -90,8 +90,8 @@ struct BehaviorSettingsView: View {
                             }
                             .onTapGesture {
                                 withAnimation(.spring) {
-                                    performanceChoice = .limited
-                                    PSM.setNewValueForKey(.performanceMode, value: PreferencesStorageModel.Properties.PerformanceModes.limited)
+                                    self.performanceChoice = .limited
+                                    self.PSM.setNewValueForKey(.performanceMode, value: PreferencesStorageModel.Properties.PerformanceModes.limited)
                                 }
                             }
                         }
@@ -107,7 +107,7 @@ struct BehaviorSettingsView: View {
                         let liveActivitiesBinding: Binding<Bool> = Binding(get: {
                             return self.liveActivities
                         }, set: { newValue in
-                            PSM.setNewValueForKey(.liveActivitiesEnabled, value: newValue)
+                            self.PSM.setNewValueForKey(.liveActivitiesEnabled, value: newValue)
                             if #available(iOS 16.1, *) {
                                 if self.liveActivities, !newValue {
                                     DownloadingsProgressActivity.stop()
@@ -133,7 +133,7 @@ struct BehaviorSettingsView: View {
                             return self.automaticPiP
                         }, set: { newValue in
                             self.automaticPiP = newValue
-                            PSM.setNewValueForKey(.automaticPiP, value: newValue)
+                            self.PSM.setNewValueForKey(.automaticPiP, value: newValue)
                         })
                         Toggle(isOn: automaticPiPBinding, label: {
                             Text("Automatic PiP")
@@ -151,7 +151,7 @@ struct BehaviorSettingsView: View {
                             return self.backgroundPlayback
                         }, set: { newValue in
                             self.backgroundPlayback = newValue
-                            PSM.setNewValueForKey(.backgroundPlayback, value: newValue)
+                            self.PSM.setNewValueForKey(.backgroundPlayback, value: newValue)
                         })
                         Toggle(isOn: backgroundPlaybackBinding, label: {
                             Text("Background Playback")

@@ -67,28 +67,9 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
-        /*
-        observerrr = controller.observe(\.videoBounds, changeHandler: { controllerrr, _ in
-            print("Changed: \(controllerrr.videoBounds)")
-            if controllerrr.videoBounds != .zero {
-                guard let controllerContentView = controllerrr.view?.subviews.first(where: { String(describing: type(of: $0)) == "AVPlayerViewControllerContentView" }) else { print("Could not find controllerContentView"); return }
-                guard let chromelessControlsView = controllerContentView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileChromelessControlsView" }) else { print("Could not find chromelessControlsViewController"); return }
-                guard let auxiliaryControlsView = chromelessControlsView.subviews.first(where: { String(describing: type(of: $0)) == "AVMobileAuxiliaryControlsView" }) else { print("Could not find auxiliaryControlsView"); return }
-                var imageView = auxiliaryControlsView.subviews[0].subviews[0] as! UIImageView
-                imageView.image = UIImage(systemName: "play")
-                print("djo")
-                var buttonType: AnyClass = NSClassFromString("AVMenuButton")!
-                var button: UIView = buttonType.init() as! UIView
-                button.addSubview(UIImageView(image: UIImage(systemName: "play")))
-                auxiliaryControlsView.addSubview(button)
-                print(auxiliaryControlsView)
-            }
-        })
-         */
-
-        //print(controller.perform(NSSelectorFromString("customControlItems")))
-        //print(controller.perform(NSSelectorFromString("customControlsView")))
-                
+        
+        PrivateManager.shared.avButtonsManager?.controlsView.menuState = .automatic // initialize it
+        
         return controller
     }
 

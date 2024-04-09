@@ -124,6 +124,20 @@ struct SettingsView: View {
                             HStack {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 5)
+                                        .foregroundColor(.black)
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.yellow)
+                                }
+                                .frame(width: 30, height: 30)
+                            }
+                            Text("Private APIs")
+                            Spacer()
+                        }
+                        .routeTo(.privateAPIsSettings)
+                        Group {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 5)
                                         .foregroundColor(.orange)
                                     Image(systemName: "book.fill")
                                         .foregroundColor(.white)
@@ -135,7 +149,7 @@ struct SettingsView: View {
                         }
                         .routeTo(.licensesSettings)
                     }
-                    .frame(height: 275)
+                    .frame(height: 330)
                 }
             }
             .navigationTitle("Account")
