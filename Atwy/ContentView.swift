@@ -122,7 +122,7 @@ struct ContentView: View {
         })
         .sheet(isPresented: watchVideoBinding, onDismiss: {
         }, content: {
-            NewWatchVideoView()
+            WatchVideoView()
                 .presentationDragIndicator(.hidden)
         })
     }

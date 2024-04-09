@@ -18,11 +18,11 @@ struct UserPreferenceCircleView: View {
                         .resizable()
                         .clipShape(Circle())
                 default:
-                    NewWatchVideoView.NoChannelAvatarView()
+                    WatchVideoView.NoChannelAvatarView()
                 }
             })
         } else {
-            NewWatchVideoView.NoChannelAvatarView()
+            WatchVideoView.NoChannelAvatarView()
         }
     }
 }

@@ -13,7 +13,7 @@ import MediaPlayer
 import CoreAudio
 import YouTubeKit
 
-struct NewWatchVideoView: View {
+struct WatchVideoView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.presentationMode) private var presentationMode
     @State private var topColorGradient: LinearGradient = .init(colors: [.gray, .white], startPoint: .leading, endPoint: .trailing)
@@ -192,9 +192,12 @@ struct NewWatchVideoView: View {
                         ScrollView(.horizontal) {
                             HStack {
                                 Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
-                                VideoAppreciationView()
-                                    .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                    .frame(width: ((VPM.currentItem?.moreVideoInfos?.likesCount.defaultState ?? "") != "") ? (APIM.userAccount != nil ? 180 : 110) : 0)
+                                Group {
+                                    if let currentItem = VPM.currentItem {
+                                        VideoAppreciationView(currentItem: currentItem)
+                                    }
+                                }
+                                .opacity(!(showQueue || showDescription) ? 1 : 0)
                                 if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
                                     if NRM.connected {
                                         ZStack {

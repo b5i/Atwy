@@ -44,7 +44,7 @@ struct ChannelDetailsView: View {
                                     let thumbnailsCount = channelInfos.avatarThumbnails.count
                                     Group {
                                         if thumbnailsCount == 0 {
-                                            NewWatchVideoView.NoChannelAvatarView()
+                                            WatchVideoView.NoChannelAvatarView()
                                         } else if thumbnailsCount == 1 {
                                             ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails.first?.url)
                                         } else {
