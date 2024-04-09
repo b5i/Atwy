@@ -175,20 +175,53 @@ class AVMobileAuxiliaryControlsView {
             visibleControls.append(dislikeButtonControl!.control)
             
             /*
-            let testButton = AVMenuButton(forImage: "star", menu: UIMenu(title: "My testmenubutton", image: UIImage(systemName: "plus.circle"), children: [
-                UIDeferredMenuElement({_ in})
-            ]), buttonDisplayName: "test", buttonIdentifier: "testbutton", manager: self.manager)
-            let testButtonControl = AVMobileAuxiliaryControl(button: testButton, priority: 0, controlName: "Test", manager: self.manager)
-            self.testButtonDelegate = testButton.delegate
-            visibleControls.append(testButtonControl.control)
-            */
+             let testButton = AVMenuButton(forImage: "star", menu: UIMenu(title: "My testmenubutton", image: UIImage(systemName: "plus.circle"), children: [
+             UIDeferredMenuElement({_ in})
+             ]), buttonDisplayName: "test", buttonIdentifier: "testbutton", manager: self.manager)
+             let testButtonControl = AVMobileAuxiliaryControl(button: testButton, priority: 0, controlName: "Test", manager: self.manager)
+             self.testButtonDelegate = testButton.delegate
+             visibleControls.append(testButtonControl.control)
+             */
             
             visibleControls.append(contentsOf: (defaultControlsToAdd.filter({$0.value(forKey: "_identifier") as? String == "AVAnalysisControl"})))
             visibleControls.append(AVMobileAuxiliaryControl(priority: 0, controlName: "fakeControl", manager: self.manager).control) // create a empty control so that the controls are immediatly displayed
             
-            //return ([UIMenu(title: "Add To Playlist", image: UIImage(systemName: "plus.circle"), children: [UIDeferredMenuElement({_ in})])], defaultControlsToAdd, visibleControls)
-            return ([], defaultControlsToAdd, visibleControls)
-            
+            return ([
+                UIMenu(title: "", options: .displayInline, children: [ // show a divider
+                    UIMenu(title: "Add To Playlist", image: UIImage(systemName: "plus.circle"), children: [
+                        UIDeferredMenuElement({ result in
+                            guard let video = VideoPlayerModel.shared.currentItem?.video else { result([]); return }
+                            video.fetchAllPossibleHostPlaylists(youtubeModel: YTM, result: { returning in
+                                switch returning {
+                                case .success(let response):
+                                    guard !response.isDisconnected else { fallthrough }
+                                    DispatchQueue.main.async {
+                                        result(response.playlistsAndStatus.map({ playlistAndStatus in
+                                            return UIAction(
+                                                title: playlistAndStatus.playlist.title ?? "Unknown name",
+                                                image: UIImage(systemName: PrivacyIconView.getIconNameForPrivacyType(playlistAndStatus.playlist.privacy ?? .unlisted)),
+                                                state: playlistAndStatus.isVideoPresentInside ? .on : .off,
+                                                handler: { _ in
+                                                    if playlistAndStatus.isVideoPresentInside {
+                                                        RemoveVideoByIdFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: {_ in})
+                                                    } else {
+                                                        AddVideoToPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: { _ in })
+                                                    }
+                                                })
+                                        }))
+                                    }
+                                case .failure(_):
+                                    DispatchQueue.main.async {
+                                        result([])
+                                    }
+                                }
+                            })
+                        })
+                    ]),
+                    UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
+                        VideoPlayerModel.shared.currentItem?.video.showShareSheet()
+                    })
+                ])], defaultControlsToAdd, visibleControls)
         case .notFullScreen:
             return ([], [], defaultControlsToAdd)
         }

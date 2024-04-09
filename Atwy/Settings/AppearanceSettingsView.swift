@@ -9,17 +9,20 @@ import SwiftUI
 import YouTubeKit
 
 struct AppearanceSettingsView: View {
+    typealias VideoViewModes = PreferencesStorageModel.Properties.VideoViewModes
+    
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
-    @State private var videoViewChoice: PreferencesStorageModel.Properties.VideoViewModes
+    @State private var videoViewChoice: VideoViewModes
     
     init() {
         /// Maybe using AppStorage would be better
-        if let state = PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes {
+        if let state = PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? VideoViewModes {
             self._videoViewChoice = State(wrappedValue: state)
         } else {
-            self._videoViewChoice = State(wrappedValue: .fullThumbnail)
+            let defaultViewMode: VideoViewModes = PreferencesStorageModel.Properties.videoViewMode.getDefaultValue() as? VideoViewModes ?? .fullThumbnail
+            self._videoViewChoice = State(wrappedValue: defaultViewMode)
         }
     }
     var body: some View {
@@ -67,7 +70,7 @@ struct AppearanceSettingsView: View {
                         if let state = PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes {
                             self.videoViewChoice = state
                         } else {
-                            self.videoViewChoice = .fullThumbnail
+                            self.videoViewChoice = PreferencesStorageModel.Properties.videoViewMode.getDefaultValue() as? VideoViewModes ?? .fullThumbnail
                         }
                     }
                 }
