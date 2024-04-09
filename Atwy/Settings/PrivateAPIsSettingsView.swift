@@ -35,8 +35,13 @@ struct PrivateAPIsSettingsView: View {
                 Section("Private APIs") {
                     VStack {
                         let cacheLimitEnabledBinding: Binding<Bool> = Binding(get: {
-                            self.customAVButtons
+                            if PrivateManager.shared.avButtonsManager == nil {
+                                return false
+                            } else {
+                                return self.customAVButtons
+                            }
                         }, set: { newValue in
+                            guard PrivateManager.shared.avButtonsManager != nil else { return }
                             self.customAVButtons = newValue
                             if newValue {
                                 PrivateManager.shared.avButtonsManager?.inject()
@@ -52,6 +57,10 @@ struct PrivateAPIsSettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.gray)
                             .fixedSize(horizontal: false, vertical: true)
+                        if PrivateManager.shared.avButtonsManager == nil {
+                            Label("Private APIs checks have failed for this option, therefore you can't enable it for safety reasons.", systemImage: "exclamationmark.triangle.fill")
+                                .labelStyle(FailedInitPrivateAPILabelStyle())
+                        }
                     }
                     .disabled(PrivateManager.shared.avButtonsManager == nil)
                 }

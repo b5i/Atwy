@@ -39,6 +39,7 @@
 		345DA1E42BC481AB002FB283 /* PrivateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1E32BC481AB002FB283 /* PrivateManager.swift */; };
 		345DA1E72BC485A0002FB283 /* CustomAVButtonsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1E62BC485A0002FB283 /* CustomAVButtonsManager.swift */; };
 		345DA1EB2BC490D2002FB283 /* PrivateAPIsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1EA2BC490D2002FB283 /* PrivateAPIsSettingsView.swift */; };
+		345DA1ED2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1EC2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift */; };
 		345DC3062AE45E2B007AE044 /* Atwy.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3042AE45E2B007AE044 /* Atwy.xcdatamodeld */; };
 		345DC3092AE45FB3007AE044 /* DISCLAIMER.md in Resources */ = {isa = PBXBuildFile; fileRef = 345DC3082AE45FB3007AE044 /* DISCLAIMER.md */; };
 		345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC30B2AE538A2007AE044 /* SheetsModel.swift */; };
@@ -226,6 +227,7 @@
 		345DA1E32BC481AB002FB283 /* PrivateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateManager.swift; sourceTree = "<group>"; };
 		345DA1E62BC485A0002FB283 /* CustomAVButtonsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAVButtonsManager.swift; sourceTree = "<group>"; };
 		345DA1EA2BC490D2002FB283 /* PrivateAPIsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateAPIsSettingsView.swift; sourceTree = "<group>"; };
+		345DA1EC2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenterAlignementLabelStyle.swift; sourceTree = "<group>"; };
 		345DC3052AE45E2B007AE044 /* Atwy.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Atwy.xcdatamodel; sourceTree = "<group>"; };
 		345DC3082AE45FB3007AE044 /* DISCLAIMER.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DISCLAIMER.md; sourceTree = "<group>"; };
 		345DC30B2AE538A2007AE044 /* SheetsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetsModel.swift; sourceTree = "<group>"; };
@@ -570,6 +572,7 @@
 				3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */,
 				3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */,
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
+				345DA1EC2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -863,6 +866,7 @@
 				34B5FE402ADA856900367036 /* ShareChannelView.swift in Sources */,
 				34B5FE412ADA856900367036 /* DownloadSwipeActionsView.swift in Sources */,
 				34B5FE422ADA856900367036 /* LicensesView.swift in Sources */,
+				345DA1ED2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift in Sources */,
 				34B5FE432ADA856900367036 /* VideoFromSearchView.swift in Sources */,
 				34B5FE442ADA856900367036 /* DownloadButtonView.swift in Sources */,
 				3421ED642BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift in Sources */,
