@@ -30,7 +30,9 @@ class NetworkReachabilityModel: ObservableObject {
                         item.fetchMoreInfos()
                     }
                 }
-                APIKeyModel.shared.updateAccount()
+                if APIKeyModel.shared.userAccount == nil {
+                    APIKeyModel.shared.updateAccount()
+                }
                 DispatchQueue.main.async {
                     self.connected = true
                 }
