@@ -34,12 +34,12 @@ struct SearchView: View {
     @ObservedObject private var model = Model.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var NPM = navigationPathModel
+    @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $NPM.searchTabPath) {
             VStack {
                 if IUTM.userTyping {
                     if !autoCompletion.isEmpty {
@@ -142,6 +142,7 @@ struct SearchView: View {
                     }
                 }
             }
+            .routeContainer()
 #if os(macOS)
             .searchable(text: $search, placement: .toolbar)
 #else

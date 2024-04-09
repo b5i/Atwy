@@ -47,16 +47,12 @@ struct CustomElementsInfiniteScrollView: View {
                                                         .foregroundStyle(.white)
                                                 },
                                                 background: { _ in
-                                                    NavigationLink(
-                                                        destination:
-                                                            ChannelDetailsView(channel: channel).onAppear {
-                                                                context.state.wrappedValue = .closed
-                                                            }
-                                                        , label: {
-                                                            Rectangle()
-                                                                .fill(.cyan)
+                                                    Rectangle()
+                                                        .fill(.cyan)
+                                                        .routeTo(.channelDetails(channel: channel))
+                                                        .onDisappear {
+                                                            context.state.wrappedValue = .closed
                                                         }
-                                                    )
                                                 }
                                             )
                                         }

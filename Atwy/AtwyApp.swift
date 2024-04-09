@@ -13,22 +13,65 @@ import BackgroundTasks
 import ActivityKit
 
 class NavigationPathModel: ObservableObject {
-    @Published var path = NavigationPath()
+    static let shared = NavigationPathModel()
+    
+    @Published var currentTab: Tab = .search {
+        didSet {
+            if self.currentTab == oldValue {
+                var newPath = NavigationPathModel.shared.getPathForTab(self.currentTab)
+                if !newPath.isEmpty { newPath.removeLast() }
+                NavigationPathModel.shared.setPathForTab(self.currentTab, path: newPath)
+            }
+        }
+    }
+    
+    @Published var searchTabPath = NavigationPath()
+    @Published var favoritesTabPath = NavigationPath()
+    @Published var downloadsTabPath = NavigationPath()
+    @Published var connectedAccountTabPath = NavigationPath()
+    
+    @Published var settingsSheetPath = NavigationPath()
+    
+    func getPathForTab(_ tabType: Tab) -> NavigationPath {
+        switch tabType {
+        case .search:
+            return self.searchTabPath
+        case .favorites:
+            return self.favoritesTabPath
+        case .downloads:
+            return self.downloadsTabPath
+        case .account:
+            return self.connectedAccountTabPath
+        }
+    }
+    
+    func setPathForTab(_ tabType: Tab, path: NavigationPath) {
+        DispatchQueue.main.async {
+            switch tabType {
+            case .search:
+                self.searchTabPath = path
+            case .favorites:
+                self.favoritesTabPath = path
+            case .downloads:
+                self.downloadsTabPath = path
+            case .account:
+                self.connectedAccountTabPath = path
+            }
+        }
+    }
+    
+    enum Tab {
+        case search
+        case favorites
+        case downloads
+        case account
+    }
 }
-
-let navigationPathModel = NavigationPathModel()
 
 @main
 struct AtwyApp: App {
-    @State private var showChannelPopup: Bool = false
-    @State private var currentChannel: String?
     @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
-    @ObservedObject private var SM = SheetsModel.shared
-    
-    private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
-    private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
-    private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
     
     private var appWillTerminateObserver: NSObjectProtocol
     
@@ -66,33 +109,6 @@ struct AtwyApp: App {
                 } else {
                     ContentView()
                         .environment(\.managedObjectContext, PersistenceModel.shared.context)
-                        .onOpenURL(perform: { url in
-                            print(url)
-                            if url.scheme == "atwy" || url.scheme == "Atwy" {
-                                switch url.host {
-                                case "watch":
-                                    if let videoId = url.query?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
-                                        //                                Atwy://watch?_u4GmLb_NCo
-                                        if videoId.count == 11 {
-                                            print("received valid id")
-                                            VideoPlayerModel.shared.loadVideo(video: YTVideo(videoId: videoId))
-                                            SheetsModel.shared.showSheet(.watchVideo)
-                                        }
-                                    }
-                                case "channel":
-                                    if let channelID = url.query?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
-                                        //                                Atwy://watch?_u4GmLb_NCo
-                                        if channelID.count > 2 {
-                                            print("received valid id")
-                                            currentChannel = channelID
-                                            showChannelPopup = true
-                                        }
-                                    }
-                                default:
-                                    break
-                                }
-                            }
-                        })
                         .onAppear {
 #if !os(macOS)
                             let appearance = UINavigationBarAppearance()
@@ -103,22 +119,34 @@ struct AtwyApp: App {
                 }
             }
             .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)
-            .sheet(isPresented: addToPlaylistBinding, content: {
-                if let video = SM.shownSheet?.data as? YTVideo {
-                    AddToPlaylistView(video: video)
-                } else {
-                    Color.clear.frame(width: 0, height: 0)
-                        .onAppear {
-                            self.addToPlaylistBinding.wrappedValue = false
+            .onOpenURL(perform: { url in
+                print(url)
+                if url.scheme == "atwy" || url.scheme == "Atwy" {
+                    switch url.host {
+                    case "watch":
+                        if let videoId = url.query?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+                           case .success(let sanitizedVideoId) = ParameterValidator.videoIdValidator.handler(videoId),
+                           let sanitizedVideoId = sanitizedVideoId
+                        {
+                            //                                Atwy://watch?_u4GmLb_NCo
+                            print("received valid id")
+                            VideoPlayerModel.shared.loadVideo(video: YTVideo(videoId: sanitizedVideoId))
+                            SheetsModel.shared.showSheet(.watchVideo)
                         }
+                    case "channel":
+                        if let channelId = url.query?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+                           case .success(let sanitizedChannelId) = ParameterValidator.channelIdValidator.handler(channelId),
+                           let sanitizedChannelId = sanitizedChannelId
+                        {
+                            //                                Atwy://watch?_u4GmLb_NCo
+                            print("received valid id")
+                            NavigationPathModel.shared.currentTab = .search // make sense to redirect the user to the search tab
+                            NavigationPathModel.shared.searchTabPath.append(RouteDestination.channelDetails(channel: YTLittleChannelInfos(channelId: sanitizedChannelId)))
+                        }
+                    default:
+                        break
+                    }
                 }
-            })
-            .sheet(isPresented: settingsSheetBinding, content: {
-                SettingsView()
-            })
-            .sheet(isPresented: watchVideoBinding, content: {
-                WatchVideoView()
-                    .presentationDragIndicator(.hidden)
             })
         }
     }

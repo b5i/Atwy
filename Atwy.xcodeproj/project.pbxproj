@@ -42,6 +42,7 @@
 		345DA1ED2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1EC2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift */; };
 		345DA1EF2BC570E0002FB283 /* View+onReceive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1EE2BC570E0002FB283 /* View+onReceive.swift */; };
 		345DA1F12BC57754002FB283 /* CancelDownloadContextMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1F02BC57754002FB283 /* CancelDownloadContextMenuView.swift */; };
+		345DA1F52BC5C0C9002FB283 /* Collection+conditionnalFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */; };
 		345DC3062AE45E2B007AE044 /* Atwy.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 345DC3042AE45E2B007AE044 /* Atwy.xcdatamodeld */; };
 		345DC3092AE45FB3007AE044 /* DISCLAIMER.md in Resources */ = {isa = PBXBuildFile; fileRef = 345DC3082AE45FB3007AE044 /* DISCLAIMER.md */; };
 		345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345DC30B2AE538A2007AE044 /* SheetsModel.swift */; };
@@ -77,7 +78,6 @@
 		349ED1572BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1562BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift */; };
 		349ED1592BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349ED1582BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift */; };
 		34AB99AC2B1A7A460083B1DB /* FileManagerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */; };
-		34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */; };
 		34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */; };
 		34B4CC852B1E661B00FAAB48 /* RouteDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */; };
 		34B4CC872B1E69BB00FAAB48 /* LicenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */; };
@@ -232,6 +232,7 @@
 		345DA1EC2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenterAlignementLabelStyle.swift; sourceTree = "<group>"; };
 		345DA1EE2BC570E0002FB283 /* View+onReceive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+onReceive.swift"; sourceTree = "<group>"; };
 		345DA1F02BC57754002FB283 /* CancelDownloadContextMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelDownloadContextMenuView.swift; sourceTree = "<group>"; };
+		345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+conditionnalFilter.swift"; sourceTree = "<group>"; };
 		345DC3052AE45E2B007AE044 /* Atwy.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Atwy.xcdatamodel; sourceTree = "<group>"; };
 		345DC3082AE45FB3007AE044 /* DISCLAIMER.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DISCLAIMER.md; sourceTree = "<group>"; };
 		345DC30B2AE538A2007AE044 /* SheetsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetsModel.swift; sourceTree = "<group>"; };
@@ -263,7 +264,6 @@
 		349ED1562BA4FA7300F4B805 /* BackgroundFetchOperation+defaultImplementations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundFetchOperation+defaultImplementations.swift"; sourceTree = "<group>"; };
 		349ED1582BA4FAA600F4B805 /* BackgroundFetchActivity+defaultImplementations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundFetchActivity+defaultImplementations.swift"; sourceTree = "<group>"; };
 		34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileManagerModel.swift; sourceTree = "<group>"; };
-		34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewModel.swift; sourceTree = "<group>"; };
 		34B4CC822B1E659D00FAAB48 /* View+routeTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+routeTo.swift"; sourceTree = "<group>"; };
 		34B4CC842B1E661B00FAAB48 /* RouteDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteDestination.swift; sourceTree = "<group>"; };
 		34B4CC862B1E69BB00FAAB48 /* LicenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseView.swift; sourceTree = "<group>"; };
@@ -477,7 +477,6 @@
 				3457B4822AE432BF00390A5A /* DownloadingsModel.swift */,
 				34B5FDE72ADA856600367036 /* IsUserTypingModel.swift */,
 				349ED12E2BA38ADE00F4B805 /* LiveActivitesManager.swift */,
-				34B4CC802B1E639800FAAB48 /* MainTabViewModel.swift */,
 				34B5FDD02ADA856300367036 /* NetworkReachabilityModel.swift */,
 				345DC3112AE53ECC007AE044 /* PopupsModel.swift */,
 				3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */,
@@ -594,6 +593,7 @@
 				3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */,
 				3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */,
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
+				345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -848,7 +848,6 @@
 				34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */,
 				34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */,
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
-				34B4CC812B1E639800FAAB48 /* MainTabViewModel.swift in Sources */,
 				34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */,
 				349ED1502BA4D96100F4B805 /* BackgroundFetchActivity.swift in Sources */,
 				345DC30C2AE538A2007AE044 /* SheetsModel.swift in Sources */,
@@ -924,6 +923,7 @@
 				34B8B2DD2AE0265200C5C07C /* DownloadedVideo+CoreDataClass.swift in Sources */,
 				340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */,
 				3417B2122BAA07C5001D354C /* YTAVPlayerItem.swift in Sources */,
+				345DA1F52BC5C0C9002FB283 /* Collection+conditionnalFilter.swift in Sources */,
 				347668AA2B0A834D001D2522 /* AddToFavoriteWidgetView.swift in Sources */,
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
 				349ED1552BA4FA4F00F4B805 /* BackgroundFetchOperation.swift in Sources */,
@@ -1173,7 +1173,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy.AtwyWidgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1205,7 +1205,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "Antoine-Bollengier.Atwy.AtwyWidgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
