@@ -25,6 +25,8 @@ extension Notification.Name {
     static let atwyAVPlayerEnded = Notification.Name("AVPlayerEnded")
     
     static let atwyPopup = Notification.Name("Popup")
+    
+    static let atwyDismissPlayerSheet = Notification.Name("DismissPlayerSheet")
         
     static func atwyDownloadingChanged(for videoId: String) -> Notification.Name { return .init("DownloadingChanged\(videoId)") }
 }

@@ -63,8 +63,8 @@ class DownloadingsModel: ObservableObject, HLSDownloaderDelegate {
         DispatchQueue.main.async {
             self.downloadings.updateValue(downloader, forKey: downloader.video.videoId)
             downloader.downloaderState = .waiting // fires launchDownloads
+            NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.video.videoId), object: nil)
         }
-        NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.video.videoId), object: nil)
     }
         
     public func cancelDownloadFor(videoId: String) {

@@ -28,6 +28,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     #endif
     var isLoadingVideo: Bool { self.loadingVideo != nil }
     @Published private(set) var loadingVideo: YTVideo? = nil
+    private var loadingVideoTask: Task<Void, Never>? = nil
     
     @Published var isFetchingAppreciation: Bool = false
     @Published private(set) var currentItem: YTAVPlayerItem? = nil
@@ -138,10 +139,10 @@ class VideoPlayerModel: NSObject, ObservableObject {
         guard loadingVideo?.videoId != video.videoId, self.currentItem?.videoId != video.videoId else { return }
         self.deleteCurrentVideo()
         self.loadingVideo = video
-        Task {
+        self.loadingVideoTask = Task {
             do {
                 let newItem = try await YTAVPlayerItem(video: video)
-                guard self.loadingVideo?.videoId == newItem.videoId else { return }
+                guard self.loadingVideo?.videoId == video.videoId else { return }
                 // Not enabled for the moment
                 // https://stackoverflow.com/questions/47953605/avplayer-play-network-video-with-separate-audio-url-without-downloading-the-fi
                 //                    if let otherLanguageAudio = streamingInfos.downloadFormats.first(where: { audioFormat in
@@ -231,12 +232,16 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     self.objectWillChange.send()
                 }
             } catch {
+                guard self.loadingVideo?.videoId == video.videoId else { return }
                 print("Error while trying to load video: \(error)")
+                NotificationCenter.default.post(name: .atwyDismissPlayerSheet, object: nil)
             }
         }
     }
 
     public func deleteCurrentVideo() {
+        self.loadingVideoTask?.cancel()
+        self.loadingVideoTask = nil
         self.loadingVideo = nil
         self.player.removeAllItems()
         self.isFetchingAppreciation = false

@@ -1,5 +1,5 @@
 //
-//  NetworkReachability.swift
+//  NetworkReachabilityModel.swift
 //  Atwy
 //
 //  Created by Antoine Bollengier on 02.12.22.

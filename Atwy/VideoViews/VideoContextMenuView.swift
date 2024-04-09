@@ -17,6 +17,8 @@ struct VideoContextMenuView: View {
     var videoThumbnailData: Data?
     let isFavorite: Bool
     let isDownloaded: Bool
+    
+    @State private var downloader: HLSDownloader? = nil
     var body: some View {
         Group {
             Section {
@@ -83,11 +85,21 @@ struct VideoContextMenuView: View {
                      Text("Export")
                      }
                      */
+                } else if let downloader = self.downloader {
+                    CancelDownloadContextMenuView(downloader: downloader)
                 } else {
                     DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
                 }
             }
         }
+        .onAppear {
+            if let downloader = DownloadingsModel.shared.downloadings[video.videoId] {
+                self.downloader = downloader
+            }
+        }
+        .onReceive(of: .atwyDownloadingChanged(for: video.videoId), handler: { _ in
+            self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
+        })
     }
     
     /* to be activated later

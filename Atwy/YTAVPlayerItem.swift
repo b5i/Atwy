@@ -49,7 +49,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
         } catch {
-            print("Error while trying to load video: \(error)")
+            print("Error while trying to load video (audio): \(error)")
         }
 #endif
 

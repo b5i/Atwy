@@ -29,7 +29,7 @@ struct AtwyApp: App {
             DownloadingsProgressActivity.registerTask()
         }
         Task {
-            FileManagerModel.shared.fetchNewDownloadedVideosPaths()
+            FileManagerModel.shared.updateNewDownloadPathsAndCleanUpFiles()
         }
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
