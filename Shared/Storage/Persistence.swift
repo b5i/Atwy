@@ -306,39 +306,7 @@ class PersistenceModel: ObservableObject {
     }
     
     public func removeDownloadFromCoreData(videoId: String) {
-        let backgroundContext = self.controller.container.newBackgroundContext()
-        backgroundContext.perform {
-            let fetchRequest = DownloadedVideo.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
-            
-            do {
-                let result = try backgroundContext.fetch(fetchRequest)
-                                
-                for video in result {
-                    if FileManager.default.fileExists(atPath: video.storageLocation.absoluteString) {
-                        FileManagerModel.shared.removeVideoDownload(videoId: video.videoId)
-                    }
-                    if let channel = video.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
-                        backgroundContext.delete(channel)
-                    }
-                    backgroundContext.delete(video)
-                }
-                
-                try backgroundContext.save()
-                
-                
-                NotificationCenter.default.post(
-                    name: .atwyCoreDataChanged,
-                    object: nil
-                )
-                
-                self.currentData.removeDownloadedVideo(videoId: videoId)
-                 
-                self.update()
-            } catch {
-                print(error)
-            }
-        }
+        self.removeDownloadsFromCoreData(videoIds: [videoId])
     }
     
     public func removeDownloadsFromCoreData(videoIds: [String]) {
@@ -352,14 +320,14 @@ class PersistenceModel: ObservableObject {
                                 
                 for video in result {
                     if videoIds.contains(video.videoId) {
+                        if FileManager.default.fileExists(atPath: video.storageLocation.path()) {
+                            FileManagerModel.shared.removeVideoDownload(videoId: video.videoId)
+                        }
+                        
                         if let channel = video.channel, channel.favoritesArray.isEmpty, channel.videosArray.count == 1 {
                             backgroundContext.delete(channel)
                         }
                         backgroundContext.delete(video)
-                        
-                        if FileManager.default.fileExists(atPath: video.storageLocation.absoluteString) {
-                            FileManagerModel.shared.removeVideoDownload(videoId: video.videoId)
-                        }
                         
                         self.currentData.removeDownloadedVideo(videoId: video.videoId)
                     }

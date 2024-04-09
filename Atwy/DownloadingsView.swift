@@ -107,16 +107,9 @@ struct DownloadingsView: View {
             ShowSettingsButtonView()
         }
         .padding(.vertical)
-        .onAppear {
-            self.observer = NotificationCenter.default.addObserver(forName: .atwyNoDownloadingsLeft, object: nil, queue: nil, using: { _ in
-                dismiss()
-            })
-        }
-        .onDisappear {
-            if let observer = self.observer {
-                NotificationCenter.default.removeObserver(observer)
-            }
-        }
+        .onReceive(of: .atwyNoDownloadingsLeft, handler: { _ in
+            dismiss()
+        })
     }
 
     private func deleteItem(at offsets: IndexSet) {

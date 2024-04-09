@@ -13,9 +13,9 @@ class FileManagerModel: ObservableObject {
     @Published var filesRemovedProgress: Bool = false
     
     
-    func fetchNewDownloadedVideosPaths() {
+    func updateNewDownloadPathsAndCleanUpFiles() {
 #if !os(macOS)
-        let (currentVideos, fetchResult) = getDownloadedVideosPath()
+        let (currentVideos, fetchResult) = getDownloadedVideosPathAndCleanUp()
         var downloadsToModify: [(videoId: String, newLocation: URL)] = []
         var downloadsToRemove: [String] = [] // array of videoIds
         for video in fetchResult {
@@ -34,7 +34,7 @@ class FileManagerModel: ObservableObject {
 #endif
     }
     
-    func getDownloadedVideosPath() -> (newURLs: [URL], currentStates: [PersistenceModel.PersistenceData.VideoIdAndLocation]) {
+    func getDownloadedVideosPathAndCleanUp() -> (newURLs: [URL], currentStates: [PersistenceModel.PersistenceData.VideoIdAndLocation]) {
         var files = getAllFiles()
         let coreDataVideos = removeNonDownloadedVideos(fileList: &files)
         return (files, coreDataVideos)

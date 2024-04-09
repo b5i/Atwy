@@ -15,7 +15,7 @@ import YouTubeKit
 
 struct WatchVideoView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @State private var topColorGradient: LinearGradient = .init(colors: [.gray, .white], startPoint: .leading, endPoint: .trailing)
     @State private var bottomColorGradient: LinearGradient = .init(colors: [.gray, .white], startPoint: .leading, endPoint: .trailing)
     @State private var animationColors: [Color] = [.white, .gray, .white, .gray]
@@ -91,18 +91,11 @@ struct WatchVideoView: View {
                                         .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
                                         .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
                                         .shadow(radius: 10)
-                                        .onAppear {
+                                        .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
                                             if UIApplication.shared.applicationState == .background {
-                                                self.observer = NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil, using: { _ in
-                                                    presentationMode.wrappedValue.dismiss()
-                                                })
+                                                dismiss()
                                             }
-                                        }
-                                        .onDisappear {
-                                            if let observer = self.observer {
-                                                NotificationCenter.default.removeObserver(observer)
-                                            }
-                                        }
+                                        })
                                     } else if VPM.isLoadingVideo {
                                         LoadingView()
                                             .tint(.white)
@@ -381,6 +374,9 @@ struct WatchVideoView: View {
                 .zIndex(1)
             }
         }
+        .onReceive(of: .atwyDismissPlayerSheet, handler: { _ in
+            dismiss()
+        })
 //        .task {
 //            if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
 //                URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in

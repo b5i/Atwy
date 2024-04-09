@@ -48,17 +48,11 @@ struct DownloadButtonView: View {
         .onAppear {
             if let downloader = DownloadingsModel.shared.downloadings[video.videoId] {
                 self.downloader = downloader
-            } else {
-                self.observer = NotificationCenter.default.addObserver(forName: .atwyDownloadingChanged(for: video.videoId), object: nil, queue: nil, using: { _ in
-                    self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
-                })
             }
         }
-        .onDisappear {
-            if let observer = self.observer {
-                NotificationCenter.default.removeObserver(observer)
-            }
-        }
+        .onReceive(of: .atwyDownloadingChanged(for: video.videoId), handler: { _ in
+            self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
+        })
     }
     
     struct StateWithDownloaderView<Success: View, Waiting: View, Downloading: View, Failed: View>: View {
