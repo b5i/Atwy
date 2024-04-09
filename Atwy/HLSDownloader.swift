@@ -154,13 +154,13 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
             }
             self.startedEndProcedure = false
         }
-        
+
         let backgroundConfiguration = URLSessionConfiguration.background(
             withIdentifier: UUID().uuidString) // !!!!!!!!!!!!!!! il doit être différent pour chaque download !
         let assetDownloadURLSession = AVAssetDownloadURLSession(
             configuration: backgroundConfiguration,
             assetDownloadDelegate: self,
-            delegateQueue: OperationQueue.main
+            delegateQueue: nil
         )
         
         self.videoDescription = videoDescription

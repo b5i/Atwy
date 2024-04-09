@@ -625,12 +625,14 @@
 		34BA6E412B9F309C0020EF41 /* VideoViews */ = {
 			isa = PBXGroup;
 			children = (
+				34BA6E472BA3207C0020EF41 /* AddToFavoritesButtonView.swift */,
 				34B5FDA62ADA851600367036 /* AddToFavoritesContextButtonView.swift */,
 				34B5FDA72ADA851600367036 /* AddToPlaylistContextMenuButtonView.swift */,
 				34B5FDA82ADA851600367036 /* AddToPlaylistSwipeActionButtonView.swift */,
 				34B5FDA32ADA851600367036 /* AddToPlaylistView.swift */,
 				34B5FDA22ADA851600367036 /* AddToQueueContextMenuButtonView.swift */,
 				34B5FDA52ADA851600367036 /* AddToQueueSwipeActionButtonsView.swift */,
+				345DA1F02BC57754002FB283 /* CancelDownloadContextMenuView.swift */,
 				34B5FDE52ADA856600367036 /* DeleteFromFavoritesView.swift */,
 				3459BDBD2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift */,
 				34B5FDFB2ADA856800367036 /* DownloadButtonView.swift */,
@@ -646,8 +648,6 @@
 				3459BDBB2AE165D1001859D8 /* VideoCustomContextMenu.swift */,
 				34B5FDFA2ADA856800367036 /* VideoFromSearchView.swift */,
 				34B5FDE22ADA856500367036 /* VideoView.swift */,
-				34BA6E472BA3207C0020EF41 /* AddToFavoritesButtonView.swift */,
-				345DA1F02BC57754002FB283 /* CancelDownloadContextMenuView.swift */,
 			);
 			path = VideoViews;
 			sourceTree = "<group>";

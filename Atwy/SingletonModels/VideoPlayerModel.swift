@@ -31,7 +31,11 @@ class VideoPlayerModel: NSObject, ObservableObject {
     private var loadingVideoTask: Task<Void, Never>? = nil
     
     @Published var isFetchingAppreciation: Bool = false
-    @Published private(set) var currentItem: YTAVPlayerItem? = nil
+    @Published private(set) var currentItem: YTAVPlayerItem? = nil {
+        didSet {
+            self.player.updateEndAction()
+        }
+    }
     
     private var subscriptions = Set<AnyCancellable>()
 
@@ -115,6 +119,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     func addItemToBottomQueue(item: YTAVPlayerItem) {
         self.player.insert(item, after: self.player.items().last)
+        self.player.updateEndAction()
     }
     
     
@@ -124,7 +129,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         } else {
             Task {
                 if let item = try? await YTAVPlayerItem(video: video) {
-                    VideoPlayerModel.shared.addItemToTopQueue(item: item)
+                    self.addItemToTopQueue(item: item)
                 }
             }
         }
@@ -132,6 +137,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     func addItemToTopQueue(item: YTAVPlayerItem) {
         self.player.insert(item, after: nil)
+        self.player.updateEndAction()
     }
     
     /// `seekTo`: Variable that will make the player seek to that time (in seconds) as soon as it has loaded the video.
@@ -220,13 +226,12 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                        }
                 //                    } else {
                 
-                
                 self.player.replaceCurrentItem(with: newItem)
+                self.player.updateEndAction()
                 if let seekTo = seekTo {
                     await self.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
                 }
                 self.player.play()
-                
                 DispatchQueue.main.async {
                     self.loadingVideo = nil
                     self.objectWillChange.send()

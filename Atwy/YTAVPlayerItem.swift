@@ -67,6 +67,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
         } else {
+            guard NetworkReachabilityModel.shared.connected else { throw "Attempted to load a non-downloaded video while being offline." }
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }

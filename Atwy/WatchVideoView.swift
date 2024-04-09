@@ -24,7 +24,6 @@ struct WatchVideoView: View {
     @State private var animateEndPoint: UnitPoint = .bottomTrailing
     @State private var showQueue: Bool = false
     @State private var showDescription: Bool = false
-    @State private var observer: (any NSObjectProtocol)? = nil
     @Namespace private var animation
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared

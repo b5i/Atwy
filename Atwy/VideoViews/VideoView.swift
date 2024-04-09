@@ -370,36 +370,41 @@ struct VideoView2: View {
                     .frame(width: geometry.size.width)
 //                    .background(Color(uiColor: .init(red: 10/255, green: 10/255, blue: 10/255, alpha: 1)))
                 HStack(spacing: 0) {
-                    if let ownerThumbnailData = ownerThumbnailData, let image = UIImage(data: ownerThumbnailData) {
-                        VStack {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: geometry.size.width * 0.11)
-                                .clipShape(Circle())
-                            Spacer()
-                        }
-                        .frame(width: geometry.size.width * 0.12, alignment: .leading)
-                        .padding(.top, 3)
-                    } else if let ownerThumbnailURL = video.channel?.thumbnails.last?.url {
-                        VStack {
-                            CachedAsyncImage(url: ownerThumbnailURL, content: { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: geometry.size.width * 0.11)
-                            }, placeholder: {
-                                HStack {
-                                    Spacer()
-                                    ProgressView()
+                    if let channel = video.channel {
+                        Group {
+                            if let ownerThumbnailData = ownerThumbnailData, let image = UIImage(data: ownerThumbnailData) {
+                                VStack {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: geometry.size.width * 0.11)
+                                        .clipShape(Circle())
                                     Spacer()
                                 }
-                            })
-                            .clipShape(Circle())
-                            Spacer()
+                                .frame(width: geometry.size.width * 0.12, alignment: .leading)
+                                .padding(.top, 3)
+                            } else if let ownerThumbnailURL = video.channel?.thumbnails.last?.url {
+                                VStack {
+                                    CachedAsyncImage(url: ownerThumbnailURL, content: { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: geometry.size.width * 0.11)
+                                    }, placeholder: {
+                                        HStack {
+                                            Spacer()
+                                            ProgressView()
+                                            Spacer()
+                                        }
+                                    })
+                                    .clipShape(Circle())
+                                    Spacer()
+                                }
+                                .frame(width: geometry.size.width * 0.12, alignment: .leading)
+                                .padding(.top, 3)
+                            }
                         }
-                        .frame(width: geometry.size.width * 0.12, alignment: .leading)
-                        .padding(.top, 3)
+                        .routeTo(.channelDetails(channel: channel))
                     }
                     VStack(alignment: .leading) {
                         Text(video.title ?? "")

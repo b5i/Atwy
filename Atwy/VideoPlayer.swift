@@ -136,7 +136,9 @@ struct PlayerViewController: View {
 
 
 class CustomAVPlayer: AVQueuePlayer {
-    var imageData: Data?
+    func updateEndAction() {
+        self.actionAtItemEnd = self.items().count < 2 ? .pause : .advance
+    }
 }
 
 extension UIView {    
