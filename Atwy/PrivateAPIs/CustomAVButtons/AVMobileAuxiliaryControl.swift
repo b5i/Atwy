@@ -15,7 +15,7 @@ class AVMobileAuxiliaryControl {
     
     let control: NSObject
     let button: AnyObject?
-    var priority: Int {
+    var priority: Int = 0 {
         didSet {
             self.setupPriorityObserver()
         }
@@ -24,16 +24,23 @@ class AVMobileAuxiliaryControl {
     private var priorityObserver: AnyCancellable? = nil
     
     init(button: AVMenuButton, priority: Int, controlName: String, manager: CustomAVButtonsManager) {
+        defer {
+            self.priority = priority
+        }
+        
         self.manager = manager
         
         // (@convention(c) (NSObject.Type, Selector, UIView, Int, NSString) -> NSObject).self
         self.control = manager.AVMobileAuxiliaryControlClass.perform(manager.AVMobileAuxiliaryControlInitWithViewSelector, with: button.button, with: priority, with: controlName as NSString).takeUnretainedValue() as! NSObject
         self.button = button
-        self.priority = priority
         self.setIncluded(true)
     }
     
     init(button: AVButton, priority: Int, controlName: String, manager: CustomAVButtonsManager) {
+        defer {
+            self.priority = priority
+        }
+        
         self.manager = manager
         
         // (@convention(c) (NSObject.Type, Selector, UIView, Int, NSString) -> NSObject).self
@@ -44,6 +51,10 @@ class AVMobileAuxiliaryControl {
     }
     
     init(priority: Int, controlName: String, manager: CustomAVButtonsManager) {
+        defer {
+            self.priority = priority
+        }
+        
         self.manager = manager
         
         // (@convention(c) (NSObject.Type, Selector, Int, NSString) -> NSObject).self
