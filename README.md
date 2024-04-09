@@ -12,6 +12,9 @@ An app to watch YouTube with some nice features like:
 - Live Activities for downloads
 - Very lightweight
 
+## Troubleshooting
+If the app crash in a reproducible way, make sure to disable all Private APIs in the settings and raise an issue indicating whether those APIs were the reason of the crash.
+
 ## Disclaimer
 Make sure you check the [Disclaimer](https://github.com/b5i/Atwy/blob/main/DISCLAIMER.md), you are solely responsible of your usage of Atwy. Make sure using it is legal in your region/country.
  

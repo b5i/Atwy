@@ -89,6 +89,23 @@ class PreferencesStorageModel: ObservableObject {
                 return Int.self
             }
         }
+        
+        func getDefaultValue() -> any Codable {
+            switch self {
+            case .favoritesSortingMode, .downloadsSortingMode:
+                return SortingModes.newest
+            case .videoViewMode:
+                return VideoViewModes.fullThumbnail
+            case .performanceMode:
+                return PerformanceModes.full
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled:
+                return true
+            case .isLoggerActivated, .showCredentials:
+                return false
+            case .loggerCacheLimit:
+                return 5
+            }
+        }
     }
 }
 

@@ -23,7 +23,8 @@ struct LoggerSettingsView: View {
         if let state = PreferencesStorageModel.shared.propetriesState[.showCredentials] as? Bool {
             self._showCredentials = State(wrappedValue: state)
         } else {
-            self._showCredentials = State(wrappedValue: false)
+            let defaultMode = PreferencesStorageModel.Properties.showCredentials.getDefaultValue() as? Bool ?? true
+            self._showCredentials = State(wrappedValue: defaultMode)
         }
     }
     
@@ -63,7 +64,7 @@ struct LoggerSettingsView: View {
                     if self.logger.maximumCacheSize != nil {
                         VStack {
                             let cacheLimitBinding: Binding<Int> = Binding(get: {
-                                self.logger.maximumCacheSize ?? 5
+                                self.logger.maximumCacheSize ?? PreferencesStorageModel.Properties.loggerCacheLimit.getDefaultValue() as? Int ?? 5
                             }, set: { newValue in
                                 self.logger.setCacheSize(max(newValue, 0))
                             })
@@ -142,7 +143,7 @@ struct LoggerSettingsView: View {
                     if let state = self.PSM.propetriesState[.showCredentials] as? Bool {
                         self.showCredentials = state
                     } else {
-                        self.showCredentials = false
+                        self.showCredentials = PreferencesStorageModel.Properties.showCredentials.getDefaultValue() as? Bool ?? true
                     }
                 }
             }

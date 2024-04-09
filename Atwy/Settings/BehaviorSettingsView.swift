@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct BehaviorSettingsView: View {
+    typealias PerformanceModes = PreferencesStorageModel.Properties.PerformanceModes
+    
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     @State private var performanceChoice: PreferencesStorageModel.Properties.PerformanceModes
@@ -17,25 +19,29 @@ struct BehaviorSettingsView: View {
     
     init() {
         /// Maybe using AppStorage would be better
-        if let state = PreferencesStorageModel.shared.propetriesState[.performanceMode] as? PreferencesStorageModel.Properties.PerformanceModes {
+        if let state = PreferencesStorageModel.shared.propetriesState[.performanceMode] as? PerformanceModes {
             self._performanceChoice = State(wrappedValue: state)
         } else {
-            self._performanceChoice = State(wrappedValue: .full)
+            let defaultMode = PreferencesStorageModel.Properties.performanceMode.getDefaultValue() as? PerformanceModes ?? .full
+            self._performanceChoice = State(wrappedValue: defaultMode)
         }
         if let state = PreferencesStorageModel.shared.propetriesState[.liveActivitiesEnabled] as? Bool {
             self._liveActivities = State(wrappedValue: state)
         } else {
-            self._liveActivities = State(wrappedValue: true)
+            let defaultMode = PreferencesStorageModel.Properties.liveActivitiesEnabled.getDefaultValue() as? Bool ?? true
+            self._liveActivities = State(wrappedValue: defaultMode)
         }
         if let state = PreferencesStorageModel.shared.propetriesState[.automaticPiP] as? Bool {
             self._automaticPiP = State(wrappedValue: state)
         } else {
-            self._automaticPiP = State(wrappedValue: true)
+            let defaultMode = PreferencesStorageModel.Properties.automaticPiP.getDefaultValue() as? Bool ?? true
+            self._automaticPiP = State(wrappedValue: defaultMode)
         }
         if let state = PreferencesStorageModel.shared.propetriesState[.backgroundPlayback] as? Bool {
             self._backgroundPlayback = State(wrappedValue: state)
         } else {
-            self._backgroundPlayback = State(wrappedValue: true)
+            let defaultMode = PreferencesStorageModel.Properties.backgroundPlayback.getDefaultValue() as? Bool ?? true
+            self._backgroundPlayback = State(wrappedValue: defaultMode)
         }
     }
     var body: some View {
@@ -168,17 +174,22 @@ struct BehaviorSettingsView: View {
                 if let state = PreferencesStorageModel.shared.propetriesState[.performanceMode] as? PreferencesStorageModel.Properties.PerformanceModes {
                     self.performanceChoice = state
                 } else {
-                    self.performanceChoice = .full
+                    self.performanceChoice = PreferencesStorageModel.Properties.performanceMode.getDefaultValue() as? PerformanceModes ?? .full
+                }
+                if let state = PreferencesStorageModel.shared.propetriesState[.liveActivitiesEnabled] as? Bool {
+                    self.liveActivities = state
+                } else {
+                    self.liveActivities = PreferencesStorageModel.Properties.liveActivitiesEnabled.getDefaultValue() as? Bool ?? true
                 }
                 if let state = PreferencesStorageModel.shared.propetriesState[.automaticPiP] as? Bool {
                     self.automaticPiP = state
                 } else {
-                    self.automaticPiP = true
+                    self.automaticPiP = PreferencesStorageModel.Properties.automaticPiP.getDefaultValue() as? Bool ?? true
                 }
                 if let state = PreferencesStorageModel.shared.propetriesState[.backgroundPlayback] as? Bool {
                     self.backgroundPlayback = state
                 } else {
-                    self.backgroundPlayback = true
+                    self.backgroundPlayback = PreferencesStorageModel.Properties.backgroundPlayback.getDefaultValue() as? Bool ?? true
                 }
             }
         }

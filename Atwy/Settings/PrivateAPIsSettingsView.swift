@@ -19,7 +19,8 @@ struct PrivateAPIsSettingsView: View {
         if let state = PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool {
             self._customAVButtons = State(wrappedValue: state)
         } else {
-            self._customAVButtons = State(wrappedValue: false)
+            let defaultMode = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
+            self._customAVButtons = State(wrappedValue: defaultMode)
         }
     }
     var body: some View {
@@ -59,7 +60,7 @@ struct PrivateAPIsSettingsView: View {
                 if let state = PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool {
                     self.customAVButtons = state
                 } else {
-                    self.customAVButtons = false
+                    self.customAVButtons = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
                 }
             }
         }

@@ -11,20 +11,20 @@ import YouTubeKit
 struct PrivacyIconView: View {
     @State var privacy: YTPrivacy
     var body: some View {
-        switch privacy {
-        case .private:
-            privacyIcon("lock.fill")
-        case .unlisted:
-            privacyIcon("link")
-        case .public:
-            privacyIcon("globe")
-        }
-    }
-    
-    @ViewBuilder func privacyIcon(_ privacyIconName: String) -> some View {
-        Image(systemName: privacyIconName)
+        Image(systemName: Self.getIconNameForPrivacyType(self.privacy))
             .resizable()
             .scaledToFit()
             .frame(width: 20, height: 20)
+    }
+    
+    static func getIconNameForPrivacyType(_ type: YTPrivacy) -> String {
+        switch type {
+        case .private:
+            return "lock.fill"
+        case .public:
+            return "globe"
+        case .unlisted:
+            return "link"
+        }
     }
 }
