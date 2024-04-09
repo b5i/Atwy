@@ -20,7 +20,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     var streamingInfos: VideoInfosResponse
     
     var isFetchingMoreVideoInfos: Bool = false
-    var moreVideoInfos: MoreVideoInfosResponse? = nil {
+    @Published private(set) var moreVideoInfos: MoreVideoInfosResponse? = nil {
         didSet {
             // just modify the chapter's url because they could have some thumbnailData
             if let chapters = self.chapters, self.moreVideoInfos?.chapters?.map({$0.startTimeSeconds}) == chapters.map({$0.time}) {
@@ -67,7 +67,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
         } else {
-            self.streamingInfos = try await video.fetchStreamingInfos(youtubeModel: YTM)
+            self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }
         super.init(asset: AVURLAsset(url: url), automaticallyLoadedAssetKeys: nil)
@@ -93,7 +93,10 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         self.isFetchingMoreVideoInfos = true
         
         Task {
-            self.moreVideoInfos = try await video.fetchMoreInfos(youtubeModel: YTM)
+            let moreVideoInfosResponse = try await video.fetchMoreInfosThrowing(youtubeModel: YTM)
+            DispatchQueue.main.async {
+                self.moreVideoInfos = moreVideoInfosResponse
+            }
             if let thumbnailURL = self.video.thumbnails.last ?? self.streamingInfos.thumbnails.last {
                 let fetchThumbnailOperation = DownloadImageOperation(imageURL: thumbnailURL.url)
                 fetchThumbnailOperation.completionBlock = {
@@ -108,9 +111,19 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.addMetadatas()
             self.isFetchingMoreVideoInfos = false
             
-            DispatchQueue.main.async {
-                self.objectWillChange.send()
-            }
+            self.update()
+        }
+    }
+    
+    func setNewLikeStatus(_ likeStatus: MoreVideoInfosResponse.AuthenticatedData.LikeStatus) {
+        DispatchQueue.main.async {
+            self.moreVideoInfos?.authenticatedInfos?.likeStatus = likeStatus
+        }
+    }
+    
+    func setNewSubscriptionStatus(_ isSubscribed: Bool) {
+        DispatchQueue.main.async {
+            self.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = isSubscribed
         }
     }
     
@@ -155,6 +168,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         let artwork = createArtworkItem(imageData: imageData)
         self.externalMetadata.removeAll(where: {$0.identifier == .commonIdentifierArtwork})
         self.externalMetadata.append(artwork)
+    }
+    
+    private func update() {
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
     }
     
     public struct Chapter {

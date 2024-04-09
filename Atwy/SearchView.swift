@@ -211,7 +211,7 @@ struct SearchView: View {
                 self.isFetching = true
                 self.error = nil
             }
-            HomeScreenResponse.sendRequest(youtubeModel: YTM, data: [:], result: { result in
+            HomeScreenResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { result in
                 switch result {
                 case .success(let response):
                     self.homeResponse = response
@@ -237,7 +237,7 @@ struct SearchView: View {
                     self.isFetchingContination = true
                 }
                 
-                HomeScreenResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
+                HomeScreenResponse.Continuation.sendNonThrowingRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
                     switch result {
                     case .success(let response):
                         self.homeResponse?.mergeContinuation(response)
@@ -269,7 +269,7 @@ struct SearchView: View {
                 self.isFetching = true
                 self.error = nil
             }
-            SearchResponse.sendRequest(youtubeModel: YTM, data: [.query: search], result: { result in
+            SearchResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.query: search], result: { result in
                 switch result {
                 case .success(let response):
                     self.searchResponse = response
@@ -295,7 +295,7 @@ struct SearchView: View {
                     self.isFetchingContination = true
                 }
                 
-                SearchResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
+                SearchResponse.Continuation.sendNonThrowingRequest(youtubeModel: YTM, data: [.continuation: continuationToken, .visitorData: visitorData], result: { result in
                     switch result {
                     case .success(let response):
                         self.searchResponse?.mergeContinuation(response)
@@ -323,7 +323,7 @@ struct SearchView: View {
 
     func refreshAutoCompletionEntries() {
         Task {
-            let result = try? await AutoCompletionResponse.sendRequest(youtubeModel: YTM, data: [.query: self.search])
+            let result = try? await AutoCompletionResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: self.search])
             DispatchQueue.main.async {
                 self.autoCompletion = result?.autoCompletionEntries ?? []
             }

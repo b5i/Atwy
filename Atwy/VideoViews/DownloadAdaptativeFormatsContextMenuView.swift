@@ -83,7 +83,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                 Text("Loading formats...")
                     .task {
                         if self.formats == nil {
-                            self.formats = try? await video.fetchStreamingInfosWithDownloadFormats(youtubeModel: YTM)
+                            self.formats = try? await video.fetchStreamingInfosWithDownloadFormatsThrowing(youtubeModel: YTM)
                         }
                     }
             }

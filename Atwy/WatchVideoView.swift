@@ -777,9 +777,7 @@ struct NewWatchVideoView: View {
                                         if let error = error {
                                             print("Error while unsubscribing to channel: \(error)")
                                         } else {
-                                            DispatchQueue.main.async {
-                                                currentItem.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = false
-                                            }
+                                            currentItem.setNewSubscriptionStatus(false)
                                         }
                                         DispatchQueue.main.async {
                                             self.isFetching = false
@@ -812,9 +810,7 @@ struct NewWatchVideoView: View {
                                         if let error = error {
                                             print("Error while subscribing to channel: \(error)")
                                         } else {
-                                            DispatchQueue.main.async {
-                                                currentItem.moreVideoInfos?.authenticatedInfos?.subscriptionStatus = true
-                                            }
+                                            currentItem.setNewSubscriptionStatus(true)
                                         }
                                         DispatchQueue.main.async {
                                             self.isFetching = false

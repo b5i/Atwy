@@ -174,7 +174,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         }
         Task {
             let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
-            let videoInfos = try? await self.video.fetchMoreInfos(youtubeModel: YTM)
+            let videoInfos = try? await self.video.fetchMoreInfosThrowing(youtubeModel: YTM)
             backgroundContext.performAndWait {
                 let newVideo = DownloadedVideo(context: backgroundContext)
                 newVideo.timestamp = Date()

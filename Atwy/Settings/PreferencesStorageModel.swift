@@ -73,6 +73,8 @@ class PreferencesStorageModel: ObservableObject {
         case loggerCacheLimit
         case showCredentials
         
+        case customAVButtonsEnabled
+        
         func getExpectedType() -> any Codable.Type {
             switch self {
             case .favoritesSortingMode, .downloadsSortingMode:
@@ -81,11 +83,17 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self
             }
         }
+    }
+}
+
+extension PreferencesStorageModel {
+    var customAVButtonsEnabled: Bool {
+        (PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool) ?? false
     }
 }

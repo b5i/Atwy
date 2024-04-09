@@ -142,7 +142,7 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingInfos = true
                 }
-                PlaylistInfosResponse.sendRequest(youtubeModel: YTM, data: [.browseId: playlist.playlistId], useCookies: true, result: { result in
+                PlaylistInfosResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.browseId: playlist.playlistId], useCookies: true, result: { result in
                     switch result {
                     case .success(let response):
                         DispatchQueue.main.async {
@@ -166,7 +166,7 @@ struct PlaylistDetailsView: View {
                 DispatchQueue.main.async {
                     self.isFetchingContinuation = true
                 }
-                PlaylistInfosResponse.Continuation.sendRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { result in
+                PlaylistInfosResponse.Continuation.sendNonThrowingRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { result in
                     switch result {
                     case .success(let response):
                         self.playlistInfos?.mergeWithContinuation(response)
@@ -182,7 +182,7 @@ struct PlaylistDetailsView: View {
         
         public func removeFromPlaylist(videoIdInPlaylist: String) {
             if let playlistInfos = playlistInfos, let playlistId = playlistInfos.playlistId, playlistInfos.userInteractions.isEditable ?? false {
-                RemoveVideoFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { result in
+                RemoveVideoFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: videoIdInPlaylist, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: playlistId], result: { result in
                     switch result {
                     case .success(let response):
                         if response.success, let removedVideoIndex =
@@ -205,7 +205,7 @@ struct PlaylistDetailsView: View {
                 if let videoBeforeIdInPlaylist = videoBeforeIdInPlaylist {
                     data[.videoBeforeId] = videoBeforeIdInPlaylist
                 }
-                MoveVideoInPlaylistResponse.sendRequest(youtubeModel: YTM, data: data, result: { result in
+                MoveVideoInPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: data, result: { result in
                     switch result {
                     case .success(let response):
                         if response.success {

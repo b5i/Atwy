@@ -234,7 +234,7 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isCreatingPlaylist = true
                 }
-                CreatePlaylistResponse.sendRequest(youtubeModel: YTM, data: [.query: title, .params: privacy.rawValue, .movingVideoId: video.videoId], result: { result in
+                CreatePlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.query: title, .params: privacy.rawValue, .movingVideoId: video.videoId], result: { result in
                     switch result {
                     case .success(let response):
                         if let newPlaylistId = response.createdPlaylistId {
@@ -261,7 +261,7 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isModifyingPlaylistWithId.insert(playlist.playlistId)
                 }
-                AddVideoToPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
+                AddVideoToPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
                     switch result {
                     case .success(let response):
                         if response.success, let playlistIndexToModify = self.response?.playlistsAndStatus.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {
@@ -284,7 +284,7 @@ struct AddToPlaylistView: View {
                 DispatchQueue.main.async {
                     self.isModifyingPlaylistWithId.insert(playlist.playlistId)
                 }
-                RemoveVideoByIdFromPlaylistResponse.sendRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
+                RemoveVideoByIdFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlist.playlistId], result: { result in
                     switch result {
                     case .success(let response):
                         if response.success, let playlistIndexToModify = self.response?.playlistsAndStatus.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {

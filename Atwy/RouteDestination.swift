@@ -28,6 +28,7 @@ public enum RouteDestination: Hashable {
     case appearanceSettings
     case storageSettings
     case loggerSettings
+    case privateAPIsSettings
     case licensesSettings
 }
 

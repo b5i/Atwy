@@ -193,7 +193,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     func pauseDownload() {
         DispatchQueue.main.async {
             self.downloadTask?.suspend()
-            self.downloadTaskState = self.downloadTask!.state
+            self.downloadTaskState = self.downloadTask?.state ?? .suspended
             self.downloaderState = .paused
             NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }
@@ -202,7 +202,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     func resumeDownload() {
         DispatchQueue.main.async {
             self.downloadTask?.resume()
-            self.downloadTaskState = self.downloadTask!.state
+            self.downloadTaskState = self.downloadTask?.state ?? .suspended
             self.downloaderState = .downloading
             NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
         }

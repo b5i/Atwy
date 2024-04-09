@@ -35,6 +35,8 @@ public extension View {
                 StorageSettingsView()
             case .loggerSettings:
                 LoggerSettingsView()
+            case .privateAPIsSettings:
+                PrivateAPIsSettingsView()
             case .licensesSettings:
                 LicensesView()
             }
