@@ -14,6 +14,7 @@ struct VideoContextMenuView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     let video: YTVideo
+    var disableChannelNavigation: Bool = false
     var videoThumbnailData: Data?
     let isFavorite: Bool
     let isDownloaded: Bool
@@ -26,7 +27,7 @@ struct VideoContextMenuView: View {
                     if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
                         AddToPlaylistContextMenuButtonView(video: video)
                     }
-                    if let channel = video.channel {
+                    if !self.disableChannelNavigation, let channel = video.channel {
                         GoToChannelContextMenuButtonView(channel: channel)
                     }
                 }

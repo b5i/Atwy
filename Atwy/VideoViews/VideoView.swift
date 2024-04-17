@@ -13,6 +13,7 @@ import YouTubeKit
 struct VideoView: View {
     @Environment(\.colorScheme) private var colorScheme
     let video: YTVideo
+    var disableChannelNavigation: Bool = false
     var thumbnailData: Data?
     var isShort: Bool = false
     @ObservedObject private var APIM = APIKeyModel.shared
@@ -115,85 +116,9 @@ struct VideoView: View {
                 .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
             }
             .contextMenu {
-                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
+                VideoContextMenuView(video: video, disableChannelNavigation: self.disableChannelNavigation, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
             }
-            .swipeAction(
-                leadingActions: { context in
-                    SwipeAction(
-                        action: {
-                            context.state.wrappedValue = .closed
-                            if let videoThumbnailData = thumbnailData {
-                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                            }
-                            VideoPlayerModel.shared.addVideoToTopQueue(video: video)
-                            PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
-                        },
-                        label: { _ in
-                            Image(systemName: "text.line.first.and.arrowtriangle.forward")
-                                .foregroundStyle(.white)
-                        },
-                        background: { _ in
-                            Rectangle()
-                                .fill(.purple)
-                        }
-                    )
-                    .allowSwipeToTrigger(true)
-                    SwipeAction(
-                        action: {
-                            context.state.wrappedValue = .closed
-                            if let videoThumbnailData = thumbnailData {
-                                VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                            }
-                            VideoPlayerModel.shared.addVideoToBottomQueue(video: video)
-                            PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
-                        },
-                        label: { _ in
-                            Image(systemName: "text.line.last.and.arrowtriangle.forward")
-                                .foregroundStyle(.white)
-                        },
-                        background: { _ in
-                            Rectangle()
-                                .fill(.orange)
-                        }
-                    )
-                }, trailingActions: { context in
-                    if NRM.connected {
-                        if let channel = video.channel {
-                            SwipeAction(
-                                action: {},
-                                label: { _ in
-                                    Image(systemName: "person.crop.rectangle")
-                                        .foregroundStyle(.white)
-                                },
-                                background: { _ in
-                                    Rectangle()
-                                        .fill(.cyan)
-                                        .routeTo(.channelDetails(channel: channel))
-                                        .onDisappear {
-                                            context.state.wrappedValue = .closed
-                                        }
-                                }
-                            )
-                        }
-                        if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
-                            SwipeAction(
-                                action: {
-                                    SheetsModel.shared.showSheet(.addToPlaylist, data: video)
-                                    context.state.wrappedValue = .closed
-                                },
-                                label: { _ in
-                                    Image(systemName: "plus.circle")
-                                        .foregroundStyle(.white)
-                                },
-                                background: { _ in
-                                    Rectangle()
-                                        .fill(.blue)
-                                }
-                            )
-                            .allowSwipeToTrigger()
-                        }
-                    }
-                }, minimumSwipeDistance: 50)
+            .videoSwipeActions(video: self.video, thumbnailData: self.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: self.disableChannelNavigation, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
         }
     }
     
@@ -311,6 +236,7 @@ struct VideoView: View {
 struct VideoView2: View {
     @Environment(\.colorScheme) private var colorScheme
     let video: YTVideo
+    var disableChannelNavigation: Bool = false
     var thumbnailData: Data?
     var ownerThumbnailData: Data?
     var isShort: Bool = false
@@ -400,7 +326,7 @@ struct VideoView2: View {
                                 .padding(.top, 3)
                             }
                         }
-                        .routeTo(NRM.connected ? .channelDetails(channel: channel) : nil)
+                        .routeTo(NRM.connected && !self.disableChannelNavigation ? .channelDetails(channel: channel) : nil)
                     }
                     VStack(alignment: .leading) {
                         Text(video.title ?? "")
@@ -457,7 +383,7 @@ struct VideoView2: View {
             }
             .background(colorScheme.backgroundColor)
             .contextMenu {
-                VideoContextMenuView(video: video, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
+                VideoContextMenuView(video: video, disableChannelNavigation: self.disableChannelNavigation, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
             }
 //            .contextMenuWrapper(menuItems: [
 //                UIDeferredMenuElement({ result in
@@ -469,82 +395,7 @@ struct VideoView2: View {
 //                VideoView2(video: video, thumbnailData: thumbnailData, ownerThumbnailData: ownerThumbnailData)
 //                    .frame(width: geometry.size.width, height: geometry.size.height)
 //            })
-            .swipeAction(leadingActions: { context in
-                SwipeAction(
-                    action: {
-                        if let videoThumbnailData = thumbnailData {
-                            VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                        }
-                        VideoPlayerModel.shared.addVideoToTopQueue(video: video)
-                        PopupsModel.shared.showPopup(.playNext, data: thumbnailData)
-                        context.state.wrappedValue = .closed
-                    },
-                    label: { _ in
-                        Image(systemName: "text.line.first.and.arrowtriangle.forward")
-                            .foregroundStyle(.white)
-                    },
-                    background: { _ in
-                        Rectangle()
-                            .fill(.purple)
-                    }
-                )
-                .allowSwipeToTrigger(true)
-                SwipeAction(
-                    action: {
-                        if let videoThumbnailData = thumbnailData {
-                            VideoThumbnailsManager.main.images[video.videoId] = videoThumbnailData
-                        }
-                        VideoPlayerModel.shared.addVideoToBottomQueue(video: video)
-                        PopupsModel.shared.showPopup(.playLater, data: thumbnailData)
-                        context.state.wrappedValue = .closed
-                    },
-                    label: { _ in
-                        Image(systemName: "text.line.last.and.arrowtriangle.forward")
-                            .foregroundStyle(.white)
-                    },
-                    background: { _ in
-                        Rectangle()
-                            .fill(.orange)
-                    }
-                )
-            }, trailingActions: { context in
-                if NRM.connected {
-                    if let channel = video.channel {
-                        SwipeAction(
-                            action: {},
-                            label: { _ in
-                                Image(systemName: "person.crop.rectangle")
-                                    .foregroundStyle(.white)
-                            },
-                            background: { _ in
-                                Rectangle()
-                                    .fill(.cyan)
-                                    .routeTo(.channelDetails(channel: channel))
-                                    .onDisappear {
-                                        context.state.wrappedValue = .closed
-                                    }
-                            }
-                        )
-                    }
-                    if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
-                        SwipeAction(
-                            action: {
-                                SheetsModel.shared.showSheet(.addToPlaylist, data: video)
-                                context.state.wrappedValue = .closed
-                            },
-                            label: { _ in
-                                Image(systemName: "plus.circle")
-                                    .foregroundStyle(.white)
-                            },
-                            background: { _ in
-                                Rectangle()
-                                    .fill(.blue)
-                            }
-                        )
-                        .allowSwipeToTrigger()
-                    }
-                }
-            }, minimumSwipeDistance: 50)
+            .videoSwipeActions(video: self.video, thumbnailData: self.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: self.disableChannelNavigation, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
         }
     }
 }

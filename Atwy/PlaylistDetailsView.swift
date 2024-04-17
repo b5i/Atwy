@@ -37,7 +37,8 @@ struct PlaylistDetailsView: View {
                             })
                             ElementsInfiniteScrollView(
                                 items: videosBinding,
-                                shouldReloadScrollView: $shouldReloadScrollView,
+                                shouldReloadScrollView: $shouldReloadScrollView, 
+                                disableChannelNavigation: false,
                                 fetchMoreResultsAction: {
                                     model.fetchPlaylistContinuation()
                                 }

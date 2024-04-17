@@ -12,6 +12,9 @@ import SwipeActions
 struct DefaultElementsInfiniteScrollView: View {
     @Binding var items: [any YTSearchResult]
     @Binding var shouldReloadScrollView: Bool
+    
+    let disableChannelNavigation: Bool
+    
     var fetchNewResultsAtKLast: Int = 5
     var shouldAddBottomSpacing: Bool = false // add the height of the navigationbar to the bottom
     @ObservedObject private var PSM = PreferencesStorageModel.shared
@@ -73,11 +76,11 @@ struct DefaultElementsInfiniteScrollView: View {
                                 .frame(width: geometry.size.width, height: 180, alignment: .center)
                             case let item as YTVideo:
                                 if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
-                                    VideoFromSearchView(video: item)
+                                    VideoFromSearchView(video: item, disableChannelNavigation: self.disableChannelNavigation)
                                         .frame(width: geometry.size.width, height: 180, alignment: .center)
                                 } else {
                                     // Big thumbnail view by default
-                                    VideoFromSearchView(video: item)
+                                    VideoFromSearchView(video: item, disableChannelNavigation: self.disableChannelNavigation)
                                         .frame(width: geometry.size.width, height: geometry.size.width * 9/16 + 90, alignment: .center)
                                     //                                            .padding(.bottom, resultIndex == 0 ? geometry.size.height * 0.2 : 0)
                                 }
