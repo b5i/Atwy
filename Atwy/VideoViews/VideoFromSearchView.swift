@@ -12,10 +12,11 @@ import YouTubeKit
 
 struct VideoFromSearchView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var isShort: Bool = false
-    @State var video: YTVideo
-    @State var videoThumbnailData: Data?
-    @State var channelAvatarData: Data?
+    var isShort: Bool = false
+    let video: YTVideo
+    var disableChannelNavigation: Bool = false
+    var videoThumbnailData: Data? = nil
+    var channelAvatarData: Data? = nil
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         Button {
@@ -27,13 +28,15 @@ struct VideoFromSearchView: View {
             if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
                     VideoView(
                         video: video,
-                        thumbnailData: videoThumbnailData, 
+                        disableChannelNavigation: self.disableChannelNavigation,
+                        thumbnailData: videoThumbnailData,
                         isShort: isShort
                     )
             } else {
                 // Big thumbnail view by default
                 VideoView2(
                     video: video,
+                    disableChannelNavigation: self.disableChannelNavigation,
                     thumbnailData: videoThumbnailData,
                     ownerThumbnailData: channelAvatarData,
                     isShort: isShort

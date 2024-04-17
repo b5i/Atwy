@@ -120,7 +120,8 @@ struct SearchView: View {
                         })
                         ElementsInfiniteScrollView(
                             items: itemsBinding,
-                            shouldReloadScrollView: $shouldReloadScrollView,
+                            shouldReloadScrollView: $shouldReloadScrollView, 
+                            disableChannelNavigation: false,
                             refreshAction: { endAction in
                                 withAnimation(.easeOut(duration: 0.3)) {
                                     endAction()

@@ -12,7 +12,7 @@ import YouTubeKit
 struct ChannelDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
-    @State var channel: YTLittleChannelInfos
+    let channel: YTLittleChannelInfos
     @State private var navigationTitle: String = ""
     @StateObject private var model = Model()
     @State private var needToReload: Bool = true
@@ -155,7 +155,17 @@ struct ChannelDetailsView: View {
                             } else {
                                 if model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent) != nil {
                                     let itemsBinding = Binding(get: {
-                                        return (model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent))?.items ?? []
+                                        return ((model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent))?.items ?? [])
+                                            .map({ item in
+                                                if var video = item as? YTVideo {
+                                                    video.channel?.thumbnails = self.channel.thumbnails
+                                                    return video
+                                                } else if var playlist = item as? YTPlaylist {
+                                                    playlist.channel?.thumbnails = self.channel.thumbnails
+                                                    return playlist
+                                                }
+                                                return item
+                                            }) as [any YTSearchResult]
                                     }, set: { newValue in
                                         var itemsContents = model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent)
                                         itemsContents?.items = newValue
@@ -171,6 +181,7 @@ struct ChannelDetailsView: View {
                                         ElementsInfiniteScrollView(
                                             items: itemsBinding,
                                             shouldReloadScrollView: $shouldReloadScrollView,
+                                            disableChannelNavigation: true,
                                             shouldAddBottomSpacing: true,
                                             fetchMoreResultsAction: {
                                                 if !(model.fetchingStates[selectedCategory] ?? false) {
