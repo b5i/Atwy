@@ -90,11 +90,13 @@ struct WatchVideoView: View {
                                         .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
                                         .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
                                         .shadow(radius: 10)
+                                        /* TODO: Remove that in a future version (17/04/2024)
                                         .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
                                             if UIApplication.shared.applicationState == .background {
                                                 dismiss()
                                             }
-                                        })
+                                        })*/
+                                        
                                     } else if VPM.isLoadingVideo {
                                         LoadingView()
                                             .tint(.white)

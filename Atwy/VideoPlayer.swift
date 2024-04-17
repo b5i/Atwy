@@ -26,6 +26,18 @@ struct PlayerViewController: UIViewControllerRepresentable {
     var audioSession = AVAudioSession.sharedInstance()
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
+    
+    class Model: NSObject, AVPlayerViewControllerDelegate {
+        func playerViewController(_ playerViewController: AVPlayerViewController,
+                                  restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+            SheetsModel.shared.showSheet(.watchVideo)
+            completionHandler(true)
+        }
+    }
+    
+    func makeCoordinator() -> Model {
+        return Model()
+    }
         
     func makeUIViewController(context: Context) -> AVPlayerViewController {
 //        NotificationCenter.default.addObserver(
@@ -67,6 +79,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.showsPlaybackControls = showControls
         controller.updatesNowPlayingInfoCenter = true
         controller.player = player
+        controller.delegate = context.coordinator
         
         PrivateManager.shared.avButtonsManager?.controlsView.menuState = .automatic // initialize it
         
