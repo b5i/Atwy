@@ -198,7 +198,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                                return
                 //                            }
                 //
-                //                            let contentDuration = CMTime(seconds: Double(contentDurationMilliseconds) / 1000, preferredTimescale: 1)
+                //                            let contentDuration = CMTime(seconds: Double(contentDurationMilliseconds) / 1000, preferredTimescale: 1).
                 //
                 //                            let composition = AVMutableComposition()
                 //
