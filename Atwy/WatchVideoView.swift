@@ -723,6 +723,7 @@ struct WatchVideoView: View {
                             makeGradient(image)
                         }
                     }
+                    .id(image)
             }
         }
         
