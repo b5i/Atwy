@@ -9,7 +9,7 @@ import SwiftUI
 import YouTubeKit
 
 struct GoToChannelContextMenuButtonView: View {
-    @State var channel: YTLittleChannelInfos
+    let channel: YTLittleChannelInfos
     var body: some View {
         HStack {
             Image(systemName: "person.crop.rectangle")

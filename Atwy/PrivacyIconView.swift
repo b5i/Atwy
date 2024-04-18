@@ -9,7 +9,7 @@ import SwiftUI
 import YouTubeKit
 
 struct PrivacyIconView: View {
-    @State var privacy: YTPrivacy
+    let privacy: YTPrivacy
     var body: some View {
         Image(systemName: Self.getIconNameForPrivacyType(self.privacy))
             .resizable()

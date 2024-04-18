@@ -12,7 +12,7 @@ import SwipeActions
 struct SwipeActionViewModifier<LeadingActions, TrailingActions>: ViewModifier where LeadingActions: View, TrailingActions: View {
     @ViewBuilder var leadingActions: (SwipeContext) -> LeadingActions
     @ViewBuilder var trailingActions: (SwipeContext) -> TrailingActions
-    @State var minimumSwipeDistance: CGFloat = 2
+    var minimumSwipeDistance: CGFloat = 2
     func body(content: Content) -> some View {
         SwipeView(label: {
             content

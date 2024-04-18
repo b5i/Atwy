@@ -100,7 +100,7 @@ struct PersonnalAccountView: View {
     
     private struct PlaylistsStackView: View {
         @Environment(\.colorScheme) private var colorScheme
-        @State var playlists: [YTPlaylist]
+        let playlists: [YTPlaylist]
         var body: some View {
             VStack {
                 GeometryReader { geometry in

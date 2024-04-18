@@ -10,7 +10,7 @@ import YouTubeKit
 
 struct PlaylistView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var playlist: YTPlaylist
+    let playlist: YTPlaylist
     var body: some View {
         GeometryReader { geometry in
             HStack {
@@ -80,7 +80,7 @@ struct PlaylistView: View {
     
     struct ImageOfPlaylistView: View {
         @Environment(\.colorScheme) private var colorScheme
-        @State var playlist: YTPlaylist
+        let playlist: YTPlaylist
         var body: some View {
             ZStack {
                 if !playlist.thumbnails.isEmpty, let url = playlist.thumbnails.last?.url {

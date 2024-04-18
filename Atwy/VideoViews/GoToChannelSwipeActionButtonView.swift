@@ -9,7 +9,7 @@ import SwiftUI
 import YouTubeKit
 
 struct GoToChannelSwipeActionButtonView: View {
-    @State var channel: YTLittleChannelInfos
+    @State private var channel: YTLittleChannelInfos
     var body: some View {
         ZStack {
             Rectangle()

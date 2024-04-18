@@ -92,7 +92,7 @@ struct FavoritesView: View {
 struct IsPresentedSearchableModifier: ViewModifier {
     @Binding var search: String
     @Binding var isPresented: Bool
-    @State var placement: SearchFieldPlacement = .automatic
+    var placement: SearchFieldPlacement = .automatic
     func body(content: Content) -> some View {
         Group {
             if isPresented {

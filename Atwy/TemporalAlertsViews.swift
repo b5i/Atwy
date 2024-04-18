@@ -9,9 +9,9 @@ import SwiftUI
 
 struct AlertView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State var image: String
-    @State var text: String
-    @State var imageData: Data?
+    let image: String
+    let text: String
+    let imageData: Data?
     @State private var displayIcon: Bool = false
     var body: some View {
         ZStack {
@@ -57,56 +57,56 @@ struct AlertView: View {
 }
 
 struct PlayNextAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "text.line.first.and.arrowtriangle.forward", text: "Next", imageData: imageData)
     }
 }
 
 struct PlayLaterAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "text.line.last.and.arrowtriangle.forward", text: "Later", imageData: imageData)
     }
 }
 
 struct AddedToPlaylistAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "plus.circle", text: "Added", imageData: imageData)
     }
 }
 
 struct AddedFavoritesAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "star", text: "Added to favorites", imageData: imageData)
     }
 }
 
 struct DeletedDownloadAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "trash", text: "Deleted", imageData: imageData)
     }
 }
 
 struct ResumedDownloadAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "play", text: "Resumed", imageData: imageData)
     }
 }
 
 struct PausedDownloadAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "pause", text: "Paused", imageData: imageData)
     }
 }
 
 struct CancelledDownloadAlertView: View {
-    @State var imageData: Data?
+    let imageData: Data?
     var body: some View {
         AlertView(image: "multiply.circle", text: "Cancelled", imageData: imageData)
     }

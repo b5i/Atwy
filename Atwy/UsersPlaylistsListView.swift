@@ -9,7 +9,7 @@ import SwiftUI
 import YouTubeKit
 
 struct UsersPlaylistsListView: View {
-    @State var playlists: [YTPlaylist]
+    let playlists: [YTPlaylist]
     @State private var search: String = ""
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ShareChannelView: View {
-    @State var channelID: String
+    @State private var channelID: String
     var body: some View {
         ShareLink(
             item: URL(string: "Atwy://channel?\(channelID)")!,
