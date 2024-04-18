@@ -12,8 +12,6 @@ import SwiftUI
 import MediaPlayer
 #endif
 
-var observerrr: Any?
-
 #if canImport(UIKit)
 import UIKit
 struct PlayerViewController: UIViewControllerRepresentable {
@@ -28,10 +26,61 @@ struct PlayerViewController: UIViewControllerRepresentable {
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     class Model: NSObject, AVPlayerViewControllerDelegate {
+        private var isFullScreen: Bool = false
+                
+        private var mainPlayer: AVPlayerViewController? = nil
+        
+        private var backgroundObserver: NSObjectProtocol? = nil
+                        
+        override init() {
+            super.init()
+            self.backgroundObserver = NotificationCenter.default.addObserver(forName:             UIApplication.didEnterBackgroundNotification, object: nil, queue: nil, using: { [weak self] _ in
+                if let isFullscreen = self?.mainPlayer?.value(forKey: "avkit_isEffectivelyFullScreen") as? Bool {
+                    self?.isFullScreen = isFullscreen
+                }
+            })
+        }
+        
+        deinit {
+            NotificationCenter.default.removeObserver(self.backgroundObserver as Any)
+        }
+        
         func playerViewController(_ playerViewController: AVPlayerViewController,
                                   restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+            self.mainPlayer = playerViewController
+            
             SheetsModel.shared.showSheet(.watchVideo)
-            completionHandler(true)
+            if isFullScreen { // restore the fullscreen state
+                let fullScreenEnteringCompletionBlock: (@convention(block) () -> ()) = {
+                    completionHandler(true)
+                }
+                playerViewController.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenEnteringCompletionBlock)
+            } else {
+                let fullScreenExitingCompletionBlock: (@convention(block) () -> ()) = {
+                    completionHandler(true)
+                }
+                playerViewController.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenExitingCompletionBlock)
+            }
+        }
+        
+        func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator coordinator: any UIViewControllerTransitionCoordinator) {
+            self.mainPlayer = playerViewController
+
+            self.isFullScreen = true
+        }
+        
+        func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator coordinator: any UIViewControllerTransitionCoordinator) {
+            self.mainPlayer = playerViewController
+            
+            self.isFullScreen = false
+            
+            let isPlaying = playerViewController.player?.isPlaying ?? false
+            
+            coordinator.animate(alongsideTransition: nil, completion: { _ in
+                if isPlaying {
+                    playerViewController.player?.play()
+                }
+            })
         }
     }
     

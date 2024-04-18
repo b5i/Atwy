@@ -430,6 +430,7 @@
 		344C75392BD10DE90034A53C /* PlayerView */ = {
 			isa = PBXGroup;
 			children = (
+				34B5FE022ADA856800367036 /* VideoPlayer.swift */,
 				344C753A2BD10E030034A53C /* ChannelAvatar */,
 				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
 			);
@@ -614,7 +615,6 @@
 				34B5FDE02ADA856500367036 /* URLRequestExtension.swift */,
 				34B5FDEC2ADA856600367036 /* UsersPlaylistsListView.swift */,
 				34B5FDD82ADA856400367036 /* VideoAppreciationView.swift */,
-				34B5FE022ADA856800367036 /* VideoPlayer.swift */,
 				34BA6E412B9F309C0020EF41 /* VideoViews */,
 				345DA1F22BC57920002FB283 /* ViewUtils */,
 				344C75392BD10DE90034A53C /* PlayerView */,
