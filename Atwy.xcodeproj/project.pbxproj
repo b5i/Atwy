@@ -19,6 +19,12 @@
 		3421ED642BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED632BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift */; };
 		3421ED662BB3800000F3D29D /* YTPlaylist+showShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED652BB3800000F3D29D /* YTPlaylist+showShareSheet.swift */; };
 		344C75372BD05D800034A53C /* VideoSwipeActionsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C75362BD05D800034A53C /* VideoSwipeActionsModifier.swift */; };
+		344C753C2BD10E220034A53C /* ChannelAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C753B2BD10E220034A53C /* ChannelAvatarView.swift */; };
+		344C753E2BD10E570034A53C /* OptionalItemChannelAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C753D2BD10E570034A53C /* OptionalItemChannelAvatarView.swift */; };
+		344C75402BD10EF40034A53C /* AvatarCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C753F2BD10EF40034A53C /* AvatarCircleView.swift */; };
+		344C75422BD10F0D0034A53C /* NoAvatarCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C75412BD10F0D0034A53C /* NoAvatarCircleView.swift */; };
+		344C75442BD110680034A53C /* UnknownAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C75432BD110680034A53C /* UnknownAvatarView.swift */; };
+		344C75462BD110AF0034A53C /* SubscribeButtonOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344C75452BD110AF0034A53C /* SubscribeButtonOverlayView.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
 		3457B4772AE4182300390A5A /* NoConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4762AE4182200390A5A /* NoConnectionView.swift */; };
 		3457B4792AE41C1F00390A5A /* NotConnectedToGoogleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */; };
@@ -209,6 +215,12 @@
 		3421ED652BB3800000F3D29D /* YTPlaylist+showShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YTPlaylist+showShareSheet.swift"; sourceTree = "<group>"; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		344C75362BD05D800034A53C /* VideoSwipeActionsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSwipeActionsModifier.swift; sourceTree = "<group>"; };
+		344C753B2BD10E220034A53C /* ChannelAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelAvatarView.swift; sourceTree = "<group>"; };
+		344C753D2BD10E570034A53C /* OptionalItemChannelAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalItemChannelAvatarView.swift; sourceTree = "<group>"; };
+		344C753F2BD10EF40034A53C /* AvatarCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCircleView.swift; sourceTree = "<group>"; };
+		344C75412BD10F0D0034A53C /* NoAvatarCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoAvatarCircleView.swift; sourceTree = "<group>"; };
+		344C75432BD110680034A53C /* UnknownAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownAvatarView.swift; sourceTree = "<group>"; };
+		344C75452BD110AF0034A53C /* SubscribeButtonOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeButtonOverlayView.swift; sourceTree = "<group>"; };
 		344ED4A12928D85100DB56EA /* Atwy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Atwy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3457B4762AE4182200390A5A /* NoConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoConnectionView.swift; sourceTree = "<group>"; };
 		3457B4782AE41C1F00390A5A /* NotConnectedToGoogleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotConnectedToGoogleView.swift; sourceTree = "<group>"; };
@@ -415,6 +427,27 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		344C75392BD10DE90034A53C /* PlayerView */ = {
+			isa = PBXGroup;
+			children = (
+				344C753A2BD10E030034A53C /* ChannelAvatar */,
+				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
+			);
+			path = PlayerView;
+			sourceTree = "<group>";
+		};
+		344C753A2BD10E030034A53C /* ChannelAvatar */ = {
+			isa = PBXGroup;
+			children = (
+				344C753B2BD10E220034A53C /* ChannelAvatarView.swift */,
+				344C753D2BD10E570034A53C /* OptionalItemChannelAvatarView.swift */,
+				344C753F2BD10EF40034A53C /* AvatarCircleView.swift */,
+				344C75412BD10F0D0034A53C /* NoAvatarCircleView.swift */,
+				344C75452BD110AF0034A53C /* SubscribeButtonOverlayView.swift */,
+			);
+			path = ChannelAvatar;
+			sourceTree = "<group>";
+		};
 		344ED4982928D85100DB56EA = {
 			isa = PBXGroup;
 			children = (
@@ -584,7 +617,7 @@
 				34B5FE022ADA856800367036 /* VideoPlayer.swift */,
 				34BA6E412B9F309C0020EF41 /* VideoViews */,
 				345DA1F22BC57920002FB283 /* ViewUtils */,
-				34B5FDC72ADA856200367036 /* WatchVideoView.swift */,
+				344C75392BD10DE90034A53C /* PlayerView */,
 				34B5FDF42ADA856700367036 /* WebView.swift */,
 				34B5FDF02ADA856700367036 /* YouTubeBasePlaylistView.swift */,
 				3421ED632BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift */,
@@ -596,6 +629,7 @@
 				3491FE092BB21CE70040CFAF /* YTVideo+showShareSheet.swift */,
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
 				345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */,
+				344C75432BD110680034A53C /* UnknownAvatarView.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -828,11 +862,13 @@
 				34B5FE172ADA856900367036 /* ShazamProcessing.swift in Sources */,
 				34B5FE192ADA856900367036 /* NetworkReachabilityModel.swift in Sources */,
 				3457B47B2AE41D7600390A5A /* GoogleConnectionView.swift in Sources */,
+				344C75422BD10F0D0034A53C /* NoAvatarCircleView.swift in Sources */,
 				341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */,
 				345DA1C62BB732AB002FB283 /* AVMobileAuxiliaryControlsView.swift in Sources */,
 				34B5FE1A2ADA856900367036 /* PlaylistDetailsView.swift in Sources */,
 				341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */,
 				34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */,
+				344C75402BD10EF40034A53C /* AvatarCircleView.swift in Sources */,
 				34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */,
 				349ED1532BA4F9EE00F4B805 /* DownloadingsProgressActivity.swift in Sources */,
 				3459BDBC2AE165D1001859D8 /* VideoCustomContextMenu.swift in Sources */,
@@ -850,6 +886,7 @@
 				345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */,
 				34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */,
 				34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */,
+				344C75462BD110AF0034A53C /* SubscribeButtonOverlayView.swift in Sources */,
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
 				34B5FE262ADA856900367036 /* PreferencesStorageModel.swift in Sources */,
 				349ED1502BA4D96100F4B805 /* BackgroundFetchActivity.swift in Sources */,
@@ -895,6 +932,7 @@
 				345DA1ED2BC54FDF002FB283 /* CenterAlignementLabelStyle.swift in Sources */,
 				34B5FE432ADA856900367036 /* VideoFromSearchView.swift in Sources */,
 				345DA1EF2BC570E0002FB283 /* View+onReceive.swift in Sources */,
+				344C753C2BD10E220034A53C /* ChannelAvatarView.swift in Sources */,
 				34B5FE442ADA856900367036 /* DownloadButtonView.swift in Sources */,
 				3421ED642BB37FF400F3D29D /* YouTubeChannel+showShareSheet.swift in Sources */,
 				345DA1C22BB72C5C002FB283 /* AVMobileAuxiliaryControl.swift in Sources */,
@@ -917,6 +955,7 @@
 				34B5FE4D2ADA856900367036 /* DownloadStateView.swift in Sources */,
 				34B5FE4E2ADA856900367036 /* UserPreferenceCircleView.swift in Sources */,
 				34B4CC872B1E69BB00FAAB48 /* LicenseView.swift in Sources */,
+				344C753E2BD10E570034A53C /* OptionalItemChannelAvatarView.swift in Sources */,
 				345DC3102AE53D79007AE044 /* SheetsModel+makeSheetBinding.swift in Sources */,
 				34B8B2D72AE0265200C5C07C /* DownloadedChannel+CoreDataClass.swift in Sources */,
 				34B5FE4F2ADA856900367036 /* VideoContextMenuView.swift in Sources */,
@@ -932,6 +971,7 @@
 				34B5FE512ADA856900367036 /* DownloadingItemsContextMenuView.swift in Sources */,
 				349ED1552BA4FA4F00F4B805 /* BackgroundFetchOperation.swift in Sources */,
 				34B5FE522ADA856900367036 /* DownloadingsView.swift in Sources */,
+				344C75442BD110680034A53C /* UnknownAvatarView.swift in Sources */,
 				3421ED5E2BB232EE00F3D29D /* YTVideoShareSource.swift in Sources */,
 				345DA1C42BB7304F002FB283 /* CustomAVControlOverflowButtonDelegate.swift in Sources */,
 				34B4CC832B1E659D00FAAB48 /* View+routeTo.swift in Sources */,

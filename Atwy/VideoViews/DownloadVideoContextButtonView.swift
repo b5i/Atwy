@@ -9,8 +9,8 @@ import SwiftUI
 import YouTubeKit
 
 struct DownloadVideoContextButtonView: View {
-    @State var downloadAction: ((any DownloadFormat)?) -> Void
-    @State var video: YTVideo
+    @State private var downloadAction: ((any DownloadFormat)?) -> Void
+    @State private var video: YTVideo
     var body: some View {
         Menu {
             Button {

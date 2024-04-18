@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 
 struct VideoCustomContextMenu<ProviderView>: ViewModifier where ProviderView: View {
-    @State var menuItems: [UIMenuElement]
+    let menuItems: [UIMenuElement]
     @ViewBuilder var previewProvider: () -> ProviderView
     func body(content: Content) -> some View {
         ZStack {

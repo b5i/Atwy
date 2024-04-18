@@ -11,7 +11,7 @@ import AVKit
 struct NowPlayingBarView: View {
     var sheetAnimation: Namespace.ID
     @Binding var isSheetPresented: Bool
-    @State var isSettingsSheetPresented: Bool = false
+    var isSettingsSheetPresented: Bool = false
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var PM = PersistenceModel.shared

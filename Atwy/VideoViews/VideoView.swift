@@ -124,10 +124,10 @@ struct VideoView: View {
     
     struct ImageOfVideoView: View {
         @Environment(\.colorScheme) private var colorScheme
-        @State var video: YTVideo
-        @State var thumbnailData: Data?
-        @State var isShort: Bool = false
-        @State var hqImage: Bool = false
+        let video: YTVideo
+        var thumbnailData: Data? = nil
+        var isShort: Bool = false
+        var hqImage: Bool = false
         var body: some View {
             ZStack {
                 if let thumbnailData = thumbnailData {

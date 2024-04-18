@@ -9,8 +9,8 @@ import SwiftUI
 import YouTubeKit
 
 struct DownloadOptionsView: View {
-    @State var video: YTVideo
-    @State var actionOnClick: ((any DownloadFormat)?) -> Void
+    let video: YTVideo
+    let actionOnClick: ((any DownloadFormat)?) -> Void
     @State private var content: VideoInfosWithDownloadFormatsResponse?
     var body: some View {
         VStack {
