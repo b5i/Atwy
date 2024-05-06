@@ -13,6 +13,8 @@
 		3417B2142BAA0816001D354C /* SharePlayCoordinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */; };
 		341A36382B9A1CC60047EF1B /* LoggerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */; };
 		341A363A2B9A46010047EF1B /* YouTubeModelLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */; };
+		341FB2E12BE2F5D400160A71 /* View+tappablePadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341FB2E02BE2F5D400160A71 /* View+tappablePadding.swift */; };
+		341FB2E72BE5893E00160A71 /* YTElementWithData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341FB2E62BE5893E00160A71 /* YTElementWithData.swift */; };
 		3421ED5E2BB232EE00F3D29D /* YTVideoShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */; };
 		3421ED602BB37DC800F3D29D /* YouTubeChannelShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */; };
 		3421ED622BB37DD200F3D29D /* YTPlaylistShareSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */; };
@@ -208,6 +210,8 @@
 		3417B2132BAA0816001D354C /* SharePlayCoordinationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayCoordinationManager.swift; sourceTree = "<group>"; };
 		341A36372B9A1CC60047EF1B /* LoggerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerSettingsView.swift; sourceTree = "<group>"; };
 		341A36392B9A46010047EF1B /* YouTubeModelLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModelLogger.swift; sourceTree = "<group>"; };
+		341FB2E02BE2F5D400160A71 /* View+tappablePadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+tappablePadding.swift"; sourceTree = "<group>"; };
+		341FB2E62BE5893E00160A71 /* YTElementWithData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTElementWithData.swift; sourceTree = "<group>"; };
 		3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTVideoShareSource.swift; sourceTree = "<group>"; };
 		3421ED5F2BB37DC800F3D29D /* YouTubeChannelShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeChannelShareSource.swift; sourceTree = "<group>"; };
 		3421ED612BB37DD200F3D29D /* YTPlaylistShareSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlaylistShareSource.swift; sourceTree = "<group>"; };
@@ -630,6 +634,8 @@
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
 				345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */,
 				344C75432BD110680034A53C /* UnknownAvatarView.swift */,
+				341FB2E02BE2F5D400160A71 /* View+tappablePadding.swift */,
+				341FB2E62BE5893E00160A71 /* YTElementWithData.swift */,
 			);
 			path = Atwy;
 			sourceTree = "<group>";
@@ -885,6 +891,7 @@
 				34B5FE1F2ADA856900367036 /* View+hapticFeedbackOnTap.swift in Sources */,
 				345DC3142AE54229007AE044 /* ShowSettingsButton.swift in Sources */,
 				34B5FE202ADA856900367036 /* ChannelBannerRectangleView.swift in Sources */,
+				341FB2E72BE5893E00160A71 /* YTElementWithData.swift in Sources */,
 				34B5FE212ADA856900367036 /* VideoAppreciationView.swift in Sources */,
 				344C75462BD110AF0034A53C /* SubscribeButtonOverlayView.swift in Sources */,
 				34B5FE252ADA856900367036 /* HLSDownloader.swift in Sources */,
@@ -941,6 +948,7 @@
 				34B8B2D82AE0265200C5C07C /* DownloadedChannel+CoreDataProperties.swift in Sources */,
 				34AB99AC2B1A7A460083B1DB /* FileManagerModel.swift in Sources */,
 				345DC3122AE53ECC007AE044 /* PopupsModel.swift in Sources */,
+				341FB2E12BE2F5D400160A71 /* View+tappablePadding.swift in Sources */,
 				34B5FE472ADA856900367036 /* DownloadedVideosView.swift in Sources */,
 				3459BDBE2AE3D0C1001859D8 /* DownloadAdaptativeFormatsContextMenuView.swift in Sources */,
 				34B5FE482ADA856900367036 /* ChannelAvatarCircleView.swift in Sources */,
@@ -1313,7 +1321,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = 188167f6a6d57ac14b0bae40885292d48949cc15;
+				revision = 6382cf3e99dba4a1cb91076d88a5649f7b80d638;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

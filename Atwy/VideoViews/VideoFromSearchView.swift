@@ -12,35 +12,20 @@ import YouTubeKit
 
 struct VideoFromSearchView: View {
     @Environment(\.colorScheme) private var colorScheme
-    var isShort: Bool = false
-    let video: YTVideo
-    var disableChannelNavigation: Bool = false
-    var videoThumbnailData: Data? = nil
-    var channelAvatarData: Data? = nil
+    let videoWithData: YTVideoWithData
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         Button {
-            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarData)
+            if VideoPlayerModel.shared.currentItem?.videoId != videoWithData.video.videoId {
+                VideoPlayerModel.shared.loadVideo(video: videoWithData.video, thumbnailData: self.videoWithData.data.thumbnailData, channelAvatarImageData: self.videoWithData.data.channelAvatarData)
             }
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {
             if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
-                    VideoView(
-                        video: video,
-                        disableChannelNavigation: self.disableChannelNavigation,
-                        thumbnailData: videoThumbnailData,
-                        isShort: isShort
-                    )
+                    VideoView(videoWithData: videoWithData)
             } else {
                 // Big thumbnail view by default
-                VideoView2(
-                    video: video,
-                    disableChannelNavigation: self.disableChannelNavigation,
-                    thumbnailData: videoThumbnailData,
-                    ownerThumbnailData: channelAvatarData,
-                    isShort: isShort
-                )
+                VideoView2(videoWithData: videoWithData)
             }
         }
         .padding(.horizontal, 5)

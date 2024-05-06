@@ -81,8 +81,8 @@ struct HistoryView: View {
                 Spacer()
                 
                 
-                ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video}).enumerated()), id: \.offset) { _, video in
-                    VideoFromSearchView(video: video)
+                ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video.withData()}).enumerated()), id: \.offset) { _, video in
+                    VideoFromSearchView(videoWithData: video)
                         .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
                 }
                 .opacity(isExpanded ? 1 : 0)

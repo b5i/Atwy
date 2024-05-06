@@ -13,9 +13,7 @@ import LinkPresentation
 struct VideoContextMenuView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
-    let video: YTVideo
-    var disableChannelNavigation: Bool = false
-    var videoThumbnailData: Data?
+    let videoWithData: YTVideoWithData
     let isFavorite: Bool
     let isDownloaded: Bool
     
@@ -25,14 +23,14 @@ struct VideoContextMenuView: View {
             Section {
                 if NRM.connected {
                     if APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "" {
-                        AddToPlaylistContextMenuButtonView(video: video)
+                        AddToPlaylistContextMenuButtonView(video: self.videoWithData.video)
                     }
-                    if !self.disableChannelNavigation, let channel = video.channel {
+                    if self.videoWithData.data.allowChannelLinking, let channel = self.videoWithData.video.channel {
                         GoToChannelContextMenuButtonView(channel: channel)
                     }
                 }
                 Button {
-                    video.showShareSheet(thumbnailData: videoThumbnailData)
+                    self.videoWithData.video.showShareSheet(thumbnailData: self.videoWithData.data.thumbnailData)
                 } label: {
                     HStack {
                         Text("Share")
@@ -41,20 +39,20 @@ struct VideoContextMenuView: View {
                 }
             }
             Section {
-                AddToQueueContextMenuButtonView(video: video, videoThumbnailData: videoThumbnailData)
+                AddToQueueContextMenuButtonView(video: self.videoWithData.video, videoThumbnailData: self.videoWithData.data.thumbnailData)
             }
             Section {
                 if isFavorite {
-                    DeleteFromFavoritesView(video: video)
+                    DeleteFromFavoritesView(video: self.videoWithData.video)
                 } else {
                     AddToFavoritesContextButtonView(
-                        video: video,
-                        imageData: videoThumbnailData
+                        video: self.videoWithData.video,
+                        imageData: self.videoWithData.data.thumbnailData
                     )
                 }
                 //            if let downloadURL = downloadURL {
                 if isDownloaded {
-                    RemoveDownloadContextMenuButtonView(video: video)
+                    RemoveDownloadContextMenuButtonView(video: self.videoWithData.video)
                     /* to be activated later
                      Button {
                      guard let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene, let source =  scene.keyWindow?.rootViewController else { return }
@@ -89,17 +87,17 @@ struct VideoContextMenuView: View {
                 } else if let downloader = self.downloader {
                     CancelDownloadContextMenuView(downloader: downloader)
                 } else {
-                    DownloadAdaptativeFormatsContextMenuView(video: video, videoThumbnailData: videoThumbnailData)
+                    DownloadAdaptativeFormatsContextMenuView(video: self.videoWithData.video, videoThumbnailData: self.videoWithData.data.thumbnailData)
                 }
             }
         }
         .onAppear {
-            if let downloader = DownloadingsModel.shared.downloadings[video.videoId] {
+            if let downloader = DownloadingsModel.shared.downloadings[self.videoWithData.video.videoId] {
                 self.downloader = downloader
             }
         }
-        .onReceive(of: .atwyDownloadingChanged(for: video.videoId), handler: { _ in
-            self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
+        .onReceive(of: .atwyDownloadingChanged(for: self.videoWithData.video.videoId), handler: { _ in
+            self.downloader = DownloadingsModel.shared.downloadings[self.videoWithData.video.videoId]
         })
     }
     

@@ -9,11 +9,9 @@ import SwiftUI
 import YouTubeKit
 
 struct ElementsInfiniteScrollView: View {
-    @Binding var items: [any YTSearchResult]
+    @Binding var items: [YTElementWithData]
     @Binding var shouldReloadScrollView: Bool
-    
-    let disableChannelNavigation: Bool
-    
+        
     var fetchNewResultsAtKLast: Int = 5
     var shouldAddBottomSpacing = false
     @ObservedObject private var PSM = PreferencesStorageModel.shared
@@ -27,7 +25,6 @@ struct ElementsInfiniteScrollView: View {
             CustomElementsInfiniteScrollView(
                 items: $items, 
                 shouldReloadScrollView: $shouldReloadScrollView, 
-                disableChannelNavigation: self.disableChannelNavigation,
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
                 refreshAction: refreshAction,
                 fetchMoreResultsAction: fetchMoreResultsAction
@@ -36,7 +33,6 @@ struct ElementsInfiniteScrollView: View {
             DefaultElementsInfiniteScrollView(
                 items: $items,
                 shouldReloadScrollView: $shouldReloadScrollView, 
-                disableChannelNavigation: self.disableChannelNavigation,
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
                 shouldAddBottomSpacing: shouldAddBottomSpacing,
                 refreshAction: refreshAction,

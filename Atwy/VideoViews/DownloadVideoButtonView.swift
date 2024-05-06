@@ -11,7 +11,6 @@ import YouTubeKit
 struct DownloadVideoButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
     let video: YTVideo
-    var isShort: Bool = false
     let videoThumbnailData: Data?
     @Binding var downloader: HLSDownloader?
     @ObservedObject private var DM = DownloadingsModel.shared
@@ -22,7 +21,6 @@ struct DownloadVideoButtonView: View {
             }
             let newDownloader = HLSDownloader(video: video)
             newDownloader.state.thumbnailData = videoThumbnailData
-            newDownloader.isShort = isShort
             DM.addDownloader(newDownloader)
             self.downloader = newDownloader
         } label: {

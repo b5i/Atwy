@@ -29,7 +29,7 @@ struct YouTubeBasePlaylistView: View {
                                 ForEach(Array(playlist.frontVideos.dropLast((playlist.frontVideos.count > 3) ? playlist.frontVideos.count - 4 : 0).reversed().enumerated()), id: \.offset) { item in
                                     let scaleLevel: Double = Double(item.offset) * 0.05 + 0.85
                                     let opactityLevel: Double = Double(item.offset) * 0.1 + 0.70
-                                    VideoView.ImageOfVideoView(video: item.element, hqImage: true)
+                                    VideoView.ImageOfVideoView(videoWithData: item.element.withData(), hqImage: true)
                                         .frame(width: geometry.size.width * 0.5, height: geometry.size.height)
                                         .padding(.trailing, CGFloat(item.offset) * 50)
                                         .scaleEffect(scaleLevel)

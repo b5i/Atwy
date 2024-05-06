@@ -36,7 +36,7 @@ struct AppearanceSettingsView: View {
                                 let videoThumbnailData = Data()
                                 let video = YTVideo(videoId: "", title: "My video!", channel: .init(channelId: "", name: "Unknown YouTuber"))
                                 HStack {
-                                    VideoView(video: video, disableChannelNavigation: true, thumbnailData: videoThumbnailData)
+                                    VideoView(videoWithData: video.withData(.init(allowChannelLinking: false, thumbnailData: videoThumbnailData)))
                                         .frame(width: sectionGeometry.size.width, height: 180)
                                         .scaleEffect(0.85)
                                         .frame(width: sectionGeometry.size.width * 0.85, height: 153)
@@ -50,7 +50,7 @@ struct AppearanceSettingsView: View {
                                 }
                                 HStack {
                                     let ownerImageData = ImageRenderer(content: UserPreferenceCircleView()).uiImage?.pngData()
-                                    VideoView2(video: video, disableChannelNavigation: true, thumbnailData: videoThumbnailData, ownerThumbnailData: ownerImageData)
+                                    VideoView2(videoWithData: video.withData(.init(allowChannelLinking: false, channelAvatarData: ownerImageData, thumbnailData: videoThumbnailData)))
                                     //                                            .frame(width: sectionGeometry.size.width, height: sectionGeometry.size.width * 9/16 + 90)
                                         .scaleEffect(0.85)
                                         .frame(width: sectionGeometry.size.width * 0.85, height: (sectionGeometry.size.width * 9/16 + 90) * 0.85)

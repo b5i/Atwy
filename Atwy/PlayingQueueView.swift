@@ -89,7 +89,7 @@ struct PlayingQueueView: View {
                     .contextMenu(menuItems: {
                         AddToQueueContextMenuButtonView(video: video.video, videoThumbnailData: VTM.images[video.videoId])
                     }, preview: {
-                        VideoView(video: video.video, thumbnailData: VTM.images[video.videoId])
+                        VideoView(videoWithData: video.video.withData(.init(allowChannelLinking: false, thumbnailData: VTM.images[video.videoId])))
                     })
                 }
                 .buttonStyle(.plain)

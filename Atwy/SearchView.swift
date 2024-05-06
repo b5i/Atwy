@@ -114,14 +114,13 @@ struct SearchView: View {
                         }
                     } else {
                         let itemsBinding = Binding(get: {
-                            return model.items
+                            return model.items.map({YTElementWithData(element: $0, data: .init())})
                         }, set: { newValue in
-                            model.items = newValue
+                            model.items = newValue.map({$0.element})
                         })
                         ElementsInfiniteScrollView(
                             items: itemsBinding,
                             shouldReloadScrollView: $shouldReloadScrollView, 
-                            disableChannelNavigation: false,
                             refreshAction: { endAction in
                                 withAnimation(.easeOut(duration: 0.3)) {
                                     endAction()
