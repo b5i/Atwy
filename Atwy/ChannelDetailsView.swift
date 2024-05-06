@@ -154,21 +154,25 @@ struct ChannelDetailsView: View {
                                 LoadingView()
                             } else {
                                 if model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent) != nil {
-                                    let itemsBinding = Binding(get: {
+                                    let itemsBinding: Binding<[YTElementWithData]> = Binding(get: {
                                         return ((model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent))?.items ?? [])
                                             .map({ item in
                                                 if var video = item as? YTVideo {
                                                     video.channel?.thumbnails = self.channel.thumbnails
-                                                    return video
+                                                    
+                                                    let videoWithData = YTElementWithData(element: video, data: .init(allowChannelLinking: false))
+                                                    return videoWithData
                                                 } else if var playlist = item as? YTPlaylist {
                                                     playlist.channel?.thumbnails = self.channel.thumbnails
-                                                    return playlist
+                                                    
+                                                    let playlistWithData = YTElementWithData(element: playlist, data: .init(allowChannelLinking: false))
+                                                    return playlistWithData
                                                 }
-                                                return item
-                                            }) as [any YTSearchResult]
+                                                return YTElementWithData(element: item, data: .init())
+                                            })
                                     }, set: { newValue in
                                         var itemsContents = model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent)
-                                        itemsContents?.items = newValue
+                                        itemsContents?.items = newValue.map({$0.element})
                                         model.channelInfos?.channelContentStore[selectedCategory] = itemsContents
                                     })
                                     if itemsBinding.wrappedValue.isEmpty {
@@ -181,7 +185,6 @@ struct ChannelDetailsView: View {
                                         ElementsInfiniteScrollView(
                                             items: itemsBinding,
                                             shouldReloadScrollView: $shouldReloadScrollView,
-                                            disableChannelNavigation: true,
                                             shouldAddBottomSpacing: true,
                                             fetchMoreResultsAction: {
                                                 if !(model.fetchingStates[selectedCategory] ?? false) {

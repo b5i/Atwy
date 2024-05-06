@@ -31,16 +31,16 @@ struct DownloadedVideosView: View {
                             let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                             
                             ForEach(sortedVideos) { (video: DownloadedVideo) in
-                                let convertResult = video.toYTVideo()
+                                let convertedResult = video.toYTVideo()
                                 
                                 Button {
                                     if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                                        VideoPlayerModel.shared.loadVideo(video: convertResult)
+                                        VideoPlayerModel.shared.loadVideo(video: convertedResult)
                                     }
                                     
                                     SheetsModel.shared.showSheet(.watchVideo)
                                 } label: {
-                                    VideoFromSearchView(video: convertResult, videoThumbnailData: video.thumbnail, channelAvatarData: video.channel?.thumbnail)
+                                    VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
                                         .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
                                 }
                                 .listRowSeparator(.hidden)

@@ -65,7 +65,7 @@ struct DownloadingsView: View {
                         .contextMenu {
                             DownloadingItemsContextMenuView(downloader: downloader)
                         } preview: {
-                            VideoView(video: video)
+                            VideoView(videoWithData: video.withData(.init(allowChannelLinking: false)))
                         }
                         .swipeActions(allowsFullSwipe: false, content: {
                             DownloadSwipeActionsView(downloader: downloader)

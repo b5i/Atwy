@@ -12,14 +12,12 @@ import YouTubeKit
 
 struct VideoView: View {
     @Environment(\.colorScheme) private var colorScheme
-    let video: YTVideo
-    var disableChannelNavigation: Bool = false
-    var thumbnailData: Data?
-    var isShort: Bool = false
+    let videoWithData: YTVideoWithData
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
+        let video = videoWithData.video
         let isFavorite: Bool = {
             return PM.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
         }()
@@ -31,7 +29,7 @@ struct VideoView: View {
         GeometryReader { geometry in
             HStack(spacing: 3) {
                 VStack {
-                    ImageOfVideoView(video: video, thumbnailData: thumbnailData, isShort: isShort)
+                    ImageOfVideoView(videoWithData: self.videoWithData)
                         .overlay(alignment: .bottomTrailing, content: {
                             if let timeLenght = video.timeLength {
                                 if timeLenght == "live" {
@@ -91,7 +89,7 @@ struct VideoView: View {
                             if video.timePosted != nil || video.viewCount != nil {
                                 Divider()
                             }
-                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData, downloadURL: downloadLocation)
+                            DownloadButtonView(video: video, videoThumbnailData: self.videoWithData.data.thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(colorScheme.textColor)
                         }
                     }
@@ -116,21 +114,19 @@ struct VideoView: View {
                 .frame(width: geometry.size.width * 0.475, height: geometry.size.height)
             }
             .contextMenu {
-                VideoContextMenuView(video: video, disableChannelNavigation: self.disableChannelNavigation, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
+                VideoContextMenuView(videoWithData: self.videoWithData, isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
             }
-            .videoSwipeActions(video: self.video, thumbnailData: self.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: self.disableChannelNavigation, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
+            .videoSwipeActions(video: video, thumbnailData: self.videoWithData.data.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: !self.videoWithData.data.allowChannelLinking, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
         }
     }
     
     struct ImageOfVideoView: View {
         @Environment(\.colorScheme) private var colorScheme
-        let video: YTVideo
-        var thumbnailData: Data? = nil
-        var isShort: Bool = false
+        let videoWithData: YTVideoWithData
         var hqImage: Bool = false
         var body: some View {
             ZStack {
-                if let thumbnailData = thumbnailData {
+                if let thumbnailData = self.videoWithData.data.thumbnailData {
 #if os(macOS)
                     if let image = NSImage(data: thumbnailData) {
                         Image(nsImage: image)
@@ -150,7 +146,7 @@ struct VideoView: View {
                             .foregroundColor(.gray)
                     }
 #endif
-                } else if hqImage, let thumbnail = video.thumbnails.last, (thumbnail.width ?? 0) >= 480 {
+                } else if hqImage, let thumbnail = self.videoWithData.video.thumbnails.last, (thumbnail.width ?? 0) >= 480 {
                     CachedAsyncImage(url: thumbnail.url) { image in
                         image
                             .resizable()
@@ -164,7 +160,7 @@ struct VideoView: View {
                             //                                .border(colorScheme.textColor)
                         }
                     }
-                } else if hqImage, let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
+                } else if hqImage, let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(self.videoWithData.video.videoId)/hqdefault.jpg") {
                     CachedAsyncImage(url: thumbnailURL) { image in
                         if let croppedImage = cropImage(image) {
                             croppedImage
@@ -189,7 +185,7 @@ struct VideoView: View {
                             //                                .border(colorScheme.textColor)
                         }
                     }
-                } else if let url = video.thumbnails.last?.url {
+                } else if let url = self.videoWithData.video.thumbnails.last?.url {
                     CachedAsyncImage(url: url) { image in
                         image
                             .resizable()
@@ -235,15 +231,13 @@ struct VideoView: View {
 
 struct VideoView2: View {
     @Environment(\.colorScheme) private var colorScheme
-    let video: YTVideo
-    var disableChannelNavigation: Bool = false
-    var thumbnailData: Data?
-    var ownerThumbnailData: Data?
-    var isShort: Bool = false
+    let videoWithData: YTVideoWithData
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
+        let video = videoWithData.video
+        
         let isFavorite: Bool = {
             return PM.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId})
         }()
@@ -255,7 +249,7 @@ struct VideoView2: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
-                VideoView.ImageOfVideoView(video: video, thumbnailData: thumbnailData, isShort: isShort, hqImage: true)
+                VideoView.ImageOfVideoView(videoWithData: self.videoWithData, hqImage: true)
                     .overlay(alignment: .bottomTrailing, content: {
                         if let timeLenght = video.timeLength {
                             if timeLenght == "live" {
@@ -294,7 +288,7 @@ struct VideoView2: View {
                 HStack(spacing: 0) {
                     if let channel = video.channel {
                         Group {
-                            if let ownerThumbnailData = ownerThumbnailData, let image = UIImage(data: ownerThumbnailData) {
+                            if let ownerThumbnailData = videoWithData.data.channelAvatarData, let image = UIImage(data: ownerThumbnailData) {
                                 VStack {
                                     Image(uiImage: image)
                                         .resizable()
@@ -326,7 +320,7 @@ struct VideoView2: View {
                                 .padding(.top, 3)
                             }
                         }
-                        .routeTo(NRM.connected && !self.disableChannelNavigation ? .channelDetails(channel: channel) : nil)
+                        .routeTo(NRM.connected && self.videoWithData.data.allowChannelLinking ? .channelDetails(channel: channel) : nil)
                     }
                     VStack(alignment: .leading) {
                         Text(video.title ?? "")
@@ -349,7 +343,7 @@ struct VideoView2: View {
                     Spacer()
                     VStack {
                         if video.timeLength != "live" {
-                            DownloadButtonView(isShort: isShort, video: video, videoThumbnailData: thumbnailData, downloadURL: downloadLocation)
+                            DownloadButtonView(video: video, videoThumbnailData: self.videoWithData.data.thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(colorScheme.textColor)
                         }
                         /* to be reinstated later
@@ -366,13 +360,13 @@ struct VideoView2: View {
                         }
                         .frame(width: 20, height: 20)
                          */
-                        AddToFavoritesButtonView(video: video, imageData: thumbnailData)
+                        AddToFavoritesButtonView(video: video, imageData: self.videoWithData.data.thumbnailData)
                             .foregroundStyle(colorScheme.textColor)
                         Spacer()
                     }
                     .frame(alignment: .top)
                     .padding(.trailing, 5)
-                    if !(video.channel?.thumbnails.isEmpty ?? true) && ownerThumbnailData != nil {
+                    if !(video.channel?.thumbnails.isEmpty ?? true) && self.videoWithData.data.channelAvatarData != nil {
                         Spacer()
                     }
                 }
@@ -383,7 +377,7 @@ struct VideoView2: View {
             }
             .background(colorScheme.backgroundColor)
             .contextMenu {
-                VideoContextMenuView(video: video, disableChannelNavigation: self.disableChannelNavigation, videoThumbnailData: thumbnailData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
+                VideoContextMenuView(videoWithData: self.videoWithData, isFavorite: isFavorite, isDownloaded: (downloadLocation != nil))
             }
 //            .contextMenuWrapper(menuItems: [
 //                UIDeferredMenuElement({ result in
@@ -395,7 +389,7 @@ struct VideoView2: View {
 //                VideoView2(video: video, thumbnailData: thumbnailData, ownerThumbnailData: ownerThumbnailData)
 //                    .frame(width: geometry.size.width, height: geometry.size.height)
 //            })
-            .videoSwipeActions(video: self.video, thumbnailData: self.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: self.disableChannelNavigation, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
+            .videoSwipeActions(video: video, thumbnailData: self.videoWithData.data.thumbnailData, isConnectedToNetwork: self.NRM.connected, disableChannelNavigation: !self.videoWithData.data.allowChannelLinking, isConnectedToGoogle: APIKeyModel.shared.userAccount != nil && APIM.googleCookies != "")
         }
     }
 }

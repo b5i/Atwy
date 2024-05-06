@@ -93,6 +93,12 @@ struct NowPlayingBarView: View {
                         }
                         .frame(width: 15, height: 15)
                         .padding(.trailing)
+                        .contentShape(Rectangle())
+                        .tappablePadding(.init(top: 10, leading: 10, bottom: 10, trailing: 10), onTap: {
+                            withAnimation {
+                                VPM.deleteCurrentVideo()
+                            }
+                        })
                     }
                 }
                 .matchedGeometryEffect(id: "BGVIEW", in: sheetAnimation)
@@ -104,11 +110,11 @@ struct NowPlayingBarView: View {
         .frame(height: 70)
         .contextMenu {
             if let video = VPM.currentItem?.video {
-                VideoContextMenuView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
+                VideoContextMenuView(videoWithData: video.withData(.init(allowChannelLinking: false, thumbnailData: VPM.currentItem?.videoThumbnailData)), isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
             }
         } preview: {
             if let video = VPM.currentItem?.video {
-                VideoView(video: video)
+                VideoView(videoWithData: video.withData(.init(allowChannelLinking: false)))
             }
         }
         .offset(y: -49)

@@ -12,7 +12,6 @@ struct DownloadButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var downloader: HLSDownloader? = nil
     @State private var observer: (any NSObjectProtocol)? = nil
-    var isShort: Bool = false
     let video: YTVideo
     var videoThumbnailData: Data? = nil
     let downloadURL: URL?
@@ -37,11 +36,11 @@ struct DownloadButtonView: View {
                         DownloadStateView(downloader: downloader)
                     },
                     failedOrInactiveView: {
-                        DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
+                        DownloadVideoButtonView(video: video, videoThumbnailData: videoThumbnailData, downloader: $downloader)
                     }
                 )
             } else {
-                DownloadVideoButtonView(video: video, isShort: isShort, videoThumbnailData: videoThumbnailData, downloader: $downloader)
+                DownloadVideoButtonView(video: video, videoThumbnailData: videoThumbnailData, downloader: $downloader)
             }
         }
         .frame(width: 25, height: 25)

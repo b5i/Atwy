@@ -30,16 +30,19 @@ struct PlaylistDetailsView: View {
                 } else {
                     VStack {
                         if model.playlistInfos?.results != nil {
-                            let videosBinding: Binding<[any YTSearchResult]> = Binding(get: {
-                                return model.playlistInfos?.results ?? []
+                            let videosBinding: Binding<[YTElementWithData]> = Binding(get: {
+                                var toReturn: [YTElementWithData] = []
+                                for (video, token) in zip(model.playlistInfos?.results ?? [], model.playlistInfos?.videoIdsInPlaylist ?? []) {
+                                    toReturn.append(YTElementWithData(element: video, data: .init(removeFromPlaylistInfo: (playlistId: self.playlist.playlistId, removeToken: token ?? ""))))
+                                }
+                                return toReturn
                             }, set: { newValue in
-                                model.playlistInfos?.results = newValue.compactMap({$0 as? YTVideo})
+                                model.playlistInfos?.results = newValue.compactMap({$0.element as? YTVideo})
                             })
                             ElementsInfiniteScrollView(
                                 items: videosBinding,
                                 shouldReloadScrollView: $shouldReloadScrollView, 
-                                disableChannelNavigation: false,
-                                fetchMoreResultsAction: {
+                                 fetchMoreResultsAction: {
                                     model.fetchPlaylistContinuation()
                                 }
                             )

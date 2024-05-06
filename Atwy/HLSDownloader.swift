@@ -45,7 +45,6 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     var location: URL?
     var isFavorite: Bool?
     var videoDescription: String?
-    var isShort: Bool = false
     var downloadTask: URLSessionTask?
 //    var downloadTask: AVAggregateAssetDownloadTask?
     var downloadData: (any DownloadFormat)?

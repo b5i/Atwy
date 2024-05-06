@@ -104,10 +104,11 @@ class APIKeyModel: ObservableObject {
         }
         
         guard let PSID1: String = extractCookie(withName: "__Secure-1PSID", from: cookies) else { return false }
-        guard let PAPISID: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
+        guard let PAPISID1: String = extractCookie(withName: "__Secure-1PAPISID", from: cookies) else { return false }
         guard let SAPISID: String = extractCookie(withName: "SAPISID", from: cookies) else { return false }
+
         
-        let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID); __Secure-1PSID=\(PSID1)"
+        let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID1); __Secure-1PSID=\(PSID1)"
         let cookies = finalString.data(using: .utf8)!
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrType as String: "Cookies",

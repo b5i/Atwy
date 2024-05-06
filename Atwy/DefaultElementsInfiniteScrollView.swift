@@ -10,11 +10,9 @@ import YouTubeKit
 import SwipeActions
 
 struct DefaultElementsInfiniteScrollView: View {
-    @Binding var items: [any YTSearchResult]
+    @Binding var items: [YTElementWithData]
     @Binding var shouldReloadScrollView: Bool
-    
-    let disableChannelNavigation: Bool
-    
+        
     var fetchNewResultsAtKLast: Int = 5
     var shouldAddBottomSpacing: Bool = false // add the height of the navigationbar to the bottom
     @ObservedObject private var PSM = PreferencesStorageModel.shared
@@ -43,7 +41,7 @@ struct DefaultElementsInfiniteScrollView: View {
                                         fetchMoreResultsAction?()
                                     }
                             }
-                            switch item {
+                            switch item.element {
                             case let item as YTChannel:
                                 item.getView()
                                     .frame(width: geometry.size.width, height: 180, alignment: .center)
@@ -74,13 +72,13 @@ struct DefaultElementsInfiniteScrollView: View {
                                 }
                                 .swipeMinimumDistance(50)
                                 .frame(width: geometry.size.width, height: 180, alignment: .center)
-                            case let item as YTVideo:
+                            case let rawVideo as YTVideo:
                                 if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
-                                    VideoFromSearchView(video: item, disableChannelNavigation: self.disableChannelNavigation)
+                                    VideoFromSearchView(videoWithData: rawVideo.withData(item.data))
                                         .frame(width: geometry.size.width, height: 180, alignment: .center)
                                 } else {
                                     // Big thumbnail view by default
-                                    VideoFromSearchView(video: item, disableChannelNavigation: self.disableChannelNavigation)
+                                    VideoFromSearchView(videoWithData: rawVideo.withData(item.data))
                                         .frame(width: geometry.size.width, height: geometry.size.width * 9/16 + 90, alignment: .center)
                                     //                                            .padding(.bottom, resultIndex == 0 ? geometry.size.height * 0.2 : 0)
                                 }
