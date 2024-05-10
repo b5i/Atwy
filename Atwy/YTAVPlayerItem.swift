@@ -20,6 +20,11 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     var streamingInfos: VideoInfosResponse
     
     var isFetchingMoreVideoInfos: Bool = false
+    
+    var isAbleToLike: Bool {
+        return NetworkReachabilityModel.shared.connected && self.moreVideoInfos?.authenticatedInfos?.likeStatus != nil
+    }
+    
     @Published private(set) var moreVideoInfos: MoreVideoInfosResponse? = nil {
         didSet {
             // just modify the chapter's url because they could have some thumbnailData

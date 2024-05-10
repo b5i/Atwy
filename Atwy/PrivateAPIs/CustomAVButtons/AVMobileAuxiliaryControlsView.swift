@@ -120,7 +120,7 @@ class AVMobileAuxiliaryControlsView {
         case .fullScreen:
             var visibleControls: [NSObject] = []
             
-            guard APIKeyModel.shared.userAccount != nil else { fallthrough } // we don't show the like/dislike buttons if the user is not connected
+            guard APIKeyModel.shared.userAccount != nil, VideoPlayerModel.shared.currentItem?.isAbleToLike == true else { fallthrough } // we don't show the like/dislike buttons if the user is not connected
             
             let likeStatus = VideoPlayerModel.shared.currentItem?.moreVideoInfos?.authenticatedInfos?.likeStatus
             
