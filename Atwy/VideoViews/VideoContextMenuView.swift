@@ -90,6 +90,11 @@ struct VideoContextMenuView: View {
                     DownloadAdaptativeFormatsContextMenuView(video: self.videoWithData.video, videoThumbnailData: self.videoWithData.data.thumbnailData)
                 }
             }
+            if let playlistRemovalCallback = videoWithData.data.removeFromPlaylistAvailable {
+                Section {
+                    RemoveVideoFromPlaylistContextMenuButtonView(removalCallBack: playlistRemovalCallback)
+                }
+            }
         }
         .onAppear {
             if let downloader = DownloadingsModel.shared.downloadings[self.videoWithData.video.videoId] {
