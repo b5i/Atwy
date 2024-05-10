@@ -12,18 +12,32 @@ import AVKit
 struct SettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var APIM = APIKeyModel.shared
-    @ObservedObject var NPM = NavigationPathModel.shared
+    @ObservedObject private var APIM = APIKeyModel.shared
+    @ObservedObject private var NPM = NavigationPathModel.shared
+    @ObservedObject private var NM = NetworkReachabilityModel.shared
     @State private var showingConfirmation: Bool = false
     @State private var showInstructions: Bool = true
     var body: some View {
         NavigationStack(path: $NPM.settingsSheetPath) {
             ScrollView {
                 VStack {
-                    UserPreferenceCircleView()
-                        .frame(width: 100, height: 100)
-                        .padding(.top)
-                    if let account = APIM.userAccount, account.name != nil {
+                    if !NM.connected {
+                        VStack(alignment: .center) {
+                            Image(systemName: "wifi.slash")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 30)
+                                .padding(.top)
+                            Text("You are disconnected.")
+                                .font(.caption)
+                            Text("Disable the plane mode or connect to a WiFi to view Account settings.")
+                                .foregroundStyle(.gray)
+                                .font(.caption2)
+                        }
+                    } else if let account = APIM.userAccount, account.name != nil {
+                        UserPreferenceCircleView()
+                            .frame(width: 100, height: 100)
+                            .padding(.top)
                         VStack {
                             Text(account.name ?? "")
                                 .font(.title2)
@@ -50,7 +64,7 @@ struct SettingsView: View {
                             } message: {
                                 Text("Unlink confirmation")
                             }
-                            .padding(.vertical)
+                            .padding(.top)
                         }
                     } else if APIM.isFetchingAccountInfos {
                         LoadingView(customText: "account infos.")
