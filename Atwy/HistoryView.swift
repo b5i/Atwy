@@ -21,8 +21,8 @@ struct HistoryView: View {
                 GeometryReader { geometry in
                     ScrollView {
                         LazyVStack {
-                            ForEach(Array(historyResponse.results.enumerated()), id: \.offset) { _, historyPart in
-                                VideoGroupView(videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
+                            ForEach(historyResponse.results, id: \.id) { historyPart in
+                                VideoGroupView(model: model, videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
                             }
                             if self.model.historyResponse?.continuationToken != nil {
                                 Color.clear.frame(width: 0, height: 0)
@@ -48,6 +48,8 @@ struct HistoryView: View {
     
     struct VideoGroupView: View {
         @Environment(\.colorScheme) private var colorScheme
+        
+        @ObservedObject var model: Model
         
         let videoSize: CGSize
         let historyPart: HistoryResponse.HistoryBlock
@@ -81,7 +83,7 @@ struct HistoryView: View {
                 Spacer()
                 
                 
-                ForEach(Array(historyPart.contentsArray.compactMap({$0 as? HistoryResponse.HistoryBlock.VideoWithToken}).map({$0.video.withData()}).enumerated()), id: \.offset) { _, video in
+                ForEach(Array(self.model.makeVideoArray(forGroup: self.historyPart).enumerated()), id: \.offset) { _, video in
                     VideoFromSearchView(videoWithData: video)
                         .frame(width: videoSize.width, height: videoSize.height, alignment: .center)
                 }
@@ -156,6 +158,43 @@ struct HistoryView: View {
             }, set: { _ in
                 return
             })
+        }
+        
+        func makeVideoArray(forGroup group: HistoryResponse.HistoryBlock) -> [YTVideoWithData] {
+            return group.contentsArray
+                .compactMap { $0 as? HistoryResponse.HistoryBlock.VideoWithToken }
+                .map { (videoWithToken: HistoryResponse.HistoryBlock.VideoWithToken) in
+                    var videoData = YTElementDataSet()
+                    if let suppressToken = videoWithToken.suppressToken {
+                        videoData.removeFromPlaylistAvailable = {
+                            self.historyResponse?.removeVideo(withSuppressToken: suppressToken, youtubeModel: YTM, result: { error in
+                                guard error == nil else { return }
+                                var subBlockIndex: Int? = nil
+                                guard let blockIndex = self.historyResponse?.results.firstIndex(where: { block in
+                                    for (offset, subBlock) in Array(block.contentsArray.enumerated()) {
+                                        if let subBlock = subBlock as? HistoryResponse.HistoryBlock.VideoWithToken {
+                                            if subBlock.suppressToken == suppressToken {
+                                                subBlockIndex = offset
+                                                return true
+                                            }
+                                        }
+                                    }
+                                    return false
+                                }), let subBlockIndex = subBlockIndex else { return }
+                                DispatchQueue.main.async {
+                                    withAnimation {
+                                        self.historyResponse?.results[blockIndex].contentsArray.remove(at: subBlockIndex)
+                                        if ((self.historyResponse?.results[blockIndex].contentsArray.isEmpty) == true) {
+                                            self.historyResponse?.results.remove(at: blockIndex)
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    }
+                    
+                    return videoWithToken.video.withData(videoData)
+                }
         }
     }
 }

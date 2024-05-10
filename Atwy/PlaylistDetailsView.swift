@@ -32,8 +32,27 @@ struct PlaylistDetailsView: View {
                         if model.playlistInfos?.results != nil {
                             let videosBinding: Binding<[YTElementWithData]> = Binding(get: {
                                 var toReturn: [YTElementWithData] = []
-                                for (video, token) in zip(model.playlistInfos?.results ?? [], model.playlistInfos?.videoIdsInPlaylist ?? []) {
-                                    toReturn.append(YTElementWithData(element: video, data: .init(removeFromPlaylistInfo: (playlistId: self.playlist.playlistId, removeToken: token ?? ""))))
+                                for (video, token) in zip(model.playlistInfos?.results ?? [], model.playlistInfos?.videoIdsInPlaylist ?? Array(repeating: nil, count: model.playlistInfos?.results.count ?? 0)) {
+                                    var videoData = YTElementDataSet()
+                                    if let removalToken = token {
+                                        videoData.removeFromPlaylistAvailable = {
+                                            RemoveVideoFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: removalToken, .playlistEditToken: "CAFAAQ%3D%3D", .browseId: self.playlist.playlistId], result: { result in
+                                                switch result {
+                                                case .success(_):
+                                                    if let removalIndex = self.model.playlistInfos?.videoIdsInPlaylist?.firstIndex(where: {$0 == token}) {
+                                                        DispatchQueue.main.async {
+                                                            _ = self.model.playlistInfos?.results.remove(at: removalIndex)
+                                                        }
+                                                    }
+                                                case .failure(_):
+                                                    break
+                                                }
+                                            })
+                                        }
+                                    }
+                                    toReturn.append(
+                                        YTElementWithData(element: video, data: videoData)
+                                    )
                                 }
                                 return toReturn
                             }, set: { newValue in
@@ -173,7 +192,9 @@ struct PlaylistDetailsView: View {
                 PlaylistInfosResponse.Continuation.sendNonThrowingRequest(youtubeModel: YTM, data: [.continuation: continuationToken], useCookies: true, result: { result in
                     switch result {
                     case .success(let response):
-                        self.playlistInfos?.mergeWithContinuation(response)
+                        DispatchQueue.main.async {
+                            self.playlistInfos?.mergeWithContinuation(response)
+                        }
                     case .failure(let error):
                         print("Error while fetching playlist infos: \(error)")
                     }
