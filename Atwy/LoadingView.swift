@@ -18,6 +18,6 @@ struct LoadingView: View {
                 .foregroundColor(.gray)
                 .font(.caption2)
         }
-        .frame(width: 150, height: 50)
+        .frame(width: 160, height: 50)
     }
 }
