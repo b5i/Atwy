@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 class PreferencesStorageModel: ObservableObject {
     static let shared = PreferencesStorageModel()
@@ -22,11 +23,11 @@ class PreferencesStorageModel: ObservableObject {
     
     public func setNewValueForKey(_ key: Properties, value: Codable?) {
         if let value = value {
-            guard type(of: value) == key.getExpectedType() else { print("Attempt to save property failed: received \(String(describing: value)) of type \(type(of: value)) but expected value of type \(key.getExpectedType())."); return }
+            guard type(of: value) == key.getExpectedType() else { Logger.atwyLogs.simpleLog("Attempt to save property failed: received \(String(describing: value)) of type \(type(of: value)) but expected value of type \(key.getExpectedType())."); return }
             if let encoded = try? jsonEncoder.encode(value) {
                 UD.setValue(encoded, forKey: key.rawValue)
             } else {
-                print("Couldn't encode! Storing temporaily the new value.")
+                Logger.atwyLogs.simpleLog("Couldn't encode! Storing temporaily the new value.")
             }
             propetriesState[key] = value
         } else {

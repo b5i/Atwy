@@ -10,6 +10,7 @@ import Foundation
 import GroupActivities
 import YouTubeKit
 import Combine
+import OSLog
 
 struct WatchInGroupActivity: GroupActivity {
     static var activityIdentifier = "Antoine-Bollengier.Atwy.shareplay"
@@ -44,7 +45,7 @@ class CoordinationManager {
         Task {
             // Await new sessions to watch movies together.
             for await groupSession in WatchInGroupActivity.sessions() {
-                print("Got a group session")
+                Logger.atwyLogs.simpleLog("Got a group session")
                 // Set the app's active group session.
                 self.groupSession = groupSession
 
@@ -103,7 +104,7 @@ class CoordinationManager {
                     do {
                         _ = try await activity.activate()
                     } catch {
-                        print("Unable to activate the activity: \(error)")
+                        Logger.atwyLogs.simpleLog("Unable to activate the activity: \(error)")
                     }
 
                 case .cancelled:

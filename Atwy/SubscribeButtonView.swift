@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct SubscribeButtonView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -41,7 +42,7 @@ struct SubscribeButtonView: View {
                                     }
                                     channel.unsubscribe(youtubeModel: YTM, result: { error in
                                         if let error = error {
-                                            print("Error while unsubscribing to channel: \(error)")
+                                            Logger.atwyLogs.simpleLog("Error while unsubscribing to channel: \(error)")
                                         }
                                         DispatchQueue.main.async {
                                             self.isFetching = false
@@ -60,7 +61,7 @@ struct SubscribeButtonView: View {
                                     }
                                     channel.subscribe(youtubeModel: YTM, result: { error in
                                         if let error = error {
-                                            print("Error while subscribing to channel: \(error)")
+                                            Logger.atwyLogs.simpleLog("Error while subscribing to channel: \(error)")
                                         }
                                         DispatchQueue.main.async {
                                             self.isFetching = false

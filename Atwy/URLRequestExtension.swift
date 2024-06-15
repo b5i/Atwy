@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 extension URLRequest {
     mutating func compressAndLoadBody(data: Data) {
@@ -15,7 +16,7 @@ extension URLRequest {
             self.setValue("deflate", forHTTPHeaderField: "Content-Encoding")
             self.setValue("deflate", forHTTPHeaderField: "ENCODING")
         } catch {
-            print(error)
+            Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             self.httpBody = data
         }
     }

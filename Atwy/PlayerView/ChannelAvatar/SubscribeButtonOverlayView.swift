@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import OSLog
 
 struct SubscribeButtonOverlayView: View {
     @ObservedObject var currentItem: YTAVPlayerItem
@@ -37,7 +38,7 @@ struct SubscribeButtonOverlayView: View {
                             }
                             channel.unsubscribe(youtubeModel: YTM, result: { error in
                                 if let error = error {
-                                    print("Error while unsubscribing to channel: \(error)")
+                                    Logger.atwyLogs.simpleLog("Error while unsubscribing to channel: \(error)")
                                 } else {
                                     currentItem.setNewSubscriptionStatus(false)
                                 }
@@ -70,7 +71,7 @@ struct SubscribeButtonOverlayView: View {
                             }
                             channel.subscribe(youtubeModel: YTM, result: { error in
                                 if let error = error {
-                                    print("Error while subscribing to channel: \(error)")
+                                    Logger.atwyLogs.simpleLog("Error while subscribing to channel: \(error)")
                                 } else {
                                     currentItem.setNewSubscriptionStatus(true)
                                 }

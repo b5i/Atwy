@@ -10,6 +10,7 @@ import AVFoundation
 import CoreData
 import SwiftUI
 import YouTubeKit
+import OSLog
 
 protocol HLSDownloaderDelegate {
     func percentageChanged(_ newPercentage: CGFloat, downloader: HLSDownloader)
@@ -92,14 +93,14 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                     if let streamingURL = response.streamingURL {
                         self.downloadHLS(downloadURL: streamingURL, videoDescription: response.videoDescription ?? "", video: self.video, thumbnailData: thumbnailData)
                     } else {
-                        print("Couldn't get video streaming url.")
+                        Logger.atwyLogs.simpleLog("Couldn't get video streaming url.")
                         DispatchQueue.main.async {
                             self.downloaderState = .failed
                             NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
                         }
                     }
                 case .failure(let error):
-                    print("Couldn't get video streaming data, error: \(String(describing: error)).")
+                    Logger.atwyLogs.simpleLog("Couldn't get video streaming data, error: \(error.localizedDescription).")
                     DispatchQueue.main.async {
                         self.downloaderState = .failed
                         NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)
@@ -124,7 +125,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                 //                            }
                 //                        }
                 //                    } catch {
-                //                        print("Couldn't load preferredMediaSelection.")
+                //                        Logger.atwyLogs.simpleLog("Couldn't load preferredMediaSelection.")
                 //                    }
                 //                }
                 if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
@@ -172,14 +173,14 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         } else {
             if let thumbnailURL = video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
-                    guard let imageData = imageData, error == nil else { print("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
+                    guard let imageData = imageData, error == nil else { Logger.atwyLogs.simpleLog("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
                     DispatchQueue.main.async {
                         self.state.thumbnailData = imageData
                     }
                     launchDownload(thumbnailData: imageData, isHLS: isHLS)
                 }
             } else {
-                print("No image")
+                Logger.atwyLogs.simpleLog("No image")
                 DispatchQueue.main.async {
                     self.downloaderState = .failed
                     NotificationCenter.default.post(name: .atwyDownloadingsChanged, object: nil)

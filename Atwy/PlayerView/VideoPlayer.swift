@@ -173,7 +173,7 @@ struct PlayerViewController: View {
 //            object: nil,
 //            queue: nil,
 //            using: { [self] _ in
-//                print("djamy1")
+//                Logger.atwyLogs.simpleLog("djamy1")
 //                self.player = player
 //            })
 //

@@ -9,6 +9,7 @@
 import Foundation
 import YouTubeKit
 import AVKit
+import OSLog
 
 class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     var videoId: String { self.video.videoId }
@@ -54,7 +55,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
         } catch {
-            print("Error while trying to load video (audio): \(error)")
+            Logger.atwyLogs.simpleLog("Error while trying to load video (audio): \(error)")
         }
 #endif
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import ShazamKit
+import OSLog
 
 class ShazamProcessing: NSObject, ObservableObject, SHSessionDelegate {
     private var session: SHSession?
@@ -18,11 +19,11 @@ class ShazamProcessing: NSObject, ObservableObject, SHSessionDelegate {
     }
 
     func session(_ session: SHSession, didFind match: SHMatch) {
-        print(String(describing: match))
+        Logger.atwyLogs.simpleLog("\(String(describing: match))")
     }
 
     func session(_ session: SHSession, didNotFindMatchFor signature: SHSignature, error: Error?) {
-        print("Did not find match")
+        Logger.atwyLogs.simpleLog("Did not find match")
     }
 }
 

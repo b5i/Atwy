@@ -9,6 +9,7 @@ import SwiftUI
 import InfiniteScrollViews
 import YouTubeKit
 import SwipeActions
+import OSLog
 
 let YTM = YouTubeModel()
 
@@ -18,7 +19,7 @@ struct SearchView: View {
     @State private var autoCompletion: [String] = []
     @State private var search: String = "" {
         didSet {
-            print("Refreshing")
+            Logger.atwyLogs.simpleLog("Refreshing")
             refreshAutoCompletionEntries()
         }
     }
@@ -250,7 +251,7 @@ struct SearchView: View {
                             end?()
                         }
                     case .failure(let error):
-                        print("Couldn't fetch home screen continuation: \(String(describing: error))")
+                        Logger.atwyLogs.simpleLog("Couldn't fetch home screen continuation: \(String(describing: error))")
                         DispatchQueue.main.async {
                             end?()
                         }
@@ -308,7 +309,7 @@ struct SearchView: View {
                             end?()
                         }
                     case .failure(let error):
-                        print("Couldn't fetch search screen continuation: \(String(describing: error))")
+                        Logger.atwyLogs.simpleLog("Couldn't fetch search screen continuation: \(String(describing: error))")
                         DispatchQueue.main.async {
                             end?()
                         }

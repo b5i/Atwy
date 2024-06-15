@@ -14,6 +14,7 @@ import SwiftUI
 #endif
 import GroupActivities
 import YouTubeKit
+import OSLog
 
 class VideoPlayerModel: NSObject, ObservableObject {
 
@@ -165,7 +166,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                        let audioAsset = AVURLAsset(url: audioStreamingURL, options: ["AVURLAssetHTTPHeaderFieldsKey": ["Range": "bytes=0-"]])
                 //                        do {
                 //                            guard let contentDurationMilliseconds = otherLanguageAudio.contentDuration ?? otherLanguageVideo.contentDuration, let videoContentLength = otherLanguageVideo.contentLength, let audioContentLength = otherLanguageAudio.contentLength else {
-                //                                print("Couldn't get duration or contentLengths.")
+                //                                Logger.atwyLogs.simpleLog("Couldn't get duration or contentLengths.")
                 //                                DispatchQueue.main.async {
                 //                                    self.player.replaceCurrentItem(with: AVPlayerItem(asset: AVURLAsset(url: streamingURL)))
                 //                                }
@@ -177,7 +178,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
                 //            #endif
                 //                                } catch {
-                //                                    print("Couldn't set playback mode, error: \(error)")
+                //                                    Logger.atwyLogs.simpleLog("Couldn't set playback mode, error: \(error)")
                 //                                }
                 //
                 //                                let potentialDownloader = downloads.last(where: {$0.video?.videoId == VideoPlayerModel.shared.video?.videoId})
@@ -238,7 +239,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 }
             } catch {
                 guard self.loadingVideo?.videoId == video.videoId else { return }
-                print("Error while trying to load video: \(error)")
+                Logger.atwyLogs.simpleLog("Error while trying to load video: \(error)")
                 NotificationCenter.default.post(name: .atwyDismissPlayerSheet, object: nil)
             }
         }

@@ -9,6 +9,7 @@ import CoreData
 import CoreSpotlight
 import YouTubeKit
 import UIKit
+import OSLog
 
 
 struct PersistenceController {
@@ -56,7 +57,7 @@ struct PersistenceController {
                  * The store could not be migrated to the current model version.
                  Check the error message to determine what the actual problem was.
                  */
-                print("Unresolved error \(error), \(error.userInfo)")
+                Logger.atwyLogs.simpleLog("Unresolved error \(error), \(error.userInfo)")
             }
             semamphore.signal()
         })
@@ -76,8 +77,7 @@ struct PersistenceController {
             let storeID = userInfo?[NSStoreUUIDKey] as? String
             let token = userInfo?[NSPersistentHistoryTokenKey] as? NSPersistentHistoryToken
             if let storeID = storeID, let token = token {
-                print("Store with identifier \(storeID) has completed ",
-                      "indexing and has processed history token up through \(String(describing: token)).")
+                Logger.atwyLogs.simpleLog("Store with identifier \(storeID) has completed\nindexing and has processed history token up through \(String(describing: token)).")
             }
         }
          
@@ -129,7 +129,7 @@ class PersistenceModel: ObservableObject {
                 downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
                 favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
             } catch {
-                print("Error while refreshing data")
+                Logger.atwyLogs.simpleLog("Error while refreshing data")
                 return self.currentData
             }
             
@@ -205,7 +205,7 @@ class PersistenceModel: ObservableObject {
                     NotificationCenter.default.post(name: .atwyPopup, object: nil, userInfo: ["PopupType": "addedToFavorites", "PopupData": thumbnailData as Any])
                 }
             } catch {
-                print("Couldn't add favorite to context, error: \(error)")
+                Logger.atwyLogs.simpleLog("Couldn't add favorite to context, error: \(error)")
             }
         }
     }
@@ -253,7 +253,7 @@ class PersistenceModel: ObservableObject {
                 self.update()
             } catch {
                 // handle the Core Data error
-                print(error)
+                Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             }
         }
     }
@@ -281,7 +281,7 @@ class PersistenceModel: ObservableObject {
                 )
                 self.update()
             } catch {
-                print("Couldn't update URLs: \(error)")
+                Logger.atwyLogs.simpleLog("Couldn't update URLs: \(error)")
             }
         })
     }
@@ -343,7 +343,7 @@ class PersistenceModel: ObservableObject {
                  
                 self.update()
             } catch {
-                print(error)
+                Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             }
         }
     }
