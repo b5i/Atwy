@@ -386,7 +386,7 @@ struct WatchVideoView: View {
 //                            makeGradient(image: image)
 //                        }
 //                    } else {
-//                        print("Couldn't get/create image")
+//                        Logger.atwyLogs.simpleLog("Couldn't get/create image")
 //                    }
 //                })
 //                .resume()

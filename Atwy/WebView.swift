@@ -67,13 +67,13 @@ extension WebView: WKNavigationDelegate {
         if navigationAction.navigationType == .linkActivated,
            let url = navigationAction.request.url,
            url.scheme != "https" && url.scheme != "http" {
-            print("Blocked redirection at \(url)")
+            Logger.atwyLogs.simpleLog("Blocked redirection at \(url)")
             decisionHandler(.cancel)
             webView.load(navigationAction.request)
             return
         }
         decisionHandler(.allow)
-        print("Allowed redirection at \(url)")
+        Logger.atwyLogs.simpleLog("Allowed redirection at \(url)")
     }
      */
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {

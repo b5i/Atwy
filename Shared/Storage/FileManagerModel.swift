@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 class FileManagerModel: ObservableObject {    
     static let shared = FileManagerModel()
@@ -51,7 +52,7 @@ class FileManagerModel: ObservableObject {
                         fileList.remove(at: index - newFileList.count + fileList.count)
                     }
                 } catch {
-                    print("Couldn't delete file: \(error.localizedDescription)")
+                    Logger.atwyLogs.simpleLog("Couldn't delete file: \(error.localizedDescription)")
                 }
             }
         } else {
@@ -63,7 +64,7 @@ class FileManagerModel: ObservableObject {
                             fileList.remove(at: index - newFileList.count + fileList.count)
                         }
                     } catch {
-                        print("Couldn't delete file: \(error.localizedDescription)")
+                        Logger.atwyLogs.simpleLog("Couldn't delete file: \(error.localizedDescription)")
                     }
                 }
             }
@@ -91,7 +92,7 @@ class FileManagerModel: ObservableObject {
             }
             return directoryContents
         } catch {
-            print(error)
+            Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             return []
         }
     }
@@ -101,7 +102,7 @@ class FileManagerModel: ObservableObject {
             do {
                 try FileManager.default.removeItem(at: file)
             } catch {
-                print("Couldn't delete file: \(error.localizedDescription)")
+                Logger.atwyLogs.simpleLog("Couldn't delete file: \(error.localizedDescription)")
             }
         }
     }
@@ -117,7 +118,7 @@ class FileManagerModel: ObservableObject {
             let appIdentifier = docDir.absoluteString.split(separator: "Application/")[1].split(separator: "/Documents")[0]
             return String(appIdentifier)
         } catch {
-            print(error)
+            Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             return ""
         }
     }

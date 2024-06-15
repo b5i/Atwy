@@ -7,6 +7,7 @@
 
 import SwiftUI
 import YouTubeKit
+import OSLog
 
 struct DownloadOptionsView: View {
     let video: YTVideo
@@ -38,7 +39,7 @@ struct DownloadOptionsView: View {
                             self.content = response
                         }
                     case .failure(let error):
-                        print("Error while fetching download formats for video, error: \(error).")
+                        Logger.atwyLogs.simpleLog("Error while fetching download formats for video, error: \(error).")
                     }
                 })
             }

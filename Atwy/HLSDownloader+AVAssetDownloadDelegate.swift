@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import UIKit
+import OSLog
 
 /**
  Extend `AssetPersistenceManager` to conform to the `AVAssetDownloadDelegate` protocol.
@@ -72,7 +73,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard !self.startedEndProcedure else { return /* Already started the end procedure. */ }
         if let error = error {
-            print("Finished with error: \(error.localizedDescription)")
+            Logger.atwyLogs.simpleLog("Finished with error: \(error.localizedDescription)")
             self.expectedBytes = (0, 0)
             DispatchQueue.main.async {
                 self.percentComplete = 0.0
@@ -82,7 +83,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 do {
                     try FileManager.default.removeItem(at: location)
                 } catch {
-                    print(error)
+                    Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
                 }
             }
         } else {
@@ -99,7 +100,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
         if let videoData = videoData {
             newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).mp4")!
             guard FileManager.default.createFile(atPath: newPath.path(), contents: videoData) else {
-                print("Couldn't create a new file with video's contents.")
+                Logger.atwyLogs.simpleLog("Couldn't create a new file with video's contents.")
                 DispatchQueue.main.async {
                     self.downloaderState = .failed
                 }
@@ -123,7 +124,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             let semaphore = DispatchSemaphore(value: 0)
             let backgroundQueue = DispatchQueue(label: "background_convert\(video?.videoId ?? "")",qos: .background)
             backgroundQueue.sync {
-                print("started export")
+                Logger.atwyLogs.simpleLog("started export")
                 _ = docDir.startAccessingSecurityScopedResource()
                 session?.exportAsynchronously(completionHandler: {
                     semaphore.signal()
@@ -131,14 +132,14 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 semaphore.wait()
                 self.location = newPath
                 docDir.stopAccessingSecurityScopedResource()
-                print("finished export")
+                Logger.atwyLogs.simpleLog("finished export")
             }
             */
 
             newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).movpkg")!
             _ = docDir.startAccessingSecurityScopedResource()
             guard copyVideoAndDeleteOld(location: location, newLocation: newPath) else {
-                print("Couldn't copy/remove the new video's contents.")
+                Logger.atwyLogs.simpleLog("Couldn't copy/remove the new video's contents.")
                 try? FileManager.default.removeItem(at: location)
                 docDir.stopAccessingSecurityScopedResource()
                 DispatchQueue.main.async {
@@ -157,7 +158,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     do {
                         try FileManager.default.moveItem(atPath: FragUrl.path(), toPath: TSUrl.path())
                     } catch {
-                        print(error)
+                        Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
                     }
                     
                     let asset = AVAsset(url: TSUrl)
@@ -165,7 +166,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     session?.outputFileType = .mp4
                     session?.outputURL = MP4URL
                     session?.exportAsynchronously {
-                        print("Exported \(TSUrl) at path: \(MP4URL)")
+                        Logger.atwyLogs.simpleLog("Exported \(TSUrl) at path: \(MP4URL)")
                     }
                 }
             }
@@ -246,7 +247,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                     }
                 } catch {
                     let nsError = error as NSError
-                    print("Unresolved error \(nsError), \(nsError.userInfo)")
+                    Logger.atwyLogs.simpleLog("Unresolved error \(nsError), \(nsError.userInfo)")
                     DispatchQueue.main.async {
                         self.downloaderState = .failed
                     }
@@ -286,8 +287,8 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             do {
                 try FileManager.default.removeItem(at: location)
             } catch {
-                print("Couldn't delete downloaded asset, error: \(error)")
-                print("Creating automatic deletion rule.")
+                Logger.atwyLogs.simpleLog("Couldn't delete downloaded asset, error: \(error)")
+                Logger.atwyLogs.simpleLog("Creating automatic deletion rule.")
                 let policy = AVMutableAssetDownloadStorageManagementPolicy()
                 policy.expirationDate = Date()
                 AVAssetDownloadStorageManager.shared().setStorageManagementPolicy(policy, for: location)
@@ -296,7 +297,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             return true
         } catch {
             try? FileManager.default.removeItem(at: location)
-            print(error)
+            Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
             DispatchQueue.main.async {
                 self.downloaderState = .failed
             }

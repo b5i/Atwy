@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct VideoAppreciationView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -37,7 +38,7 @@ struct VideoAppreciationView: View {
                         case .liked:
                             currentItem.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                 if let error = error {
-                                    print("Error while removing like from video: \(error)")
+                                    Logger.atwyLogs.simpleLog("Error while removing like from video: \(error)")
                                 } else {
                                     currentItem.setNewLikeStatus(.nothing)
                                 }
@@ -48,7 +49,7 @@ struct VideoAppreciationView: View {
                         case .disliked, .nothing:
                             currentItem.video.likeVideo(youtubeModel: YTM, result: { error in
                                 if let error = error {
-                                    print("Error while liking video: \(error)")
+                                    Logger.atwyLogs.simpleLog("Error while liking video: \(error)")
                                 } else {
                                     currentItem.setNewLikeStatus(.liked)
                                 }
@@ -81,7 +82,7 @@ struct VideoAppreciationView: View {
                             case .disliked:
                                 currentItem.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
-                                        print("Error while removing dislike from video: \(error)")
+                                        Logger.atwyLogs.simpleLog("Error while removing dislike from video: \(error)")
                                     } else {
                                         currentItem.setNewLikeStatus(.nothing)
                                     }
@@ -92,7 +93,7 @@ struct VideoAppreciationView: View {
                             case .nothing, .liked:
                                 currentItem.video.dislikeVideo(youtubeModel: YTM, result: { error in
                                     if let error = error {
-                                        print("Error while disliking video: \(error)")
+                                        Logger.atwyLogs.simpleLog("Error while disliking video: \(error)")
                                     } else {
                                         currentItem.setNewLikeStatus(.disliked)
                                     }

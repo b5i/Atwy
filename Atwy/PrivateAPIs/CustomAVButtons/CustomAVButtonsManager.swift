@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import OSLog
 
 class CustomAVButtonsManager {
     // AVMenuButton
@@ -67,7 +68,7 @@ class CustomAVButtonsManager {
     }
     
     private func validateSelectors() -> Bool {
-        print("Testing Class Methods")
+        Logger.atwyLogs.simpleLog("Testing Class Methods")
         let selectorsAndClasses: [(NSObject.Type, [Selector])] = [
             (self.AVMenuButtonClass, [self.AVMenuButtonInitSelector]),
             (self.AVButtonClass, [self.AVButtonInitSelector]),
@@ -75,12 +76,12 @@ class CustomAVButtonsManager {
         ]
         
         for (classType, selectors) in selectorsAndClasses {
-            print("Testing class with name \(String(describing: classType))")
+            Logger.atwyLogs.simpleLog("Testing class with name \(String(describing: classType))")
             for selector in selectors {
                 if classType.responds(to: selector) {
-                    print(String(describing: selector) + " on " + String(describing: classType) + " passed respond test ✅")
+                    Logger.atwyLogs.simpleLog("\(String(describing: selector)) on \(String(describing: classType)) passed respond test ✅")
                 } else {
-                    print(String(describing: selector) + " on " + String(describing: classType) + " did not pass respond test ❌")
+                    Logger.atwyLogs.simpleLog("\(String(describing: selector)) on \(String(describing: classType)) did not pass respond test ❌")
                     return false
                 }
             }

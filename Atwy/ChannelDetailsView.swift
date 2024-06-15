@@ -8,6 +8,7 @@
 import SwiftUI
 import InfiniteScrollViews
 import YouTubeKit
+import OSLog
 
 struct ChannelDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -301,7 +302,7 @@ struct ChannelDetailsView: View {
                         end?()
                     }
                 case .failure(let error):
-                    print("Couldn't fetch channel infos: \(error)")
+                    Logger.atwyLogs.simpleLog("Couldn't fetch channel infos: \(error)")
                 }
             })
         }
@@ -320,7 +321,7 @@ struct ChannelDetailsView: View {
                             self.channelInfos?.channelContentContinuationStore[category] = response.channelContentContinuationStore[category]
                         }
                     case .failure(let error):
-                        print("Error while fetching \(category): \(error)")
+                        Logger.atwyLogs.simpleLog("Error while fetching \(String(describing: category)): \(error.localizedDescription)")
                     }
                     DispatchQueue.main.async {
                         self.fetchingStates[category] = false
@@ -330,62 +331,33 @@ struct ChannelDetailsView: View {
         }
         
         public func fetchContentsContinuation(for category: ChannelInfosResponse.RequestTypes) {
-            if let channelInfos = self.channelInfos, (channelInfos.channelContentContinuationStore[category] ?? nil) != nil {
+            func fetchContentsContinuationRequest<Category>(category: Category.Type) where Category: ListableChannelContent {
                 DispatchQueue.main.async {
-                    self.continuationsFetchingStates[category] = true
+                    self.continuationsFetchingStates[category.type] = true
                 }
-                
-                switch category {
-                case .directs:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Directs.self, youtubeModel: YTM, result: { result in
-                        switch result {
-                        case .success(let response):
-                            DispatchQueue.main.async {
-                                self.channelInfos?.mergeListableChannelContentContinuation(response)
-                            }
-                        case .failure(let error):
-                            print("Error while fetching \(category): \(error)")
+                channelInfos?.getChannelContentContinuation(Category.self, youtubeModel: YTM, result: { (result: Result<ChannelInfosResponse.ContentContinuation<Category>, Error>) in
+                    switch result {
+                    case .success(let response):
+                        DispatchQueue.main.async {
+                            self.channelInfos?.mergeListableChannelContentContinuation(response)
                         }
-                    })
-                case .playlists:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Playlists.self, youtubeModel: YTM, result: { result in
-                        switch result {
-                        case .success(let response):
-                            DispatchQueue.main.async {
-                                self.channelInfos?.mergeListableChannelContentContinuation(response)
-                            }
-                        case .failure(let error):
-                            print("Error while fetching \(category): \(error)")
-                        }
-                    })
-                case .shorts:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Shorts.self, youtubeModel: YTM, result: { result in
-                        switch result {
-                        case .success(let response):
-                            DispatchQueue.main.async {
-                                self.channelInfos?.mergeListableChannelContentContinuation(response)
-                            }
-                        case .failure(let error):
-                            print("Error while fetching \(category): \(error)")
-                        }
-                    })
-                case .videos:
-                    channelInfos.getChannelContentContinuation(ChannelInfosResponse.Videos.self, youtubeModel: YTM, result: { result in
-                        switch result {
-                        case .success(let response):
-                            DispatchQueue.main.async {
-                                self.channelInfos?.mergeListableChannelContentContinuation(response)
-                            }
-                        case .failure(let error):
-                            print("Error while fetching \(category): \(error)")
-                        }
-                    })
-                default:
-                    break
-                }
+                    case .failure(let error):
+                        Logger.atwyLogs.simpleLog("Error while fetching \(String(describing: category)): \(error.localizedDescription)")
+                        break;
+                    }
+                    DispatchQueue.main.async {
+                        self.continuationsFetchingStates[category.type] = false
+                    }
+                })
             }
             
-            func getChannelContinuationContentTypeFor(category: ChannelInfosResponse.RequestTypes) -> (any ChannelContent.Type)? {
+            if let channelInfos = self.channelInfos, (channelInfos.channelContentContinuationStore[category] ?? nil) != nil {
+                guard let categoryCastedType: any ListableChannelContent.Type = getChannelContinuationContentTypeFor(category: category) else { return }
+                
+                fetchContentsContinuationRequest(category: categoryCastedType)
+            }
+            
+            func getChannelContinuationContentTypeFor(category: ChannelInfosResponse.RequestTypes) -> (any ListableChannelContent.Type)? {
                 switch category {
                 case .directs:
                     return ChannelInfosResponse.Directs.self

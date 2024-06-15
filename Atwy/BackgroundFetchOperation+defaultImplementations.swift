@@ -8,6 +8,7 @@
 
 import Foundation
 import BackgroundTasks
+import OSLog
 
 @available(iOS 16.1, *)
 extension BackgroundFetchOperation {
@@ -36,7 +37,7 @@ extension BackgroundFetchOperation {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("Could not schedule fetch activity (\(String(describing: type(of: Self.self))): \(error)")
+            Logger.atwyLogs.simpleLog("Could not schedule fetch activity (\(String(describing: type(of: Self.self))): \(error)")
         }
     }
     

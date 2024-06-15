@@ -8,6 +8,7 @@
 
 import BackgroundTasks
 import ActivityKit
+import OSLog
 
 @available(iOS 16.1, *)
 extension BackgroundFetchActivity {
@@ -50,7 +51,7 @@ extension BackgroundFetchActivity {
                         
             LiveActivitesManager.shared.replaceActivityForType(Self.self, activity: activity)
         } catch {
-            print("Error while setting up activity: \(error)")
+            Logger.atwyLogs.simpleLog("Error while setting up activity: \(error)")
         }
     }
     

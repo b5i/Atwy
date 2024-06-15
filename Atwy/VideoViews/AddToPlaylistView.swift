@@ -7,6 +7,7 @@
 
 import SwiftUI
 import YouTubeKit
+import OSLog
 
 struct AddToPlaylistView: View {
     @Environment(\.dismiss) private var dismiss
@@ -225,7 +226,7 @@ struct AddToPlaylistView: View {
                         self.isFetching = false
                         self.hasError = true
                     }
-                    print("Could not fetch playlists, error: \(String(describing: error)).")
+                    Logger.atwyLogs.simpleLog("Could not fetch playlists, error: \(String(describing: error)).")
                 }
             })
         }
@@ -247,7 +248,7 @@ struct AddToPlaylistView: View {
                             end?(true)
                         }
                     case .failure(let error):
-                        print("Couldn't create playlist, error: \(String(describing: error)).")
+                        Logger.atwyLogs.simpleLog("Couldn't create playlist, error: \(String(describing: error)).")
                         end?(true)
                     }
                     DispatchQueue.main.async {
@@ -271,7 +272,7 @@ struct AddToPlaylistView: View {
                             }
                         }
                     case .failure(let error):
-                        print("Couldn't add video to playlist, error: \(String(describing: error)).")
+                        Logger.atwyLogs.simpleLog("Couldn't add video to playlist, error: \(String(describing: error)).")
                     }
                     DispatchQueue.main.async {
                         self.isModifyingPlaylistWithId.remove(playlist.playlistId)
@@ -294,7 +295,7 @@ struct AddToPlaylistView: View {
                             }
                         }
                     case .failure(let error):
-                        print("Couldn't add video to playlist, error: \(String(describing: error)).")
+                        Logger.atwyLogs.simpleLog("Couldn't add video to playlist, error: \(String(describing: error)).")
                     }
                     DispatchQueue.main.async {
                         self.isModifyingPlaylistWithId.remove(playlist.playlistId)

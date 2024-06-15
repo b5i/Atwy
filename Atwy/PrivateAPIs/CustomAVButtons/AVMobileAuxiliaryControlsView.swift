@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Combine
 import YouTubeKit
+import OSLog
 
 class AVMobileAuxiliaryControlsView {    
     let manager: CustomAVButtonsManager
@@ -20,7 +21,6 @@ class AVMobileAuxiliaryControlsView {
         
     init(manager: CustomAVButtonsManager) {
         self.manager = manager
-        
         let handler: (@convention(block) (NSObject) -> Bool) = { [weak self] controlsView in
             let defaultStatus = controlsView.value(forKey: "_requiresOverflowControl2") as? Bool
             
@@ -129,7 +129,7 @@ class AVMobileAuxiliaryControlsView {
                     if currentStatus == .liked {
                         VideoPlayerModel.shared.currentItem?.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                             if let error = error {
-                                print("Error while removing like from video: \(error)")
+                                Logger.atwyLogs.simpleLog("Error while removing like from video: \(error)")
                             } else {
                                 VideoPlayerModel.shared.currentItem?.setNewLikeStatus(.nothing)
                             }
@@ -137,7 +137,7 @@ class AVMobileAuxiliaryControlsView {
                     } else {
                         VideoPlayerModel.shared.currentItem?.video.likeVideo(youtubeModel: YTM, result: { error in
                             if let error = error {
-                                print("Error while liking video: \(error)")
+                                Logger.atwyLogs.simpleLog("Error while liking video: \(error)")
                             } else {
                                 VideoPlayerModel.shared.currentItem?.setNewLikeStatus(.liked)
                             }
@@ -154,7 +154,7 @@ class AVMobileAuxiliaryControlsView {
                     if currentStatus == .disliked {
                         VideoPlayerModel.shared.currentItem?.video.removeLikeFromVideo(youtubeModel: YTM, result: { error in
                             if let error = error {
-                                print("Error while removing dislike from video: \(error)")
+                                Logger.atwyLogs.simpleLog("Error while removing dislike from video: \(error)")
                             } else {
                                 VideoPlayerModel.shared.currentItem?.setNewLikeStatus(.nothing)
                             }
@@ -162,7 +162,7 @@ class AVMobileAuxiliaryControlsView {
                     } else {
                         VideoPlayerModel.shared.currentItem?.video.dislikeVideo(youtubeModel: YTM, result: { error in
                             if let error = error {
-                                print("Error while disliking from video: \(error)")
+                                Logger.atwyLogs.simpleLog("Error while disliking from video: \(error)")
                             } else {
                                 VideoPlayerModel.shared.currentItem?.setNewLikeStatus(.disliked)
                             }

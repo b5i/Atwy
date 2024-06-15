@@ -8,6 +8,7 @@
 import SwiftUI
 import InfiniteScrollViews
 import YouTubeKit
+import OSLog
 
 struct PlaylistDetailsView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -175,7 +176,7 @@ struct PlaylistDetailsView: View {
                             }
                         }
                     case .failure(let error):
-                        print("Error while fetching playlist infos: \(error.localizedDescription)")
+                        Logger.atwyLogs.simpleLog("Error while fetching playlist infos: \(error.localizedDescription)")
                     }
                     DispatchQueue.main.async {
                         self.isFetchingInfos = false
@@ -196,7 +197,7 @@ struct PlaylistDetailsView: View {
                             self.playlistInfos?.mergeWithContinuation(response)
                         }
                     case .failure(let error):
-                        print("Error while fetching playlist infos: \(error)")
+                        Logger.atwyLogs.simpleLog("Error while fetching playlist infos: \(error)")
                     }
                     DispatchQueue.main.async {
                         self.isFetchingContinuation = false
@@ -218,7 +219,7 @@ struct PlaylistDetailsView: View {
                             }
                         }
                     case .failure(let error):
-                        print("Couldn't remove video from playlist: \(error)")
+                        Logger.atwyLogs.simpleLog("Couldn't remove video from playlist: \(error)")
                     }
                 })
             }
@@ -252,7 +253,7 @@ struct PlaylistDetailsView: View {
                             }
                         }
                     case .failure(let error):
-                        print("Couldn't move video in playlist: \(error)")
+                        Logger.atwyLogs.simpleLog("Couldn't move video in playlist: \(error)")
                     }
                 })
             }

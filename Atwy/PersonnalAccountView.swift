@@ -7,6 +7,7 @@
 
 import SwiftUI
 import YouTubeKit
+import OSLog
 
 struct PersonnalAccountView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -90,7 +91,7 @@ struct PersonnalAccountView: View {
                     self.libraryContent = response
                 }
             case .failure(let error):
-                print("Error while fetching account's library: \(String(describing: error)).")
+                Logger.atwyLogs.simpleLog("Error while fetching account's library: \(String(describing: error)).")
             }
             DispatchQueue.main.async {
                 self.isFetching = false

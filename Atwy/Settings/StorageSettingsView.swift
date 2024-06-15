@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct StorageSettingsView: View {
     @State private var isDeletingCoreSpotlight: Bool = false
@@ -23,7 +24,7 @@ struct StorageSettingsView: View {
                                 isDeletingCoreSpotlight = true
                                 PersistenceModel.shared.controller.spotlightIndexer?.deleteSpotlightIndex(completionHandler: { error in
                                     if let error = error {
-                                        print(error)
+                                        Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
                                     }
                                     DispatchQueue.main.async {
                                         isDeletingCoreSpotlight = false

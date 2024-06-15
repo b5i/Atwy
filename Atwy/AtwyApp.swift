@@ -120,7 +120,6 @@ struct AtwyApp: App {
             }
             .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)
             .onOpenURL(perform: { url in
-                print(url)
                 if url.scheme == "atwy" || url.scheme == "Atwy" {
                     switch url.host {
                     case "watch":
@@ -129,7 +128,6 @@ struct AtwyApp: App {
                            let sanitizedVideoId = sanitizedVideoId
                         {
                             //                                Atwy://watch?_u4GmLb_NCo
-                            print("received valid id")
                             VideoPlayerModel.shared.loadVideo(video: YTVideo(videoId: sanitizedVideoId))
                             SheetsModel.shared.showSheet(.watchVideo)
                         }
@@ -139,7 +137,6 @@ struct AtwyApp: App {
                            let sanitizedChannelId = sanitizedChannelId
                         {
                             //                                Atwy://watch?_u4GmLb_NCo
-                            print("received valid id")
                             NavigationPathModel.shared.currentTab = .search // make sense to redirect the user to the search tab
                             NavigationPathModel.shared.searchTabPath.append(RouteDestination.channelDetails(channel: YTLittleChannelInfos(channelId: sanitizedChannelId)))
                         }

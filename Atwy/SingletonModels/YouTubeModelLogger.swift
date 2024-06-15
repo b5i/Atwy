@@ -8,6 +8,7 @@
 
 import Foundation
 import YouTubeKit
+import OSLog
 
 class YouTubeModelLogger: RequestsLogger, ObservableObject {
     static let shared = YouTubeModelLogger()
@@ -53,7 +54,7 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
                 for fileURL in fileURLs where fileURL.pathExtension == "zip" {
                     try FileManager.default.removeItem(at: fileURL)
                 }
-            } catch { print("Error removing log file: \(error)") }
+            } catch { Logger.atwyLogs.simpleLog("Error removing log file: \(error)") }
         }
     }
     
@@ -151,7 +152,7 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
                     
                     try FileManager.default.removeItem(at: baseDirectory)
                 } catch {
-                    print(error)
+                    Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
                 }
             }
             
@@ -159,7 +160,7 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
         
             return archiveUrl
         } catch {
-            print(error)
+            Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
         }
         
         return nil
