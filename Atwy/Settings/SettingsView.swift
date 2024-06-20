@@ -77,6 +77,7 @@ struct SettingsView: View {
                             }
                             .routeTo(.googleConnection)
                         }
+                        .padding()
                     }
                     List {
                         Group {
@@ -168,7 +169,7 @@ struct SettingsView: View {
                 }
             }
             .routeContainer()
-            .navigationTitle("Account")
+            .navigationTitle("Settings")
             #if os(macOS)
             .toolbar(content: {
                 ToolbarItem(placement: .secondaryAction, content: {

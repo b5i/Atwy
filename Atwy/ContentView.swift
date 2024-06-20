@@ -35,7 +35,7 @@ struct ContentView: View {
                 if network.connected {
                     SearchView()
                 } else {
-                    NoConnectionView()
+                    NoConnectionView(menuName: "Home")
                 }
             }, type: .search, name: "Home", image: "square.stack.fill")
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
@@ -54,7 +54,7 @@ struct ContentView: View {
                         NotConnectedToGoogleView()
                     }
                 } else {
-                    NoConnectionView()
+                    NoConnectionView(menuName: "Account")
                 }
             }, type: .account, name: "Account", image: "person.circle")
         }
