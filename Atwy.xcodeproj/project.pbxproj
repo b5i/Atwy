@@ -505,6 +505,7 @@
 		345DA1F22BC57920002FB283 /* ViewUtils */ = {
 			isa = PBXGroup;
 			children = (
+				341FB2E02BE2F5D400160A71 /* View+tappablePadding.swift */,
 				346F3AEA2B45CE7100599B08 /* View+centered.swift */,
 				34BA6E492BA3489F0020EF41 /* View+customHeaderView.swift */,
 				34B5FDD62ADA856400367036 /* View+hapticFeedbackOnTap.swift */,
@@ -639,7 +640,6 @@
 				3421ED5D2BB232EE00F3D29D /* YTVideoShareSource.swift */,
 				345DA1F42BC5C0C9002FB283 /* Collection+conditionnalFilter.swift */,
 				344C75432BD110680034A53C /* UnknownAvatarView.swift */,
-				341FB2E02BE2F5D400160A71 /* View+tappablePadding.swift */,
 				341FB2E62BE5893E00160A71 /* YTElementWithData.swift */,
 			);
 			path = Atwy;
@@ -1331,7 +1331,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = a690779651cc4d9021210400fdc330686f8f0686;
+				revision = b489070fe2adf6109ff819e8065e77ee74b16d31;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

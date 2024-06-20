@@ -43,6 +43,72 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
         }
     }
     
+    func startLogging() {
+        DispatchQueue.main.async {
+            self.isLogging = true
+        }
+    }
+    
+    func stopLogging() {
+        DispatchQueue.main.async {
+            self.isLogging = false
+        }
+    }
+    
+    
+    func setCacheSize(_ size: Int?) {
+        DispatchQueue.main.async {
+            self.maximumCacheSize = size
+            if let size = size {
+                self.removeFirstLogsWith(limit: size)
+            }
+        }
+    }
+    
+    
+    func addLog(_ log: any GenericRequestLog) {
+        @Sendable func compareTypes<T: GenericRequestLog, U: YouTubeResponse>(log1: T, log2: U.Type) -> Bool {
+            let newRequest: RequestLog<U>
+            return type(of: log1) == type(of: newRequest)
+        }
+        
+        DispatchQueue.main.async {
+            guard self.isLogging, (self.maximumCacheSize ?? 1) > 0 else { return }
+            guard (self.loggedTypes?.contains(where: { compareTypes(log1: log, log2: $0) }) ?? true) else { return }
+            if let maximumCacheSize = self.maximumCacheSize {
+                self.removeFirstLogsWith(limit: max(maximumCacheSize - 1, 0))
+            }
+            self.logs.append(log)
+        }
+    }
+    
+    
+    func clearLogs() {
+        DispatchQueue.main.async {
+            self.logs.removeAll()
+        }
+    }
+    
+    func clearLogsWithIds(_ ids: [UUID]) {
+        DispatchQueue.main.async {
+            for idToRemove in ids {
+                self.logs.removeAll(where: {$0.id == idToRemove})
+            }
+        }
+    }
+    
+    func clearLogWithId(_ id: UUID) {
+        self.clearLogsWithIds([id])
+    }
+    
+    private func removeFirstLogsWith(limit maxCacheSize: Int) {
+        let logsCount = self.logs.count
+        let maxCacheSize = max(0, maxCacheSize)
+        if logsCount > maxCacheSize {
+            self.logs.removeFirst(abs(maxCacheSize - logsCount))
+        }
+    }
+    
     func clearLocalLogFiles() {
         Task {
             guard let baseDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("logs", isDirectory: true) else { return }
