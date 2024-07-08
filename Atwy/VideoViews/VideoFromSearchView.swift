@@ -23,6 +23,8 @@ struct VideoFromSearchView: View {
         } label: {
             if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
                     VideoView(videoWithData: videoWithData)
+            } else if self.videoWithData.data.videoViewMode == .halfThumbnail {
+                VideoView(videoWithData: videoWithData)
             } else {
                 // Big thumbnail view by default
                 VideoView2(videoWithData: videoWithData)

@@ -149,7 +149,51 @@ class VideoPlayerModel: NSObject, ObservableObject {
         self.loadingVideoTask = Task {
             do {
                 let newItem = try await YTAVPlayerItem(video: video)
-                guard self.loadingVideo?.videoId == video.videoId else { return }
+                /*
+                let djo = MPRemoteCommandCenter.shared()
+            
+                djo.likeCommand.addTarget(handler: { _ in
+                    print("bergei")
+                    return .success
+                })
+                djo.likeCommand.isEnabled = true
+                djo.likeCommand.isActive = true
+                
+                djo.dislikeCommand.addTarget(handler: { _ in
+                    print("fernfowfmw")
+                    return .success
+                })
+                djo.dislikeCommand.isEnabled = true
+                djo.dislikeCommand.isActive = true
+                */
+                /*
+                let tmt = MPFeedbackCommand()
+                let tmt1 = MPFeedbackCommand()
+                tmt.addTarget(handler:  { _ in
+                    print(1)
+                    return .success
+                })
+                tmt1.addTarget(handler:  { _ in
+                    print(2)
+                    return .success
+                })
+                djo.setValue(tmt, forKey: "_addNowPlayingItemToLibraryCommand")
+                djo.setValue(tmt1, forKey: "_addItemToLibraryCommand")
+                 */
+                /*
+                let command = MPRemoteCommand()
+                command.addTarget(handler: { _ in
+                    print("djo1")
+                    return .success
+                })
+                
+                let command2 = MPRem..addTarget(handler: { _ in
+                    print("djo2")
+                    return .success
+                })
+                djo.setValue(command, forKey: "addItemToLibraryCommand")
+                djo.setValue(command2, forKey: "addNowPlayingItemToLibraryCommand")
+                 */
                 // Not enabled for the moment
                 // https://stackoverflow.com/questions/47953605/avplayer-play-network-video-with-separate-audio-url-without-downloading-the-fi
                 //                    if let otherLanguageAudio = streamingInfos.downloadFormats.first(where: { audioFormat in

@@ -18,8 +18,10 @@ struct YTElementWithData {
 }
 
 struct YTElementDataSet: Hashable {
+    typealias VideoViewMode = PreferencesStorageModel.Properties.VideoViewModes
+    
     static func == (lhs: YTElementDataSet, rhs: YTElementDataSet) -> Bool {
-        return lhs.allowChannelLinking == rhs.allowChannelLinking && (lhs.removeFromPlaylistAvailable == nil) == (rhs.removeFromPlaylistAvailable == nil) && lhs.channelAvatarData == rhs.channelAvatarData && lhs.thumbnailData == rhs.thumbnailData
+        return lhs.allowChannelLinking == rhs.allowChannelLinking && (lhs.removeFromPlaylistAvailable == nil) == (rhs.removeFromPlaylistAvailable == nil) && lhs.channelAvatarData == rhs.channelAvatarData && lhs.thumbnailData == rhs.thumbnailData && lhs.videoViewMode == rhs.videoViewMode
     }
     
     var allowChannelLinking: Bool = true
@@ -30,11 +32,14 @@ struct YTElementDataSet: Hashable {
     
     var thumbnailData: Data? = nil
     
+    var videoViewMode: VideoViewMode = (PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? VideoViewMode) ?? .fullThumbnail
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.allowChannelLinking)
         hasher.combine(self.removeFromPlaylistAvailable == nil)
         hasher.combine(self.channelAvatarData)
         hasher.combine(self.thumbnailData)
+        hasher.combine(self.videoViewMode)
     }
 }
 

@@ -13,6 +13,7 @@ struct PrivateAPIsSettingsView: View {
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     @State private var customAVButtons: Bool
+    @State private var variableBlur: Bool
     
     init() {
         /// Maybe using AppStorage would be better
@@ -21,6 +22,13 @@ struct PrivateAPIsSettingsView: View {
         } else {
             let defaultMode = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
             self._customAVButtons = State(wrappedValue: defaultMode)
+        }
+        
+        if let state = PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool {
+            self._variableBlur = State(wrappedValue: state)
+        } else {
+            let defaultMode = PreferencesStorageModel.Properties.variableBlurEnabled.getDefaultValue() as? Bool ?? true
+            self._variableBlur = State(wrappedValue: defaultMode)
         }
     }
     var body: some View {
@@ -34,7 +42,7 @@ struct PrivateAPIsSettingsView: View {
                 .listRowBackground(Color.red.opacity(0.2))
                 Section("Private APIs") {
                     VStack {
-                        let cacheLimitEnabledBinding: Binding<Bool> = Binding(get: {
+                        let customAVButtonsEnabledBinding: Binding<Bool> = Binding(get: {
                             if PrivateManager.shared.avButtonsManager == nil {
                                 return false
                             } else {
@@ -49,7 +57,7 @@ struct PrivateAPIsSettingsView: View {
                                 PrivateManager.shared.avButtonsManager?.removeInjection()
                             }
                         })
-                        Toggle(isOn: cacheLimitEnabledBinding, label: {
+                        Toggle(isOn: customAVButtonsEnabledBinding, label: {
                             Text("Custom Player Buttons")
                         })
                         Text("Enabling Custom Player Buttons will show various actions such as like/dislike to the video player full-screen view.")
@@ -63,6 +71,35 @@ struct PrivateAPIsSettingsView: View {
                         }
                     }
                     .disabled(PrivateManager.shared.avButtonsManager == nil)
+                    
+                    VStack {
+                        let variableBlurEnabledBinding: Binding<Bool> = Binding(get: {
+                            if PrivateManager.shared.isVariableBlurAvailable {
+                                return self.variableBlur
+                            } else {
+                                return false
+                            }
+                        }, set: { newValue in
+                            guard PrivateManager.shared.isVariableBlurAvailable else { return }
+                            self.variableBlur = newValue
+                            DispatchQueue.main.async {
+                                PreferencesStorageModel.shared.setNewValueForKey(.variableBlurEnabled, value: newValue)
+                            }
+                        })
+                        Toggle(isOn: variableBlurEnabledBinding, label: {
+                            Text("Variable Blur")
+                        })
+                        Text("Enabling Variable Blur enhances the experience in various UI elements of Atwy such as the Video Player.")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if !PrivateManager.shared.isVariableBlurAvailable {
+                            Label("Private APIs checks have failed for this option, therefore you can't enable it for safety reasons.", systemImage: "exclamationmark.triangle.fill")
+                                .labelStyle(FailedInitPrivateAPILabelStyle())
+                        }
+                    }
+                    .disabled(!PrivateManager.shared.isVariableBlurAvailable)
                 }
             }
             .onAppear {
@@ -71,8 +108,18 @@ struct PrivateAPIsSettingsView: View {
                 } else {
                     self.customAVButtons = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
                 }
+                
+                if let state = PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool {
+                    self.variableBlur = state
+                } else {
+                    self.variableBlur = PreferencesStorageModel.Properties.variableBlurEnabled.getDefaultValue() as? Bool ?? true
+                }
             }
         }
         .navigationTitle("Private APIs")
     }
+}
+
+#Preview {
+    PrivateAPIsSettingsView()
 }

@@ -20,6 +20,12 @@ struct CustomElementsInfiniteScrollView: View {
     
     var refreshAction: ((@escaping () -> Void) -> Void)?
     var fetchMoreResultsAction: (() -> Void)?
+    
+    // not really useful in this view for the moment
+    var topSpacing: CGFloat = 0
+    var bottomSpacing: CGFloat = 0
+    
+    var orientation: Axis = .vertical
     var body: some View {
         GeometryReader { geometry in
             InfiniteScrollView(
@@ -61,16 +67,7 @@ struct CustomElementsInfiniteScrollView: View {
                                 .swipeMinimumDistance(50)
                                 .frame(width: geometry.size.width, height: 180, alignment: .center)
                             case let rawVideo as YTVideo:
-                                let video = rawVideo.withData(item.data)
-                                if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
-                                    VideoFromSearchView(videoWithData: video)
-                                        .frame(width: geometry.size.width, height: 180, alignment: .center)
-                                } else {
-                                    // Big thumbnail view by default
-                                    VideoFromSearchView(videoWithData: video)
-                                        .frame(width: geometry.size.width, height: geometry.size.width * 9/16 + 90, alignment: .center)
-                                    //                                            .padding(.bottom, resultIndex == 0 ? geometry.size.height * 0.2 : 0)
-                                }
+                                VideoInScrollView(video: rawVideo.withData(item.data), geometry: geometry)
                             default:
                                 Color.clear.frame(width: 0, height: 0)
                             }
@@ -120,7 +117,7 @@ struct CustomElementsInfiniteScrollView: View {
                         return nil
                     }
                 },
-                orientation: .vertical,
+                orientation: self.orientation == .horizontal ? .horizontal : .vertical,
                 refreshAction: refreshAction,
                 contentMultiplier: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes == .halfThumbnail) ? 15 : 6,
                 updateBinding: $shouldReloadScrollView

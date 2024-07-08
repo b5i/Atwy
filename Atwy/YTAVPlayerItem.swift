@@ -20,7 +20,8 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     let video: YTVideo
     var streamingInfos: VideoInfosResponse
     
-    var isFetchingMoreVideoInfos: Bool = false
+    @Published var isFetchingMoreVideoInfos: Bool = false
+    @Published var isFetchingMoreRecommendedVideos: Bool = false
     
     var isAbleToLike: Bool {
         return NetworkReachabilityModel.shared.connected && self.moreVideoInfos?.authenticatedInfos?.likeStatus != nil
@@ -122,7 +123,29 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         }
     }
     
-    func setNewLikeStatus(_ likeStatus: MoreVideoInfosResponse.AuthenticatedData.LikeStatus) {
+    func fetchMoreRecommendedVideos() {
+        guard !self.isFetchingMoreRecommendedVideos else { return }
+        
+        DispatchQueue.main.async {
+            self.isFetchingMoreRecommendedVideos = true
+        }
+        
+        self.moreVideoInfos?.getRecommendedVideosContination(youtubeModel: YTM, result: { result in
+            switch result {
+            case .success(let response):
+                DispatchQueue.main.async {
+                    self.moreVideoInfos?.mergeRecommendedVideosContination(response)
+                }
+            case .failure(_):
+                Logger.atwyLogs.simpleLog("Couldn't fetch continuation of recommended videos.")
+            }
+            DispatchQueue.main.async {
+                self.isFetchingMoreRecommendedVideos = false
+            }
+        })
+    }
+    
+    func setNewLikeStatus(_ likeStatus: YTLikeStatus) {
         DispatchQueue.main.async {
             self.moreVideoInfos?.authenticatedInfos?.likeStatus = likeStatus
         }

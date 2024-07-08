@@ -7,6 +7,7 @@
 
 import SwiftUI
 import YouTubeKit
+import InfiniteScrollViews
 
 struct ElementsInfiniteScrollView: View {
     @Binding var items: [YTElementWithData]
@@ -19,6 +20,11 @@ struct ElementsInfiniteScrollView: View {
     
     var refreshAction: ((@escaping () -> Void) -> Void)?
     var fetchMoreResultsAction: (() -> Void)?
+    
+    var topSpacing: CGFloat = 0
+    var bottomSpacing: CGFloat = 0
+    
+    var orientation: Axis = .vertical
     var body: some View {
         let performanceMode = PSM.propetriesState[.performanceMode] as? PreferencesStorageModel.Properties.PerformanceModes
         if performanceMode == .limited {
@@ -27,7 +33,10 @@ struct ElementsInfiniteScrollView: View {
                 shouldReloadScrollView: $shouldReloadScrollView, 
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
                 refreshAction: refreshAction,
-                fetchMoreResultsAction: fetchMoreResultsAction
+                fetchMoreResultsAction: fetchMoreResultsAction,
+                topSpacing: topSpacing,
+                bottomSpacing: bottomSpacing,
+                orientation: orientation
             )
         } else {
             DefaultElementsInfiniteScrollView(
@@ -36,7 +45,10 @@ struct ElementsInfiniteScrollView: View {
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
                 shouldAddBottomSpacing: shouldAddBottomSpacing,
                 refreshAction: refreshAction,
-                fetchMoreResultsAction: fetchMoreResultsAction
+                fetchMoreResultsAction: fetchMoreResultsAction,
+                topSpacing: topSpacing, 
+                bottomSpacing: bottomSpacing,
+                orientation: orientation
             )
         }
     }

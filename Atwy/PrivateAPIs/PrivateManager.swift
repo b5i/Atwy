@@ -13,7 +13,17 @@ class PrivateManager {
     
     let avButtonsManager: CustomAVButtonsManager?
     
+    let isVariableBlurAvailable: Bool
+    
     init() {
         self.avButtonsManager = CustomAVButtonsManager()
+        
+        if let CAFilter = NSClassFromString("CAFilter") as? NSObject.Type,
+           CAFilter.responds(to: NSSelectorFromString("filterWithType:"))
+        {
+            self.isVariableBlurAvailable = true
+        } else {
+            self.isVariableBlurAvailable = false
+        }
     }
 }
