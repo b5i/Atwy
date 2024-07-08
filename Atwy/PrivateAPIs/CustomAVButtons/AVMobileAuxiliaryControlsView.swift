@@ -93,7 +93,7 @@ class AVMobileAuxiliaryControlsView {
     private var dislikeButtonControl: AVMobileAuxiliaryControl? = nil
     private var realRouteDelegate: CustomAVControlOverflowButtonDelegate? = nil
     
-    private func handleNewLikeStatus(_ likeStatus: MoreVideoInfosResponse.AuthenticatedData.LikeStatus?) {
+    private func handleNewLikeStatus(_ likeStatus: YTLikeStatus?) {
         if let likeStatus = likeStatus {
             switch likeStatus {
             case .liked:

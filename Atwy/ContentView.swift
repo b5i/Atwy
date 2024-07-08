@@ -18,7 +18,6 @@ struct ContentView: View {
     @Namespace private var sheetAnimation
     @State private var errorText = ""
     @State private var showOverlay: Bool = true
-    private var addToPlaylistBinding = SheetsModel.shared.makeSheetBinding(.addToPlaylist)
     private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
     private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
     @ObservedObject private var network = NetworkReachabilityModel.shared
@@ -107,16 +106,6 @@ struct ContentView: View {
             }
         })
         .animation(.spring, value: !IUTM.userTyping && VPM.currentItem != nil)
-        .sheet(isPresented: addToPlaylistBinding, content: {
-            if let video = SM.shownSheet?.data as? YTVideo {
-                AddToPlaylistView(video: video)
-            } else {
-                Color.clear.frame(width: 0, height: 0)
-                    .onAppear {
-                        self.addToPlaylistBinding.wrappedValue = false
-                    }
-            }
-        })
         .sheet(isPresented: settingsSheetBinding, content: {
             SettingsView()
         })

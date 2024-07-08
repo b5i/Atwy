@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import YouTubeKit
+import SwiftUI
 
 public class SheetsModel: ObservableObject {
     public static let shared = SheetsModel()
@@ -14,7 +16,14 @@ public class SheetsModel: ObservableObject {
     @Published private(set) public var shownSheet: (type: SheetType, data: Any?)? = nil
     
     public func showSheet(_ type: SheetType, data: Any? = nil) {
-        self.shownSheet = (type, data)
+        switch type {
+        case .addToPlaylist:
+            guard let video = data as? YTVideo else { return }
+            
+            self.showSuperSheet(withViewController: UIHostingController(rootView: AddToPlaylistView(video: video)))
+        case .settings, .watchVideo:
+            self.shownSheet = (type, data)
+        }
     }
     
     public func hideSheet(_ type: SheetType) {

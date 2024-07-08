@@ -69,310 +69,336 @@ struct WatchVideoView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {
-                        ZStack {
-                            ZStack(alignment: (showQueue || showDescription) ? .topLeading : .center) {
-                                ZStack {
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.4))
-                                        .shadow(radius: 10)
-                                }
-                                //                                .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: (showQueue || showDescription) ? geometry.size.height * 0.40 : geometry.size.height * 0.45)
-                                .frame(width: geometry.size.width, height: (showQueue || showDescription) ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
-                                .padding(.top, -geometry.size.height * 0.01)
-                                //.padding(.bottom, geometry.size.height * 0.05)
-                                //(showQueue || showDescription) ? :
-                                HStack(spacing: 0) {
-                                    if VPM.player.currentItem != nil {
-                                        PlayerViewController(
-                                            player: VPM.player,
-                                            controller: VPM.controller
-                                        )
-                                        .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
-                                        .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
-                                        .shadow(radius: 10)
-                                        /* TODO: Remove that in a future version (17/04/2024)
-                                        .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
-                                            if UIApplication.shared.applicationState == .background {
-                                                dismiss()
-                                            }
-                                        })*/
-                                        
-                                    } else if VPM.isLoadingVideo {
-                                        LoadingView()
-                                            .tint(.white)
-                                            .frame(alignment: .center)
+                        VStack {
+                            ZStack {
+                                ZStack(alignment: (showQueue || showDescription) ? .topLeading : .center) {
+                                    ZStack {
+                                        Rectangle()
+                                            .fill(Color.black.opacity(0.4))
+                                            .shadow(radius: 10)
                                     }
-                                    //                                    VideoPlayer(player: player)
-                                    //                                        .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
-                                    //                                        .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
-                                    //                                        .shadow(radius: 10)
-                                    if showQueue || showDescription {
-                                        ZStack {
-                                            VStack(alignment: .leading) {
-                                                Text(VPM.currentItem?.video.title ?? "")
-                                                    .font(.system(size: 500))
-                                                    .foregroundStyle(.white)
-                                                    .minimumScaleFactor(0.01)
-                                                    .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
-                                                    .frame(height: geometry.size.height * 0.1)
-                                                    .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
-                                                Divider()
-                                                    .frame(height: 1)
-                                                Text(VPM.currentItem?.video.channel?.name ?? "")
-                                                    .font(.system(size: 500))
-                                                    .foregroundStyle(.white)
-                                                    .minimumScaleFactor(0.01)
-                                                    .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
-                                                    .frame(height: geometry.size.height * 0.05)
-                                                    .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
-                                            }
-                                            .padding(.horizontal)
+                                    //                                .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: (showQueue || showDescription) ? geometry.size.height * 0.40 : geometry.size.height * 0.45)
+                                    .frame(width: geometry.size.width, height: (showQueue || showDescription) ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
+                                    .padding(.top, -geometry.size.height * 0.01)
+                                    //.padding(.bottom, geometry.size.height * 0.05)
+                                    //(showQueue || showDescription) ? :
+                                    HStack(spacing: 0) {
+                                        if VPM.player.currentItem != nil {
+                                            PlayerViewController(
+                                                player: VPM.player,
+                                                controller: VPM.controller
+                                            )
+                                            .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
+                                            .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
+                                            .shadow(radius: 10)
+                                            /* TODO: Remove that in a future version (17/04/2024)
+                                             .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
+                                             if UIApplication.shared.applicationState == .background {
+                                             dismiss()
+                                             }
+                                             })*/
+                                            
+                                        } else if VPM.isLoadingVideo {
+                                            LoadingView()
+                                                .tint(.white)
+                                                .frame(alignment: .center)
                                         }
-                                        .frame(width: geometry.size.width / 2, height: geometry.size.height * 0.175)
-                                        .padding(.top, -geometry.size.height * 0.01)
+                                        //                                    VideoPlayer(player: player)
+                                        //                                        .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
+                                        //                                        .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
+                                        //                                        .shadow(radius: 10)
+                                        if showQueue || showDescription {
+                                            ZStack {
+                                                VStack(alignment: .leading) {
+                                                    Text(VPM.currentItem?.video.title ?? "")
+                                                        .font(.system(size: 500))
+                                                        .foregroundStyle(.white)
+                                                        .minimumScaleFactor(0.01)
+                                                        .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
+                                                        .frame(height: geometry.size.height * 0.1)
+                                                        .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
+                                                    Divider()
+                                                        .frame(height: 1)
+                                                    Text(VPM.currentItem?.video.channel?.name ?? "")
+                                                        .font(.system(size: 500))
+                                                        .foregroundStyle(.white)
+                                                        .minimumScaleFactor(0.01)
+                                                        .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
+                                                        .frame(height: geometry.size.height * 0.05)
+                                                        .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
+                                                }
+                                                .padding(.horizontal)
+                                            }
+                                            .frame(width: geometry.size.width / 2, height: geometry.size.height * 0.175)
+                                            .padding(.top, -geometry.size.height * 0.01)
+                                        }
                                     }
                                 }
-                            }
-                            .zIndex(0)
-                            HStack(alignment: .bottom) {
-                                OptionalItemChannelAvatarView(makeGradient: makeGradient)
-                                    .padding(.horizontal)
-                                    .frame(height: (showDescription || showQueue) ? 0 : geometry.size.height * 0.07)
-                                    .padding(.vertical)
-                                    .shadow(radius: 5)
-                                    .offset(x: (showQueue || showDescription) ? -geometry.size.width * 0.55 : 0, y: (showQueue || showDescription) ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
-                                if !(showQueue || showDescription) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
-                                        Text(videoTitle)
-                                            .font(.callout)
-                                            .foregroundStyle(.white)
-                                            .lineLimit(2)
-                                            .padding(.trailing)
-                                            .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.065, alignment: .leading)
-                                            .multilineTextAlignment(.leading)
-                                            .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
-                                        
-                                        let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.channel?.name ?? ""
-                                        Text(channelName)
-                                            .font(.subheadline)
-                                            .lineLimit(2)
-                                            .padding(.trailing)
-                                            .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.035, alignment: .leading)
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundStyle(.gray)
-                                            .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
-//                                        Text(VPM.video?.title ?? "")
-//                                            .frame(width: geometry.size.width * 0.6, height: geometry.size.height * 0.06, alignment: .leading)
-//                                            .font(.system(size: 500))
-//                                            .minimumScaleFactor(0.01)
-//                                            .multilineTextAlignment(.leading)
-//                                            .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
-//                                        Text(VPM.video?.channel?.name ?? "")
-//                                            .frame(width: geometry.size.width * 0.6, height: geometry.size.height * 0.03, alignment: .leading)
-//                                            .font(.system(size: 500))
-//                                            .minimumScaleFactor(0.01)
-//                                            .multilineTextAlignment(.leading)
-//                                            .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
+                                .zIndex(0)
+                                HStack(alignment: .bottom) {
+                                    OptionalItemChannelAvatarView(makeGradient: makeGradient)
+                                        .padding(.horizontal)
+                                        .frame(height: (showDescription || showQueue) ? 0 : geometry.size.height * 0.07)
+                                        .padding(.vertical)
+                                        .shadow(radius: 5)
+                                        .offset(x: (showQueue || showDescription) ? -geometry.size.width * 0.55 : 0, y: (showQueue || showDescription) ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
+                                    if !(showQueue || showDescription) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
+                                            Text(videoTitle)
+                                                .font(.callout)
+                                                .foregroundStyle(.white)
+                                                .lineLimit(2)
+                                                .padding(.trailing)
+                                                .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.065, alignment: .leading)
+                                                .multilineTextAlignment(.leading)
+                                                .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
+                                            
+                                            let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.channel?.name ?? ""
+                                            Text(channelName)
+                                                .font(.subheadline)
+                                                .lineLimit(2)
+                                                .padding(.trailing)
+                                                .frame(maxWidth: geometry.size.width * 0.77, maxHeight: geometry.size.height * 0.035, alignment: .leading)
+                                                .multilineTextAlignment(.leading)
+                                                .foregroundStyle(.gray)
+                                                .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
+                                            //                                        Text(VPM.video?.title ?? "")
+                                            //                                            .frame(width: geometry.size.width * 0.6, height: geometry.size.height * 0.06, alignment: .leading)
+                                            //                                            .font(.system(size: 500))
+                                            //                                            .minimumScaleFactor(0.01)
+                                            //                                            .multilineTextAlignment(.leading)
+                                            //                                            .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
+                                            //                                        Text(VPM.video?.channel?.name ?? "")
+                                            //                                            .frame(width: geometry.size.width * 0.6, height: geometry.size.height * 0.03, alignment: .leading)
+                                            //                                            .font(.system(size: 500))
+                                            //                                            .minimumScaleFactor(0.01)
+                                            //                                            .multilineTextAlignment(.leading)
+                                            //                                            .matchedGeometryEffect(id: "VIDEO_AUTHOR", in: animation)
+                                        }
+                                        .padding(.leading)
+                                        .frame(width: geometry.size.width * 0.77, height: geometry.size.height * 0.09)
+                                        .padding(.vertical)
                                     }
-                                    .padding(.leading)
-                                    .frame(width: geometry.size.width * 0.77, height: geometry.size.height * 0.09)
-                                    .padding(.vertical)
                                 }
+                                .offset(y: geometry.size.height * 0.17)
                             }
-                            .offset(y: geometry.size.height * 0.17)
+                            .ignoresSafeArea()
                         }
-                        .ignoresSafeArea()
-                        ScrollView(.horizontal) {
-                            HStack {
-                                Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
-                                Group {
-                                    if let currentItem = VPM.currentItem {
-                                        VideoAppreciationView(currentItem: currentItem)
+                        GeometryReader { scrollViewGeometry in
+                            if let playerItem = self.VPM.currentItem {
+                                RecommendedVideosView(playerItem: playerItem, topSpacing: 80, bottomSpacing: geometry.size.height * 0.12)
+                                    .environment(\.colorScheme, .dark)
+                                    .frame(height: !(showQueue || showDescription) ? max(180, scrollViewGeometry.size.height) : 0)
+                                    .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
+                            }
+                            VStack {
+                                ScrollView {
+                                    Color.clear.frame(height: 15)
+                                    //                                if let videoDescriptionParts = VPM.moreVideoInfos?.videoDescription {
+                                    //                                    HStack {
+                                    //                                        ForEach(Array(videoDescriptionParts.enumerated()), id: \.offset) { (index: Int, descriptionPart: YouTubeDescriptionPart) in
+                                    //                                            switch descriptionPart.role {
+                                    //                                            case .link(let linkURL):
+                                    //                                                Link(descriptionPart.text, destination: linkURL)
+                                    //                                            case .video:
+                                    //                                            default:
+                                    //                                                Color.clear.frame(width: 0, height: 0)
+                                    //                                            }
+                                    //                                        }
+                                    //                                    }
+                                    //                            }
+                                    if let videoDescription = VPM.currentItem?.videoDescription {
+                                        ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
+                                            VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
+                                        })
+                                        HStack {
+                                            Text("Description")
+                                                .foregroundColor(.gray)
+                                                .font(.caption)
+                                            Spacer()
+                                        }
+                                        .padding([.bottom, .leading])
+                                        Text(LocalizedStringKey(videoDescription))
+                                            .blendMode(.difference)
+                                            .padding(.horizontal)
+                                            .foregroundStyle(.white)
+                                        Color.clear.frame(height: 15)
                                     }
                                 }
-                                .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
-                                    if NRM.connected {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .foregroundStyle(.white)
-                                                .opacity(0.3)
-                                                .frame(height: 45)
-                                            let downloadLocation: URL? = {
-                                                return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
-                                            }()
-                                            DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
-                                                .foregroundStyle(.white)
+                                .mask(FadeInOutView(mode: .vertical))
+                            }
+                            .opacity(showDescription ? 1 : 0)
+                            .frame(height: showDescription ? scrollViewGeometry.size.height : 0)
+                            PlayingQueueView()
+                                .opacity(showQueue ? 1 : 0)
+                                .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
+                            Spacer()
+                        }
+                        .overlay(alignment: .top, content: {
+                            ZStack {
+                                VariableBlurView(orientation: .topToBottom)
+                                    .ignoresSafeArea()
+                                ScrollView(.horizontal) {
+                                    HStack {
+                                        Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
+                                        Group {
+                                            if let currentItem = VPM.currentItem {
+                                                VideoAppreciationView(currentItem: currentItem)
+                                            }
                                         }
                                         .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                        .frame(width: 60)
-                                        .padding(.horizontal, 10)
-                                        .contextMenu(menuItems: {
-                                            if DM.downloadings[video.videoId] != nil {
-                                                Button(role: .destructive) {
-                                                    DownloadingsModel.shared.cancelDownloadFor(videoId: video.videoId)
-                                                } label: {
-                                                    HStack {
-                                                        Text("Cancel Download")
-                                                        Image(systemName: "trash")
+                                        if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
+                                            if NRM.connected {
+                                                ZStack {
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .foregroundStyle(.white)
+                                                        .opacity(0.3)
+                                                        .frame(height: 45)
+                                                    let downloadLocation: URL? = {
+                                                        return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
+                                                    }()
+                                                    DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
+                                                        .foregroundStyle(.white)
+                                                }
+                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .frame(width: 60)
+                                                .padding(.horizontal, 10)
+                                                .contextMenu(menuItems: {
+                                                    if DM.downloadings[video.videoId] != nil {
+                                                        Button(role: .destructive) {
+                                                            DownloadingsModel.shared.cancelDownloadFor(videoId: video.videoId)
+                                                        } label: {
+                                                            HStack {
+                                                                Text("Cancel Download")
+                                                                Image(systemName: "trash")
+                                                            }
+                                                        }
                                                     }
+                                                })
+                                            }
+                                            AddToFavoriteWidgetView(video: video, imageData: VPM.currentItem?.videoThumbnailData)
+                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .frame(width: 60)
+                                                .padding(.trailing, 10)
+                                            Button {
+                                                video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
+                                            } label: {
+                                                ZStack {
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .foregroundStyle(.white)
+                                                        .opacity(0.3)
+                                                        .frame(height: 45)
+                                                    Image(systemName: "square.and.arrow.up")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 18)
+                                                        .foregroundStyle(.white)
                                                 }
                                             }
-                                        })
-                                    }
-                                    AddToFavoriteWidgetView(video: video, imageData: VPM.currentItem?.videoThumbnailData)
-                                        .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                        .frame(width: 60)
-                                        .padding(.trailing, 10)
-                                    Button {
-                                        video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
-                                    } label: {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .foregroundStyle(.white)
-                                                .opacity(0.3)
-                                                .frame(height: 45)
-                                            Image(systemName: "square.and.arrow.up")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 18)
-                                                .foregroundStyle(.white)
-                                        }
-                                    }
-                                    .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                    .frame(width: 60)
-                                    .padding(.trailing, 10)
-                                    if NRM.connected {
-                                        Button {
-                                            CoordinationManager.shared.prepareToPlay(video)
-                                        } label: {
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .foregroundStyle(.white)
-                                                    .opacity(0.3)
-                                                    .frame(height: 45)
-                                                Image(systemName: "shareplay")
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: 30)
-                                                    .foregroundStyle(.white)
+                                            .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                            .frame(width: 60)
+                                            .padding(.trailing, 10)
+                                            if NRM.connected {
+                                                Button {
+                                                    CoordinationManager.shared.prepareToPlay(video)
+                                                } label: {
+                                                    ZStack {
+                                                        RoundedRectangle(cornerRadius: 8)
+                                                            .foregroundStyle(.white)
+                                                            .opacity(0.3)
+                                                            .frame(height: 45)
+                                                        Image(systemName: "shareplay")
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 30)
+                                                            .foregroundStyle(.white)
+                                                    }
+                                                }
+                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .frame(width: 60)
+                                                .padding(.trailing, 10)
                                             }
                                         }
-                                        .opacity(!(showQueue || showDescription) ? 1 : 0)
-                                        .frame(width: 60)
-                                        .padding(.trailing, 10)
+                                        Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
                                     }
                                 }
-                                Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
+                                .scrollIndicators(.hidden)
+                                .padding(.vertical, 15)
+                                .frame(height: !(showQueue || showDescription) ? 80 : 0)
+                                .mask(FadeInOutView(mode: .horizontal))
                             }
-                        }
-                        .scrollIndicators(.hidden)
-                        .padding(.vertical, 15)
-                        .frame(height: !(showQueue || showDescription) ? 80 : 0)
-                        .mask(FadeInOutView(mode: .horizontal))
-                        VStack {
-                            ScrollView {
-                                Color.clear.frame(height: 15)
-                                //                                if let videoDescriptionParts = VPM.moreVideoInfos?.videoDescription {
-                                //                                    HStack {
-                                //                                        ForEach(Array(videoDescriptionParts.enumerated()), id: \.offset) { (index: Int, descriptionPart: YouTubeDescriptionPart) in
-                                //                                            switch descriptionPart.role {
-                                //                                            case .link(let linkURL):
-                                //                                                Link(descriptionPart.text, destination: linkURL)
-                                //                                            case .video:
-                                //                                            default:
-                                //                                                Color.clear.frame(width: 0, height: 0)
-                                //                                            }
-                                //                                        }
-                                //                                    }
-                                //                            }
-                                if let videoDescription = VPM.currentItem?.videoDescription {
-                                    ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
-                                        VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
-                                    })
-                                    HStack {
-                                        Text("Description")
-                                            .foregroundColor(.gray)
-                                            .font(.caption)
-                                        Spacer()
+                            .frame(height: !(showQueue || showDescription) ? 80 : 0)
+                        })
+                        .overlay(alignment: .bottom, content: {
+                            ZStack {
+                                VariableBlurView(orientation: .bottomToTop)
+                                    .ignoresSafeArea()
+                                HStack {
+                                    let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
+                                    Spacer()
+                                    Button {
+                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
+                                            if showQueue {
+                                                showQueue = false
+                                            }
+                                            showDescription.toggle()
+                                        }
+                                    } label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .foregroundStyle(showDescription ? Color(uiColor: UIColor.lightGray) : .clear)
+                                                .animation(nil, value: 0)
+                                            Image(systemName: "doc.append")
+                                                .resizable()
+                                                .foregroundStyle(showDescription ? .white : Color(uiColor: UIColor.lightGray))
+                                                .scaledToFit()
+                                                .frame(width: showDescription ? 18 : 21)
+                                                .blendMode(showDescription ? .exclusion : .screen)
+                                        }
+                                        .frame(width: 30, height: 30)
                                     }
-                                    .padding([.bottom, .leading])
-                                    Text(LocalizedStringKey(videoDescription))
-                                        .blendMode(.difference)
-                                        .padding(.horizontal)
-                                        .foregroundStyle(.white)
-                                    Color.clear.frame(height: 15)
-                                }
-                            }
-                            .mask(FadeInOutView(mode: .vertical))
-                        }
-                        .opacity(showDescription ? 1 : 0)
-                        .frame(height: showDescription ? geometry.size.height * 0.85 - 120 : 0)
-                        PlayingQueueView()
-                            .opacity(showQueue ? 1 : 0)
-                            .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
-                        Spacer()
-                        HStack {
-                            let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
-                            Spacer()
-                            Button {
-                                withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                    if showQueue {
-                                        showQueue = false
-                                    }
-                                    showDescription.toggle()
-                                }
-                            } label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .foregroundStyle(showDescription ? Color(uiColor: UIColor.lightGray) : .clear)
-                                        .animation(nil, value: 0)
-                                    Image(systemName: "doc.append")
-                                        .resizable()
-                                        .foregroundStyle(showDescription ? .white : Color(uiColor: UIColor.lightGray))
+                                    .opacity(hasDescription ? 1 : 0.5)
+                                    .disabled(!hasDescription)
+                                    Spacer()
+                                    AirPlayButton()
                                         .scaledToFit()
-                                        .frame(width: showDescription ? 18 : 21)
-                                        .blendMode(showDescription ? .exclusion : .screen)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            .opacity(hasDescription ? 1 : 0.5)
-                            .disabled(!hasDescription)
-                            Spacer()
-                            AirPlayButton()
-                                .scaledToFit()
-                                .blendMode(.screen)
-                                .frame(width: 50)
-                            Spacer()
-                            Button {
-                                withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                    if showDescription {
-                                        showDescription = false
+                                        .blendMode(.screen)
+                                        .frame(width: 50)
+                                    Spacer()
+                                    Button {
+                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
+                                            if showDescription {
+                                                showDescription = false
+                                            }
+                                            showQueue.toggle()
+                                        }
+                                    } label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .foregroundStyle(showQueue ? Color(uiColor: UIColor.lightGray) : .clear)
+                                                .animation(nil, value: 0)
+                                            Image(systemName: "list.bullet")
+                                                .resizable()
+                                                .foregroundStyle(showQueue ? .white : Color(uiColor: UIColor.lightGray))
+                                                .scaledToFit()
+                                                .frame(width: showQueue ? 18 : 22)
+                                                .blendMode(showQueue ? .exclusion : .screen)
+                                        }
+                                        .frame(width: 30, height: 30)
                                     }
-                                    showQueue.toggle()
+                                    Spacer()
                                 }
-                            } label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .foregroundStyle(showQueue ? Color(uiColor: UIColor.lightGray) : .clear)
-                                        .animation(nil, value: 0)
-                                    Image(systemName: "list.bullet")
-                                        .resizable()
-                                        .foregroundStyle(showQueue ? .white : Color(uiColor: UIColor.lightGray))
-                                        .scaledToFit()
-                                        .frame(width: showQueue ? 18 : 22)
-                                        .blendMode(showQueue ? .exclusion : .screen)
-                                }
-                                .frame(width: 30, height: 30)
+                                .padding(.bottom)
                             }
-                            Spacer()
-                        }
-                        .frame(width: geometry.size.width, height: geometry.size.height * 0.12)
+                            .frame(width: geometry.size.width, height: geometry.size.height * 0.12)
+                        })
+                        .ignoresSafeArea()
                     }
                     Spacer()
                 }
                 .zIndex(1)
+                .ignoresSafeArea()
             }
         }
         .onReceive(of: .atwyDismissPlayerSheet, handler: { _ in
@@ -408,7 +434,7 @@ struct WatchVideoView: View {
     
     private struct FadeInOutView: View {
         let mode: FadeMode
-        let gradientSize: CGFloat = 15
+        var gradientSize: CGFloat = 15
         var body: some View {
             switch mode {
             case .horizontal:

@@ -75,6 +75,7 @@ class PreferencesStorageModel: ObservableObject {
         case showCredentials
         
         case customAVButtonsEnabled
+        case variableBlurEnabled
         
         func getExpectedType() -> any Codable.Type {
             switch self {
@@ -84,7 +85,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self
@@ -99,7 +100,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false
