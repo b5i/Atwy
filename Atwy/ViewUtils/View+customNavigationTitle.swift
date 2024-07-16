@@ -35,7 +35,7 @@ public struct CustomNavigationTitleView<RightIcon: View>: UIViewControllerRepres
             
             let contentView = UIHostingController(rootView: rightContent())
             contentView.view.backgroundColor = .clear
-            
+                        
             // https://github.com/sebjvidal/UINavigationItem-LargeTitleAccessoryView-Demo
             navigationItem.perform(Selector(("_setLargeTitleAccessoryView:")), with: contentView.view)
             navigationItem.setValue(false, forKey: "_alignLargeTitleAccessoryViewToBaseline")
@@ -50,4 +50,10 @@ public struct CustomNavigationTitleView<RightIcon: View>: UIViewControllerRepres
     }
     
     public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
+extension UIResponder {
+    public var parentViewController: UIViewController? {
+        return next as? UIViewController ?? next?.parentViewController
+    }
 }

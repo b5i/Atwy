@@ -14,9 +14,21 @@ class VariableBlurEffectView: UIVisualEffectView {
     
     private var observer: AnyObject? = nil
     
+    private static let imageForOrientation: [Orientation: CGImage?] = [
+        .bottomToTop: createAlphaGradientImage(size: .init(width: 100, height: 100), orientation: .bottomToTop)?.cgImage,
+        .topToBottom: createAlphaGradientImage(size: .init(width: 100, height: 100), orientation: .topToBottom)?.cgImage
+    ]
+    
     enum Orientation {
+        // more blur at the bottom
         case bottomToTop
+        
+        // more blur at the top
         case topToBottom
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        self.updateBlur()
     }
     
     init(orientation: Orientation) {
@@ -43,7 +55,8 @@ class VariableBlurEffectView: UIVisualEffectView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+        
+    @discardableResult
     private func updateBlur() -> Bool {
         guard PrivateManager.shared.isVariableBlurAvailable && (PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool) != false else { return false }
         
@@ -51,7 +64,7 @@ class VariableBlurEffectView: UIVisualEffectView {
 
         let variableBlur = (NSClassFromString("CAFilter") as! NSObject.Type).perform(NSSelectorFromString("filterWithType:"), with: "variableBlur").takeUnretainedValue() as! NSObject
 
-        guard let maskImage = self.createAlphaGradientImage(size: .init(width: 100, height: 100), orientation: orientation), let cgMaskImage = maskImage.cgImage else { return false }
+        guard let cgMaskImage = Self.imageForOrientation[orientation] else { return false }
         
         variableBlur.setValue(30, forKey: "inputRadius")
         variableBlur.setValue(cgMaskImage, forKey: "inputMaskImage")
@@ -73,7 +86,7 @@ class VariableBlurEffectView: UIVisualEffectView {
         return true
     }
     
-    private func createAlphaGradientImage(size: CGSize, orientation: Orientation) -> UIImage? {
+    private static func createAlphaGradientImage(size: CGSize, orientation: Orientation) -> UIImage? {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let colors: [CGColor]
         if orientation == .bottomToTop {

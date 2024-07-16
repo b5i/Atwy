@@ -16,41 +16,31 @@ let YTM = YouTubeModel()
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismissSearch) private var dismissSearch
-    @State private var autoCompletion: [String] = []
     @State private var search: String = "" {
         didSet {
             Logger.atwyLogs.simpleLog("Refreshing")
-            refreshAutoCompletionEntries()
+            model.refreshAutoCompletionEntries(forSearch: self.search)
         }
     }
-    @State private var autoCompletionHeaders: HeadersList?
     @State private var needToReload = true
-    @State private var isShowingSettingsSheet: Bool = false
     
-    @State private var firstDisplayedResult: Int = 0
     @State private var shouldReloadScrollView: Bool = false
-    @State private var hasToReloadPadding: Bool = true
-    @State private var isShowingPaddedFirstVideo: Bool = false
     
     @ObservedObject private var model = Model.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
-    @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var NRM = NetworkReachabilityModel.shared
-    @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         NavigationStack(path: $NPM.searchTabPath) {
             VStack {
                 if IUTM.userTyping {
-                    if !autoCompletion.isEmpty {
+                    if !model.autoCompletion.isEmpty {
                         ZStack {
                             RoundedRectangle(cornerRadius: 15)
                                 .foregroundColor(.gray)
                                 .opacity(0.2)
                             ScrollView {
                                 LazyVStack {
-                                    ForEach(autoCompletion, id: \.self) { completion in
+                                    ForEach(model.autoCompletion, id: \.self) { completion in
                                         Button {
                                             search = completion
                                             model.getVideos(completion)
@@ -147,12 +137,14 @@ struct SearchView: View {
 #if os(macOS)
             .searchable(text: $search, placement: .toolbar)
 #else
-            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
+            .customSearchBar(text: $search, onSubmit: { [weak model] in
+                model?.getVideos(search)
+            })
 #endif
             .autocorrectionDisabled(true)
             .onChange(of: search) { newValue in
                 IUTM.isMainSearchTextEmpty = newValue.isEmpty
-                refreshAutoCompletionEntries()
+                model.refreshAutoCompletionEntries(forSearch: self.search)
             }
             .onSubmit(of: .search, {
                 model.getVideos(search)
@@ -182,6 +174,7 @@ struct SearchView: View {
         @Published var isFetching: Bool = false
         @Published var isFetchingContination: Bool = false
         @Published var error: String?
+        @Published var autoCompletion: [String] = []
         
         private var homeResponse: HomeScreenResponse?
         private var searchResponse: SearchResponse?
@@ -189,9 +182,15 @@ struct SearchView: View {
         public func getVideos(_ search: String? = nil, _ end: (() -> Void)? = nil) {
             if !isFetching, !isFetchingContination {
                 if let search = search {
-                    getVideosForSearch(search, end)
+                    if search.isEmpty {
+                        if self.homeResponse == nil {
+                            self.getHomeVideos(end)
+                        }
+                    } else {
+                        self.getVideosForSearch(search, end)
+                    }
                 } else {
-                    getHomeVideos(end)
+                    self.getHomeVideos(end)
                 }
             }
         }
@@ -271,6 +270,9 @@ struct SearchView: View {
                 self.isFetching = true
                 self.error = nil
             }
+            
+            PersistenceModel.shared.addSearch(.init(query: search, timestamp: .now, uuid: .init()))
+            
             SearchResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.query: search], result: { result in
                 switch result {
                 case .success(let response):
@@ -321,15 +323,14 @@ struct SearchView: View {
                 }
             }
         }
-    }
-
-    func refreshAutoCompletionEntries() {
-        Task {
-            let result = try? await AutoCompletionResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: self.search])
-            DispatchQueue.main.async {
-                self.autoCompletion = result?.autoCompletionEntries ?? []
+        
+        func refreshAutoCompletionEntries(forSearch search: String) {
+            Task {
+                let result = try? await AutoCompletionResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: search])
+                DispatchQueue.main.async {
+                    self.autoCompletion = result?.autoCompletionEntries ?? []
+                }
             }
         }
     }
 }
-

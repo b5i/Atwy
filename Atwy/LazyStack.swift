@@ -12,6 +12,11 @@ struct LazyStack<Content: View>: View {
     let orientation: Axis
     let content: () -> Content
     
+    init(orientation: Axis, @ViewBuilder content: @escaping () -> Content) {
+        self.orientation = orientation
+        self.content = content
+    }
+    
     var body: some View {
         switch orientation {
         case .horizontal:
