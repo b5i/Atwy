@@ -29,6 +29,13 @@ struct NoConnectionView: View {
             .navigationTitle(menuName)
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(.clear, for: .navigationBar)
+            .customNavigationTitleWithRightIcon {
+                ShowSettingsButtonView()
+            }
         }
     }
+}
+
+#Preview {
+    NoConnectionView(menuName: "Home")
 }
