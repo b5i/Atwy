@@ -15,7 +15,65 @@ public extension View {
                 .frame(width: 0, height: 0)
         })
     }
+    
+    @ViewBuilder func customHeaderView(_ headerViewController: UIViewController) -> some View {
+        overlay(content: {
+            CustomNavigationHeaderControllerView(headerViewController: headerViewController)
+                .frame(width: 0, height: 0)
+        })
+    }
 }
+
+public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentable {
+    public var headerViewController: UIViewController
+    
+    public func makeUIViewController(context: Context) -> UIViewController {
+        return ViewControllerWrapper(headerViewController: headerViewController)
+    }
+    
+    class ViewControllerWrapper: UIViewController {
+        let headerViewController: UIViewController
+                
+        init(headerViewController: UIViewController) {
+            self.headerViewController = headerViewController
+            super.init(nibName: nil, bundle: nil)
+        }
+        
+        override func viewWillAppear(_ animated: Bool) {
+            guard let navigationController = self.navigationController, let navigationItem = navigationController.visibleViewController?.navigationItem else { return }
+            
+            
+            // a trick from https://x.com/sebjvidal/status/1748659522455937213
+            
+            let _UINavigationBarPalette = NSClassFromString("_UINavigationBarPalette") as! UIView.Type
+            
+            /* TODO: fix that
+             Presenting view controller Atwy.SearchViewController from detached view controller Atwy.TopSearchBarController is not supported, and may result in incorrect safe area insets and a corrupt root presentation. Make sure Atwy.TopSearchBarController is in the view controller hierarchy before presenting from it. Will become a hard exception in a future release.
+
+            if headerViewController.parent != navigationController {
+                headerViewController.removeFromParent()
+                navigationController.addChild(headerViewController)
+            }
+             */
+
+            let palette = _UINavigationBarPalette.perform(NSSelectorFromString("alloc"))
+                .takeUnretainedValue()
+                .perform(NSSelectorFromString("initWithContentView:"), with: headerViewController.view)
+                .takeUnretainedValue()
+            
+            navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: palette)
+                        
+            super.viewWillAppear(animated)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
 
 public struct CustomNavigationHeaderView<HeaderView: View>: UIViewControllerRepresentable {
     @ViewBuilder public var headerView: () -> HeaderView

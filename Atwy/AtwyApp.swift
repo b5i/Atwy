@@ -60,7 +60,7 @@ class NavigationPathModel: ObservableObject {
         }
     }
     
-    enum Tab {
+    enum Tab: CaseIterable {
         case search
         case favorites
         case downloads
@@ -72,6 +72,7 @@ class NavigationPathModel: ObservableObject {
 struct AtwyApp: App {
     @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
+    @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     private var appWillTerminateObserver: NSObjectProtocol
     
@@ -116,6 +117,7 @@ struct AtwyApp: App {
                             UINavigationBar.appearance().scrollEdgeAppearance = appearance
 #endif
                         }
+                        .id(PSM.propetriesState[.customSearchBarEnabled] as? Bool != false)
                 }
             }
             .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)

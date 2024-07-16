@@ -21,7 +21,7 @@ struct RecommendedVideosView: View {
                     return trendingVideos.map({YTElementWithData(element: $0, data: .init(allowChannelLinking: false, videoViewMode: .halfThumbnail))})
                 }, set: {_ in})
                 ElementsInfiniteScrollView(items: elementsBinding, shouldReloadScrollView: .constant(false), fetchMoreResultsAction: {
-                    //self.playerItem.fetchMoreRecommendedVideos()
+                    self.playerItem.fetchMoreRecommendedVideos()
                 }, topSpacing: topSpacing, bottomSpacing: bottomSpacing, orientation: .vertical)
             } else if self.playerItem.isFetchingMoreRecommendedVideos || self.playerItem.isFetchingMoreVideoInfos {
                 LoadingView()

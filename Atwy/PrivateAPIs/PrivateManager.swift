@@ -7,6 +7,7 @@
 //  
 
 import Foundation
+import UIKit
 
 class PrivateManager {
     static let shared = PrivateManager()
@@ -14,6 +15,8 @@ class PrivateManager {
     let avButtonsManager: CustomAVButtonsManager?
     
     let isVariableBlurAvailable: Bool
+    
+    var isCustomSearchMenuAvailable: Bool // available until it's not
     
     init() {
         self.avButtonsManager = CustomAVButtonsManager()
@@ -24,6 +27,14 @@ class PrivateManager {
             self.isVariableBlurAvailable = true
         } else {
             self.isVariableBlurAvailable = false
+        }
+        
+        if let backdropClass = (NSClassFromString("UIKBBackdropView") as? NSObject.Type),
+            let keyboardBackdropView = (backdropClass.perform(NSSelectorFromString("alloc")).takeUnretainedValue() as? UIVisualEffectView),
+            keyboardBackdropView.responds(to: NSSelectorFromString("initWithFrame:style:")) {
+            self.isCustomSearchMenuAvailable = true
+        } else {
+            self.isCustomSearchMenuAvailable = false;
         }
     }
 }

@@ -76,6 +76,11 @@ class PreferencesStorageModel: ObservableObject {
         
         case customAVButtonsEnabled
         case variableBlurEnabled
+        case customSearchBarEnabled
+        
+        // private storage
+        
+        case searchBarHeight
         
         func getExpectedType() -> any Codable.Type {
             switch self {
@@ -85,10 +90,12 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self
+            case .searchBarHeight:
+                return CGFloat.self
             }
         }
         
@@ -100,12 +107,14 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false
             case .loggerCacheLimit:
                 return 5
+            case .searchBarHeight:
+                return 0
             }
         }
     }

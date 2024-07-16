@@ -14,7 +14,7 @@ import OSLog
 
 struct PersistenceController {
     static let shared = PersistenceController()
-    private (set) var spotlightIndexer: YTSpotlightDelegate?
+    private(set) var spotlightIndexer: YTSpotlightDelegate?
     
     let container: NSPersistentContainer
     
@@ -96,7 +96,7 @@ class PersistenceModel: ObservableObject {
     init() {
         self.controller = PersistenceController.shared
         self.context = controller.context
-        self.currentData = PersistenceData(downloadedVideoIds: [], favoriteVideoIds: [])
+        self.currentData = PersistenceData(downloadedVideoIds: [], favoriteVideoIds: [], searchHistory: [])
         self.currentData = getPersistenceData()
         NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: .atwyCoreDataChanged, object: nil)
     }
@@ -125,9 +125,14 @@ class PersistenceModel: ObservableObject {
             
             let downloads: [PersistenceData.VideoIdAndLocation]
             let favorites: [String]
+            let searchHistory: [PersistenceData.Search]
             do {
                 downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
                 favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
+                searchHistory = try backgroundContext.fetch(NSFetchRequest<SearchHistory>(entityName: "SearchHistory")).compactMap {
+                    guard let query = $0.query, let timestamp = $0.timestamp, let uuid = $0.uuid else { return nil }
+                    return PersistenceData.Search(query: query, timestamp: timestamp, uuid: uuid)
+                }
             } catch {
                 Logger.atwyLogs.simpleLog("Error while refreshing data")
                 return self.currentData
@@ -135,8 +140,95 @@ class PersistenceModel: ObservableObject {
             
             return PersistenceData(
                 downloadedVideoIds: downloads,
-                favoriteVideoIds: favorites
+                favoriteVideoIds: favorites,
+                searchHistory: searchHistory
             )
+        }
+    }
+    
+    public func addSearch(_ search: PersistenceData.Search) {
+        if let lastSameQuery = self.currentData.searchHistory.first(where: {$0.query == search.query}) {
+            let backgroundContext = self.controller.container.newBackgroundContext()
+            backgroundContext.perform {
+                do {
+                    let request = NSFetchRequest<SearchHistory>(entityName: "SearchHistory")
+                    
+                    request.predicate = NSPredicate(format: "uuid == %@", lastSameQuery.uuid as CVarArg)
+                    request.fetchLimit = 1
+
+                    let result = try backgroundContext.fetch(request)
+                    
+                    result.first?.timestamp = search.timestamp
+
+                    try backgroundContext.save()
+                    
+                    self.currentData.replaceSearchTimestamp(with: search.timestamp, uuid: lastSameQuery.uuid)
+                    self.update()
+                } catch {
+                    // handle the Core Data error
+                    Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
+                }
+            }
+        } else {
+            let backgroundContext = self.controller.container.newBackgroundContext()
+            backgroundContext.perform {
+                let newItem = SearchHistory(context: backgroundContext)
+                newItem.timestamp = search.timestamp
+                newItem.query = search.query
+                newItem.uuid = search.uuid
+                do {
+                    try backgroundContext.save()
+                    
+                    self.currentData.addSearch(search)
+                    self.update()
+                } catch {
+                    Logger.atwyLogs.simpleLog("Couldn't add search to context, error: \(error)")
+                }
+            }
+        }
+    }
+    
+    public func removeSearchHistory() {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        backgroundContext.performAndWait {
+            do {
+                let request = NSFetchRequest<SearchHistory>(entityName: "SearchHistory")
+                
+                let result = try backgroundContext.fetch(request)
+                
+                result.forEach { backgroundContext.delete($0) }
+
+                try backgroundContext.save()
+                
+                self.currentData.removeAllSearchHistory()
+                self.update()
+            } catch {
+                // handle the Core Data error
+                Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
+            }
+        }
+    }
+    
+    public func removeSearch(withUUID uuid: UUID) {
+        let backgroundContext = self.controller.container.newBackgroundContext()
+        backgroundContext.performAndWait {
+            do {
+                let request = NSFetchRequest<SearchHistory>(entityName: "SearchHistory")
+                
+                request.predicate = NSPredicate(format: "uuid == %@", uuid as CVarArg)
+                
+                let result = try backgroundContext.fetch(request)
+                
+                result.forEach { backgroundContext.delete($0) }
+
+                try backgroundContext.save()
+                
+                self.currentData.removeSearch(withUUID: uuid)
+                self.update()
+            } catch {
+                // handle the Core Data error
+                Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
+            }
         }
     }
     
@@ -358,6 +450,8 @@ class PersistenceModel: ObservableObject {
         
         private(set) var favoriteVideoIds: [String]
         
+        private(set) var searchHistory: [Search]
+        
         mutating func addDownloadedVideo(videoId: String, storageLocation: URL) {
             self.downloadedVideoIds.append((videoId, storageLocation))
             self.id = UUID()
@@ -383,6 +477,34 @@ class PersistenceModel: ObservableObject {
         mutating func removeFavoriteVideo(videoId: String) {
             self.favoriteVideoIds.removeAll(where: {$0 == videoId})
             self.id = UUID()
+        }
+        
+        mutating func addSearch(_ search: Search) {
+            self.searchHistory.append(search)
+            self.searchHistory.sort(by: {$0.timestamp > $1.timestamp})
+            self.id = UUID()
+        }
+        
+        mutating func replaceSearchTimestamp(with timestamp: Date, uuid: UUID) {
+            guard let index = self.searchHistory.firstIndex(where: { $0.uuid == uuid }) else { return }
+            self.searchHistory[index].timestamp = timestamp
+            self.id = UUID()
+        }
+        
+        mutating func removeAllSearchHistory() {
+            self.searchHistory.removeAll()
+            self.id = UUID()
+        }
+        
+        mutating func removeSearch(withUUID uuid: UUID) {
+            self.searchHistory.removeAll(where: {$0.uuid == uuid})
+            self.id = UUID()
+        }
+        
+        struct Search: Equatable {
+            var query: String
+            var timestamp: Date
+            var uuid: UUID
         }
     }
 }

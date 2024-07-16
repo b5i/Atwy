@@ -308,7 +308,7 @@ class AVMobileAuxiliaryControlsView {
         
         guard !self.manager.AVMobileAuxiliaryControlsViewClass.responds(to: NSSelectorFromString("setControls2:")) else { return } // not injected
         
-        DispatchQueue.main.sync {
+        DispatchQueue.main.async {
             PreferencesStorageModel.shared.setNewValueForKey(.customAVButtonsEnabled, value: false)
         } // we call it before in case the app crashes when calling method_exchangeImplementations and the user wouldn't be able to change the parameter
         
