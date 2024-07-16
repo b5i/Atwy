@@ -547,7 +547,8 @@ struct WatchVideoView: View {
         
         var body: some View {
             VStack {
-                if let chapters = VPM.currentItem?.chapters {
+                if let chapters = VPM.currentItem?.chapters,
+                    !chapters.isEmpty {
                     HStack {
                         Text("Chapters")
                             .foregroundColor(.gray)
