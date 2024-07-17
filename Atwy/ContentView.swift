@@ -86,6 +86,7 @@ struct ContentView: View {
             UITabBar.appearance().standardAppearance = appearance
             // Use this appearance when scrolled all the way up:
             UITabBar.appearance().scrollEdgeAppearance = appearance
+            //UITabBar.setAnimationsEnabled(false)
 #endif
         }
         .safeAreaInset(edge: .bottom, content: {

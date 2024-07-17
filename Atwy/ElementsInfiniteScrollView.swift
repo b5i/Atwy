@@ -26,12 +26,13 @@ struct ElementsInfiniteScrollView: View {
     
     var orientation: Axis = .vertical
     var body: some View {
-        let performanceMode = PSM.propetriesState[.performanceMode] as? PreferencesStorageModel.Properties.PerformanceModes
-        if performanceMode == .limited {
-            CustomElementsInfiniteScrollView(
-                items: $items, 
-                shouldReloadScrollView: $shouldReloadScrollView, 
+        let performanceModeEnabled = PSM.getValueForKey(.performanceModeEnabled) as? Bool
+        if performanceModeEnabled ?? true {
+            DefaultElementsInfiniteScrollView(
+                items: $items,
+                shouldReloadScrollView: $shouldReloadScrollView,
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
+                shouldAddBottomSpacing: shouldAddBottomSpacing,
                 refreshAction: refreshAction,
                 fetchMoreResultsAction: fetchMoreResultsAction,
                 topSpacing: topSpacing,
@@ -39,14 +40,13 @@ struct ElementsInfiniteScrollView: View {
                 orientation: orientation
             )
         } else {
-            DefaultElementsInfiniteScrollView(
+            CustomElementsInfiniteScrollView(
                 items: $items,
-                shouldReloadScrollView: $shouldReloadScrollView, 
+                shouldReloadScrollView: $shouldReloadScrollView,
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
-                shouldAddBottomSpacing: shouldAddBottomSpacing,
                 refreshAction: refreshAction,
                 fetchMoreResultsAction: fetchMoreResultsAction,
-                topSpacing: topSpacing, 
+                topSpacing: topSpacing,
                 bottomSpacing: bottomSpacing,
                 orientation: orientation
             )

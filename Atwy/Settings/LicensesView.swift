@@ -100,6 +100,18 @@ public struct LicensesView: View {
     
     public var body: some View {
         VStack {
+            SettingsMenu<Never>(title: "Account", sections: [
+                SettingsSection(title: "Test", settings: [
+                    Setting(textDescription: "Test description", action: try! SAStepper(valueType: Int.self, PSMType: .loggerCacheLimit, title: "Limit"), privateAPIWarning: true),
+                    Setting(textDescription: "Test description", action: try! SAStepper(valueType: Int.self, PSMType: .loggerCacheLimit, title: "Limit").step(2)),
+                    Setting(textDescription: "Auto PiP", action: try! SAToggle(PSMType: .automaticPiP, title: "Auto PiP"))
+                ]),
+                SettingsSection(title: "Test", settings: [
+                    Setting(textDescription: nil, action: try! SAToggle(PSMType: .automaticPiP, title: "Auto PiP")),
+                    Setting(textDescription: nil, action: SATextButton(title: "Auto PiP", buttonLabel: "Reset", action: {_ in})),
+                    Setting(textDescription: "This will reset your iPhone.", action: SATextButton(title: "", buttonLabel: "Reset", action: {_ in}))
+                ])
+            ])
             List {
                 ForEach(Array(licenses.enumerated()), id: \.offset) { _, license in
                     Group {

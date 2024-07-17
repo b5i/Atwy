@@ -40,6 +40,43 @@ struct PrivateAPIsSettingsView: View {
         }
     }
     var body: some View {
+        SettingsMenu(title: "Private APIs", header: {
+            VStack(alignment: .leading) {
+                Text("Warning")
+                    .foregroundStyle(.red)
+                Text("Enabling Private APIs may make your device crash unexpectedly, make sure to disable any activated Private API before submitting a crash report.")
+            }
+            .listRowBackground(Color.red.opacity(0.2))
+        }, sections: [
+            SettingsSection(title: "Video Player", settings: [
+                Setting(
+                    textDescription: "Enabling Custom Player Buttons will show various actions such as like/dislike to the video player full-screen view.",
+                    action: try! SAToggle(
+                        PSMType: .customAVButtonsEnabled,
+                        title: "Custom Player Buttons"
+                    )
+                    .getAction { returnValue in
+                        if PrivateManager.shared.avButtonsManager == nil {
+                            return false
+                        } else {
+                            return returnValue
+                        }
+                    }
+                        .setAction { newValue in
+                            guard PrivateManager.shared.avButtonsManager != nil else { return false }
+                            if newValue {
+                                PrivateManager.shared.avButtonsManager?.inject()
+                            } else {
+                                PrivateManager.shared.avButtonsManager?.removeInjection()
+                            }
+                            return newValue
+                        }
+                    ,
+                    privateAPIWarning: PrivateManager.shared.avButtonsManager == nil
+                )
+            ])
+        ])
+        /*
         GeometryReader { geometry in
             List {
                 VStack(alignment: .leading) {
@@ -179,6 +216,7 @@ struct PrivateAPIsSettingsView: View {
             }
         }
         .navigationTitle("Private APIs")
+         */
     }
 }
 

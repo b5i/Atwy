@@ -19,6 +19,15 @@ class PreferencesStorageModel: ObservableObject {
     
     init() {
         reloadData()
+        
+        // TODO: remove that in a future version
+        if let mode = propetriesState[.performanceMode] as? Properties.PerformanceModes {
+            self.setNewValueForKey(.performanceModeEnabled, value: mode == .full)
+        }
+    }
+    
+    public func getValueForKey(_ key: Properties) -> Codable {
+        return self.propetriesState[key] ?? key.getDefaultValue()
     }
     
     public func setNewValueForKey(_ key: Properties, value: Codable?) {
@@ -61,11 +70,15 @@ class PreferencesStorageModel: ObservableObject {
             case halfThumbnail
         }
         
+        // use performanceModeEnabled instead
         case performanceMode
         public enum PerformanceModes: Codable {
             case full
             case limited
         }
+        
+        case performanceModeEnabled
+        
         case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
@@ -90,7 +103,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self
@@ -107,7 +120,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false

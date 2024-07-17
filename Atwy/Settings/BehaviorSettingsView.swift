@@ -104,6 +104,9 @@ struct BehaviorSettingsView: View {
                     }
                     .frame(width: geometry.size.width * 0.7, height: geometry.size.height * 0.10)
                     .centered()
+                    .onAppear {
+                        print(geometry.size.width * 0.7, geometry.size.height * 0.10)
+                    }
                     Text("Enabling the limited performance mode will use less CPU and RAM while using the app. It will use other UI components that could make your experience a bit more laggy if the app was working smoothly before but it could make it more smooth if the app was very laggy before.")
                         .foregroundStyle(.gray)
                         .font(.caption)
