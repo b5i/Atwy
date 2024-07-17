@@ -14,9 +14,17 @@ struct RecommendedVideosView: View {
     
     var topSpacing: CGFloat = 0
     var bottomSpacing: CGFloat = 0
+    
+    @ObservedObject private var NRM = NetworkReachabilityModel.shared
     var body: some View {
         VStack {
-            if let trendingVideos = self.playerItem.moreVideoInfos?.recommendedVideos {
+            if let trendingVideos = self.playerItem.moreVideoInfos?.recommendedVideos
+                .filter({ trendingVideo in
+                    if NRM.connected {
+                        return true
+                    }
+                    return PersistenceModel.shared.currentData.downloadedVideoIds.contains(where: {$0.videoId == (trendingVideo as? YTVideo)?.videoId})
+                }) {
                 let elementsBinding = Binding<[YTElementWithData]>(get: {
                     return trendingVideos.map({YTElementWithData(element: $0, data: .init(allowChannelLinking: false, videoViewMode: .halfThumbnail))})
                 }, set: {_ in})

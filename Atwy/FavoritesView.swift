@@ -22,51 +22,49 @@ struct FavoritesView: View {
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
-        NavigationStack(path: $NPM.favoritesTabPath) {
-            GeometryReader { geometry in
-                ScrollView {
-                    LazyVStack {
-                        let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
-                        let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
+        GeometryReader { geometry in
+            ScrollView {
+                LazyVStack {
+                    let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
+                    let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
+                    
+                    ForEach(sortedVideos) { (video: FavoriteVideo) in
+                        let convertedResult = video.toYTVideo()
                         
-                        ForEach(sortedVideos) { (video: FavoriteVideo) in
-                            let convertedResult = video.toYTVideo()
-                            
-                            Button {
-                                if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                                    VideoPlayerModel.shared.loadVideo(video: convertedResult)
-                                }
-                                
-                                SheetsModel.shared.showSheet(.watchVideo)
-                            } label: {
-                                VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
-                                    .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
+                        Button {
+                            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
+                                VideoPlayerModel.shared.loadVideo(video: convertedResult)
                             }
-                            .listRowSeparator(.hidden)
+                            
+                            SheetsModel.shared.showSheet(.watchVideo)
+                        } label: {
+                            VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
+                                .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
                         }
-                        Color.clear
-                            .frame(height: 30)
+                        .listRowSeparator(.hidden)
                     }
-                    if VPM.currentItem != nil {
-                        Color.clear
-                            .frame(height: 50)
-                    }
+                    Color.clear
+                        .frame(height: 30)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                if VPM.currentItem != nil {
+                    Color.clear
+                        .frame(height: 50)
+                }
             }
-            .routeContainer()
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .routeContainer()
 #if os(macOS)
-                .searchable(text: $search, placement: .toolbar)
+        .searchable(text: $search, placement: .toolbar)
 #else
-                .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
+        .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
 #endif
-                
-                .autocorrectionDisabled(true)
-                .navigationTitle("Favorites")
-                .sortingModeSelectorButton(forPropertyType: .favoritesSortingMode)
-                .customNavigationTitleWithRightIcon {
-                    ShowSettingsButtonView()
-                }
+        
+        .autocorrectionDisabled(true)
+        .navigationTitle("Favorites")
+        .sortingModeSelectorButton(forPropertyType: .favoritesSortingMode)
+        .customNavigationTitleWithRightIcon {
+            ShowSettingsButtonView()
         }
     }
     

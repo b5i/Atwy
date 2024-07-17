@@ -133,6 +133,7 @@ class PersistenceModel: ObservableObject {
                     guard let query = $0.query, let timestamp = $0.timestamp, let uuid = $0.uuid else { return nil }
                     return PersistenceData.Search(query: query, timestamp: timestamp, uuid: uuid)
                 }
+                .sorted(by: {$0.timestamp > $1.timestamp})
             } catch {
                 Logger.atwyLogs.simpleLog("Error while refreshing data")
                 return self.currentData

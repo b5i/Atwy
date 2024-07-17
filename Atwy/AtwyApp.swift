@@ -18,45 +18,45 @@ class NavigationPathModel: ObservableObject {
     @Published var currentTab: Tab = .search {
         didSet {
             if self.currentTab == oldValue {
-                var newPath = NavigationPathModel.shared.getPathForTab(self.currentTab)
+                var newPath = NavigationPathModel.shared.getPathForTab(withType: self.currentTab)
                 if !newPath.isEmpty { newPath.removeLast() }
-                NavigationPathModel.shared.setPathForTab(self.currentTab, path: newPath)
+                NavigationPathModel.shared.setPathForTab(withType: self.currentTab, path: newPath)
             }
         }
     }
     
-    @Published var searchTabPath = NavigationPath()
-    @Published var favoritesTabPath = NavigationPath()
-    @Published var downloadsTabPath = NavigationPath()
-    @Published var connectedAccountTabPath = NavigationPath()
+    @Published var navigationPaths: [Tab: NavigationPath] = [
+        .search: NavigationPath(),
+        .account: NavigationPath(),
+        .downloads: NavigationPath(),
+        .favorites: NavigationPath()
+    ]
     
     @Published var settingsSheetPath = NavigationPath()
     
-    func getPathForTab(_ tabType: Tab) -> NavigationPath {
-        switch tabType {
-        case .search:
-            return self.searchTabPath
-        case .favorites:
-            return self.favoritesTabPath
-        case .downloads:
-            return self.downloadsTabPath
-        case .account:
-            return self.connectedAccountTabPath
+    func getPathForTab(withType tabType: Tab) -> NavigationPath {
+        if let path = self.navigationPaths[tabType] {
+            return path
+        } else {
+            self.navigationPaths[tabType] = NavigationPath()
+            return self.navigationPaths[tabType]!
         }
     }
     
-    func setPathForTab(_ tabType: Tab, path: NavigationPath) {
+    func appendToPath(_ element: any Hashable, toTab tabType: Tab) {
         DispatchQueue.main.async {
-            switch tabType {
-            case .search:
-                self.searchTabPath = path
-            case .favorites:
-                self.favoritesTabPath = path
-            case .downloads:
-                self.downloadsTabPath = path
-            case .account:
-                self.connectedAccountTabPath = path
+            if self.navigationPaths[tabType] == nil {
+                self.navigationPaths[tabType] = NavigationPath()
+                self.appendToPath(element, toTab: tabType)
+            } else {
+                self.navigationPaths[tabType]!.append(element)
             }
+        }
+    }
+    
+    func setPathForTab(withType tabType: Tab, path: NavigationPath) {
+        DispatchQueue.main.async {
+            self.navigationPaths[tabType] = path
         }
     }
     
@@ -117,7 +117,6 @@ struct AtwyApp: App {
                             UINavigationBar.appearance().scrollEdgeAppearance = appearance
 #endif
                         }
-                        .id(PSM.propetriesState[.customSearchBarEnabled] as? Bool != false)
                 }
             }
             .onContinueUserActivity(CSSearchableItemActionType, perform: handleSpotlightOpening)
@@ -140,7 +139,7 @@ struct AtwyApp: App {
                         {
                             //                                Atwy://watch?_u4GmLb_NCo
                             NavigationPathModel.shared.currentTab = .search // make sense to redirect the user to the search tab
-                            NavigationPathModel.shared.searchTabPath.append(RouteDestination.channelDetails(channel: YTLittleChannelInfos(channelId: sanitizedChannelId)))
+                            NavigationPathModel.shared.appendToPath(RouteDestination.channelDetails(channel: YTLittleChannelInfos(channelId: sanitizedChannelId)), toTab: .search)
                         }
                     default:
                         break

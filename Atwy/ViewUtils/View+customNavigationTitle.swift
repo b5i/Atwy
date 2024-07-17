@@ -31,6 +31,8 @@ public struct CustomNavigationTitleView<RightIcon: View>: UIViewControllerRepres
         }
         
         override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+
             guard let navigationController = self.navigationController, let navigationItem = navigationController.visibleViewController?.navigationItem else { return }
             
             let contentView = UIHostingController(rootView: rightContent())
@@ -40,10 +42,8 @@ public struct CustomNavigationTitleView<RightIcon: View>: UIViewControllerRepres
             navigationItem.perform(Selector(("_setLargeTitleAccessoryView:")), with: contentView.view)
             navigationItem.setValue(false, forKey: "_alignLargeTitleAccessoryViewToBaseline")
             navigationController.navigationBar.prefersLargeTitles = true
-            
-            super.viewWillAppear(animated)
         }
-        
+                
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
@@ -52,6 +52,7 @@ public struct CustomNavigationTitleView<RightIcon: View>: UIViewControllerRepres
     public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
 
+// https://stackoverflow.com/a/49714358/16456439
 extension UIResponder {
     public var parentViewController: UIViewController? {
         return next as? UIViewController ?? next?.parentViewController
