@@ -31,31 +31,23 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $NPM.currentTab) {
             TabBarElement(DestinationView: {
-                if network.connected {
-                    SearchView()
-                } else {
-                    NoConnectionView(menuName: "Home")
-                }
-            }, type: .search, name: "Home", image: "square.stack.fill")
+                SearchView()
+            }, type: .search, name: "Home", image: "square.stack.fill", needConnection: true)
+            .environment(\.managedObjectContext, PersistenceModel.shared.context)
+            TabBarElement(DestinationView: {FavoritesView()}, type: .favorites, name: "Favorites", image: "star.fill", needConnection: false)
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {FavoritesView()}, type: .favorites, name: "Favorites", image: "star.fill")
-                .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {DownloadedVideosView()}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill")
+            TabBarElement(DestinationView: {DownloadedVideosView()}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill", needConnection: false)
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
                 .badge(DM.activeDownloadingsCount)
             TabBarElement(DestinationView: {
-                if network.connected {
-                    if !(APIM.userAccount?.isDisconnected ?? true) {
-                        PersonnalAccountView()
-                    } else if APIM.isFetchingAccountInfos {
-                        LoadingView(customText: "account infos.")
-                    } else {
-                        NotConnectedToGoogleView()
-                    }
+                if !(APIM.userAccount?.isDisconnected ?? true) {
+                    PersonnalAccountView()
+                } else if APIM.isFetchingAccountInfos {
+                    LoadingView(customText: "account infos.")
                 } else {
-                    NoConnectionView(menuName: "Account")
+                    NotConnectedToGoogleView()
                 }
-            }, type: .account, name: "Account", image: "person.circle")
+            }, type: .account, name: "Account", image: "person.circle", needConnection: true)
         }
         .overlay(alignment: .bottom, content: {
             ZStack {
@@ -85,16 +77,16 @@ struct ContentView: View {
             .padding(.bottom, 200)
         })
         .onAppear {
-            #if !os(macOS)
+#if !os(macOS)
             let appearance = UITabBarAppearance()
             appearance.backgroundEffect = UIBlurEffect(style: colorScheme.blurStyle)
             appearance.backgroundColor = UIColor(Color.black.opacity(0.0))
-
+            
             // Use this appearance when scrolling behind the TabView:
             UITabBar.appearance().standardAppearance = appearance
             // Use this appearance when scrolled all the way up:
             UITabBar.appearance().scrollEdgeAppearance = appearance
-            #endif
+#endif
         }
         .safeAreaInset(edge: .bottom, content: {
             if !IUTM.userTyping && VPM.currentItem != nil {
@@ -116,19 +108,30 @@ struct ContentView: View {
     }
     
     @ViewBuilder
-    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, type: NavigationPathModel.Tab, name: String, image: String) -> some View where Destination: View {
-        DestinationView()
-            .tabItem {
-                HStack {
-                    ZStack {
-                        Image(systemName: image)
-                    }
-                    Text(name)
-                }
+    private func TabBarElement<Destination>(@ViewBuilder DestinationView: () -> Destination, type: NavigationPathModel.Tab, name: String, image: String, needConnection: Bool) -> some View where Destination: View {
+        let pathBinding: Binding<NavigationPath> = Binding<NavigationPath>(get: {
+            NPM.getPathForTab(withType: type)
+        }, set: { newPath in
+            NPM.setPathForTab(withType: type, path: newPath)
+        })
+        NavigationStack(path: pathBinding) {
+            if needConnection && !network.connected {
+                NoConnectionView(menuName: name)
+            } else {
+                DestinationView()
             }
-            .toolbarBackground(.visible, for: .tabBar)
-            .toolbarBackground(.ultraThickMaterial, for: .tabBar)
-            .tag(type)
+        }
+        .tabItem {
+            HStack {
+                ZStack {
+                    Image(systemName: image)
+                }
+                Text(name)
+            }
+        }
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThickMaterial, for: .tabBar)
+        .tag(type)
     }
 }
 

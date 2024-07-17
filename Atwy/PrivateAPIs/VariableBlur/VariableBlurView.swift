@@ -28,6 +28,7 @@ class VariableBlurEffectView: UIVisualEffectView {
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
         self.updateBlur()
     }
     

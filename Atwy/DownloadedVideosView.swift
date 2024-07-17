@@ -20,56 +20,54 @@ struct DownloadedVideosView: View {
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
-        NavigationStack(path: $NPM.downloadsTabPath) {
-            GeometryReader { geometry in
-                VStack {
-                    DownloadingsHeaderView()
-                    ScrollView {
-                        //                        List {
-                        LazyVStack {
-                            let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
-                            let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
-                            
-                            ForEach(sortedVideos) { (video: DownloadedVideo) in
-                                let convertedResult = video.toYTVideo()
-                                
-                                Button {
-                                    if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                                        VideoPlayerModel.shared.loadVideo(video: convertedResult)
-                                    }
-                                    
-                                    SheetsModel.shared.showSheet(.watchVideo)
-                                } label: {
-                                    VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
-                                        .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
-                                }
-                                .listRowSeparator(.hidden)
-                            }
-                            Color.clear
-                                .frame(height: 30)
-                        }
+        GeometryReader { geometry in
+            VStack {
+                DownloadingsHeaderView()
+                ScrollView {
+                    //                        List {
+                    LazyVStack {
+                        let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
+                        let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                         
-                        if VPM.currentItem != nil {
-                            Color.clear
-                                .frame(height: 50)
+                        ForEach(sortedVideos) { (video: DownloadedVideo) in
+                            let convertedResult = video.toYTVideo()
+                            
+                            Button {
+                                if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
+                                    VideoPlayerModel.shared.loadVideo(video: convertedResult)
+                                }
+                                
+                                SheetsModel.shared.showSheet(.watchVideo)
+                            } label: {
+                                VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
+                                    .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
+                            }
+                            .listRowSeparator(.hidden)
                         }
+                        Color.clear
+                            .frame(height: 30)
+                    }
+                    
+                    if VPM.currentItem != nil {
+                        Color.clear
+                            .frame(height: 50)
                     }
                 }
-#if os(macOS)
-                .searchable(text: $search, placement: .toolbar)
-#else
-                .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
-#endif
-                .autocorrectionDisabled(true)
-                .navigationTitle("Downloads")
-                .sortingModeSelectorButton(forPropertyType: .downloadsSortingMode)
-                .customNavigationTitleWithRightIcon {
-                    ShowSettingsButtonView()
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .routeContainer()
+#if os(macOS)
+            .searchable(text: $search, placement: .toolbar)
+#else
+            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
+#endif
+            .autocorrectionDisabled(true)
+            .navigationTitle("Downloads")
+            .sortingModeSelectorButton(forPropertyType: .downloadsSortingMode)
+            .customNavigationTitleWithRightIcon {
+                ShowSettingsButtonView()
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .routeContainer()
     }
     
     var sortedVideos: [DownloadedVideo] {

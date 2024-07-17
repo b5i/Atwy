@@ -30,140 +30,138 @@ struct SearchView: View {
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
     var body: some View {
-        NavigationStack(path: $NPM.searchTabPath) {
-            VStack {
-                if IUTM.userTyping {
-                    if !model.autoCompletion.isEmpty {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .foregroundColor(.gray)
-                                .opacity(0.2)
-                            ScrollView {
-                                LazyVStack {
-                                    ForEach(model.autoCompletion, id: \.self) { completion in
-                                        Button {
-                                            search = completion
-                                            model.getVideos(completion)
+        VStack {
+            if IUTM.userTyping {
+                if !model.autoCompletion.isEmpty {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 15)
+                            .foregroundColor(.gray)
+                            .opacity(0.2)
+                        ScrollView {
+                            LazyVStack {
+                                ForEach(model.autoCompletion, id: \.self) { completion in
+                                    Button {
+                                        search = completion
+                                        model.getVideos(completion)
 #if !os(macOS)
-                                            //Close keyboard
-                                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                        //Close keyboard
+                                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 #endif
-                                        } label: {
-                                            Text(completion)
-                                                .foregroundColor(colorScheme.textColor)
-                                        }
-                                        Divider()
+                                    } label: {
+                                        Text(completion)
+                                            .foregroundColor(colorScheme.textColor)
                                     }
+                                    Divider()
                                 }
                             }
                         }
-                        .frame(maxWidth: 400, maxHeight: 150, alignment: .center)
                     }
+                    .frame(maxWidth: 400, maxHeight: 150, alignment: .center)
                 }
-                VStack {
-                    if model.isFetching {
-                        LoadingView()
-                    } else if let error = model.error {
-                        VStack (alignment: .center) {
-                            Spacer()
-                            Image(systemName: "multiply.circle")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(.red)
-                            Text(error)
-                                .foregroundColor(.red)
-                            Button {
-                                search = ""
-                                dismissSearch()
-                                model.getVideos()
-                            } label: {
-                                Text("Go home")
-                            }
-                            .buttonStyle(.bordered)
-                            Spacer()
+            }
+            VStack {
+                if model.isFetching {
+                    LoadingView()
+                } else if let error = model.error {
+                    VStack (alignment: .center) {
+                        Spacer()
+                        Image(systemName: "multiply.circle")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.red)
+                        Text(error)
+                            .foregroundColor(.red)
+                        Button {
+                            search = ""
+                            dismissSearch()
+                            model.getVideos()
+                        } label: {
+                            Text("Go home")
                         }
-                    } else if model.items.isEmpty && model.error == nil {
-                        GeometryReader { geometry in
-                            ScrollView {
-                                VStack {
-                                    Text("No videos found...")
-                                        .foregroundColor(colorScheme.textColor)
-                                    Text("Search videos or pull up to refresh for the algorithm to fill this menu.")
-                                        .foregroundStyle(.gray)
-                                        .font(.caption)
-                                }
-                                .frame(width: geometry.size.width, height: geometry.size.height)
+                        .buttonStyle(.bordered)
+                        Spacer()
+                    }
+                } else if model.items.isEmpty && model.error == nil {
+                    GeometryReader { geometry in
+                        ScrollView {
+                            VStack {
+                                Text("No videos found...")
+                                    .foregroundColor(colorScheme.textColor)
+                                Text("Search videos or pull up to refresh for the algorithm to fill this menu.")
+                                    .foregroundStyle(.gray)
+                                    .font(.caption)
                             }
-                            .scrollIndicators(.hidden)
-                            .refreshable(action: {
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                        }
+                        .scrollIndicators(.hidden)
+                        .refreshable(action: {
+                            if search.isEmpty {
+                                model.getVideos()
+                            } else {
+                                model.getVideos(search)
+                            }
+                        })
+                    }
+                } else {
+                    let itemsBinding = Binding(get: {
+                        return model.items.map({YTElementWithData(element: $0, data: .init())})
+                    }, set: { newValue in
+                        model.items = newValue.map({$0.element})
+                    })
+                    ElementsInfiniteScrollView(
+                        items: itemsBinding,
+                        shouldReloadScrollView: $shouldReloadScrollView, 
+                        refreshAction: { endAction in
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                endAction()
                                 if search.isEmpty {
                                     model.getVideos()
                                 } else {
                                     model.getVideos(search)
                                 }
-                            })
-                        }
-                    } else {
-                        let itemsBinding = Binding(get: {
-                            return model.items.map({YTElementWithData(element: $0, data: .init())})
-                        }, set: { newValue in
-                            model.items = newValue.map({$0.element})
-                        })
-                        ElementsInfiniteScrollView(
-                            items: itemsBinding,
-                            shouldReloadScrollView: $shouldReloadScrollView, 
-                            refreshAction: { endAction in
-                                withAnimation(.easeOut(duration: 0.3)) {
-                                    endAction()
-                                    if search.isEmpty {
-                                        model.getVideos()
-                                    } else {
-                                        model.getVideos(search)
-                                    }
-                                }
-                            },
-                            fetchMoreResultsAction: {
-                                if !model.isFetchingContination {
-                                    model.getVideosContinuation({
-                                        self.shouldReloadScrollView = true
-                                    })
-                                }
                             }
-                        )
-                    }
+                        },
+                        fetchMoreResultsAction: {
+                            if !model.isFetchingContination {
+                                model.getVideosContinuation({
+                                    self.shouldReloadScrollView = true
+                                })
+                            }
+                        }
+                    )
                 }
             }
-            .routeContainer()
+        }
+        .routeContainer()
 #if os(macOS)
-            .searchable(text: $search, placement: .toolbar)
+        .searchable(text: $search, placement: .toolbar)
 #else
-            .customSearchBar(text: $search, onSubmit: { [weak model] in
-                model?.getVideos(search)
-            })
+        .customSearchBar(text: $search, onSubmit: { [weak model] in
+            model?.getVideos(search)
+        })
 #endif
-            .autocorrectionDisabled(true)
-            .onChange(of: search) { newValue in
-                IUTM.isMainSearchTextEmpty = newValue.isEmpty
-                model.refreshAutoCompletionEntries(forSearch: self.search)
-            }
-            .onSubmit(of: .search, {
-                model.getVideos(search)
-            })
-            .onAppear {
-                if needToReload {
-                    if search.isEmpty {
-                        model.getVideos()
-                    } else {
-                        model.getVideos(search)
-                    }
-                    needToReload = false
+        .autocorrectionDisabled(true)
+        .onChange(of: search) { newValue in
+            IUTM.isMainSearchTextEmpty = newValue.isEmpty
+            model.refreshAutoCompletionEntries(forSearch: self.search)
+        }
+        .onSubmit(of: .search, {
+            model.getVideos(search)
+        })
+        .onAppear {
+            if needToReload {
+                if search.isEmpty {
+                    model.getVideos()
+                } else {
+                    model.getVideos(search)
                 }
+                needToReload = false
             }
-            .navigationTitle("Home")
-            .navigationBarTitleDisplayMode(.automatic)
-            .customNavigationTitleWithRightIcon {
-                ShowSettingsButtonView()
-            }
+        }
+        .navigationTitle("Home")
+        .navigationBarTitleDisplayMode(.automatic)
+        .customNavigationTitleWithRightIcon {
+            ShowSettingsButtonView()
         }
     }
     

@@ -19,63 +19,61 @@ struct PersonnalAccountView: View {
     @State private var isFetching: Bool = false
     var body: some View {
         GeometryReader { geometry in
-            NavigationStack(path: $NPM.connectedAccountTabPath) {
-                VStack {
-                    if isFetching {
-                        Spacer()
-                        LoadingView()
-                            .padding()
-                        Spacer()
-                    } else {
-                        ScrollView(.vertical, content: {
-                            VStack(spacing: 50) {
-                                if let libraryContent = libraryContent {
-                                    if let history = libraryContent.history {
-                                        YouTubeBasePlaylistView(playlist: history, customRoute: .history)
-                                            .frame(width: geometry.size.width, height: history.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
-                                    }
-                                    if let watchLater = libraryContent.watchLater {
-                                        YouTubeBasePlaylistView(playlist: watchLater)
-                                            .frame(width: geometry.size.width, height: watchLater.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
-                                    }
-                                    if let likes = libraryContent.likes {
-                                        YouTubeBasePlaylistView(playlist: likes)
-                                            .frame(width: geometry.size.width, height: likes.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
-                                    }
-                                    VStack {
-                                        VStack {
-                                            HStack {
-                                                Text("Playlists")
-                                                    .font(.title2)
-                                                    .padding()
-                                                    .foregroundColor(colorScheme.textColor)
-                                                Spacer()
-                                            }
-                                            HStack {
-                                                PlaylistsStackView(playlists: libraryContent.playlists)
-                                                    .frame(width: geometry.size.width)
-                                            }
-                                        }
-                                        .routeTo(.usersPlaylists(playlists: libraryContent.playlists))
-                                    }
-                                    .frame(width: geometry.size.width, height: geometry.size.height * 0.3)
+            VStack {
+                if isFetching {
+                    Spacer()
+                    LoadingView()
+                        .padding()
+                    Spacer()
+                } else {
+                    ScrollView(.vertical, content: {
+                        VStack(spacing: 50) {
+                            if let libraryContent = libraryContent {
+                                if let history = libraryContent.history {
+                                    YouTubeBasePlaylistView(playlist: history, customRoute: .history)
+                                        .frame(width: geometry.size.width, height: history.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
                                 }
+                                if let watchLater = libraryContent.watchLater {
+                                    YouTubeBasePlaylistView(playlist: watchLater)
+                                        .frame(width: geometry.size.width, height: watchLater.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
+                                }
+                                if let likes = libraryContent.likes {
+                                    YouTubeBasePlaylistView(playlist: likes)
+                                        .frame(width: geometry.size.width, height: likes.frontVideos.count > 0 ? geometry.size.height * 0.25 : geometry.size.height * 0.05)
+                                }
+                                VStack {
+                                    VStack {
+                                        HStack {
+                                            Text("Playlists")
+                                                .font(.title2)
+                                                .padding()
+                                                .foregroundColor(colorScheme.textColor)
+                                            Spacer()
+                                        }
+                                        HStack {
+                                            PlaylistsStackView(playlists: libraryContent.playlists)
+                                                .frame(width: geometry.size.width)
+                                        }
+                                    }
+                                    .routeTo(.usersPlaylists(playlists: libraryContent.playlists))
+                                }
+                                .frame(width: geometry.size.width, height: geometry.size.height * 0.3)
                             }
-                            Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 100 : 50)
-                        })
-                        .scrollIndicators(.hidden)
-                    }
-                }
-                .routeContainer()
-                .navigationTitle("Playlists")
-                .customNavigationTitleWithRightIcon {
-                    ShowSettingsButtonView()
+                        }
+                        Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 100 : 50)
+                    })
+                    .scrollIndicators(.hidden)
                 }
             }
-            .onAppear {
-                if self.libraryContent == nil, !self.isFetching {
-                    getUsersPlaylists()
-                }
+            .routeContainer()
+            .navigationTitle("Playlists")
+            .customNavigationTitleWithRightIcon {
+                ShowSettingsButtonView()
+            }
+        }
+        .onAppear {
+            if self.libraryContent == nil, !self.isFetching {
+                getUsersPlaylists()
             }
         }
     }

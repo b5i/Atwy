@@ -39,6 +39,10 @@ public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentabl
             super.init(nibName: nil, bundle: nil)
         }
         
+        override func viewWillLayoutSubviews() {
+            super.viewWillLayoutSubviews()
+        }
+        
         override func viewWillAppear(_ animated: Bool) {
             guard let navigationController = self.navigationController, let navigationItem = navigationController.visibleViewController?.navigationItem else { return }
             
@@ -62,7 +66,7 @@ public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentabl
                 .takeUnretainedValue()
             
             navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: palette)
-                        
+            
             super.viewWillAppear(animated)
         }
         
