@@ -188,9 +188,9 @@ struct WatchVideoView: View {
                         GeometryReader { scrollViewGeometry in
                             if let playerItem = self.VPM.currentItem {
                                 RecommendedVideosView(playerItem: playerItem, topSpacing: 80, bottomSpacing: geometry.size.height * 0.12)
-                                    .environment(\.colorScheme, .dark)
                                     .frame(height: !(showQueue || showDescription) ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
+                                    .environment(\.colorScheme, .dark)
                             }
                             VStack {
                                 ScrollView {

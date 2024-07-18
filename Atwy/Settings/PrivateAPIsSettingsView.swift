@@ -9,176 +9,97 @@
 import SwiftUI
 
 struct PrivateAPIsSettingsView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var PSM = PreferencesStorageModel.shared
-    
-    @State private var customAVButtons: Bool
-    @State private var variableBlur: Bool
-    @State private var customSearchBar: Bool
-    
-    init() {
-        /// Maybe using AppStorage would be better
-        if let state = PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool {
-            self._customAVButtons = State(wrappedValue: state)
-        } else {
-            let defaultMode = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
-            self._customAVButtons = State(wrappedValue: defaultMode)
-        }
-        
-        if let state = PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool {
-            self._variableBlur = State(wrappedValue: state)
-        } else {
-            let defaultMode = PreferencesStorageModel.Properties.variableBlurEnabled.getDefaultValue() as? Bool ?? true
-            self._variableBlur = State(wrappedValue: defaultMode)
-        }
-        
-        if let state = PreferencesStorageModel.shared.propetriesState[.customSearchBarEnabled] as? Bool {
-            self._customSearchBar = State(wrappedValue: state)
-        } else {
-            let defaultMode = PreferencesStorageModel.Properties.customSearchBarEnabled.getDefaultValue() as? Bool ?? true
-            self._customSearchBar = State(wrappedValue: defaultMode)
-        }
-    }
     var body: some View {
-        GeometryReader { geometry in
-            List {
-                VStack(alignment: .leading) {
-                    Text("Warning")
-                        .foregroundStyle(.red)
-                    Text("Enabling Private APIs may make your device crash unexpectedly, make sure to disable any activated Private API before submitting a crash report.")
-                }
-                .listRowBackground(Color.red.opacity(0.2))
-                Section("Video Player") {
-                    VStack {
-                        let customAVButtonsEnabledBinding: Binding<Bool> = Binding(get: {
-                            if PrivateManager.shared.avButtonsManager == nil {
-                                return false
-                            } else {
-                                return self.customAVButtons
-                            }
-                        }, set: { newValue in
-                            guard PrivateManager.shared.avButtonsManager != nil else { return }
-                            self.customAVButtons = newValue
+        SettingsMenu(title: "Private APIs") { _ in
+            VStack(alignment: .leading) {
+                Text("Warning")
+                    .foregroundStyle(.red)
+                Text("Enabling Private APIs may make your device crash unexpectedly, make sure to disable any activated Private API before submitting a crash report.")
+            }
+            .listRowBackground(Color.red.opacity(0.2))
+        } sections: { _ in
+            SettingsSection(title: "Video Player") {
+                Setting(
+                    textDescription: "Enabling Custom Player Buttons will show various actions such as like/dislike to the video player full-screen view.",
+                    action: try! SAToggle(
+                        PSMType: .customAVButtonsEnabled,
+                        title: "Custom Player Buttons"
+                    )
+                    .getAction { returnValue in
+                        if PrivateManager.shared.avButtonsManager == nil {
+                            return false
+                        } else {
+                            return returnValue
+                        }
+                    }
+                        .setAction { newValue in
+                            guard PrivateManager.shared.avButtonsManager != nil else { return false }
                             if newValue {
                                 PrivateManager.shared.avButtonsManager?.inject()
                             } else {
                                 PrivateManager.shared.avButtonsManager?.removeInjection()
                             }
-                        })
-                        Toggle(isOn: customAVButtonsEnabledBinding, label: {
-                            Text("Custom Player Buttons")
-                        })
-                        Text("Enabling Custom Player Buttons will show various actions such as like/dislike to the video player full-screen view.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if PrivateManager.shared.avButtonsManager == nil {
-                            Label("Private APIs checks have failed for this option, therefore you can't enable it for safety reasons.", systemImage: "exclamationmark.triangle.fill")
-                                .labelStyle(FailedInitPrivateAPILabelStyle())
+                            return newValue
                         }
-                    }
-                    .disabled(PrivateManager.shared.avButtonsManager == nil)
-                }
-                Section("Variable Blur") {
-                    VStack {
-                        let variableBlurEnabledBinding: Binding<Bool> = Binding(get: {
-                            if PrivateManager.shared.isVariableBlurAvailable {
-                                return self.variableBlur
-                            } else {
-                                return false
-                            }
-                        }, set: { newValue in
-                            guard PrivateManager.shared.isVariableBlurAvailable else { return }
-                            self.variableBlur = newValue
-                            DispatchQueue.main.async {
-                                PreferencesStorageModel.shared.setNewValueForKey(.variableBlurEnabled, value: newValue)
-                            }
-                        })
-                        Toggle(isOn: variableBlurEnabledBinding, label: {
-                            Text("Variable Blur")
-                        })
-                        Text("Enabling Variable Blur enhances the experience in various UI elements of Atwy such as the Video Player.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if !PrivateManager.shared.isVariableBlurAvailable {
-                            Label("Private APIs checks have failed for this option, therefore you can't enable it for safety reasons.", systemImage: "exclamationmark.triangle.fill")
-                                .labelStyle(FailedInitPrivateAPILabelStyle())
-                        }
-                    }
-                    .disabled(!PrivateManager.shared.isVariableBlurAvailable)
-                }
-                Section("Search Menu", content: {
-                    let customSearchMenuEnabledBinding: Binding<Bool> = Binding(get: {
-                        if PrivateManager.shared.isCustomSearchMenuAvailable {
-                            return self.customSearchBar
+                    ,
+                    privateAPIWarning: PrivateManager.shared.avButtonsManager == nil
+                )
+            }
+            SettingsSection(title: "Variable Blur") {
+                Setting(
+                    textDescription: "Enabling Variable Blur enhances the experience in various UI elements of Atwy such as the Video Player.",
+                    action: try! SAToggle(
+                        PSMType: .variableBlurEnabled,
+                        title: "Variable Blur")
+                    .getAction { returnValue in
+                        if PrivateManager.shared.isVariableBlurAvailable {
+                            return returnValue
                         } else {
                             return false
                         }
-                    }, set: { newValue in
-                        guard PrivateManager.shared.isCustomSearchMenuAvailable else { return }
-                        self.customSearchBar = newValue
-                        DispatchQueue.main.async {
-                            PreferencesStorageModel.shared.setNewValueForKey(.customSearchBarEnabled, value: newValue)
-                        }
-                    })
-                    VStack {
-                        Toggle(isOn: customSearchMenuEnabledBinding, label: {
-                            Text("Custom Search Menu")
-                        })
-                        Text("Enabling Custom Search Menu brings a great search experience to the app. \(Text("Changing this option might require to restart the app in order for it to work.").bold())")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    VStack {
-                        HStack {
-                            Text("Reset Search Textfield Location")
-                            Spacer()
-                            Button {
-                                PreferencesStorageModel.shared.setNewValueForKey(.searchBarHeight, value: nil)
-                                TopSearchBarController.searchBarHeight = nil
-                            } label: {
-                                Text("Reset")
+                        .setAction { newValue in
+                            guard PrivateManager.shared.isVariableBlurAvailable else { return false }
+                            DispatchQueue.main.async {
+                                PreferencesStorageModel.shared.setNewValueForKey(.variableBlurEnabled, value: newValue)
                             }
-                        }
-                        Text("Resetting the Search Textfield Location might help fix the transition to the Search Menu if it's broken.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if !PrivateManager.shared.isCustomSearchMenuAvailable {
-                            Label("Private APIs checks have failed for this option, therefore you can't enable it for safety reasons.", systemImage: "exclamationmark.triangle.fill")
-                                .labelStyle(FailedInitPrivateAPILabelStyle())
+                            
+                            return newValue
+                        },
+                    privateAPIWarning: !PrivateManager.shared.isVariableBlurAvailable
+                )
+            }
+            SettingsSection(title: "Search Menu") {
+                Setting(
+                    textDescription: "Enabling Custom Search Menu brings a great search experience to the app. **Changing this option might require to restart the app in order for it to work.**",
+                    action: try! SAToggle(
+                        PSMType: .customSearchBarEnabled,
+                        title: "Custom Search Menu"
+                    )
+                    .getAction { returnValue in
+                        if PrivateManager.shared.isCustomSearchMenuAvailable {
+                            return returnValue
+                        } else {
+                            return false
                         }
                     }
-                })
-                .disabled(!PrivateManager.shared.isCustomSearchMenuAvailable)
-            }
-            .onAppear {
-                if let state = PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool {
-                    self.customAVButtons = state
-                } else {
-                    self.customAVButtons = PreferencesStorageModel.Properties.customAVButtonsEnabled.getDefaultValue() as? Bool ?? true
-                }
-                
-                if let state = PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool {
-                    self.variableBlur = state
-                } else {
-                    self.variableBlur = PreferencesStorageModel.Properties.variableBlurEnabled.getDefaultValue() as? Bool ?? true
-                }
-                
-                if let state = PreferencesStorageModel.shared.propetriesState[.customSearchBarEnabled] as? Bool {
-                    self.customSearchBar = state
-                } else {
-                    self.customSearchBar = PreferencesStorageModel.Properties.customSearchBarEnabled.getDefaultValue() as? Bool ?? true
-                }
+                        .setAction { newValue in
+                            guard PrivateManager.shared.isCustomSearchMenuAvailable else { return false }
+                            DispatchQueue.main.async {
+                                PreferencesStorageModel.shared.setNewValueForKey(.customSearchBarEnabled, value: newValue)
+                            }
+                            
+                            return newValue
+                        }
+                    ,
+                    privateAPIWarning: !PrivateManager.shared.isVariableBlurAvailable
+                )
+                Setting(textDescription: "Resetting the Search Textfield Location might help fix the transition to the Search Menu if it's broken.", action: SATextButton(title: "Reset Search Textfield Location", buttonLabel: "Reset", action: { _ in
+                    PreferencesStorageModel.shared.setNewValueForKey(.searchBarHeight, value: nil)
+                    TopSearchBarController.searchBarHeight = nil
+                }), privateAPIWarning: !PrivateManager.shared.isCustomSearchMenuAvailable)
             }
         }
-        .navigationTitle("Private APIs")
     }
 }
 

@@ -29,7 +29,7 @@ struct CustomElementsInfiniteScrollView: View {
     var body: some View {
         GeometryReader { geometry in
             InfiniteScrollView(
-                frame: .init(x: 0, y: 0, width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes == .halfThumbnail) ? 205 : geometry.size.height),
+                frame: .init(x: 0, y: 0, width: geometry.size.width, height: (PSM.videoViewMode == .halfThumbnail) ? 205 : geometry.size.height),
                 changeIndex: 0 as Int,
                 content: { resultIndex in
                     HStack(spacing: 0) {
@@ -82,7 +82,7 @@ struct CustomElementsInfiniteScrollView: View {
                         let item = self.items[resultIndex]
                         switch item.element {
                         case is YTVideo:
-                            if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
+                            if PSM.videoViewMode == .halfThumbnail {
                                 return .init(x: 0, y: 0, width: geometry.size.width, height: 205)
                             } else {
                                 // Big thumbnail view by default
@@ -119,10 +119,10 @@ struct CustomElementsInfiniteScrollView: View {
                 },
                 orientation: self.orientation == .horizontal ? .horizontal : .vertical,
                 refreshAction: refreshAction,
-                contentMultiplier: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes == .halfThumbnail) ? 15 : 6,
+                contentMultiplier: (PSM.videoViewMode == .halfThumbnail) ? 15 : 6,
                 updateBinding: $shouldReloadScrollView
             )
-            .id(PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes == .halfThumbnail)
+            .id(PSM.videoViewMode == .halfThumbnail)
         }
     }
 }

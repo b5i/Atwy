@@ -12,93 +12,33 @@ import YouTubeKit
 
 struct LoggerSettingsView: View {
     static let maxCacheLimitDefaultValue: Int = 5
-    
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @ObservedObject private var logger = YouTubeModelLogger.shared
     
-    @State private var showCredentials: Bool
-    
-    init() {
-        /// Maybe using AppStorage would be better
-        if let state = PreferencesStorageModel.shared.propetriesState[.showCredentials] as? Bool {
-            self._showCredentials = State(wrappedValue: state)
-        } else {
-            let defaultMode = PreferencesStorageModel.Properties.showCredentials.getDefaultValue() as? Bool ?? true
-            self._showCredentials = State(wrappedValue: defaultMode)
-        }
-    }
-    
     var body: some View {
-        GeometryReader { geometry in
-            List {
-                Section("Logger") {
-                    let loggerActivatedBinding: Binding<Bool> = Binding(get: {
-                        return self.logger.isLogging
-                    }, set: { newValue in
-                        if newValue {
-                            self.logger.startLogging()
-                        } else {
-                            self.logger.stopLogging()
-                        }
-                    })
-                    HStack {
-                        Toggle(isOn: loggerActivatedBinding, label: {
-                            Text("Activate Logger")
-                        })
-                    }
-                    VStack {
-                        let cacheLimitEnabledBinding: Binding<Bool> = Binding(get: {
-                            self.logger.maximumCacheSize != nil
-                        }, set: { newValue in
-                            self.logger.setCacheSize(newValue ? Self.maxCacheLimitDefaultValue : nil)
-                        })
-                        Toggle(isOn: cacheLimitEnabledBinding, label: {
-                            Text("Logger Cache Limit")
-                        })
-                        Text("Setting a cache limit for the logger will avoid having a lot of RAM consumed to store all the requests. The logger will only keep the n last logs in memory, the rest will be deleted. " + (cacheLimitEnabledBinding.wrappedValue ? "" : "The default value for the cache limit is \(Self.maxCacheLimitDefaultValue), if you activate it, only the \(Self.maxCacheLimitDefaultValue) more recent logs will be kept."))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    if self.logger.maximumCacheSize != nil {
-                        VStack {
-                            let cacheLimitBinding: Binding<Int> = Binding(get: {
-                                self.logger.maximumCacheSize ?? PreferencesStorageModel.Properties.loggerCacheLimit.getDefaultValue() as? Int ?? 5
-                            }, set: { newValue in
-                                self.logger.setCacheSize(max(newValue, 0))
-                            })
-                            Stepper(value: cacheLimitBinding, step: 1, label: {
-                                HStack {
-                                    Text("Limit")
-                                    Spacer()
-                                    Text(String(cacheLimitBinding.wrappedValue))
-                                }
-                            })
-                        }
-                    }
-                    VStack {
-                        let showCredentialsBinding: Binding<Bool> = Binding(get: {
-                            return self.showCredentials
-                        }, set: { newValue in
-                            self.showCredentials = newValue
-                            self.PSM.setNewValueForKey(.showCredentials, value: newValue)
-                        })
-                        Toggle(isOn: showCredentialsBinding, label: {
-                            Text("Show credentials")
-                        })
-                        Text("Exported logs can contain cookies and therefore make sure that you trust who's going to have access to them. Disabling this option will hide the credentials in the UI and in log exports.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+        SettingsMenu(title: "Logger") { geometry in
+            SettingsSection(title: "Logger") {
+                Setting(textDescription: nil, action: try! SAToggle(PSMType: .isLoggerActivated, title: "Activate Logger"))
+                let cacheLimitEnabledBinding = Binding(get: {
+                    self.logger.maximumCacheSize != nil
+                }, set: { newValue in
+                    self.logger.setCacheSize(newValue ? Self.maxCacheLimitDefaultValue : nil)
+                })
+                Setting(textDescription: "Setting a cache limit for the logger will avoid having a lot of RAM consumed to store all the requests. The logger will only keep the n last logs in memory, the rest will be deleted. " + (cacheLimitEnabledBinding.wrappedValue ? "" : "The default value for the cache limit is \(Self.maxCacheLimitDefaultValue), if you activate it, only the \(Self.maxCacheLimitDefaultValue) more recent logs will be kept."), action: CustomSettingToggle(title: "Logger Cache Limit", binding: cacheLimitEnabledBinding))
+                Setting(textDescription: nil, action:
+                            try! SAStepper(valueType: Int.self, PSMType: .loggerCacheLimit, title: "Limit")
+                    .setAction { newValue in
+                        self.logger.setCacheSize(max(newValue, 0))
+                        return max(newValue, 0)
+                    }, hidden: self.logger.maximumCacheSize == nil)
+                Setting(textDescription: "Exported logs can contain cookies and therefore make sure that you trust who's going to have access to them. Disabling this option will hide the credentials in the UI and in log exports.", action: try! SAToggle(PSMType: .showCredentials, title: "Show credentials"))
+                Setting(textDescription: nil, action: SACustomAction(title: "Logs", actionView: {
                     VStack {
                         Text("Logs")
                             .frame(maxWidth: .infinity, alignment: .leading)
                         List {
                             ForEach(logger.logs, id: \.id) { log in
-                                LogView(log: log, showCredentials: showCredentials)
+                                LogView(log: log, showCredentials: PSM.showCredentials)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true, content: {
                                     Button(role: .destructive) {
                                         withAnimation {
@@ -112,43 +52,17 @@ struct LoggerSettingsView: View {
                         }
                         .frame(height: geometry.size.height * 0.35)
                     }
-                    VStack {
-                        Button {
-                            withAnimation {
-                                self.logger.clearLogs()
-                            }
-                        } label: {
-                            Text("Clear logs")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        Text("Delete all the log entries from the above list.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
+                }))
+                Setting(textDescription: "Delete all the log entries from the above list.", action: SATextButton(title: "", buttonLabel: "Clear logs", action: { _ in
+                    withAnimation {
+                        self.logger.clearLogs()
                     }
-                    VStack {
-                        Button {
-                            self.logger.clearLocalLogFiles()
-                        } label: {
-                            Text("Clear log files")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        Text("Delete all the zip-exported log entries.")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.caption)
-                            .foregroundStyle(.gray)
-                    }
-                }
-                .onAppear {
-                    if let state = self.PSM.propetriesState[.showCredentials] as? Bool {
-                        self.showCredentials = state
-                    } else {
-                        self.showCredentials = PreferencesStorageModel.Properties.showCredentials.getDefaultValue() as? Bool ?? true
-                    }
-                }
+                }))
+                Setting(textDescription: "Delete all the zip-exported log entries.", action: SATextButton(title: "", buttonLabel: "Clear log files", action: { _ in
+                    self.logger.clearLocalLogFiles()
+                }))
             }
         }
-        .navigationTitle("Logger")
     }
     
     struct LogView: View {

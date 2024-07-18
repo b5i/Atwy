@@ -94,6 +94,6 @@ struct DefaultElementsInfiniteScrollView: View {
                 refreshAction?{}
             })
         }
-        .id(PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes == .halfThumbnail)
+        .id(PSM.videoViewMode == .halfThumbnail)
     }
 }

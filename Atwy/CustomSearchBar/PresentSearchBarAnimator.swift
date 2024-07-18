@@ -70,6 +70,7 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
                 
         fromViewController.view.isHidden = true
         toViewController.searchBar.isHidden = true
+        toViewController.searchHistoryIndicationLabel.isHidden = true
                         
         UIView.animate(
             withDuration: (TopSearchBarController.searchBarHeight == nil) ? 0.0 : 0.7,// 0.7,

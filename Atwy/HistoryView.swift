@@ -22,7 +22,7 @@ struct HistoryView: View {
                     ScrollView {
                         LazyVStack {
                             ForEach(historyResponse.results, id: \.id) { historyPart in
-                                VideoGroupView(model: model, videoSize: CGSize(width: geometry.size.width, height: (PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes) == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
+                                VideoGroupView(model: model, videoSize: CGSize(width: geometry.size.width, height: PSM.videoViewMode == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
                             }
                             if self.model.historyResponse?.continuationToken != nil {
                                 Color.clear.frame(width: 0, height: 0)

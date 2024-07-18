@@ -17,29 +17,15 @@ class YouTubeModelLogger: RequestsLogger, ObservableObject {
     
     @Published var logs: [any GenericRequestLog] = []
     
-    @Published var isLogging: Bool = false {
-        didSet {
-            PreferencesStorageModel.shared.setNewValueForKey(.isLoggerActivated, value: self.isLogging)
-        }
-    }
+    @Published var isLogging: Bool = false
     
-    @Published var maximumCacheSize: Int? = nil {
-        didSet {
-            PreferencesStorageModel.shared.setNewValueForKey(.loggerCacheLimit, value: self.maximumCacheSize)
-        }
-    }
+    @Published var maximumCacheSize: Int? = nil
     
     init() {
         self.clearLocalLogFiles()
-        if let loggerActiveStatus = PreferencesStorageModel.shared.propetriesState[.isLoggerActivated] as? Bool {
-            DispatchQueue.main.async {
-                self.isLogging = loggerActiveStatus
-            }
-        }
-        if let cacheLimit = PreferencesStorageModel.shared.propetriesState[.loggerCacheLimit] as? Int? {
-            DispatchQueue.main.async {
-                self.maximumCacheSize = cacheLimit
-            }
+        DispatchQueue.main.async {
+            self.isLogging = PreferencesStorageModel.shared.isLoggerActivated
+            self.maximumCacheSize = PreferencesStorageModel.shared.loggerCacheLimit
         }
     }
     

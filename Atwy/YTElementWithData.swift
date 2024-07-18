@@ -32,7 +32,7 @@ struct YTElementDataSet: Hashable {
     
     var thumbnailData: Data? = nil
     
-    var videoViewMode: VideoViewMode = (PreferencesStorageModel.shared.propetriesState[.videoViewMode] as? VideoViewMode) ?? .fullThumbnail
+    var videoViewMode: VideoViewMode = PreferencesStorageModel.shared.videoViewMode
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.allowChannelLinking)

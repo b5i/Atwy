@@ -59,7 +59,7 @@ class VariableBlurEffectView: UIVisualEffectView {
         
     @discardableResult
     private func updateBlur() -> Bool {
-        guard PrivateManager.shared.isVariableBlurAvailable && (PreferencesStorageModel.shared.propetriesState[.variableBlurEnabled] as? Bool) != false else { return false }
+        guard PrivateManager.shared.isVariableBlurAvailable && PreferencesStorageModel.shared.variableBlurEnabled else { return false }
         
         // Adapted from https://github.com/jtrivedi/VariableBlurView
 

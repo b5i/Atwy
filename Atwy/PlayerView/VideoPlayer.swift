@@ -115,14 +115,14 @@ struct PlayerViewController: UIViewControllerRepresentable {
         
 
         player.allowsExternalPlayback = true
-        player.audiovisualBackgroundPlaybackPolicy = ((PSM.propetriesState[.backgroundPlayback] as? Bool) ?? true) ? .continuesIfPossible : .pauses
+        player.audiovisualBackgroundPlaybackPolicy = PSM.backgroundPlayback ? .continuesIfPossible : .pauses
         player.preventsDisplaySleepDuringVideoPlayback = true
         player.automaticallyWaitsToMinimizeStalling = true
 #if !os(macOS)
         controller.allowsVideoFrameAnalysis = true
 #endif
         controller.allowsPictureInPicturePlayback =  true
-        controller.canStartPictureInPictureAutomaticallyFromInline = (PSM.propetriesState[.automaticPiP] as? Bool) ?? true
+        controller.canStartPictureInPictureAutomaticallyFromInline = PSM.automaticPiP
         controller.exitsFullScreenWhenPlaybackEnds = true
         
         controller.showsPlaybackControls = showControls

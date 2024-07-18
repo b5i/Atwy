@@ -9,14 +9,16 @@
 import SwiftUI
 
 struct SortingModeSelectionModifier: ViewModifier {
+    typealias SortingModes = PreferencesStorageModel.Properties.SortingModes
+    
     let sortingSubject: PreferencesStorageModel.Properties
     
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var PSM = PreferencesStorageModel.shared
-    @State private var sortingMode: PreferencesStorageModel.Properties.SortingModes
+    @State private var sortingMode: SortingModes
     init(sortingSubject: PreferencesStorageModel.Properties) {
         self.sortingSubject = sortingSubject
-        self.sortingMode = (PreferencesStorageModel.shared.propetriesState[sortingSubject] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest
+        self.sortingMode = Self.getSortingMode(forProperty: sortingSubject)
     }
     func body(content: Content) -> some View {
         if self.sortingSubject == .downloadsSortingMode || self.sortingSubject == .favoritesSortingMode {
@@ -53,10 +55,21 @@ struct SortingModeSelectionModifier: ViewModifier {
                     })
                 }
                 .onAppear {
-                    self.sortingMode = (PreferencesStorageModel.shared.propetriesState[sortingSubject] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest
+                    self.sortingMode = Self.getSortingMode(forProperty: sortingSubject)
                 }
         } else {
             content
+        }
+    }
+    
+    private static func getSortingMode(forProperty property: PreferencesStorageModel.Properties) -> SortingModes {
+        return switch property {
+        case .favoritesSortingMode:
+            PreferencesStorageModel.shared.favoritesSortingMode
+        case .downloadsSortingMode:
+            PreferencesStorageModel.shared.downloadsSortingMode
+        default:
+            .oldest
         }
     }
 }
