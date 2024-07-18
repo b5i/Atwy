@@ -15,7 +15,7 @@ struct VideoInScrollView: View {
     
     var body: some View {
         Group {
-            if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
+            if PSM.videoViewMode == .halfThumbnail {
                 VideoFromSearchView(videoWithData: video)
                     .frame(width: geometry.size.width, height: 180, alignment: .center)
             } else if video.data.videoViewMode == .halfThumbnail {

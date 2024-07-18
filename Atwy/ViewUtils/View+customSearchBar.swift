@@ -20,7 +20,7 @@ extension View {
         do {
             if !PrivateManager.shared.isCustomSearchMenuAvailable {
                 throw "Not available."
-            } else if PreferencesStorageModel.shared.propetriesState[.customSearchBarEnabled] as? Bool == false {
+            } else if !PreferencesStorageModel.shared.customSearchBarEnabled {
                 localError = true
                 throw "Not enabled."
             }
@@ -30,7 +30,7 @@ extension View {
                 self
                     .customHeaderView(controller)
                     .onAppear {
-                        TopSearchBarController.searchBarHeight = PreferencesStorageModel.shared.propetriesState[.searchBarHeight] as? CGFloat
+                        TopSearchBarController.searchBarHeight = PreferencesStorageModel.shared.searchBarHeight
                     }
             )
         } catch {

@@ -11,14 +11,23 @@ import OSLog
 class PreferencesStorageModel: ObservableObject {
     static let shared = PreferencesStorageModel()
     
-    let UD = UserDefaults.standard
-    let jsonEncoder = JSONEncoder()
-    let jsonDecoder = JSONDecoder()
+    private let UD = UserDefaults.standard
+    private let jsonEncoder = JSONEncoder()
+    private let jsonDecoder = JSONDecoder()
     
-    @Published private(set) var propetriesState: [Properties : any Codable] = [:]
+    @Published private var propetriesState: [Properties : any Codable] = [:]
     
     init() {
         reloadData()
+        
+        // TODO: remove that in a future version
+        if let mode = propetriesState[.performanceMode] as? Properties.PerformanceModes {
+            self.setNewValueForKey(.performanceModeEnabled, value: mode == .full)
+        }
+    }
+    
+    public func getValueForKey(_ key: Properties) -> Codable {
+        return self.propetriesState[key] ?? key.getDefaultValue()
     }
     
     public func setNewValueForKey(_ key: Properties, value: Codable?) {
@@ -61,14 +70,20 @@ class PreferencesStorageModel: ObservableObject {
             case halfThumbnail
         }
         
+        // use performanceModeEnabled instead
         case performanceMode
         public enum PerformanceModes: Codable {
             case full
             case limited
         }
+        
+        case performanceModeEnabled
+        
         case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
+        
+        case searchHistoryEnabled
         
         case isLoggerActivated
         case loggerCacheLimit
@@ -90,7 +105,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled:
                 return Bool.self
             case .loggerCacheLimit:
                 return Int.self
@@ -107,21 +122,83 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false
             case .loggerCacheLimit:
                 return 5
             case .searchBarHeight:
-                return 0
+                return -1
             }
         }
     }
 }
 
 extension PreferencesStorageModel {
+    typealias SortingModes = Properties.SortingModes
+    typealias VideoViewModes = Properties.VideoViewModes
+    
+    var favoritesSortingMode: SortingModes {
+        self.getValueForKey(.favoritesSortingMode) as! SortingModes
+    }
+    
+    var downloadsSortingMode: SortingModes {
+        self.getValueForKey(.downloadsSortingMode) as! SortingModes
+    }
+    
+    var videoViewMode: VideoViewModes {
+        self.getValueForKey(.videoViewMode) as! VideoViewModes
+    }
+    
+    var performanceModeEnabled: Bool {
+        self.getValueForKey(.performanceModeEnabled) as! Bool
+    }
+    
+    var liveActivitiesEnabled: Bool {
+        self.getValueForKey(.liveActivitiesEnabled) as! Bool
+    }
+    
+    var automaticPiP: Bool {
+        self.getValueForKey(.automaticPiP) as! Bool
+    }
+    
+    var backgroundPlayback: Bool {
+        self.getValueForKey(.backgroundPlayback) as! Bool
+    }
+    
+    var searchHistoryEnabled: Bool {
+        self.getValueForKey(.searchHistoryEnabled) as! Bool
+    }
+    
+    var isLoggerActivated: Bool {
+        self.getValueForKey(.isLoggerActivated) as! Bool
+    }
+    
+    var loggerCacheLimit: Int {
+        self.getValueForKey(.loggerCacheLimit) as! Int
+    }
+    
+    var showCredentials: Bool {
+        self.getValueForKey(.showCredentials) as! Bool
+    }
+    
     var customAVButtonsEnabled: Bool {
-        (PreferencesStorageModel.shared.propetriesState[.customAVButtonsEnabled] as? Bool) ?? false
+        self.getValueForKey(.customAVButtonsEnabled) as! Bool
+    }
+    
+    var variableBlurEnabled: Bool {
+        self.getValueForKey(.variableBlurEnabled) as! Bool
+    }
+    
+    var customSearchBarEnabled: Bool {
+        self.getValueForKey(.customSearchBarEnabled) as! Bool
+    }
+    
+    var searchBarHeight: CGFloat? {
+        if let potentialHeight = self.getValueForKey(.searchBarHeight) as? CGFloat {
+            return potentialHeight == -1 ? nil : potentialHeight
+        }
+        return nil
     }
 }

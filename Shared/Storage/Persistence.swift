@@ -148,6 +148,7 @@ class PersistenceModel: ObservableObject {
     }
     
     public func addSearch(_ search: PersistenceData.Search) {
+        guard PreferencesStorageModel.shared.searchHistoryEnabled else { return }
         if let lastSameQuery = self.currentData.searchHistory.first(where: {$0.query == search.query}) {
             let backgroundContext = self.controller.container.newBackgroundContext()
             backgroundContext.perform {

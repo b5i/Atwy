@@ -13,7 +13,7 @@ struct DownloadingsProgressActivity: BackgroundFetchActivity {
     typealias ActivityAttributesType = DownloadingsProgressAttributes
             
     static var isEnabled: Bool {
-        return (PreferencesStorageModel.shared.propetriesState[.liveActivitiesEnabled] as? Bool) ?? true
+        return PreferencesStorageModel.shared.liveActivitiesEnabled
     }
         
     static let activityType: LiveActivitesManager.ActivityType = .downloadingsProgress

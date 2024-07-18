@@ -50,6 +50,7 @@ struct NowPlayingBarView: View {
                                         }
 #endif
                                     }
+                                    .disabled(true)
                             } else if let thumbnail = VPM.currentItem?.video.thumbnails.first {
                                 CachedAsyncImage(url: thumbnail.url, content: { image, _ in
                                     switch image {

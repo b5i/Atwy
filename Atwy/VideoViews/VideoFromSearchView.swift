@@ -21,7 +21,7 @@ struct VideoFromSearchView: View {
             }
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {
-            if let state = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes, state == .halfThumbnail {
+            if PSM.videoViewMode == .halfThumbnail {
                     VideoView(videoWithData: videoWithData)
             } else if self.videoWithData.data.videoViewMode == .halfThumbnail {
                 VideoView(videoWithData: videoWithData)

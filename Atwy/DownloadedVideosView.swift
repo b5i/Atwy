@@ -26,8 +26,7 @@ struct DownloadedVideosView: View {
                 ScrollView {
                     //                        List {
                     LazyVStack {
-                        let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
-                        let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
+                        let videoViewHeight = PSM.videoViewMode == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                         
                         ForEach(sortedVideos) { (video: DownloadedVideo) in
                             let convertedResult = video.toYTVideo()
@@ -72,7 +71,7 @@ struct DownloadedVideosView: View {
     
     var sortedVideos: [DownloadedVideo] {
         return self.downloadedVideos.filter({$0.matchesQuery(search)}).sorted(by: {
-            switch (self.PSM.propetriesState[.downloadsSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
+            switch self.PSM.downloadsSortingMode {
             case .newest:
                 return $0.timestamp > $1.timestamp
             case .oldest:

@@ -22,12 +22,13 @@ class SearchViewController: UIViewController {
     var searchBar: KeyboardSearchBarView!
     var clearHistoryLabel: ClearHistoryLabel!
     var autocompletionScrollView: UITableView!
+    var searchHistoryIndicationLabel: SearchHistoryIndicationLabel!
 
     private var backgroundView: UIVisualEffectView!
     private var keyboardBackdropView: UIVisualEffectView!
     private var titleLabel: UILabel!
     private var titleBackground: VariableBlurEffectView!
-        
+            
     private var publishersStorage: Set<AnyCancellable> = .init()
         
     private let onSubmit: () -> Void
@@ -46,7 +47,8 @@ class SearchViewController: UIViewController {
         setupSearchBar()
         setupTitleBackground()
         setupTitleLabel()
-        setupclearHistoryLabel()
+        setupClearHistoryLabel()
+        setupSearchHistoryIndicationLabel()
     }
     
     required init?(coder: NSCoder) {
@@ -96,8 +98,10 @@ class SearchViewController: UIViewController {
                 
         model.$autoCompletion
             .receive(on: DispatchQueue.main) // postpone the execution after the new value has actually been applied to the autoCompletion array
-            .sink { [weak autocompletionScrollView] _ in
-                autocompletionScrollView?.reloadData()
+            .sink { [weak self] newValue in
+                guard let self = self else { return }
+                self.updateIndicationLabel()
+                self.autocompletionScrollView?.reloadData()
             }
             .store(in: &publishersStorage)
     }
@@ -154,7 +158,7 @@ class SearchViewController: UIViewController {
         ])
     }
     
-    private func setupclearHistoryLabel() {
+    private func setupClearHistoryLabel() {
         clearHistoryLabel = ClearHistoryLabel()
         clearHistoryLabel.isUserInteractionEnabled = true
         clearHistoryLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -178,6 +182,30 @@ class SearchViewController: UIViewController {
         }
     }
     
+    private func setupSearchHistoryIndicationLabel() {
+        let currentMode: SearchHistoryIndicationLabel.Mode = PreferencesStorageModel.shared.searchHistoryEnabled ? .searchToFill : .disabled
+        
+        self.searchHistoryIndicationLabel = SearchHistoryIndicationLabel(mode: currentMode)
+        
+        self.view.addSubview(self.searchHistoryIndicationLabel)
+        
+        self.searchHistoryIndicationLabel.sizeToFit()
+        self.searchHistoryIndicationLabel.center = self.view.convert(self.view.center, from: nil)
+        
+        self.searchHistoryIndicationLabel.isHidden = !self.model.autoCompletion.isEmpty
+         
+        PreferencesStorageModel.shared.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak searchHistoryIndicationLabel] in
+                searchHistoryIndicationLabel?.switchText(toMode: PreferencesStorageModel.shared.searchHistoryEnabled ? .searchToFill : .disabled)
+            }
+            .store(in: &self.publishersStorage)
+    }
+    
+    private func updateIndicationLabel() {
+        self.searchHistoryIndicationLabel.isHidden = self.textBinding.text.isEmpty ? !PersistenceModel.shared.currentData.searchHistory.isEmpty : !self.model.autoCompletion.isEmpty
+    }
+    
     @objc private func tapGestureRecognized(_ sender: UITapGestureRecognizer) {
         if !self.isGettingSearchBarHeight {
             dismiss(animated: true)
@@ -188,6 +216,7 @@ class SearchViewController: UIViewController {
         PersistenceModel.shared.removeSearchHistory()
         self.autocompletionScrollView.reloadData()
         self.clearHistoryLabel.isHidden = true
+        self.updateIndicationLabel()
     }
     
     override func viewDidLayoutSubviews() {
@@ -227,8 +256,9 @@ class SearchViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        transitionCoordinator?.animate { [weak backgroundView] _ in
+        transitionCoordinator?.animate { [weak backgroundView, weak searchHistoryIndicationLabel] _ in
             backgroundView?.effect = nil
+            searchHistoryIndicationLabel?.isHidden = true
         }
     }
     

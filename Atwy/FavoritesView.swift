@@ -25,8 +25,7 @@ struct FavoritesView: View {
         GeometryReader { geometry in
             ScrollView {
                 LazyVStack {
-                    let propertyState = PSM.propetriesState[.videoViewMode] as? PreferencesStorageModel.Properties.VideoViewModes
-                    let videoViewHeight = propertyState == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
+                    let videoViewHeight = PSM.videoViewMode == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90
                     
                     ForEach(sortedVideos) { (video: FavoriteVideo) in
                         let convertedResult = video.toYTVideo()
@@ -73,7 +72,7 @@ struct FavoritesView: View {
             .filter({$0.matchesQuery(search)})
             .conditionnalFilter(mainCondition: !NM.connected, {PersistenceModel.shared.isVideoDownloaded(videoId: $0.videoId) != nil})
             .sorted(by: {
-                switch (self.PSM.propetriesState[.favoritesSortingMode] as? PreferencesStorageModel.Properties.SortingModes) ?? .oldest {
+                switch self.PSM.favoritesSortingMode {
                 case .newest:
                     return $0.timestamp > $1.timestamp
                 case .oldest:
