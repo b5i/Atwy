@@ -79,6 +79,7 @@ class PreferencesStorageModel: ObservableObject {
         
         case performanceModeEnabled
         
+        case concurrentDownloadsLimit
         case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
@@ -107,7 +108,7 @@ class PreferencesStorageModel: ObservableObject {
                 return PerformanceModes.self
             case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled:
                 return Bool.self
-            case .loggerCacheLimit:
+            case .loggerCacheLimit, .concurrentDownloadsLimit:
                 return Int.self
             case .searchBarHeight:
                 return CGFloat.self
@@ -130,6 +131,8 @@ class PreferencesStorageModel: ObservableObject {
                 return 5
             case .searchBarHeight:
                 return -1
+            case .concurrentDownloadsLimit:
+                return 3
             }
         }
     }
@@ -153,6 +156,10 @@ extension PreferencesStorageModel {
     
     var performanceModeEnabled: Bool {
         self.getValueForKey(.performanceModeEnabled) as! Bool
+    }
+        
+    var concurrentDownloadsLimit: Int {
+        self.getValueForKey(.concurrentDownloadsLimit) as! Int
     }
     
     var liveActivitiesEnabled: Bool {

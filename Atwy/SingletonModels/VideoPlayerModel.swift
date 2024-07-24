@@ -272,7 +272,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                    } else {
                 
                 self.player.replaceCurrentItem(with: newItem)
-                self.player.updateEndAction()
+                await self.player.updateEndAction()
                 if let seekTo = seekTo {
                     await self.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
                 }

@@ -32,11 +32,11 @@ struct DownloadingItemsContextMenuView: View {
             }
         }
         Button(role: .destructive) {
-            DownloadingsModel.shared.cancelDownloadFor(downloader: downloader)
+            DownloadersModel.shared.cancelDownloadFor(downloader: downloader)
         } label: {
             HStack {
                 Text("Cancel Download")
-                Image(systemName: "trash")
+                Image(systemName: "multiply")
             }
         }
     }

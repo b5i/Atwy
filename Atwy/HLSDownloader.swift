@@ -26,9 +26,9 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         didSet {
             switch downloaderState {
             case .waiting:
-                DownloadingsModel.shared.launchDownloads()
+                DownloadersModel.shared.launchDownloaders()
             case .failed, .success:
-                DownloadingsModel.shared.removeDownloader(downloader: self)
+                DownloadersModel.shared.removeDownloader(downloader: self)
             case .inactive, .paused, .downloading:
                 break
             }

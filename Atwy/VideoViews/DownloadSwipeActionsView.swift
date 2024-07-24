@@ -27,7 +27,7 @@ struct DownloadSwipeActionsView: View {
         }
         .tint(.orange)
         Button {
-            DownloadingsModel.shared.cancelDownloadFor(downloader: downloader)
+            DownloadersModel.shared.cancelDownloadFor(downloader: downloader)
         } label: {
             ZStack {
                 Rectangle()

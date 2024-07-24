@@ -10,7 +10,7 @@ import YouTubeKit
 
 struct DownloadingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
@@ -19,7 +19,7 @@ struct DownloadingsView: View {
     var body: some View {
         VStack {
             Button {
-                for downloader in DM.downloadings.values {
+                for downloader in DM.downloaders.values {
                     downloader.cancelDownload()
                 }
             } label: {
@@ -27,7 +27,7 @@ struct DownloadingsView: View {
             }
             .buttonStyle(.bordered)
             List {
-                ForEach(DM.activeDownloadings.sorted(by: {$0.creationDate < $1.creationDate})) { downloader in
+                ForEach(DM.activeDownloaders.sorted(by: {$0.creationDate < $1.creationDate})) { downloader in
                     let video = downloader.video
                         HStack {
                             VStack {
@@ -114,8 +114,8 @@ struct DownloadingsView: View {
 
     private func deleteItem(at offsets: IndexSet) {
         for item in offsets {
-            let selectedDownloader = DM.activeDownloadings.sorted(by: {$0.creationDate < $1.creationDate})[item]
-            DownloadingsModel.shared.cancelDownloadFor(downloader: selectedDownloader)
+            let selectedDownloader = DM.activeDownloaders.sorted(by: {$0.creationDate < $1.creationDate})[item]
+            DownloadersModel.shared.cancelDownloadFor(downloader: selectedDownloader)
         }
     }
 }

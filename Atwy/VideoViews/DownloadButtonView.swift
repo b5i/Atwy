@@ -45,12 +45,12 @@ struct DownloadButtonView: View {
         }
         .frame(width: 25, height: 25)
         .onAppear {
-            if let downloader = DownloadingsModel.shared.downloadings[video.videoId] {
+            if let downloader = DownloadersModel.shared.downloaders[video.videoId] {
                 self.downloader = downloader
             }
         }
         .onReceive(of: .atwyDownloadingChanged(for: video.videoId), handler: { _ in
-            self.downloader = DownloadingsModel.shared.downloadings[video.videoId]
+            self.downloader = DownloadersModel.shared.downloaders[video.videoId]
         })
     }
     
