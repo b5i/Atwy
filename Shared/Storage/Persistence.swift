@@ -93,6 +93,8 @@ class PersistenceModel: ObservableObject {
     
     var currentData: PersistenceData
     
+    private var videoIdsAddedToFavorites: [String] = []
+    
     init() {
         self.controller = PersistenceController.shared
         self.context = controller.context
@@ -235,7 +237,8 @@ class PersistenceModel: ObservableObject {
     }
     
     public func addToFavorites(video: YTVideo, imageData: Data? = nil) {
-        guard !self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId}) else { return }
+        guard !self.currentData.favoriteVideoIds.contains(where: {$0 == video.videoId}), !self.videoIdsAddedToFavorites.contains(video.videoId) else { return }
+        self.videoIdsAddedToFavorites.append(video.videoId)
         let backgroundContext = self.controller.container.newBackgroundContext()
         backgroundContext.perform {
             let newItem = FavoriteVideo(context: backgroundContext)
@@ -301,6 +304,8 @@ class PersistenceModel: ObservableObject {
             } catch {
                 Logger.atwyLogs.simpleLog("Couldn't add favorite to context, error: \(error)")
             }
+            
+            self.videoIdsAddedToFavorites.removeAll(where: {$0 == video.videoId})
         }
     }
         

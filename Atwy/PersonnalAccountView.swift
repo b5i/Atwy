@@ -21,10 +21,9 @@ struct PersonnalAccountView: View {
         GeometryReader { geometry in
             VStack {
                 if isFetching {
-                    Spacer()
                     LoadingView()
                         .padding()
-                    Spacer()
+                        .centered()
                 } else {
                     ScrollView(.vertical, content: {
                         VStack(spacing: 50) {
