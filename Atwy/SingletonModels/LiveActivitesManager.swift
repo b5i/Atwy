@@ -101,7 +101,7 @@ class LiveActivitesManager {
 
 extension DownloadingsProgressAttributes.DownloadingsState {
     static var modelState: Self {
-        return .init(downloadingsCount: DownloadingsModel.shared.activeDownloadingsCount, globalProgress: DownloadingsModel.shared.globalDownloadingsProgress)
+        return .init(downloadingsCount: DownloadersModel.shared.activeDownloaders.count, globalProgress: DownloadersModel.shared.globalDownloadingsProgress)
     }
 }
 

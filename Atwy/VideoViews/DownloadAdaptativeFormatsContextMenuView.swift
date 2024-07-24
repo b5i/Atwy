@@ -16,20 +16,20 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
     let video: YTVideo
     let videoThumbnailData: Data?
     
-    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var DM = DownloadersModel.shared
     var body: some View {
         Menu(content: {
             if let formats = formats {
                 Section("Video formats") {
                     ForEach(Array((formats.downloadFormats).enumerated()).filter({$0.element as? VideoFormat != nil}).filter({$0.element.mimeType == "video/mp4"}), id: \.offset) { _, format in
                         Button {
-                            if let downloader = DM.downloadings[video.videoId] {
+                            if let downloader = DM.downloaders[video.videoId] {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
                                     downloader.state.thumbnailData = videoThumbnailData
                                     downloader.downloaderState = .waiting
-                                    DM.launchDownloads()
+                                    DM.launchDownloaders()
                                 }
                             } else {
                                 let downloader = HLSDownloader(video: self.video)
@@ -51,14 +51,14 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                 Section("Audio formats") {
                     ForEach(Array((formats.downloadFormats).enumerated()).filter({$0.element as? AudioFormat != nil}).filter({$0.element.mimeType == "audio/mp4"}), id: \.offset) { _, format in
                         Button {
-                            if let downloader = DM.downloadings[video.videoId] {
+                            if let downloader = DM.downloaders[video.videoId] {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
                                     downloader.state.thumbnailData = videoThumbnailData
                                     downloader.downloaderState = .waiting
                                     
-                                    DM.launchDownloads()
+                                    DM.launchDownloaders()
                                     
                                 }
                             } else {

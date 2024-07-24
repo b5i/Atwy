@@ -16,12 +16,6 @@ let YTM = YouTubeModel()
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismissSearch) private var dismissSearch
-    @State private var search: String = "" {
-        didSet {
-            Logger.atwyLogs.simpleLog("Refreshing")
-            model.refreshAutoCompletionEntries(forSearch: self.search)
-        }
-    }
     @State private var needToReload = true
     
     @State private var shouldReloadScrollView: Bool = false
@@ -29,35 +23,34 @@ struct SearchView: View {
     @ObservedObject private var model = Model.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
+    @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         VStack {
-            if IUTM.userTyping {
-                if !model.autoCompletion.isEmpty {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 15)
-                            .foregroundColor(.gray)
-                            .opacity(0.2)
-                        ScrollView {
-                            LazyVStack {
-                                ForEach(model.autoCompletion, id: \.self) { completion in
-                                    Button {
-                                        search = completion
-                                        model.getVideos(completion)
+            if PSM.customSearchBarEnabled, PrivateManager.shared.isCustomSearchMenuAvailable, IUTM.userTyping, !model.autoCompletion.isEmpty {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .foregroundColor(.gray)
+                        .opacity(0.2)
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(model.autoCompletion, id: \.self) { completion in
+                                Button {
+                                    model.search = completion
+                                    model.getVideos()
 #if !os(macOS)
-                                        //Close keyboard
-                                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                    //Close keyboard
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 #endif
-                                    } label: {
-                                        Text(completion)
-                                            .foregroundColor(colorScheme.textColor)
-                                    }
-                                    Divider()
+                                } label: {
+                                    Text(completion)
+                                        .foregroundColor(colorScheme.textColor)
                                 }
+                                Divider()
                             }
                         }
                     }
-                    .frame(maxWidth: 400, maxHeight: 150, alignment: .center)
                 }
+                .frame(maxWidth: 400, maxHeight: 150, alignment: .center)
             }
             VStack {
                 if model.isFetching {
@@ -72,7 +65,7 @@ struct SearchView: View {
                         Text(error)
                             .foregroundColor(.red)
                         Button {
-                            search = ""
+                            model.search = ""
                             dismissSearch()
                             model.getVideos()
                         } label: {
@@ -94,17 +87,13 @@ struct SearchView: View {
                             .frame(width: geometry.size.width, height: geometry.size.height)
                         }
                         .scrollIndicators(.hidden)
-                        .refreshable(action: {
-                            if search.isEmpty {
-                                model.getVideos()
-                            } else {
-                                model.getVideos(search)
-                            }
-                        })
+                        .refreshable {
+                            model.getVideos()
+                        }
                     }
                 } else {
                     let itemsBinding = Binding(get: {
-                        return model.items.map({YTElementWithData(element: $0, data: .init())})
+                        return model.items.map { YTElementWithData(element: $0, data: .init()) }
                     }, set: { newValue in
                         model.items = newValue.map({$0.element})
                     })
@@ -114,20 +103,17 @@ struct SearchView: View {
                         refreshAction: { endAction in
                             withAnimation(.easeOut(duration: 0.3)) {
                                 endAction()
-                                if search.isEmpty {
-                                    model.getVideos()
-                                } else {
-                                    model.getVideos(search)
-                                }
+                                model.getVideos()
                             }
                         },
                         fetchMoreResultsAction: {
                             if !model.isFetchingContination {
-                                model.getVideosContinuation({
+                                model.getVideosContinuation {
                                     self.shouldReloadScrollView = true
-                                })
+                                }
                             }
-                        }
+                        },
+                        bottomSpacing: 70
                     )
                 }
             }
@@ -136,25 +122,21 @@ struct SearchView: View {
 #if os(macOS)
         .searchable(text: $search, placement: .toolbar)
 #else
-        .customSearchBar(text: $search, onSubmit: { [weak model] in
-            model?.getVideos(search)
+        .customSearchBar(text: $model.search, onSubmit: { [weak model] in
+            model?.getVideos()
         })
 #endif
         .autocorrectionDisabled(true)
-        .onChange(of: search) { newValue in
+        .onChange(of: model.search) { newValue in
             IUTM.isMainSearchTextEmpty = newValue.isEmpty
-            model.refreshAutoCompletionEntries(forSearch: self.search)
+            model.refreshAutoCompletionEntries(forSearch: model.search)
         }
         .onSubmit(of: .search, {
-            model.getVideos(search)
+            model.getVideos()
         })
         .onAppear {
             if needToReload {
-                if search.isEmpty {
-                    model.getVideos()
-                } else {
-                    model.getVideos(search)
-                }
+                model.getVideos()
                 needToReload = false
             }
         }
@@ -168,6 +150,13 @@ struct SearchView: View {
     class Model: ObservableObject {
         static public let shared = Model()
         
+        @Published var search: String = "" {
+            didSet {
+                Logger.atwyLogs.simpleLog("Refreshing")
+                self.refreshAutoCompletionEntries(forSearch: self.search)
+            }
+        }
+        
         @Published var items: [any YTSearchResult] = []
         @Published var isFetching: Bool = false
         @Published var isFetchingContination: Bool = false
@@ -177,18 +166,14 @@ struct SearchView: View {
         private var homeResponse: HomeScreenResponse?
         private var searchResponse: SearchResponse?
         
-        public func getVideos(_ search: String? = nil, _ end: (() -> Void)? = nil) {
+        public func getVideos(_ end: (() -> Void)? = nil) {
             if !isFetching, !isFetchingContination {
-                if let search = search {
-                    if search.isEmpty {
-                        if self.homeResponse == nil {
-                            self.getHomeVideos(end)
-                        }
-                    } else {
-                        self.getVideosForSearch(search, end)
+                if search.isEmpty {
+                    if self.homeResponse == nil {
+                        self.getHomeVideos(end)
                     }
                 } else {
-                    self.getHomeVideos(end)
+                    self.getVideosForSearch(search, end)
                 }
             }
         }

@@ -13,7 +13,7 @@ struct DownloadVideoButtonView: View {
     let video: YTVideo
     let videoThumbnailData: Data?
     @Binding var downloader: HLSDownloader?
-    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var DM = DownloadersModel.shared
     var body: some View {
         Button {
             if let currentDownloader = downloader {

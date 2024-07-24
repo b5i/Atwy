@@ -23,11 +23,11 @@ struct DownloadingsProgressActivity: BackgroundFetchActivity {
     static let fetchInterval: Double = 5
     
     static func taskOperation() {
-        DownloadingsModel.shared.refreshDownloadingsProgress()
+        DownloadersModel.shared.refreshDownloadingsProgress()
     }
     
     static var shouldRescheduleCondition: () -> Bool = {
-        return DownloadingsModel.shared.activeDownloadingsCount != 0
+        return !DownloadersModel.shared.activeDownloaders.isEmpty
     }
     
     static func getNewData() -> DownloadingsProgressAttributes.DownloadingsState {
@@ -35,8 +35,8 @@ struct DownloadingsProgressActivity: BackgroundFetchActivity {
     }
     
     static func setupSpecialStep(activity: Activity<ActivityAttributesType>) {
-        let observer = DownloadingsModel.shared.downloadersChangePublisher.sink(receiveValue: { [weak DM = DownloadingsModel.shared, weak activity] newState in
-            guard let DM = DM, let activity = activity, DM.activeDownloadingsCount != 0 else {
+        let observer = DownloadersModel.shared.downloadersChangePublisher.sink(receiveValue: { [weak DM = DownloadersModel.shared, weak activity] newState in
+            guard let DM = DM, let activity = activity, !DM.activeDownloaders.isEmpty else {
                 Task {
                     await LiveActivitesManager.shared.stopActivity(type: Self.self)
                 }

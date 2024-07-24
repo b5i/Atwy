@@ -28,7 +28,7 @@ struct WatchVideoView: View {
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
-    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
     var body: some View {
         ZStack {
@@ -235,6 +235,7 @@ struct WatchVideoView: View {
                                 .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
                             Spacer()
                         }
+                        .padding(.bottom, geometry.size.height * 0.12)
                         .overlay(alignment: .top, content: {
                             ZStack {
                                 VariableBlurView(orientation: .topToBottom)
@@ -255,9 +256,10 @@ struct WatchVideoView: View {
                                                         .foregroundStyle(.white)
                                                         .opacity(0.3)
                                                         .frame(height: 45)
-                                                    let downloadLocation: URL? = {
-                                                        return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == video.videoId})?.storageLocation
-                                                    }()
+                                                    let downloadLocation: URL? = PM.currentData.downloadedVideoIds
+                                                            .first(where: {
+                                                                $0.videoId == video.videoId
+                                                            })?.storageLocation
                                                     DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
                                                         .foregroundStyle(.white)
                                                 }
@@ -265,13 +267,13 @@ struct WatchVideoView: View {
                                                 .frame(width: 60)
                                                 .padding(.horizontal, 10)
                                                 .contextMenu(menuItems: {
-                                                    if DM.downloadings[video.videoId] != nil {
+                                                    if DM.downloaders[video.videoId] != nil {
                                                         Button(role: .destructive) {
-                                                            DownloadingsModel.shared.cancelDownloadFor(videoId: video.videoId)
+                                                            DownloadersModel.shared.cancelDownloadFor(videoId: video.videoId)
                                                         } label: {
                                                             HStack {
                                                                 Text("Cancel Download")
-                                                                Image(systemName: "trash")
+                                                                Image(systemName: "multiply")
                                                             }
                                                         }
                                                     }

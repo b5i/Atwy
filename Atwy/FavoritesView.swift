@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 import YouTubeKit
+import OSLog
 
 struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -143,7 +144,7 @@ class Controller: UITableViewController {
         do {
             favorites = try coreContext.fetch(fetchRequest)
         } catch let error as NSError {
-            print(error.userInfo)
+            Logger.atwyLogs.simpleLog(error.localizedDescription)
         }
     }
     

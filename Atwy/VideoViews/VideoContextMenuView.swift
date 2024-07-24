@@ -97,12 +97,12 @@ struct VideoContextMenuView: View {
             }
         }
         .onAppear {
-            if let downloader = DownloadingsModel.shared.downloadings[self.videoWithData.video.videoId] {
+            if let downloader = DownloadersModel.shared.downloaders[self.videoWithData.video.videoId] {
                 self.downloader = downloader
             }
         }
         .onReceive(of: .atwyDownloadingChanged(for: self.videoWithData.video.videoId), handler: { _ in
-            self.downloader = DownloadingsModel.shared.downloadings[self.videoWithData.video.videoId]
+            self.downloader = DownloadersModel.shared.downloaders[self.videoWithData.video.videoId]
         })
     }
     

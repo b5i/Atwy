@@ -17,7 +17,7 @@ struct CancelDownloadContextMenuView: View {
         } label: {
             HStack {
                 Text("Cancel download")
-                Image(systemName: "trash")
+                Image(systemName: "multiply")
             }
         }
     }

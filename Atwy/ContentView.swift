@@ -24,7 +24,7 @@ struct ContentView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
-    @ObservedObject private var DM = DownloadingsModel.shared
+    @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var SM = SheetsModel.shared
@@ -38,7 +38,7 @@ struct ContentView: View {
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
             TabBarElement(DestinationView: {DownloadedVideosView()}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill", needConnection: false)
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-                .badge(DM.activeDownloadingsCount)
+                .badge(DM.activeDownloaders.count)
             TabBarElement(DestinationView: {
                 if !(APIM.userAccount?.isDisconnected ?? true) {
                     PersonnalAccountView()

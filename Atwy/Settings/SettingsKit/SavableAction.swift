@@ -46,12 +46,12 @@ extension SavableAction {
                 return self.internalValue.wrappedValue
             }
         }, set: { newValue in
-            PreferencesStorageModel.shared.setNewValueForKey(self.PSMType, value: newValue)
+            var newValue = newValue
             if let onSetAction = self.delegate.onSetAction {
-                self.internalValue.wrappedValue = onSetAction(newValue)
-            } else {
-                self.internalValue.wrappedValue = newValue
+                newValue = onSetAction(newValue)
             }
+            PreferencesStorageModel.shared.setNewValueForKey(self.PSMType, value: newValue)
+            self.internalValue.wrappedValue = newValue
         })
     }
     
