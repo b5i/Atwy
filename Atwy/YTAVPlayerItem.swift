@@ -100,7 +100,8 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         guard self.moreVideoInfos == nil, !self.isFetchingMoreVideoInfos else { return }
         self.isFetchingMoreVideoInfos = true
         
-        Task {
+        Task.detached { [weak self] in
+            guard let self = self else { return }
             let moreVideoInfosResponse = try await video.fetchMoreInfosThrowing(youtubeModel: YTM)
             DispatchQueue.main.async {
                 self.moreVideoInfos = moreVideoInfosResponse
@@ -116,10 +117,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                 fetchThumbnailOperation.start()
             }
             
-            self.addMetadatas()
-            self.isFetchingMoreVideoInfos = false
-            
-            self.update()
+            DispatchQueue.main.async {
+                self.addMetadatas()
+                self.isFetchingMoreVideoInfos = false
+                
+                self.update()
+            }
         }
     }
     

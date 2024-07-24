@@ -9,14 +9,14 @@
 import SwiftUI
 
 public extension View {
-    @ViewBuilder func customHeaderView<Content: View>(@ViewBuilder _ headerView: @escaping () -> Content, height: CGFloat) -> some View {
+    @ViewBuilder func customHeaderView<Content: View>(@ViewBuilder _ headerView: @escaping () -> Content, height: CGFloat, shouldShow: (() -> Bool)? = nil) -> some View {
         overlay(content: {
             CustomNavigationHeaderView(headerView: headerView, height: height)
                 .frame(width: 0, height: 0)
         })
     }
     
-    @ViewBuilder func customHeaderView(_ headerViewController: UIViewController) -> some View {
+    @ViewBuilder func customHeaderView(_ headerViewController: UIViewController, shouldShow: (() -> Bool)? = nil) -> some View {
         overlay(content: {
             CustomNavigationHeaderControllerView(headerViewController: headerViewController)
                 .frame(width: 0, height: 0)
@@ -27,24 +27,24 @@ public extension View {
 public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentable {
     public var headerViewController: UIViewController
     
+    public var shouldShow: (() -> Bool)?
+    
     public func makeUIViewController(context: Context) -> UIViewController {
-        return ViewControllerWrapper(headerViewController: headerViewController)
+        return ViewControllerWrapper(headerViewController: headerViewController, shouldShow: shouldShow)
     }
     
     class ViewControllerWrapper: UIViewController {
         let headerViewController: UIViewController
+        let shouldShow: (() -> Bool)?
                 
-        init(headerViewController: UIViewController) {
+        init(headerViewController: UIViewController, shouldShow: (() -> Bool)?) {
             self.headerViewController = headerViewController
+            self.shouldShow = shouldShow
             super.init(nibName: nil, bundle: nil)
         }
         
-        override func viewWillLayoutSubviews() {
-            super.viewWillLayoutSubviews()
-        }
-        
         override func viewWillAppear(_ animated: Bool) {
-            guard let navigationController = self.navigationController, let navigationItem = navigationController.visibleViewController?.navigationItem else { return }
+            guard (shouldShow?() ?? true), let navigationController = self.navigationController, let navigationItem = navigationController.visibleViewController?.navigationItem else { return }
             
             
             // a trick from https://x.com/sebjvidal/status/1748659522455937213

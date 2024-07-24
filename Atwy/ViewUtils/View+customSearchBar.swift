@@ -28,7 +28,7 @@ extension View {
             let controller = try TopSearchBarController(textBinding: textBinding, onSubmit: onSubmit)
             return AnyView(
                 self
-                    .customHeaderView(controller)
+                    .customHeaderView(controller, shouldShow: { return NetworkReachabilityModel.shared.connected })
                     .onAppear {
                         TopSearchBarController.searchBarHeight = PreferencesStorageModel.shared.searchBarHeight
                     }

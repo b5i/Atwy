@@ -14,9 +14,7 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
     }
     
     func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
-        let fromViewController = transitionContext.viewController(forKey: .from) as! TopSearchBarController
-        
-        let toViewController = transitionContext.viewController(forKey: .to) as! SearchViewController
+        guard let fromViewController = transitionContext.viewController(forKey: .from) as? TopSearchBarController, let toViewController = transitionContext.viewController(forKey: .to) as? SearchViewController else { transitionContext.cancelInteractiveTransition(); return }
         
         toViewController.view.layoutIfNeeded() // Calculate the final position and frame of the elements in the toViewController, we will only need to get the keyboard height from the PreferencesStorageModel to ajust their y origin.
         

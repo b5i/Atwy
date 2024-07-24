@@ -107,3 +107,100 @@ extension View {
         modifier(IsPresentedSearchableModifier(search: search, isPresented: isPresented, placement: placement))
     }
 }
+
+struct CController: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> some UIViewController {
+        return Controller()
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        
+    }
+}
+
+class Controller: UITableViewController {
+    
+    var favorites: [FavoriteVideo] = []
+    
+    init() {
+        super.init(style: .plain)
+        self.tableView.register(VideoCell.self, forCellReuseIdentifier: "VideoCell")
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        fetchFavorites()
+        self.tableView.dataSource = self
+        self.tableView.delegate = self
+    }
+    
+    private func fetchFavorites() {
+        let coreContext = PersistenceModel.shared.context
+        let fetchRequest = NSFetchRequest<FavoriteVideo>(entityName: "FavoriteVideo")
+        do {
+            favorites = try coreContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print(error.userInfo)
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return favorites.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell", for: indexPath) as! VideoCell
+        
+        let videoViewHeight = PreferencesStorageModel.shared.videoViewMode == .halfThumbnail ? 180 : self.view.frame.size.width * 9/16 + 90
+        
+        cell.contentView.frame.size = .init(width: self.view.frame.width, height: videoViewHeight)
+
+        // Configure the cell’s contents.
+        cell.setNewVideo(favorites[indexPath.row])
+                
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return PreferencesStorageModel.shared.videoViewMode == .halfThumbnail ? 180 : self.view.frame.size.width * 9/16 + 90
+    }
+}
+
+class VideoCell: UITableViewCell {
+    private var video: FavoriteVideo?
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    }
+    
+    func setNewVideo(_ video: FavoriteVideo) {
+        self.contentView.subviews.forEach {$0.removeFromSuperview()}
+        let subview = UIHostingController(rootView: VideoViewww(video: video, size: self.frame.size)).view
+        subview!.frame = self.contentView.frame
+        self.contentView.addSubview(subview!)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+struct VideoViewww: View {
+    let video: FavoriteVideo
+    let size: CGSize
+    var body: some View {
+        Button {
+            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
+                VideoPlayerModel.shared.loadVideo(video: video.toYTVideo())
+            }
+            
+            SheetsModel.shared.showSheet(.watchVideo)
+        } label: {
+            VideoFromSearchView(videoWithData: video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
+        }
+        .frame(width: size.width, height: size.height)
+    }
+}

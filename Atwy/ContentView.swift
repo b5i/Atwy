@@ -117,6 +117,7 @@ struct ContentView: View {
         NavigationStack(path: pathBinding) {
             if needConnection && !network.connected {
                 NoConnectionView(menuName: name)
+                    .removeCustomHeader()
             } else {
                 DestinationView()
             }
