@@ -32,7 +32,9 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didFinishDownloadingTo location: URL) {
-        self.location = location
+        DispatchQueue.main.async {
+            self.downloadInfo.downloadLocation = location
+        }
     }
     
     //    func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
@@ -54,7 +56,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        self.location = location
+        self.downloadInfo.downloadLocation = location
         let data = try? Data(contentsOf: location)
         try? FileManager.default.removeItem(at: location)
         processEndOfDownload(videoData: data)
@@ -79,7 +81,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 self.percentComplete = 0.0
                 self.downloaderState = .failed
             }
-            if let location = self.location {
+            if let location = self.downloadInfo.downloadLocation {
                 do {
                     try FileManager.default.removeItem(at: location)
                 } catch {
@@ -93,12 +95,12 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     func processEndOfDownload(videoData: Data? = nil) {
         self.startedEndProcedure = true
-        guard let location = self.location, let docDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else { return }
+        guard let location = self.downloadInfo.downloadLocation, let docDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else { return }
         let newPath: URL
         
         // Normal video
         if let videoData = videoData {
-            newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).mp4")!
+            newPath = URL(string: "\(docDir.absoluteString)\(self.downloadInfo.video.videoId).mp4")!
             guard FileManager.default.createFile(atPath: newPath.path(), contents: videoData) else {
                 Logger.atwyLogs.simpleLog("Couldn't create a new file with video's contents.")
                 DispatchQueue.main.async {
@@ -136,7 +138,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             }
             */
 
-            newPath = URL(string: "\(docDir.absoluteString)\(self.video.videoId).movpkg")!
+            newPath = URL(string: "\(docDir.absoluteString)\(self.downloadInfo.video.videoId).movpkg")!
             _ = docDir.startAccessingSecurityScopedResource()
             guard copyVideoAndDeleteOld(location: location, newLocation: newPath) else {
                 Logger.atwyLogs.simpleLog("Couldn't copy/remove the new video's contents.")
@@ -173,84 +175,59 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
              */
             docDir.stopAccessingSecurityScopedResource()
         }
-        Task {
-            let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
-            let videoInfos = try? await self.video.fetchMoreInfosThrowing(youtubeModel: YTM)
-            backgroundContext.performAndWait {
-                let newVideo = DownloadedVideo(context: backgroundContext)
-                newVideo.timestamp = Date()
-                newVideo.storageLocation = newPath
-                newVideo.title = videoInfos?.videoTitle ?? self.video.title
-                if let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(self.video.videoId)/hqdefault.jpg") {
-                    let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
-                    imageTask.start()
-                    imageTask.waitUntilFinished()
-                    if let imageData = imageTask.imageData {
-                        newVideo.thumbnail = cropImage(data: imageData)
-                    }
-                }
-                newVideo.timeLength = self.video.timeLength
-                newVideo.timePosted = videoInfos?.timePosted.postedDate
-                newVideo.videoId = self.video.videoId
+        let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
+        backgroundContext.performAndWait {
+            let newVideo = DownloadedVideo(context: backgroundContext)
+            newVideo.timestamp = Date()
+            newVideo.storageLocation = newPath
+            newVideo.title = self.downloadInfo.videoInfo?.videoTitle ?? self.downloadInfo.video.title
+            if let imageData = self.downloadInfo.thumbnailData {
+                newVideo.thumbnail = cropImage(data: imageData)
+            }
+            newVideo.timeLength = self.downloadInfo.video.timeLength
+            newVideo.timePosted = self.downloadInfo.videoInfo?.timePosted.postedDate
+            newVideo.videoId = self.downloadInfo.video.videoId
+            
+            for chapter in self.downloadInfo.chapters {
+                newVideo.addToChapters(chapter.getEntity(context: backgroundContext))
+            }
+            
+            if let channelId = self.downloadInfo.video.channel?.channelId {
+                let fetchRequest = DownloadedChannel.fetchRequest()
+                fetchRequest.fetchLimit = 1
+                fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
+                let result = try? backgroundContext.fetch(fetchRequest)
                 
-                for chapter in videoInfos?.chapters ?? [] {
-                    guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
-                    let chapterEntity = DownloadedVideoChapter(context: backgroundContext)
-                    chapterEntity.shortTimeDescription = chapter.timeDescriptions.shortTimeDescription
-                    chapterEntity.startTimeSeconds = Int32(startTimeSeconds)
-                    if let chapterThumbnailURL = chapter.thumbnail.last?.url {
-                        let imageTask = DownloadImageOperation(imageURL: chapterThumbnailURL)
-                        imageTask.start()
-                        imageTask.waitUntilFinished()
-                        chapterEntity.thumbnail = imageTask.imageData
-                    } else {
-                        chapterEntity.thumbnail = newVideo.thumbnail
-                    }
-                    chapterEntity.title = chapter.title
-                    newVideo.addToChapters(chapterEntity)
+                if let channel = result?.first {
+                    channel.thumbnail = self.downloadInfo.channelThumbnailData
+                    channel.addToVideos(newVideo)
+                } else {
+                    let newChannel = DownloadedChannel(context: backgroundContext)
+                    newChannel.channelId = channelId
+                    newChannel.name = self.downloadInfo.videoInfo?.channel?.name ?? self.downloadInfo.video.channel?.name
+                    newChannel.thumbnail = self.downloadInfo.channelThumbnailData
+                    newChannel.addToVideos(newVideo)
                 }
-                
-                if let channelId = self.video.channel?.channelId {
-                    let fetchRequest = DownloadedChannel.fetchRequest()
-                    fetchRequest.fetchLimit = 1
-                    fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                    let result = try? backgroundContext.fetch(fetchRequest)
-                    
-                    if let channel = result?.first {
-                        channel.addToVideos(newVideo)
-                    } else {
-                        let newChannel = DownloadedChannel(context: backgroundContext)
-                        newChannel.channelId = channelId
-                        newChannel.name = videoInfos?.channel?.name ?? self.video.channel?.name
-                        if let channelThumbnailURL = videoInfos?.channel?.thumbnails.maxFor(3) ?? self.video.channel?.thumbnails.maxFor(3) {
-                            let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
-                            imageTask.start()
-                            imageTask.waitUntilFinished()
-                            newChannel.thumbnail = imageTask.imageData
-                        }
-                        newChannel.addToVideos(newVideo)
-                    }
+            }
+            
+            newVideo.videoDescription = downloadInfo.videoDescription
+            do {
+                try backgroundContext.save()
+                PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.downloadInfo.video.videoId, storageLocation: newPath)
+                self.expectedBytes = (0, 0)
+                DispatchQueue.main.async {
+                    self.percentComplete = 100
+                    self.downloaderState = .success
+                    NotificationCenter.default.post(
+                        name: .atwyCoreDataChanged,
+                        object: nil
+                    )
                 }
-                
-                newVideo.videoDescription = videoDescription
-                do {
-                    try backgroundContext.save()
-                    PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.video.videoId, storageLocation: newPath)
-                    self.expectedBytes = (0, 0)
-                    DispatchQueue.main.async {
-                        self.percentComplete = 100
-                        self.downloaderState = .success
-                        NotificationCenter.default.post(
-                            name: .atwyCoreDataChanged,
-                            object: nil
-                        )
-                    }
-                } catch {
-                    let nsError = error as NSError
-                    Logger.atwyLogs.simpleLog("Unresolved error \(nsError), \(nsError.userInfo)")
-                    DispatchQueue.main.async {
-                        self.downloaderState = .failed
-                    }
+            } catch {
+                let nsError = error as NSError
+                Logger.atwyLogs.simpleLog("Unresolved error \(nsError), \(nsError.userInfo)")
+                DispatchQueue.main.async {
+                    self.downloaderState = .failed
                 }
             }
         }
@@ -293,7 +270,10 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 policy.expirationDate = Date()
                 AVAssetDownloadStorageManager.shared().setStorageManagementPolicy(policy, for: location)
             }
-            self.location = newLocation
+            
+            DispatchQueue.main.async {
+                self.downloadInfo.downloadLocation = newLocation
+            }
             return true
         } catch {
             try? FileManager.default.removeItem(at: location)

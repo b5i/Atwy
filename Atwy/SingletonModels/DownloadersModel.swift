@@ -15,7 +15,7 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
         
     @Published private(set) var downloaders: [String: HLSDownloader] = [:] // the video'id and its downloader
         
-    let downloadersChangePublisher = PassthroughSubject<DownloadingsProgressAttributes.ContentState, Never>()
+    let downloadersChangePublisher = PassthroughSubject<Bool, Never>()
     
     var globalDownloadingsProgress: CGFloat {
         let downloadingsCount = activeDownloaders.count
@@ -73,9 +73,9 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
     public func addDownloader(_ downloader: HLSDownloader) {
         downloader.delegate = self
         DispatchQueue.main.async {
-            self.downloaders.updateValue(downloader, forKey: downloader.video.videoId)
+            self.downloaders.updateValue(downloader, forKey: downloader.downloadInfo.video.videoId)
             downloader.downloaderState = .waiting // fires launchDownloads
-            NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.video.videoId), object: nil)
+            NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.downloadInfo.video.videoId), object: nil)
         }
     }
         
@@ -88,14 +88,14 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
     /// If the downloader is present in ``downloadings``, it will be removed from it and cancelled.
     public func cancelDownloadFor(downloader: HLSDownloader) {
         self.removeDownloader(downloader: downloader)
-        PopupsModel.shared.showPopup(.cancelledDownload, data: downloader.state.thumbnailData)
+        PopupsModel.shared.showPopup(.cancelledDownload, data: downloader.downloadInfo.thumbnailData)
     }
     
     public func removeDownloader(downloader: HLSDownloader) {
         downloader.cancelDownload()
         downloader.delegate = nil
-        self.downloaders.removeValue(forKey: downloader.video.videoId)
-        NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.video.videoId), object: nil)
+        self.downloaders.removeValue(forKey: downloader.downloadInfo.video.videoId)
+        NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.downloadInfo.video.videoId), object: nil)
         self.launchDownloaders()
     }
 
@@ -110,9 +110,6 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
             guard activeDownloadersCount < concurrentDownloadsLimit ?? PreferencesStorageModel.shared.concurrentDownloadsLimit else { break }
             waitingDownloader.downloadVideo()
             activeDownloadersCount += 1
-            if #available(iOS 16.1, *), LiveActivitesManager.shared.activities[.downloadingsProgress] == nil {
-                DownloadingsProgressActivity.setupOnManager(attributes: .init(), state: .modelState)
-            }
         }
         if activeDownloadersCount == 0 {
             NotificationCenter.default.post(name: .atwyNoDownloadingsLeft, object: nil)
@@ -133,6 +130,6 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
     }
     
     private func updatePublisher() {
-        self.downloadersChangePublisher.send(.modelState)
+        self.downloadersChangePublisher.send(true)
     }
 }

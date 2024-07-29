@@ -27,8 +27,9 @@ struct DownloadingsView: View {
             }
             .buttonStyle(.bordered)
             List {
-                ForEach(DM.activeDownloaders.sorted(by: {$0.creationDate < $1.creationDate})) { downloader in
-                    let video = downloader.video
+                let downloaders: [HLSDownloader] = DM.activeDownloaders.sorted(by: {$0.downloadInfo.timestamp < $1.downloadInfo.timestamp})
+                ForEach(downloaders, id: \.self) { (downloader: HLSDownloader) in
+                    let video = downloader.downloadInfo.video
                         HStack {
                             VStack {
 #if os(macOS)
@@ -40,7 +41,7 @@ struct DownloadingsView: View {
                                         .foregroundColor(.black)
                                 }
 #else
-                                if let imageData = downloader.state.thumbnailData, let image = UIImage(data: imageData) {
+                                if let imageData = downloader.downloadInfo.thumbnailData, let image = UIImage(data: imageData) {
                                     Image(uiImage: image)
                                         .resizable()
                                 } else {
@@ -71,8 +72,8 @@ struct DownloadingsView: View {
                             DownloadSwipeActionsView(downloader: downloader)
                         })
                         .onTapGesture {
-                            if VideoPlayerModel.shared.currentItem?.videoId != downloader.video.videoId {
-                                VideoPlayerModel.shared.loadVideo(video: downloader.video)
+                            if VideoPlayerModel.shared.currentItem?.videoId != downloader.downloadInfo.video.videoId {
+                                VideoPlayerModel.shared.loadVideo(video: downloader.downloadInfo.video)
                             }
                             SheetsModel.shared.showSheet(.watchVideo)
                         }
@@ -114,7 +115,7 @@ struct DownloadingsView: View {
 
     private func deleteItem(at offsets: IndexSet) {
         for item in offsets {
-            let selectedDownloader = DM.activeDownloaders.sorted(by: {$0.creationDate < $1.creationDate})[item]
+            let selectedDownloader = DM.activeDownloaders.sorted(by: {$0.downloadInfo.timestamp < $1.downloadInfo.timestamp})[item]
             DownloadersModel.shared.cancelDownloadFor(downloader: selectedDownloader)
         }
     }

@@ -10,98 +10,76 @@ import ActivityKit
 import Combine
 import BackgroundTasks
 
+@available(iOS 16.1, *)
 class LiveActivitesManager {
     static let shared = LiveActivitesManager()
     
-    var activities: [ActivityType: any CastedActivity] = [:]
-    var activitiesObservers: [ActivityType: AnyCancellable] = [:]
+    var activities: [(bgActivity: any BackgroundFetchActivity, actualActivity: any CastedActivity)] = []
+    var activitiesObservers: [(bgActivity: any BackgroundFetchActivity, observer: AnyCancellable)] = []
         
     func getAuthorizationStatus() -> Bool {
-        if #available(iOS 16.1, *) {
-            return ActivityAuthorizationInfo().areActivitiesEnabled
-        } else {
-            return false
-        }
+        return ActivityAuthorizationInfo().areActivitiesEnabled
     }
     
     func removeAllActivities() {
         Task {
-            if #available(iOS 16.1, *) {
-                for activity in Activity<DownloadingsProgressActivity.ActivityAttributesType>.activities {
-                    if #available(iOS 16.2, *) {
-                        await activity.end(nil, dismissalPolicy: .immediate)
-                    } else {
-                        await activity.end(using: nil, dismissalPolicy: .immediate)
-                    }
+            for activity in Activity<DownloaderProgressActivity.ActivityAttributesType>.activities {
+                if #available(iOS 16.2, *) {
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                } else {
+                    await activity.end(using: nil, dismissalPolicy: .immediate)
                 }
             }
         }
     }
+
+    func updateActivity<BGActivityType: BackgroundFetchActivity>(withNewState newState: BGActivityType.ActivityAttributesType.ContentState, bgActivity: BGActivityType) {
+        Task {
+            guard let actualActivity = self.activityForBGActivity(bgActivity) else { return }
+            if #available(iOS 16.2, *) {
+                await actualActivity.update(.init(state: newState, staleDate: nil))
+            } else {
+                await actualActivity.update(using: newState)
+            }
+        }
+    }
     
-    @available(iOS 16.1, *)
-    private func updateActivity<T: BackgroundFetchActivity>(withNewState newState: T.ActivityAttributesType, type: T.Type) {
-        guard let currentActivity = self.activities[T.activityType] else { return }
+    func addActivity<T: BackgroundFetchActivity>(_ bgActivity: T, attributes: T.ActivityAttributesType, state: T.ActivityAttributesType.ContentState) throws -> Activity<T.ActivityAttributesType> {
+        let activity: Activity<T.ActivityAttributesType>
         
-        Task {
-            guard let castedCurrentActivity = currentActivity as? Activity<T.ActivityAttributesType> else { return }
-            guard let castedState = newState as? T.ActivityAttributesType.ContentState else { return }
-            
-            if #available(iOS 16.2, *) {
-                await castedCurrentActivity.update(.init(state: castedState, staleDate: nil))
-            } else {
-                await castedCurrentActivity.update(using: castedState)
-            }
+        if #available(iOS 16.2, *) {
+            activity = try Activity.request(attributes: attributes, content: .init(state: state, staleDate: nil))
+        } else {
+            activity = try Activity.request(attributes: attributes, contentState: state)
         }
+        self.activities.append((bgActivity, activity))
+        
+        return activity
     }
     
-    @available(iOS 16.1, *)
-    func updateActivity<T: ActivityAttributes>(withNewState newState: T.ContentState, activity: Activity<T>) {
-        Task {
+    func stopActivity<T: BackgroundFetchActivity>(bgActivity: T) async {
+        if let currentActivity = self.activityForBGActivity(bgActivity) {
             if #available(iOS 16.2, *) {
-                await activity.update(.init(state: newState, staleDate: nil))
+                await currentActivity.end(.init(state: bgActivity.getNewData(), staleDate: nil), dismissalPolicy: .immediate)
             } else {
-                await activity.update(using: newState)
-            }
-        }
-    }
-    
-    @available(iOS 16.1, *)
-    func replaceActivityForType<T: BackgroundFetchActivity>(_ type: T.Type, activity: CastedActivity) {
-        Task {
-            await self.stopActivity(type: type)
-            
-            self.activities.updateValue(activity, forKey: T.activityType)
-        }
-    }
-    
-    @available(iOS 16.1, *)
-    func stopActivity<T: BackgroundFetchActivity>(type: T.Type) async {
-        if let currentActivity = self.activities[T.activityType] {
-            guard let castedCurrentActivity = currentActivity as? Activity<T.ActivityAttributesType> else { return }
-            
-            if #available(iOS 16.2, *) {
-                await castedCurrentActivity.end(.init(state: T.getNewData(), staleDate: nil), dismissalPolicy: .immediate)
-            } else {
-                await castedCurrentActivity.end(using: T.getNewData(), dismissalPolicy: .immediate)
+                await currentActivity.end(using: bgActivity.getNewData(), dismissalPolicy: .immediate)
             }
             
-            self.activities.removeValue(forKey: T.activityType)
-            self.activitiesObservers[T.activityType]?.cancel()
-            self.activitiesObservers.removeValue(forKey: T.activityType)
+            self.activities.removeAll(where: {($0.bgActivity as? T) == bgActivity})
+            self.observerForBGActivity(bgActivity)?.cancel()
+            self.activitiesObservers.removeAll(where: {($0 as? T) == bgActivity})
             
             // Stop background fetching
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: T.identifier)
         }
     }
     
-    enum ActivityType {
-        case downloadingsProgress
+    func activityForBGActivity<T: BackgroundFetchActivity>(_ bgActivity: T) -> Activity<T.ActivityAttributesType>? {
+        return self.activities.first(where: {($0.bgActivity as? T) == bgActivity})?.actualActivity as? Activity<T.ActivityAttributesType>
     }
-}
-
-extension DownloadingsProgressAttributes.DownloadingsState {
-    static var modelState: Self {
-        return .init(downloadingsCount: DownloadersModel.shared.activeDownloaders.count, globalProgress: DownloadersModel.shared.globalDownloadingsProgress)
+    
+    func observerForBGActivity<T: BackgroundFetchActivity>(_ bgActivity: T) -> AnyCancellable? {
+        return self.activitiesObservers.first(where: {($0 as? T) == bgActivity})?.observer
     }
 }
 
