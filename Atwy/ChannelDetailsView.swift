@@ -69,14 +69,14 @@ struct ChannelDetailsView: View {
                         }
                         HStack {
                             Text(channelInfos.handle ?? "")
-                            if channelInfos.handle != nil, channelInfos.subscribersCount != nil {
+                            if channelInfos.handle != nil, channelInfos.subscriberCount != nil {
                                 Text(" • ")
                             }
-                            Text(channelInfos.subscribersCount ?? "")
-                            if channelInfos.subscribersCount != nil, channelInfos.videosCount != nil {
+                            Text(channelInfos.subscriberCount ?? "")
+                            if channelInfos.subscriberCount != nil, channelInfos.videoCount != nil {
                                 Text(" • ")
                             }
-                            Text(channelInfos.videosCount ?? "")
+                            Text(channelInfos.videoCount ?? "")
                         }
                         .padding(.top)
                         .font(.system(size: 12))

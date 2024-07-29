@@ -50,8 +50,8 @@ struct SettingsMenu<HeaderView>: View where HeaderView: View {
             })
             SettingsSection(title: "Test", settings: {
                 Setting(textDescription: nil, action: try! SAToggle(PSMType: .automaticPiP, title: "Auto PiP"))
-                Setting(textDescription: nil, action: try! SATextButton(title: "Auto PiP", buttonLabel: "Reset", action: {_ in}))
-                Setting(textDescription: "This will reset your iPhone.", action: try! SATextButton(title: "", buttonLabel: "Reset", action: {_ in}))            })
+                Setting(textDescription: nil, action:  SATextButton(title: "Auto PiP", buttonLabel: "Reset", action: {_ in}))
+                Setting(textDescription: "This will reset your iPhone.", action:  SATextButton(title: "", buttonLabel: "Reset", action: {_ in}))            })
         })
     }
 }

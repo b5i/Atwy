@@ -1,5 +1,5 @@
 {
-  "originHash" : "49f64b9ca9f58039fa8eede0e4577169a4f9e5a9707e77963c337510d9be3e39",
+  "originHash" : "beab74e6507cba1663c4587d02b978a133e63522baa58cf3b3238f5e20601968",
   "pins" : [
     {
       "identity" : "infinitescrollviews",
@@ -24,7 +24,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/b5i/YouTubeKit",
       "state" : {
-        "revision" : "b5ad96559d35916630711aa4caa8a425764a1195"
+        "revision" : "b154b23e68f003feefe96918d166ab6e89695797"
       }
     }
   ],
