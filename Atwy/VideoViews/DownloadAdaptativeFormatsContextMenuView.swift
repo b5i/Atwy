@@ -27,7 +27,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
-                                    downloader.state.thumbnailData = videoThumbnailData
+                                    downloader.downloadInfo.thumbnailData = videoThumbnailData
                                     downloader.downloaderState = .waiting
                                     DM.launchDownloaders()
                                 }
@@ -35,7 +35,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 let downloader = HLSDownloader(video: self.video)
                                 downloader.downloadData = format
 
-                                downloader.state.thumbnailData = videoThumbnailData
+                                downloader.downloadInfo.thumbnailData = videoThumbnailData
                                 DM.addDownloader(downloader)
                             }
                         } label: {
@@ -55,7 +55,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 if downloader.downloaderState != .downloading && downloader.downloaderState != .success && downloader.downloaderState != .waiting && downloader.downloaderState != .paused {
                                     downloader.downloadData = format
 
-                                    downloader.state.thumbnailData = videoThumbnailData
+                                    downloader.downloadInfo.thumbnailData = videoThumbnailData
                                     downloader.downloaderState = .waiting
                                     
                                     DM.launchDownloaders()
@@ -65,7 +65,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                                 let downloader = HLSDownloader(video: self.video)
                                 downloader.downloadData = format
                                 
-                                downloader.state.thumbnailData = videoThumbnailData
+                                downloader.downloadInfo.thumbnailData = videoThumbnailData
                                 
                                 DM.addDownloader(downloader)
                             }

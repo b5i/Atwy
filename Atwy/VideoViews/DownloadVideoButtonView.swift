@@ -20,7 +20,7 @@ struct DownloadVideoButtonView: View {
                 DM.removeDownloader(downloader: currentDownloader)
             }
             let newDownloader = HLSDownloader(video: video)
-            newDownloader.state.thumbnailData = videoThumbnailData
+            newDownloader.downloadInfo.thumbnailData = videoThumbnailData
             DM.addDownloader(newDownloader)
             self.downloader = newDownloader
         } label: {

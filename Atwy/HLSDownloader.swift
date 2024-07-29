@@ -18,9 +18,8 @@ protocol HLSDownloaderDelegate {
 
 class HLSDownloader: NSObject, ObservableObject, Identifiable {
 
-    let video: YTVideo
     var delegate: HLSDownloaderDelegate? = nil
-    @Published var state = Download()
+    @Published var downloadInfo: DownloadInfo
 
     @Published var downloaderState: HLSDownloaderState = .inactive {
         didSet {
@@ -42,10 +41,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         }
     }
     
-    let creationDate = Date()
-    var location: URL?
     var isFavorite: Bool?
-    var videoDescription: String?
     var downloadTask: URLSessionTask?
 //    var downloadTask: AVAggregateAssetDownloadTask?
     var downloadData: (any DownloadFormat)?
@@ -53,11 +49,11 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     @Published var downloadTaskState: URLSessionTask.State = .canceling
 
     init(video: YTVideo) {
-        self.video = video
+        self.downloadInfo = DownloadInfo(video: video)
         super.init()
     }
     
-    public func refreshProgress() {
+    func refreshProgress() {
         guard let downloadTask = downloadTask else { return }
         
         guard downloadTask.countOfBytesExpectedToReceive != 0 && downloadTask.countOfBytesExpectedToReceive != NSURLSessionTransferSizeUnknown else { return }
@@ -71,27 +67,25 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         }
     }
     
-    func downloadVideo(thumbnailData: Data? = nil, videoDescription: String = "") {
+    func downloadVideo() {
         guard self.downloaderState != .downloading else { return }
         DispatchQueue.main.async {
             self.downloaderState = .downloading
         }
-        state.title = ""
-        state.owner = ""
-        state.location = ""
+        
+        downloadInfo.downloadLocation = nil
         expectedBytes = (0, 0)
         percentComplete = 0.0
-        location = nil
-        self.videoDescription = nil
+        self.downloadInfo.videoDescription = nil
         if let downloadURL = downloadData?.url {
-            downloadHLS(downloadURL: downloadURL, videoDescription: videoDescription, video: video, thumbnailData: thumbnailData)
+            downloadHLS(downloadURL: downloadURL)
         } else {
-            self.video.fetchStreamingInfos(youtubeModel: YTM, infos: { [weak self] result in
+            self.downloadInfo.video.fetchStreamingInfos(youtubeModel: YTM, infos: { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let response):
                     if let streamingURL = response.streamingURL {
-                        self.downloadHLS(downloadURL: streamingURL, videoDescription: response.videoDescription ?? "", video: self.video, thumbnailData: thumbnailData)
+                        self.downloadHLS(downloadURL: streamingURL)
                     } else {
                         Logger.atwyLogs.simpleLog("Couldn't get video streaming url.")
                         DispatchQueue.main.async {
@@ -110,29 +104,79 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         }
     }
 
-    func downloadHLS(downloadURL: URL, videoDescription: String, video: YTVideo, thumbnailData: Data? = nil) {
-        func launchDownload(thumbnailData: Data, isHLS: Bool) {
-            if isHLS {
-                //                Task {
-                //                    do {
-                //                        let preferredMediaSelection = try await asset.load(.preferredMediaSelection)
-                //                        if let downloadTask = assetDownloadURLSession.aggregateAssetDownloadTask(with: asset, mediaSelections: [], assetTitle: video.title ?? "No title", assetArtworkData: thumbnailData) {
-                //                            downloadTask.resume()
-                //                            self.downloadTask?.cancel()
-                //                            DispatchQueue.main.async {
-                //                                self.downloadTask = downloadTask
-                //                                self.downloadTaskState = downloadTask.state
-                //                            }
-                //                        }
-                //                    } catch {
-                //                        Logger.atwyLogs.simpleLog("Couldn't load preferredMediaSelection.")
-                //                    }
-                //                }
-                if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
-                    asset: AVURLAsset(url: downloadURL),
-                    assetTitle: video.title ?? "No title",
-                    assetArtworkData: thumbnailData
-                ) {
+    private func downloadHLS(downloadURL: URL) {
+        func launchDownload(isHLS: Bool) {
+            Task {
+                if #available(iOS 16.1, *) {
+                    let activity = DownloaderProgressActivity(downloader: self)
+                    activity.setupOnManager(attributes: .init(), state: activity.getNewData())
+                }
+                
+                let infos = try? await self.downloadInfo.video.fetchMoreInfosThrowing(youtubeModel: YTM)
+                DispatchQueue.main.sync {
+                    self.downloadInfo.videoInfo = infos
+                }
+                
+                for chapter in self.downloadInfo.videoInfo?.chapters ?? [] {
+                    guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
+                    var chapterEntity = DownloadedVideoChapter.NonEntityDownloadedVideoChapter(startTimeSeconds: Int32(startTimeSeconds), shortTimeDescription: chapter.timeDescriptions.shortTimeDescription)
+                    if let chapterThumbnailURL = chapter.thumbnail.last?.url {
+                        let imageTask = DownloadImageOperation(imageURL: chapterThumbnailURL)
+                        imageTask.start()
+                        imageTask.waitUntilFinished()
+                        chapterEntity.thumbnail = imageTask.imageData
+                    } else {
+                        chapterEntity.thumbnail = self.downloadInfo.thumbnailData
+                    }
+                    chapterEntity.title = chapter.title
+                    
+                    DispatchQueue.main.sync {
+                        self.downloadInfo.chapters.append(chapterEntity)
+                    }
+                }
+                
+                if let channelThumbnailURL = self.downloadInfo.videoInfo?.channel?.thumbnails.maxFor(3) ?? self.downloadInfo.video.channel?.thumbnails.maxFor(3) {
+                    let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
+                    imageTask.start()
+                    imageTask.waitUntilFinished()
+                    DispatchQueue.main.sync {
+                        self.downloadInfo.channelThumbnailData = imageTask.imageData
+                    }
+                }
+                
+                if isHLS {
+                    //                Task {
+                    //                    do {
+                    //                        let preferredMediaSelection = try await asset.load(.preferredMediaSelection)
+                    //                        if let downloadTask = assetDownloadURLSession.aggregateAssetDownloadTask(with: asset, mediaSelections: [], assetTitle: video.title ?? "No title", assetArtworkData: thumbnailData) {
+                    //                            downloadTask.resume()
+                    //                            self.downloadTask?.cancel()
+                    //                            DispatchQueue.main.async {
+                    //                                self.downloadTask = downloadTask
+                    //                                self.downloadTaskState = downloadTask.state
+                    //                            }
+                    //                        }
+                    //                    } catch {
+                    //                        Logger.atwyLogs.simpleLog("Couldn't load preferredMediaSelection.")
+                    //                    }
+                    //                }
+                    if let downloadTask = assetDownloadURLSession.makeAssetDownloadTask(
+                        asset: AVURLAsset(url: downloadURL),
+                        assetTitle: downloadInfo.video.title ?? "No title",
+                        assetArtworkData: downloadInfo.thumbnailData
+                    ) {
+                        downloadTask.resume()
+                        self.downloadTask?.cancel()
+                        DispatchQueue.main.async {
+                            self.downloadTask = downloadTask
+                            self.downloadTaskState = downloadTask.state
+                        }
+                    }
+                } else {
+                    var downloadRequest = URLRequest(url: downloadURL)
+                    downloadRequest.setValue("bytes=0-", forHTTPHeaderField: "Range")
+                    let downloadTask = URLSession.shared.downloadTask(with: downloadRequest)
+                    downloadTask.delegate = self
                     downloadTask.resume()
                     self.downloadTask?.cancel()
                     DispatchQueue.main.async {
@@ -140,19 +184,8 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                         self.downloadTaskState = downloadTask.state
                     }
                 }
-            } else {
-                var downloadRequest = URLRequest(url: downloadURL)
-                downloadRequest.setValue("bytes=0-", forHTTPHeaderField: "Range")
-                let downloadTask = URLSession.shared.downloadTask(with: downloadRequest)
-                downloadTask.delegate = self
-                downloadTask.resume()
-                self.downloadTask?.cancel()
-                DispatchQueue.main.async {
-                    self.downloadTask = downloadTask
-                    self.downloadTaskState = downloadTask.state
-                }
+                self.startedEndProcedure = false
             }
-            self.startedEndProcedure = false
         }
 
         let backgroundConfiguration = URLSessionConfiguration.background(
@@ -162,22 +195,28 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
             assetDownloadDelegate: self,
             delegateQueue: nil
         )
-        
-        self.videoDescription = videoDescription
+                        
         let isHLS = downloadURL.absoluteString.contains("manifest.googlevideo.com")
         
-        if let thumbnailData = self.state.thumbnailData {
-            launchDownload(thumbnailData: thumbnailData, isHLS: isHLS)
-        } else if let thumbnailData = thumbnailData {
-            launchDownload(thumbnailData: thumbnailData, isHLS: isHLS)
+        DispatchQueue.main.sync {
+            self.downloadInfo.thumbnailURL = downloadInfo.video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(downloadInfo.video.videoId)/hqdefault.jpg")
+        }
+        
+        if self.downloadInfo.thumbnailData != nil {
+            launchDownload(isHLS: isHLS)
         } else {
-            if let thumbnailURL = video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(video.videoId)/hqdefault.jpg") {
+            if let thumbnailURL = downloadInfo.thumbnailURL {
                 getImage(from: thumbnailURL) { (imageData, _, error) in
+                    /*
+                     let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
+                     imageTask.start()
+                     imageTask.waitUntilFinished()
+                     */
                     guard let imageData = imageData, error == nil else { Logger.atwyLogs.simpleLog("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
-                    DispatchQueue.main.async {
-                        self.state.thumbnailData = imageData
+                    DispatchQueue.main.sync {
+                        self.downloadInfo.thumbnailData = imageData
                     }
-                    launchDownload(thumbnailData: imageData, isHLS: isHLS)
+                    launchDownload(isHLS: isHLS)
                 }
             } else {
                 Logger.atwyLogs.simpleLog("No image")
@@ -216,6 +255,18 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
             }
             self.downloaderState = .inactive
         }
+    }
+    
+    struct DownloadInfo {
+        let video: YTVideo
+        let timestamp = Date()
+        var videoInfo: MoreVideoInfosResponse?
+        var chapters: [DownloadedVideoChapter.NonEntityDownloadedVideoChapter] = []
+        var thumbnailData: Data?
+        var thumbnailURL: URL?
+        var channelThumbnailData: Data?
+        var videoDescription: String?
+        var downloadLocation: URL?
     }
 
     enum HLSDownloaderState: Equatable {

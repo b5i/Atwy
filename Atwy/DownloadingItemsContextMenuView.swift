@@ -13,7 +13,7 @@ struct DownloadingItemsContextMenuView: View {
         if downloader.downloadTask?.state == .suspended {
             Button {
                 downloader.resumeDownload()
-                PopupsModel.shared.showPopup(.resumedDownload, data: downloader.state.thumbnailData)
+                PopupsModel.shared.showPopup(.resumedDownload, data: downloader.downloadInfo.thumbnailData)
             } label: {
                 HStack {
                     Text("Resume Download")
@@ -23,7 +23,7 @@ struct DownloadingItemsContextMenuView: View {
         } else if downloader.downloadTask?.state == .running {
             Button {
                 downloader.pauseDownload()
-                PopupsModel.shared.showPopup(.pausedDownload, data: downloader.state.thumbnailData)
+                PopupsModel.shared.showPopup(.pausedDownload, data: downloader.downloadInfo.thumbnailData)
             } label: {
                 HStack {
                     Text("Pause Download")

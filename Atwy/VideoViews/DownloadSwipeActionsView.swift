@@ -13,10 +13,10 @@ struct DownloadSwipeActionsView: View {
         Button {
             if downloader.downloadTask?.state == .suspended {
                 downloader.resumeDownload()
-                PopupsModel.shared.showPopup(.resumedDownload, data: downloader.state.thumbnailData)
+                PopupsModel.shared.showPopup(.resumedDownload, data: downloader.downloadInfo.thumbnailData)
             } else {
                 downloader.pauseDownload()
-                PopupsModel.shared.showPopup(.pausedDownload, data: downloader.state.thumbnailData)
+                PopupsModel.shared.showPopup(.pausedDownload, data: downloader.downloadInfo.thumbnailData)
             }
         } label: {
             ZStack {

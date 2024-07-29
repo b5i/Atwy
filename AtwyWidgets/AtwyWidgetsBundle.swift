@@ -12,6 +12,6 @@ import SwiftUI
 @main
 struct AtwyWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        DownloadingsProgressLiveActivity()
+        DownloaderProgressLiveActivity()
     }
 }

@@ -74,24 +74,24 @@ struct AtwyApp: App {
     @ObservedObject private var FMM = FileManagerModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
-    private var appWillTerminateObserver: NSObjectProtocol
+    private var appWillTerminateObserver: NSObjectProtocol?
     
     init() {
         if #available(iOS 16.1, *) {
-            DownloadingsProgressActivity.registerTask()
+            DownloaderProgressActivity.registerTask()
+            // remove all the live activites in case the app crashes and the user relaunch it
+            LiveActivitesManager.shared.removeAllActivities()
+            
+            // remove the live activites when the user terminate the app, does not take effect if the app crashed (TODO?)
+            self.appWillTerminateObserver = NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { _ in
+                LiveActivitesManager.shared.removeAllActivities()
+            }
         }
         Task {
             FileManagerModel.shared.updateNewDownloadPathsAndCleanUpFiles()
         }
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
-        }
-        // remove all the live activites in case the app crashes and the user relaunch it
-        LiveActivitesManager.shared.removeAllActivities()
-        
-        // remove the live activites when the user terminate the app, does not take effect if the app crashed (TODO?)
-        self.appWillTerminateObserver = NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { _ in
-            LiveActivitesManager.shared.removeAllActivities()
         }
     }
     var body: some Scene {

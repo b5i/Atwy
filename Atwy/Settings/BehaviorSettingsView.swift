@@ -17,9 +17,12 @@ struct BehaviorSettingsView: View {
                 Setting(textDescription: "Enabling Live Activities will show a Live Activity giving informations on the current downloadings.", action: try! SAToggle(PSMType: .liveActivitiesEnabled, title: "Live activities").setAction { newValue in
                     if #available(iOS 16.1, *) {
                         if PreferencesStorageModel.shared.liveActivitiesEnabled, !newValue {
-                            DownloadingsProgressActivity.stop()
+                            LiveActivitesManager.shared.removeAllActivities()
                         } else if !PreferencesStorageModel.shared.liveActivitiesEnabled, newValue, DownloadersModel.shared.activeDownloaders.count != 0 {
-                            DownloadingsProgressActivity.setupOnManager(attributes: .init(), state: .modelState)
+                            for downloader in DownloadersModel.shared.activeDownloaders {
+                                let activity = DownloaderProgressActivity(downloader: downloader)
+                                activity.setupOnManager(attributes: .init(), state: activity.getNewData())
+                            }
                         }
                     }
                     return newValue

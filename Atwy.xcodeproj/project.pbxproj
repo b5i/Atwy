@@ -40,6 +40,8 @@
 		34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */; };
 		34E2652D2B1A6898007BB226 /* DownloadedVideo+toYTVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652C2B1A6897007BB226 /* DownloadedVideo+toYTVideo.swift */; };
 		34E2652F2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652E2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift */; };
+		34F0AF002C581A6300F4043B /* View+centered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F0AE492C581A6300F4043B /* View+centered.swift */; };
+		34F0AF4F2C5820E100F4043B /* View+centered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F0AE492C581A6300F4043B /* View+centered.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,9 +101,24 @@
 		34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationName+AtwyNotifications.swift"; sourceTree = "<group>"; };
 		34E2652C2B1A6897007BB226 /* DownloadedVideo+toYTVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedVideo+toYTVideo.swift"; sourceTree = "<group>"; };
 		34E2652E2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FavoriteVideo+toYTVideo.swift"; sourceTree = "<group>"; };
+		34F0AE492C581A6300F4043B /* View+centered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+centered.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3422F3212C5802AE00CE5D65 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				CachedAsyncImage.swift,
+			);
+			target = 344ED4A02928D85100DB56EA /* Atwy */;
+		};
+		3422F3232C5802C900CE5D65 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				CachedAsyncImage.swift,
+			);
+			target = 349ED1332BA38CAC00F4B805 /* AtwyWidgetsExtension */;
+		};
 		342BFB7E2C3BF12300602F3C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -119,6 +136,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3422F3202C5802A600CE5D65 /* tmp */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (3422F3212C5802AE00CE5D65 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 3422F3232C5802C900CE5D65 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = tmp; sourceTree = "<group>"; };
 		342BFAEE2C3BF12300602F3C /* Atwy */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (342BFB7E2C3BF12300602F3C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 342BFB7F2C3BF12300602F3C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Atwy; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -193,6 +211,7 @@
 		34AB99A62B1A79C20083B1DB /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				3422F3202C5802A600CE5D65 /* tmp */,
 				34AB99A72B1A79DF0083B1DB /* Extensions */,
 				34B8B2CC2AE018FD00C5C07C /* Storage */,
 			);
@@ -204,6 +223,7 @@
 			children = (
 				34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */,
 				34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */,
+				34F0AE492C581A6300F4043B /* View+centered.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -372,6 +392,7 @@
 			files = (
 				34B8B2F32AE1278300C5C07C /* FavoriteVideo+CoreDataClass.swift in Sources */,
 				3483A7842AFEC64800A19533 /* DownloadedVideo+matchesQuery.swift in Sources */,
+				34F0AF002C581A6300F4043B /* View+centered.swift in Sources */,
 				34B8B2DE2AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift in Sources */,
 				349ED14D2BA3939C00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
 				34B8B2DA2AE0265200C5C07C /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
@@ -397,6 +418,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34F0AF4F2C5820E100F4043B /* View+centered.swift in Sources */,
 				349ED13B2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift in Sources */,
 				349ED14B2BA38EC200F4B805 /* NotificationName+AtwyNotifications.swift in Sources */,
 				349ED14C2BA38EC200F4B805 /* ColorSchemeExtension.swift in Sources */,
