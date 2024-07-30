@@ -495,6 +495,7 @@ class PersistenceModel: ObservableObject {
         mutating func replaceSearchTimestamp(with timestamp: Date, uuid: UUID) {
             guard let index = self.searchHistory.firstIndex(where: { $0.uuid == uuid }) else { return }
             self.searchHistory[index].timestamp = timestamp
+            self.searchHistory.sort(by: {$0.timestamp > $1.timestamp})
             self.id = UUID()
         }
         
