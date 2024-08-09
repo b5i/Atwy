@@ -33,13 +33,13 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
             }
         }
     }
-    @Published var percentComplete: Double = 0.0
-    
-    var expectedBytes: (receivedBytes: Int, totalBytes: Int) = (0, 0) {
+    @Published var percentComplete: Double = 0.0 {
         didSet {
             self.delegate?.percentageChanged(percentComplete, downloader: self)
         }
     }
+    
+    var expectedBytes: (receivedBytes: Int, totalBytes: Int) = (0, 0)
     
     var isFavorite: Bool?
     var downloadTask: URLSessionTask?
@@ -54,7 +54,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     }
     
     func refreshProgress() {
-        guard let downloadTask = downloadTask else { return }
+        guard let downloadTask = self.downloadTask else { return }
         
         guard downloadTask.countOfBytesExpectedToReceive != 0 && downloadTask.countOfBytesExpectedToReceive != NSURLSessionTransferSizeUnknown else { return }
         
@@ -143,7 +143,8 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                         self.downloadInfo.channelThumbnailData = imageTask.imageData
                     }
                 }
-                
+                self.startedEndProcedure = false
+
                 if isHLS {
                     //                Task {
                     //                    do {
@@ -184,7 +185,6 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                         self.downloadTaskState = downloadTask.state
                     }
                 }
-                self.startedEndProcedure = false
             }
         }
 

@@ -70,6 +70,8 @@ class NavigationPathModel: ObservableObject {
 
 @main
 struct AtwyApp: App {
+    @UIApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
+    
     @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
@@ -78,7 +80,6 @@ struct AtwyApp: App {
     
     init() {
         if #available(iOS 16.1, *) {
-            DownloaderProgressActivity.registerTask()
             // remove all the live activites in case the app crashes and the user relaunch it
             LiveActivitesManager.shared.removeAllActivities()
             

@@ -30,19 +30,29 @@ extension BackgroundFetchOperation {
     }
     
     static func scheduleTask() {
-        let request = BGAppRefreshTaskRequest(identifier: Self.identifier)
-        
-        request.earliestBeginDate = Date.now + fetchInterval
-        
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            Logger.atwyLogs.simpleLog("Could not schedule fetch activity (\(String(describing: type(of: Self.self))): \(error)")
+        Task {
+            let request = BGAppRefreshTaskRequest(identifier: Self.identifier)
+            
+            //request.earliestBeginDate = Date.now + fetchInterval
+            
+            do {
+                try await Task.sleep(for: .seconds(fetchInterval))
+                guard !Self.isScheduled else { return }
+                try BGTaskScheduler.shared.submit(request)
+                BGTaskScheduler.shared.perform(NSSelectorFromString("_simulateLaunchForTaskWithIdentifier:"), with: Self.identifier)
+            } catch {
+                Logger.atwyLogs.simpleLog("Could not schedule fetch activity (\(String(describing: type(of: Self.self))): \(error)")
+            }
         }
     }
     
+    
     static func handleTask(_ task: BGTask) {
         Self.taskOperation()
+        
+        if Self.shouldReschedule {
+            Self.scheduleTask()
+        }
         
         task.setTaskCompleted(success: true)
     }

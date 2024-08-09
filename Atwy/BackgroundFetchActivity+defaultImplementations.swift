@@ -11,21 +11,7 @@ import ActivityKit
 import OSLog
 
 @available(iOS 16.1, *)
-extension BackgroundFetchActivity {
-    func handleTask(_ task: BGTask) {
-        Self.taskOperation()
-        
-        if self.shouldRescheduleCondition {
-            LiveActivitesManager.shared.updateActivity(withNewState: self.getNewData(), bgActivity: self)
-            Self.scheduleTask()
-        } else {
-            Task {
-                await LiveActivitesManager.shared.stopActivity(bgActivity: self)
-            }
-        }
-        task.setTaskCompleted(success: true)
-    }
-    
+extension AtwyLiveActivity {
     func setupOnManager(attributes: ActivityAttributesType, state: ActivityAttributesType.ContentState) {
         guard Self.isEnabled else { return }
         guard LiveActivitesManager.shared.getAuthorizationStatus() else { return }
@@ -35,7 +21,7 @@ extension BackgroundFetchActivity {
             self.setupSpecialStep(activity: activity)
             
             // Start background refresh, override the last refresh task if it wasn't already removed
-            Self.scheduleTask()
+            DownloaderBackgroundProgressRefreshActivity.scheduleTask()
         } catch {
             Logger.atwyLogs.simpleLog("Error while setting up activity: \(error)")
         }

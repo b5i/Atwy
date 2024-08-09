@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>Antoine-Bollengier.Atwy.DownloadingsProgressUpdate</string>
+		<string>Antoine-Bollengier.Atwy.DownloaderBackgroundProgressRefresh</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

@@ -30,6 +30,12 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             self.percentComplete = max(newPercentComplete, self.percentComplete)
         }
     }
+        
+    func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, willDownloadTo location: URL) {
+        DispatchQueue.main.async {
+            self.downloadInfo.downloadLocation = location
+        }
+    }
     
     func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didFinishDownloadingTo location: URL) {
         DispatchQueue.main.async {
@@ -38,7 +44,9 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     }
     
     //    func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
-    //        self.location = location
+    //        DispatchQueue.main.async {
+    //          self.downloadInfo.downloadLocation = location
+    //        }
     //    }
     //
     //    func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange, for mediaSelection: AVMediaSelection) {
@@ -85,7 +93,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
                 do {
                     try FileManager.default.removeItem(at: location)
                 } catch {
-                    Logger.atwyLogs.simpleLog("\(error.localizedDescription)")
+                    Logger.atwyLogs.simpleLog("Could not remove file \(error.localizedDescription)")
                 }
             }
         } else {
@@ -95,7 +103,13 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     func processEndOfDownload(videoData: Data? = nil) {
         self.startedEndProcedure = true
-        guard let location = self.downloadInfo.downloadLocation, let docDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else { return }
+        guard let location = self.downloadInfo.downloadLocation, let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            Logger.atwyLogs.simpleLog("Couldn't get the download location or the document directory.")
+            DispatchQueue.main.async {
+                self.downloaderState = .failed
+            }
+            return
+        }
         let newPath: URL
         
         // Normal video
