@@ -8,23 +8,28 @@
 
 import ActivityKit
 import Foundation
+import BackgroundTasks
+
+struct DownloaderBackgroundProgressRefreshActivity: BackgroundFetchOperation {
+    static let identifier: String = "Antoine-Bollengier.Atwy.DownloaderBackgroundProgressRefresh"
+    
+    static let fetchInterval: Double = 5
+    
+    static var shouldReschedule: Bool { !DownloadersModel.shared.downloaders.isEmpty }
+    
+    static func taskOperation() {
+        DownloadersModel.shared.refreshDownloadingsProgress()
+    }
+}
 
 @available(iOS 16.1, *)
-struct DownloaderProgressActivity: BackgroundFetchActivity {
+struct DownloaderProgressActivity: AtwyLiveActivity {
     typealias ActivityAttributesType = DownloaderProgressAttributes
     
     let downloader: HLSDownloader
             
     static var isEnabled: Bool {
         return PreferencesStorageModel.shared.liveActivitiesEnabled
-    }
-            
-    static let identifier: String = "Antoine-Bollengier.Atwy.DownloadingsProgressUpdate"
-    
-    static let fetchInterval: Double = 5
-    
-    static func taskOperation() {
-        DownloadersModel.shared.refreshDownloadingsProgress()
     }
     
     var shouldRescheduleCondition: Bool {

@@ -10,7 +10,7 @@ import ActivityKit
 
 /// A protocol describing a Live Activity that regularly needs a background refresh.
 @available(iOS 16.1, *)
-protocol BackgroundFetchActivity: BackgroundFetchOperation & Hashable {
+protocol AtwyLiveActivity: Hashable {
     associatedtype ActivityAttributesType: ActivityAttributes
     
     /// A boolean indicating whether the activity can be launched or not.

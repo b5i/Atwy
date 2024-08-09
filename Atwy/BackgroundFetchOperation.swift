@@ -11,7 +11,7 @@ import BackgroundTasks
 
 /// A protocol describing an operation that should regularly be done while the app is in background.
 @available(iOS 16.1, *)
-protocol BackgroundFetchOperation {
+protocol BackgroundFetchOperation {    
     /// The identifier of the fetch operation, for example `Antoine-Bollengier.Atwy.DownloadingsProgressUpdate`.
     static var identifier: String { get }
     
@@ -20,6 +20,9 @@ protocol BackgroundFetchOperation {
     
     /// The amount of seconds that a scheduled task has to wait before being executed.
     static var fetchInterval: Double { get }
+    
+    /// A boolean indicating whether the operation should be rescheduled at .now + fetchInterval.
+    static var shouldReschedule: Bool { get }
         
     /// A function to register the task in the `BGTaskScheduler`, should be called during the app initialization.
     static func registerTask()

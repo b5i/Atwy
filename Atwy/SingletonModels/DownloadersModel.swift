@@ -101,12 +101,12 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
 
     public func launchDownloaders(_ concurrentDownloadsLimit: Int? = nil) {
         var activeDownloadersCount = downloadingDownloaders.count
-        for pausedDownloader in pausedDownloaders {
+        for pausedDownloader in pausedDownloaders.sorted(by: { $0.downloadInfo.timestamp < $1.downloadInfo.timestamp }) {
             guard activeDownloadersCount < concurrentDownloadsLimit ?? PreferencesStorageModel.shared.concurrentDownloadsLimit else { break }
             pausedDownloader.resumeDownload()
             activeDownloadersCount += 1
         }
-        for waitingDownloader in waitingDownloaders {
+        for waitingDownloader in waitingDownloaders.sorted(by: { $0.downloadInfo.timestamp < $1.downloadInfo.timestamp }) {
             guard activeDownloadersCount < concurrentDownloadsLimit ?? PreferencesStorageModel.shared.concurrentDownloadsLimit else { break }
             waitingDownloader.downloadVideo()
             activeDownloadersCount += 1
