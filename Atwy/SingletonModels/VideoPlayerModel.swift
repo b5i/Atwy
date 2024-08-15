@@ -323,3 +323,34 @@ extension VideoPlayerModel: AVPlayerPlaybackCoordinatorDelegate {
         return self.currentItem?.videoId ?? ""
     }
 }
+
+class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForResponseTo authenticationChallenge: URLAuthenticationChallenge) -> Bool {
+        return true
+    }
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+        let url = loadingRequest.request.url!
+        let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
+        components?.scheme = "https"
+        var newRequest = URLRequest(url: components!.url!)
+        newRequest.httpMethod = loadingRequest.request.httpMethod
+        newRequest.httpBody = loadingRequest.request.httpBody
+        newRequest.allHTTPHeaderFields = loadingRequest.request.allHTTPHeaderFields
+        newRequest.timeoutInterval = loadingRequest.request.timeoutInterval
+        let task = URLSession.shared.dataTask(with: newRequest) { (data, response, error) in
+            guard error == nil,
+                let data = data else {
+                loadingRequest.finishLoading(with: error)
+                    return
+            }
+            let str = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"YT-EXT-AUDIO-CONTENT-ID=\"([a-zA-Z-]*)[\w\.]*\""#, with: "LANGUAGE=\"$1\",NAME=\"$1\"", options: .regularExpression)
+            loadingRequest.dataRequest?.respond(with: str.data(using: .utf8)!)
+            loadingRequest.finishLoading()
+        }
+        task.resume()
+        return true
+    }
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForRenewalOfRequestedResource renewalRequest: AVAssetResourceRenewalRequest) -> Bool {
+        return true
+    }
+}
