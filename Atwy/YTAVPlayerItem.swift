@@ -12,6 +12,8 @@ import AVKit
 import OSLog
 
 class YTAVPlayerItem: AVPlayerItem, ObservableObject {
+    private let ressourceLoader = AssetRessourceLoader()
+    
     var videoId: String { self.video.videoId }
     var videoTitle: String? { self.video.title ?? self.streamingInfos.title ?? self.moreVideoInfos?.videoTitle }
     var channelName: String? { self.video.channel?.name ?? self.streamingInfos.channel?.name ?? self.moreVideoInfos?.channel?.name }
@@ -78,7 +80,11 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }
-        super.init(asset: AVURLAsset(url: url), automaticallyLoadedAssetKeys: nil)
+        let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
+        components?.scheme = "customloader"
+        let avURLAsset = AVURLAsset(url: components!.url!)
+        avURLAsset.resourceLoader.setDelegate(ressourceLoader, queue: .main)
+        super.init(asset: avURLAsset, automaticallyLoadedAssetKeys: nil)
         
         self.addMetadatas()
         if let thumbnailData = self.videoThumbnailData {
