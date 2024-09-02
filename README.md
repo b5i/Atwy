@@ -21,8 +21,5 @@ Make sure you check the [Disclaimer](https://github.com/b5i/Atwy/blob/main/DISCL
 ## Contribution
 At this time, contributing to Atwy with code is not possible as it is a personnal school project. You can still contribute by raising issues about unexpected behaviors of the app or feedbacks.
 
-## Known Issues
-- Videos that have more than one audio track (multiple languages) aren't played in the right language.
-
 ### Note
-At this time, Atwy is still in a very early stage with a lot improvements, refactoring and bug fixes still to come.
+At this time, Atwy is still in a early stage with a lot improvements, refactoring and bug fixes still to come.
