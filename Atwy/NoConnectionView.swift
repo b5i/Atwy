@@ -19,7 +19,7 @@ struct NoConnectionView: View {
                 .padding()
             Text("You are disconnected.")
                 .font(.title2)
-            Text("Disable the plane mode or connect to a WiFi.")
+            Text("Disable the flight mode or connect to a WiFi.")
                 .foregroundStyle(.gray)
                 .padding(.bottom)
             Spacer()

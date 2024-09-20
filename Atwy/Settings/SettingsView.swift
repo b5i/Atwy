@@ -30,7 +30,7 @@ struct SettingsView: View {
                                 .padding(.top)
                             Text("You are disconnected.")
                                 .font(.caption)
-                            Text("Disable the plane mode or connect to a WiFi to view Account settings.")
+                            Text("Disable the flight mode or connect to a WiFi to view Account settings.")
                                 .foregroundStyle(.gray)
                                 .font(.caption2)
                         }
