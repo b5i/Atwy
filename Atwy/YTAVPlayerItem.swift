@@ -61,8 +61,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             Logger.atwyLogs.simpleLog("Error while trying to load video (audio): \(error)")
         }
 #endif
+        
+        let isDownloaded: Bool
 
         if let downloadedVideo = PersistenceModel.shared.getDownloadedVideo(videoId: video.videoId) {
+            isDownloaded = true
+            
             self.streamingInfos = VideoInfosResponse.createEmpty()
             self.streamingInfos.streamingURL = downloadedVideo.storageLocation
             if let channel = downloadedVideo.channel {
@@ -76,15 +80,25 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
         } else {
+            isDownloaded = false
+            
             guard NetworkReachabilityModel.shared.connected else { throw "Attempted to load a non-downloaded video while being offline." }
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }
-        let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
-        components?.scheme = "customloader"
-        let avURLAsset = AVURLAsset(url: components!.url!)
-        avURLAsset.resourceLoader.setDelegate(ressourceLoader, queue: .main)
-        super.init(asset: avURLAsset, automaticallyLoadedAssetKeys: nil)
+
+        let asset: AVURLAsset
+        
+        if !isDownloaded {
+            let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
+            components?.scheme = "customloader"
+            asset = AVURLAsset(url: components!.url!)
+            asset.resourceLoader.setDelegate(ressourceLoader, queue: .main)
+        } else {
+            asset = AVURLAsset(url: url)
+        }
+        
+        super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         
         self.addMetadatas()
         if let thumbnailData = self.videoThumbnailData {
