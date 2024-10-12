@@ -328,10 +328,14 @@ class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
     func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForResponseTo authenticationChallenge: URLAuthenticationChallenge) -> Bool {
         return true
     }
+    
     func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
         let url = loadingRequest.request.url!
+        
         let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
+        
         components?.scheme = "https"
+        
         var newRequest = URLRequest(url: components!.url!)
         newRequest.httpMethod = loadingRequest.request.httpMethod
         newRequest.httpBody = loadingRequest.request.httpBody
