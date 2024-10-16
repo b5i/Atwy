@@ -23,10 +23,12 @@ class SearchHistoryIndicationLabel: UILabel {
     func switchText(toMode mode: Mode) {
         self.text = mode.rawValue
         self.sizeToFit()
+        self.frame.origin.x = ((self.superview?.frame.width ?? 0) - self.frame.width) / 2
     }
     
     enum Mode: String {
         case disabled = "Search History disabled"
         case searchToFill = "Search things to fill your Search History"
+        case noAutoCompletionEntries = "No Auto Completion entries"
     }
 }

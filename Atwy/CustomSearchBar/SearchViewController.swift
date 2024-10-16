@@ -196,13 +196,22 @@ class SearchViewController: UIViewController {
          
         PreferencesStorageModel.shared.objectWillChange
             .receive(on: DispatchQueue.main)
-            .sink { [weak searchHistoryIndicationLabel] in
-                searchHistoryIndicationLabel?.switchText(toMode: PreferencesStorageModel.shared.searchHistoryEnabled ? .searchToFill : .disabled)
+            .sink { [weak self] in
+                self?.updateIndicationLabel()
             }
             .store(in: &self.publishersStorage)
     }
     
     private func updateIndicationLabel() {
+        if self.textBinding.text.isEmpty {
+            if !PreferencesStorageModel.shared.searchHistoryEnabled && PersistenceModel.shared.currentData.searchHistory.isEmpty {
+                searchHistoryIndicationLabel?.switchText(toMode: .disabled)
+            } else if PersistenceModel.shared.currentData.searchHistory.isEmpty {
+                searchHistoryIndicationLabel?.switchText(toMode: .searchToFill)
+            }
+        } else if self.model.autoCompletion.isEmpty {
+            searchHistoryIndicationLabel?.switchText(toMode: .noAutoCompletionEntries)
+        }
         self.searchHistoryIndicationLabel.isHidden = self.textBinding.text.isEmpty ? !PersistenceModel.shared.currentData.searchHistory.isEmpty : !self.model.autoCompletion.isEmpty
     }
     
