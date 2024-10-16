@@ -25,7 +25,7 @@ extension View {
                 throw "Not enabled."
             }
             
-            let controller = try TopSearchBarController(textBinding: textBinding, onSubmit: onSubmit)
+            let controller = TopSearchBarController(textBinding: textBinding, onSubmit: onSubmit)
             return AnyView(
                 self
                     .customHeaderView(controller, shouldShow: { return NetworkReachabilityModel.shared.connected })

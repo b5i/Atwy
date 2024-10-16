@@ -12,14 +12,15 @@ class TopSearchBarController: UIViewController {
     static var searchBarHeight: CGFloat? = nil
     
     var backgroundView: SearchBarBackgroundView!
-    var imageView: UIImageView!
+    var magnifyingGlassImage: UIImageView!
+    var clearTextButtonImage: UIImageView!
     var searchLabelView: SearchMenuTitleView!
     
     private let textBinding: TextBinding
     
     private let onSubmit: () -> Void
             
-    init(textBinding: TextBinding, onSubmit: @escaping () -> Void) throws {
+    init(textBinding: TextBinding, onSubmit: @escaping () -> Void) {
         self.textBinding = textBinding
         self.onSubmit = onSubmit
         super.init(nibName: nil, bundle: nil)
@@ -27,9 +28,10 @@ class TopSearchBarController: UIViewController {
         self.view.frame.size.height = 50
         
         setupBackgroundView()
-        setupImageView()
+        setupMagnifyingImageView()
+        setupClearButtonImageView()
         setupTextView()
-        try setupTapGestureRecognizer()
+        setupTapGestureRecognizers()
         setupSearchLabelView()
     }
     
@@ -46,19 +48,46 @@ class TopSearchBarController: UIViewController {
         view.addSubview(backgroundView)
     }
     
-    private func setupImageView() {
-        imageView = UIImageView()
-        imageView.tintColor = .secondaryLabel
-        imageView.image = UIImage(systemName: "magnifyingglass")
-        imageView.preferredSymbolConfiguration = .preferringMonochrome()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+    private func setupMagnifyingImageView() {
+        magnifyingGlassImage = UIImageView()
+        magnifyingGlassImage.tintColor = .secondaryLabel
+        magnifyingGlassImage.image = UIImage(systemName: "magnifyingglass")
+        magnifyingGlassImage.preferredSymbolConfiguration = .preferringMonochrome()
+        magnifyingGlassImage.translatesAutoresizingMaskIntoConstraints = false
         
-        backgroundView.addSubview(imageView)
+        backgroundView.addSubview(magnifyingGlassImage)
+        
+        NSLayoutConstraint(
+            item: magnifyingGlassImage!, attribute: NSLayoutConstraint.Attribute.height,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: magnifyingGlassImage, attribute: NSLayoutConstraint.Attribute.width,
+            multiplier: magnifyingGlassImage.image!.size.height / magnifyingGlassImage.image!.size.width, constant: 0.0).isActive = true
+        
+        NSLayoutConstraint.activate([            magnifyingGlassImage.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 8),
+            magnifyingGlassImage.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
+        ])
+    }
+    
+    private func setupClearButtonImageView() {
+        clearTextButtonImage = UIImageView()
+        clearTextButtonImage.tintColor = .secondaryLabel
+        clearTextButtonImage.image = UIImage(systemName: "xmark.circle.fill")
+        clearTextButtonImage.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .body)
+        clearTextButtonImage.translatesAutoresizingMaskIntoConstraints = false
+        clearTextButtonImage.setContentHuggingPriority(.required, for: .horizontal)
+                
+        backgroundView.addSubview(clearTextButtonImage)
         
         NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 8),
-            imageView.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
+            clearTextButtonImage.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -8),
+            clearTextButtonImage.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
         ])
+        
+        textBinding.didChangeCallbacks.append { [weak self] _ in
+            self?.updateClearButtonVisibility()
+        }
+        
+        updateClearButtonVisibility()
     }
     
     private func setupTextView() {
@@ -72,14 +101,15 @@ class TopSearchBarController: UIViewController {
         backgroundView.addSubview(searchLabelView)
         
         NSLayoutConstraint.activate([
-            searchLabelView.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 8),
+            searchLabelView.leadingAnchor.constraint(equalTo: magnifyingGlassImage.trailingAnchor, constant: 8),
+            searchLabelView.trailingAnchor.constraint(equalTo: clearTextButtonImage.leadingAnchor, constant: -8),
             searchLabelView.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
         ])
     }
 
     
-    private func setupTapGestureRecognizer() throws {
-        let tapGestureRecognizer = CustomClosureTapGestureRecognizer { [weak textBinding, onSubmit, weak backgroundView] in
+    private func setupTapGestureRecognizers() {
+        let backgroundTapGestureRecognizer = CustomClosureTapGestureRecognizer { [weak textBinding, onSubmit, weak backgroundView] in
             guard let textBinding = textBinding, let backgroundView = backgroundView else { return }
             let viewController = try SearchViewController(textBinding: textBinding, onSubmit: onSubmit)
             viewController.modalTransitionStyle = .crossDissolve
@@ -90,7 +120,18 @@ class TopSearchBarController: UIViewController {
             //self.view.window?.rootViewController?.present(viewController, animated: true)
             backgroundView.parentViewController?.present(viewController, animated: true)
         }
-        backgroundView.addGestureRecognizer(tapGestureRecognizer)
+        backgroundView.addGestureRecognizer(backgroundTapGestureRecognizer)
+        
+        let clearButtonTapGestureRecognizer = CustomClosureTapGestureRecognizer { [weak self] in
+            guard let self = self else { return }
+            
+            self.textBinding.text = ""
+            
+            self.updateClearButtonVisibility()
+            self.onSubmit()
+        }
+        clearTextButtonImage.isUserInteractionEnabled = true
+        clearTextButtonImage.addGestureRecognizer(clearButtonTapGestureRecognizer)
     }
     
     private func setupSearchLabelView() {
@@ -102,5 +143,14 @@ class TopSearchBarController: UIViewController {
             searchLabelView.text = text.isEmpty ? "Search" : text
             searchLabelView.textColor = text.isEmpty ? .secondaryLabel : searchLabelView.traitCollection.userInterfaceStyle == .dark ? .white : .darkText
         }
+    }
+    
+    func updateClearButtonVisibility() {
+        self.clearTextButtonImage.layer.opacity = self.textBinding.text.isEmpty ? 0 : (self.traitCollection.userInterfaceStyle == .dark ? 0.4 : 0.45)
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateClearButtonVisibility()
     }
 }
