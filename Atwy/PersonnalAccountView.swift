@@ -65,7 +65,7 @@ struct PersonnalAccountView: View {
                 }
             }
             .routeContainer()
-            .navigationTitle("Playlists")
+            .navigationTitle("Account")
             .customNavigationTitleWithRightIcon {
                 ShowSettingsButtonView()
             }
