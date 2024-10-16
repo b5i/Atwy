@@ -18,8 +18,11 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
         
         toViewController.view.layoutIfNeeded() // Calculate the final position and frame of the elements in the toViewController, we will only need to get the keyboard height from the PreferencesStorageModel to ajust their y origin.
         
-        let initialViewImage = fromViewController.imageView!
-        let finalViewImage = toViewController.searchBar.imageView!
+        let initialMagnifyingGlassImage = fromViewController.magnifyingGlassImage!
+        let finalMagnifyingGlassImage = toViewController.searchBar.magnifyingGlassImage!
+        
+        let initialClearButtonImage = fromViewController.clearTextButtonImage!
+        let finalClearButtonImage = toViewController.searchBar.clearTextButtonImage!
         
         let initialViewText = fromViewController.searchLabelView!
         let finalViewText = toViewController.searchBar.textField!
@@ -33,15 +36,24 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
         containerView.addSubview(toViewController.view)
 
         
-        let imageTransitionView = UIImageView()
-        imageTransitionView.clipsToBounds = true
-        imageTransitionView.tintColor = initialViewImage.tintColor
-        imageTransitionView.image = initialViewImage.image
-        imageTransitionView.preferredSymbolConfiguration = initialViewImage.preferredSymbolConfiguration
-        imageTransitionView.frame = containerView.convert(initialViewImage.frame, from: initialViewImage.superview)
+        let magnifyingGlassImage = UIImageView()
+        magnifyingGlassImage.clipsToBounds = true
+        magnifyingGlassImage.tintColor = initialMagnifyingGlassImage.tintColor
+        magnifyingGlassImage.image = initialMagnifyingGlassImage.image
+        magnifyingGlassImage.preferredSymbolConfiguration = initialMagnifyingGlassImage.preferredSymbolConfiguration
+        magnifyingGlassImage.frame = containerView.convert(initialMagnifyingGlassImage.frame, from: initialMagnifyingGlassImage.superview)
         
-        containerView.addSubview(imageTransitionView)
+        containerView.addSubview(magnifyingGlassImage)
                 
+        let clearTextButtonImage = UIImageView()
+        clearTextButtonImage.clipsToBounds = true
+        clearTextButtonImage.tintColor = initialClearButtonImage.tintColor
+        clearTextButtonImage.image = initialClearButtonImage.image
+        clearTextButtonImage.layer.opacity = initialClearButtonImage.layer.opacity
+        clearTextButtonImage.preferredSymbolConfiguration = initialClearButtonImage.preferredSymbolConfiguration
+        clearTextButtonImage.frame = containerView.convert(initialClearButtonImage.frame, from: initialClearButtonImage.superview)
+        
+        containerView.addSubview(clearTextButtonImage)
         
         let textTransitionView = UILabel()
         textTransitionView.clipsToBounds = true
@@ -62,7 +74,8 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
         backgroundTransitionView.frame = containerView.convert(initialViewBackground.frame, from: initialViewBackground.superview)
         
         containerView.addSubview(backgroundTransitionView)
-        containerView.addSubview(imageTransitionView)
+        containerView.addSubview(magnifyingGlassImage)
+        containerView.addSubview(clearTextButtonImage)
         containerView.addSubview(textTransitionView)
 
                 
@@ -77,9 +90,14 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
             initialSpringVelocity: 1.75,
             options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction]
         ) {
-            imageTransitionView.frame = containerView.convert(finalViewImage.frame, from: finalViewImage.superview)
-            imageTransitionView.frame.origin = .init(x: 23, y: (TopSearchBarController.searchBarHeight ?? 0) + 15)
-            imageTransitionView.tintColor = finalViewImage.tintColor
+            magnifyingGlassImage.frame = containerView.convert(finalMagnifyingGlassImage.frame, from: finalMagnifyingGlassImage.superview)
+            magnifyingGlassImage.frame.origin = .init(x: 23, y: (TopSearchBarController.searchBarHeight ?? 0) + 15)
+            magnifyingGlassImage.tintColor = finalMagnifyingGlassImage.tintColor
+            
+            clearTextButtonImage.frame = containerView.convert(finalClearButtonImage.frame, from: finalClearButtonImage.superview)
+            clearTextButtonImage.frame.origin.y = (TopSearchBarController.searchBarHeight ?? 0) + 14
+            clearTextButtonImage.frame.origin.x -= 0.33
+            clearTextButtonImage.tintColor = finalClearButtonImage.tintColor
             
             textTransitionView.frame = containerView.convert(finalViewText.frame, from: finalViewText.superview)
             textTransitionView.frame.origin = .init(x: 37.33 + 15, y: (TopSearchBarController.searchBarHeight ?? 0) + 13)
@@ -96,7 +114,8 @@ class PresentSearchBarAnimator: NSObject, UIViewControllerAnimatedTransitioning 
         } completion: { (isCompleted) in
             toViewController.searchBar.isHidden = false
             fromViewController.view.isHidden = false // TODO: find a way to animate that as well
-            imageTransitionView.removeFromSuperview()
+            magnifyingGlassImage.removeFromSuperview()
+            clearTextButtonImage.removeFromSuperview()
             textTransitionView.removeFromSuperview()
             backgroundTransitionView.removeFromSuperview()
             transitionContext.completeTransition(isCompleted) // we don't set it as completed when displaying the autocompletion entries because it would be too long

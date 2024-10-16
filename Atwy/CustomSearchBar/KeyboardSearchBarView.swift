@@ -10,7 +10,8 @@ import UIKit
 
 class KeyboardSearchBarView: UIView {
     var backgroundView: UIView!
-    var imageView: UIImageView!
+    var magnifyingGlassImage: UIImageView!
+    var clearTextButtonImage: UIImageView!
     var textField: UITextField!
     var isGettingSearchBarHeight: Bool = false
     
@@ -24,7 +25,8 @@ class KeyboardSearchBarView: UIView {
         self.dismissAction = dismissAction
         super.init(frame: .zero)
         setupBackgroundView()
-        setupImageView()
+        setupMagnifyingImageView()
+        setupClearButtonImageView()
         setupTextField()
     }
     
@@ -56,19 +58,36 @@ class KeyboardSearchBarView: UIView {
         ])
     }
     
-    private func setupImageView() {
-        imageView = UIImageView()
-        imageView.tintColor = .secondaryLabel
-        imageView.image = UIImage(systemName: "magnifyingglass")
-        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .body)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.setContentHuggingPriority(.required, for: .horizontal)
+    private func setupMagnifyingImageView() {
+        magnifyingGlassImage = UIImageView()
+        magnifyingGlassImage.tintColor = .secondaryLabel
+        magnifyingGlassImage.image = UIImage(systemName: "magnifyingglass")
+        magnifyingGlassImage.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .body)
+        magnifyingGlassImage.translatesAutoresizingMaskIntoConstraints = false
+        magnifyingGlassImage.setContentHuggingPriority(.required, for: .horizontal)
         
-        backgroundView.addSubview(imageView)
+        backgroundView.addSubview(magnifyingGlassImage)
         
         NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 8),
-            imageView.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
+            magnifyingGlassImage.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 8),
+            magnifyingGlassImage.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
+        ])
+    }
+    
+    private func setupClearButtonImageView() {
+        clearTextButtonImage = UIImageView()
+        clearTextButtonImage.tintColor = .secondaryLabel
+        clearTextButtonImage.image = UIImage(systemName: "xmark.circle.fill")
+        clearTextButtonImage.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .body)
+        clearTextButtonImage.translatesAutoresizingMaskIntoConstraints = false
+        clearTextButtonImage.setContentHuggingPriority(.required, for: .horizontal)
+        
+        clearTextButtonImage.layer.opacity = 0.0
+        
+        backgroundView.addSubview(clearTextButtonImage)
+        
+        NSLayoutConstraint.activate([
+            clearTextButtonImage.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
         ])
     }
     
@@ -94,13 +113,14 @@ class KeyboardSearchBarView: UIView {
         backgroundView.addSubview(textField)
         
         NSLayoutConstraint.activate([
+            clearTextButtonImage.trailingAnchor.constraint(equalTo: textField.trailingAnchor, constant: -5),
             textField.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 13),
-            textField.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 9),
-            textField.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -13),
+            textField.leadingAnchor.constraint(equalTo:         magnifyingGlassImage.trailingAnchor, constant: 9),
+            textField.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -8),
             textField.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -13)
         ])
     }
-    
+
     func dismissKeyboard() {
         textField.resignFirstResponder()
         dismissAction()
