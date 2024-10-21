@@ -33,6 +33,7 @@ struct StorageSettingsView: View {
                     })
                 }))
             })
+            // Is it still useful?
             SettingsSection(title: "Keychain", settings: {
                 Setting(textDescription: "Force remove the cookies from the Keychain, can be useful if you can't connect your account (the button does nothing). This button has the same effect as the \"unlink account\" button when an account is connected.", action: SATextButton(title: "Remove cookies", buttonLabel: "Remove", action: { _ in
                     APIKeyModel.shared.deleteAccount()
