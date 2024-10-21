@@ -101,6 +101,9 @@ class APIKeyModel: ObservableObject {
         
         let finalString = "SAPISID=\(SAPISID); __Secure-1PAPISID=\(PAPISID1); __Secure-1PSID=\(PSID1)"
         let cookies = finalString.data(using: .utf8)!
+        
+        deleteAccount()
+        
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrType as String: "Cookies",
                                     kSecAttrService as String: "YouTube",
