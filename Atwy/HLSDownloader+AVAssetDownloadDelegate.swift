@@ -64,7 +64,9 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
     
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        self.downloadInfo.downloadLocation = location
+        DispatchQueue.main.safeSync {
+            self.downloadInfo.downloadLocation = location
+        }
         let data = try? Data(contentsOf: location)
         try? FileManager.default.removeItem(at: location)
         processEndOfDownload(videoData: data)
@@ -139,7 +141,7 @@ extension HLSDownloader: AVAssetDownloadDelegate, URLSessionDownloadDelegate {
             ]
             let semaphore = DispatchSemaphore(value: 0)
             let backgroundQueue = DispatchQueue(label: "background_convert\(video?.videoId ?? "")",qos: .background)
-            backgroundQueue.sync {
+            backgroundQueue.safeSync {
                 Logger.atwyLogs.simpleLog("started export")
                 _ = docDir.startAccessingSecurityScopedResource()
                 session?.exportAsynchronously(completionHandler: {

@@ -113,7 +113,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                 }
                 
                 let infos = try? await self.downloadInfo.video.fetchMoreInfosThrowing(youtubeModel: YTM)
-                DispatchQueue.main.sync {
+                DispatchQueue.main.safeSync {
                     self.downloadInfo.videoInfo = infos
                 }
                 
@@ -130,7 +130,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                     }
                     chapterEntity.title = chapter.title
                     
-                    DispatchQueue.main.sync {
+                    DispatchQueue.main.safeSync {
                         self.downloadInfo.chapters.append(chapterEntity)
                     }
                 }
@@ -139,7 +139,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                     let imageTask = DownloadImageOperation(imageURL: channelThumbnailURL.url)
                     imageTask.start()
                     imageTask.waitUntilFinished()
-                    DispatchQueue.main.sync {
+                    DispatchQueue.main.safeSync {
                         self.downloadInfo.channelThumbnailData = imageTask.imageData
                     }
                 }
@@ -198,7 +198,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                         
         let isHLS = downloadURL.absoluteString.contains("manifest.googlevideo.com")
         
-        DispatchQueue.main.sync {
+        DispatchQueue.main.safeSync {
             self.downloadInfo.thumbnailURL = downloadInfo.video.thumbnails.last?.url ?? URL(string: "https://i.ytimg.com/vi/\(downloadInfo.video.videoId)/hqdefault.jpg")
         }
         
@@ -213,7 +213,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                      imageTask.waitUntilFinished()
                      */
                     guard let imageData = imageData, error == nil else { Logger.atwyLogs.simpleLog("Could not download image"); DispatchQueue.main.async { self.downloaderState = .failed; }; return }
-                    DispatchQueue.main.sync {
+                    DispatchQueue.main.safeSync {
                         self.downloadInfo.thumbnailData = imageData
                     }
                     launchDownload(isHLS: isHLS)
