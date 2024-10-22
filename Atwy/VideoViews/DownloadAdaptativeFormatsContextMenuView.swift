@@ -12,7 +12,7 @@ import YouTubeKit
 struct DownloadAdaptativeFormatsContextMenuView: View {
     typealias VideoFormat = VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat
     typealias AudioFormat = VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat
-    @State private var formats: VideoInfosWithDownloadFormatsResponse?
+    @State private var formats: VideoInfosResponse?
     let video: YTVideo
     let videoThumbnailData: Data?
     
@@ -83,7 +83,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                 Text("Loading formats...")
                     .task {
                         if self.formats == nil {
-                            self.formats = try? await video.fetchStreamingInfosWithDownloadFormatsThrowing(youtubeModel: YTM)
+                            self.formats = try? await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
                         }
                     }
             }
