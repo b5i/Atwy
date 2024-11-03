@@ -11,10 +11,10 @@ struct DownloadSwipeActionsView: View {
     @ObservedObject var downloader: HLSDownloader
     var body: some View {
         Button {
-            if downloader.downloadTask?.state == .suspended {
+            if downloader.downloaderState != .downloading && downloader.downloaderState != .failed {
                 downloader.resumeDownload()
                 PopupsModel.shared.showPopup(.resumedDownload, data: downloader.downloadInfo.thumbnailData)
-            } else {
+            } else if downloader.downloaderState == .downloading {
                 downloader.pauseDownload()
                 PopupsModel.shared.showPopup(.pausedDownload, data: downloader.downloadInfo.thumbnailData)
             }
@@ -22,7 +22,7 @@ struct DownloadSwipeActionsView: View {
             ZStack {
                 Rectangle()
                     .tint(.orange)
-                Image(systemName: downloader.downloadTask?.state == .suspended ? "play" : "pause")
+                Image(systemName: downloader.downloaderState == .downloading ? "pause" : "play")
             }
         }
         .tint(.orange)

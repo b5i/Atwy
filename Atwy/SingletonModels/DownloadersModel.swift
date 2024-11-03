@@ -108,7 +108,9 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
         }
         for waitingDownloader in waitingDownloaders.sorted(by: { $0.downloadInfo.timestamp < $1.downloadInfo.timestamp }) {
             guard activeDownloadersCount < concurrentDownloadsLimit ?? PreferencesStorageModel.shared.concurrentDownloadsLimit else { break }
-            waitingDownloader.downloadVideo()
+            Task {
+                await waitingDownloader.downloadVideo()
+            }
             activeDownloadersCount += 1
         }
         if activeDownloadersCount == 0 {
