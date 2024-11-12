@@ -40,13 +40,22 @@ struct ContentView: View {
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
                 .badge(DM.activeDownloaders.count)
             TabBarElement(DestinationView: {
-                if !(APIM.userAccount?.isDisconnected ?? true) {
-                    PersonnalAccountView()
-                } else if APIM.isFetchingAccountInfos {
-                    LoadingView(customText: "account infos.")
-                } else {
-                    NotConnectedToGoogleView()
+                ZStack {
+                    if !(APIM.userAccount?.isDisconnected ?? true) {
+                        PersonnalAccountView()
+                    } else if APIM.isFetchingAccountInfos {
+                        LoadingView(customText: "account infos.")
+                    } else {
+                        NotConnectedToGoogleView()
+                    }
                 }
+                .navigationTitle("‌‌Account")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbarBackground(.clear, for: .navigationBar)
+                .customNavigationTitleWithRightIcon {
+                    ShowSettingsButtonView()
+                }
+
             }, type: .account, name: "Account", image: "person.circle", needConnection: true)
         }
         .overlay(alignment: .bottom, content: {

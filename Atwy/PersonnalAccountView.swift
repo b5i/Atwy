@@ -65,10 +65,6 @@ struct PersonnalAccountView: View {
                 }
             }
             .routeContainer()
-            .navigationTitle("Account")
-            .customNavigationTitleWithRightIcon {
-                ShowSettingsButtonView()
-            }
         }
         .onAppear {
             if self.libraryContent == nil, !self.isFetching {
