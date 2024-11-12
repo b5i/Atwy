@@ -743,7 +743,7 @@
 			repositoryURL = "https://github.com/b5i/InfiniteScrollViews";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.2;
+				version = 1.1.0;
 			};
 		};
 		347AE2542A6C65490099DDE7 /* XCRemoteSwiftPackageReference "YouTubeKit" */ = {
