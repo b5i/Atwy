@@ -12,27 +12,32 @@ struct HistoryView: View {
     @State private var shouldReloadScrollView: Bool = false
     @StateObject private var model = Model()
     @ObservedObject private var PSM = PreferencesStorageModel.shared
+    @State private var searchText: String = ""
     var body: some View {
         VStack {
             if model.isFetching {
                 LoadingView()
                     .centered()
             } else if let historyResponse = model.historyResponse {
-                GeometryReader { geometry in
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(historyResponse.results, id: \.id) { historyPart in
-                                VideoGroupView(model: model, videoSize: CGSize(width: geometry.size.width, height: PSM.videoViewMode == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
-                            }
-                            if self.model.historyResponse?.continuationToken != nil {
-                                Color.clear.frame(width: 0, height: 0)
-                                    .onAppear {
-                                        self.model.fetchContinuation()
-                                    }
+                if !historyResponse.results.isEmpty {
+                    GeometryReader { geometry in
+                        ScrollView {
+                            LazyVStack {
+                                ForEach(historyResponse.results, id: \.id) { historyPart in
+                                    VideoGroupView(model: model, videoSize: CGSize(width: geometry.size.width, height: PSM.videoViewMode == .halfThumbnail ? 180 : geometry.size.width * 9/16 + 90), historyPart: historyPart)
+                                }
+                                if self.model.historyResponse?.continuationToken != nil {
+                                    Color.clear.frame(width: 0, height: 0)
+                                        .onAppear {
+                                            self.model.fetchContinuation()
+                                        }
+                                }
                             }
                         }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
+                } else {
+                    Text("No videos found for \"\(searchText)\".")
                 }
             } else if let error = model.error {
                 Text("Error: " + error)
@@ -43,7 +48,14 @@ struct HistoryView: View {
                     }
             }
         }
-        .navigationTitle(model.historyResponse?.title ?? "History")
+        .navigationTitle(model.historyResponse?.title ?? "Watch history")
+        .customSearchBar(text: $searchText, onSubmit: {
+            if !searchText.isEmpty {
+                self.model.fetchHistory(for: searchText)
+            } else {
+                self.model.fetchHistory()
+            }
+        })
     }
     
     struct VideoGroupView: View {
@@ -103,13 +115,13 @@ struct HistoryView: View {
         
         private var isFetchingContinuation: Bool = false
         
-        func fetchHistory() {
+        func fetchHistory(for query: String? = nil) {
             DispatchQueue.main.async {
                 self.isFetching = true
                 self.historyResponse = nil
                 self.error = nil
             }
-            HistoryResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { [weak self] result in
+            HistoryResponse.sendNonThrowingRequest(youtubeModel: YTM, data: query != nil ? [.query: query!] : [:], result: { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let response):
