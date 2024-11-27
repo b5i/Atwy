@@ -19,6 +19,8 @@ struct WatchVideoView: View {
     @State private var topColorGradient: LinearGradient = .init(colors: [.gray, .white], startPoint: .leading, endPoint: .trailing)
     @State private var bottomColorGradient: LinearGradient = .init(colors: [.gray, .white], startPoint: .leading, endPoint: .trailing)
     @State private var animationColors: [Color] = [.white, .gray, .white, .gray]
+    @State private var meshColors: [Color] = [.white, .gray, .white, .gray, .white, .gray, .white, .gray, .white]
+    @State private var meshUsedColors: [Color] = [.white, .gray, .white, .gray, .white, .gray, .white, .gray, .white]
     @State private var usedAnimationColors: [Color] = [.white, .gray, .white, .gray]
     @State private var animateStartPoint: UnitPoint = .topLeading
     @State private var animateEndPoint: UnitPoint = .bottomTrailing
@@ -43,25 +45,17 @@ struct WatchVideoView: View {
                             .init(color: (colorScheme == .light ? Color.black.opacity(0.25) : Color.white.opacity(0.75)), location: 0.7),
                             .init(color: (colorScheme == .light ? Color.black.opacity(0.65) : Color.white.opacity(0.35)), location: 1)
                         ]))
-                        .clipShape(
-                            .rect(
-                                topLeadingRadius: 0,
-                                bottomLeadingRadius: self.screenCornerRadius,
-                                bottomTrailingRadius: self.screenCornerRadius,
-                                topTrailingRadius: 0
+                    if #available(iOS 18.0, *) {
+                        Rectangle()
+                            .fill(
+                                MeshGradient(width: 3, height: 3, points: [.init(0.0, 0.0), .init(0.5, 0.0), .init(1.0, 0.0), .init(0.0, 0.5), .init(0.5, 0.5), .init(1.0, 0.5), .init(0.0, 1.0), .init(0.5, 1.0), .init(1.0, 1.0)], colors: self.meshUsedColors, smoothsColors: true)
                             )
-                        )
-                    Rectangle()
-                        .fill(LinearGradient(colors: usedAnimationColors, startPoint: animateStartPoint, endPoint: animateEndPoint).shadow(.inner(radius: 5)))
-                        .blendMode(.multiply)
-                        .clipShape(
-                            .rect(
-                                topLeadingRadius: 0,
-                                bottomLeadingRadius: self.screenCornerRadius,
-                                bottomTrailingRadius: self.screenCornerRadius,
-                                topTrailingRadius: 0
-                            )
-                        )
+                            .blendMode(.multiply)
+                    } else {
+                        Rectangle()
+                            .fill(LinearGradient(colors: usedAnimationColors, startPoint: animateStartPoint, endPoint: animateEndPoint).shadow(.inner(radius: 5)))
+                            .blendMode(.multiply)
+                    }
                 }
                 .ignoresSafeArea(.all)
                 .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: geometry.size.height + geometry.safeAreaInsets.bottom + geometry.safeAreaInsets.top)
@@ -660,6 +654,7 @@ struct WatchVideoView: View {
             //            sleep(29)
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 29)) {
+                    meshUsedColors = meshColors.shuffled()
                     usedAnimationColors = animationColors.shuffled().dropLast((0..<animationColors.count - 1).randomElement() ?? 0)
                 }
             }
@@ -674,6 +669,7 @@ struct WatchVideoView: View {
         let bottomLeadingImage = cgImage.cropping(to: CGRect(x: 0, y: image.size.height / 2, width: image.size.width / 2, height: image.size.height))
         let topTrailingImage = cgImage.cropping(to: CGRect(x: image.size.width / 2, y: 0, width: image.size.width, height: image.size.height / 2))
         let bottomTrailingImage = cgImage.cropping(to: CGRect(x: image.size.width / 2, y: image.size.height / 2, width: image.size.width, height: image.size.height))
+        
         guard let topLeadingImage = topLeadingImage, let bottomLeadingImage = bottomLeadingImage, let topTrailingImage = topTrailingImage, let bottomTrailingImage = bottomTrailingImage else { return }
         
         let TLColor = topLeadingImage.findAverageColor(algorithm: .simple)
@@ -681,13 +677,36 @@ struct WatchVideoView: View {
         let TTColor = topTrailingImage.findAverageColor(algorithm: .simple)
         let BTColor = bottomTrailingImage.findAverageColor(algorithm: .simple)
         
+        // add nine colors to the self.meshColors property, 4 calculated and 5 random ones between that are close to one of the 4
+        
+        var randomColors: [Color] = []
+        
+        for _ in 0..<5 {
+            let randomBaseColor = self.animationColors.randomElement()!
+            let secondRandomBaseColor = self.animationColors.randomElement()!
+            if #available(iOS 18.0, *) {
+                let randomColor = randomBaseColor.mix(with: secondRandomBaseColor, by: 0.5)
+                randomColors.append(randomColor)
+
+            }
+        }
+        
         DispatchQueue.main.async {
+            self.animationColors = [Color(TLColor ?? .white), Color(TTColor ?? .white), Color(BLColor ?? .white), Color(BTColor ?? .white)]
             withAnimation {
                 self.topColorGradient = .init(colors: [Color(TLColor ?? .white), Color(TTColor ?? .white)], startPoint: .leading, endPoint: .trailing)
                 self.bottomColorGradient = .init(colors: [Color(BLColor ?? .white), Color(BTColor ?? .white)], startPoint: .leading, endPoint: .trailing)
-                self.animationColors = [Color(TLColor ?? .white), Color(TTColor ?? .white), Color(BLColor ?? .white), Color(BTColor ?? .white)]
                 self.usedAnimationColors = self.animationColors
+                
+                if self.meshColors.count >= 4 {
+                    if self.meshColors[0] != self.animationColors[0] || self.meshColors[1] != self.animationColors[1] || self.meshColors[2] != self.animationColors[2] || self.meshColors[3] != self.animationColors[3] {
+                        self.meshColors = self.animationColors.appending(contentsOf: randomColors)
+                        self.meshUsedColors = self.meshColors.shuffled()
+                    }
+                }
             }
+            
+            //self.meshUsedColors = self.meshColors.shuffled()
         }
     }
 }

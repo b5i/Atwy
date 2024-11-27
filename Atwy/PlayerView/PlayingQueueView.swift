@@ -15,14 +15,8 @@ struct PlayingQueueView: View {
     @ObservedObject private var VTM = VideoThumbnailsManager.main
     var body: some View {
         GeometryReader { geometry in
-            Text("Next up")
-                .font(.callout)
-                .bold()
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical)
-            let queueBinding: Binding<[YTAVPlayerItem]> = Binding(get: {
-                return VideoPlayerModel.shared.player.items().compactMap({$0 as? YTAVPlayerItem}).filter({$0 != VideoPlayerModel.shared.currentItem})
+            var queueBinding: Binding<[YTAVPlayerItem]> = Binding(get: {
+                return VideoPlayerModel.shared.player.items().compactMap { $0 as? YTAVPlayerItem }.filter { $0 != VideoPlayerModel.shared.currentItem }
             }, set: { newValue in
                 VideoPlayerModel.shared.player.items().forEach {
                     if $0 != VideoPlayerModel.shared.currentItem {
@@ -36,19 +30,23 @@ struct PlayingQueueView: View {
             })
             List(queueBinding, id: \.self, editActions: [.move, .delete]) { $video in
                 Button {
-                    for item in VideoPlayerModel.shared.player.items().compactMap({$0 as? YTAVPlayerItem}) {
-                        if item == video {
+                    let items = VideoPlayerModel.shared.player.items().compactMap({ $0 as? YTAVPlayerItem })
+                    let videoObject = video
+                    var beforeItem: YTAVPlayerItem?
+                    for item in items {
+                        if item == videoObject {
                             break
                         } else {
-                            VideoPlayerModel.shared.player.remove(item)
+                            beforeItem = item
+                            if let beforeItem {
+                                VideoPlayerModel.shared.player.remove(beforeItem)
+                            }
                         }
                     }
-                    VideoPlayerModel.shared.player.advanceToNextItem()
+                    VideoPlayerModel.shared.player.replaceCurrentItem(with: videoObject)
                     VideoPlayerModel.shared.player.updateEndAction()
                 } label: {
                     HStack {
-                        Image(systemName: "line.3.horizontal")
-                            .padding(.vertical)
                         VStack {
                             if let thumbnailData = VTM.images[video.videoId], let image = UIImage(data: thumbnailData){
                                 Image(uiImage: image)
@@ -78,11 +76,16 @@ struct PlayingQueueView: View {
                         VStack {
                             Text(video.videoTitle ?? "")
                                 .font(.system(size: 15))
+                                .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Text(video.channelName ?? "")
                                 .font(.system(size: 13))
+                                .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundStyle(.white)
+                            .padding(.vertical)
                     }
                     .listRowSeparator(.hidden)
                     .padding()
@@ -93,9 +96,24 @@ struct PlayingQueueView: View {
                     })
                 }
                 .buttonStyle(.plain)
+                .listRowBackground(Color.clear)
             }
-            .listStyle(.inset)
+            .listStyle(.plain)
             .frame(width: geometry.size.width, height: geometry.size.height * 0.85)
+            .padding(.vertical)
+            .safeAreaInset(edge: .top, content: {
+                ZStack {
+                    VariableBlurView(orientation: .topToBottom)
+                        .ignoresSafeArea()
+                    Text("Next up")
+                        .font(.callout)
+                        .bold()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                }
+                .frame(height: 40)
+            })
         }
     }
 }

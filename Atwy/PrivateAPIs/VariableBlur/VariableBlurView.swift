@@ -20,10 +20,10 @@ class VariableBlurEffectView: UIVisualEffectView {
     ]
     
     enum Orientation {
-        // more blur at the bottom
+        /// more blur at the bottom
         case bottomToTop
         
-        // more blur at the top
+        /// more blur at the top
         case topToBottom
     }
     
