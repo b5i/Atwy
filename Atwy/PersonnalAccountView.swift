@@ -79,7 +79,19 @@ struct PersonnalAccountView: View {
         }
         AccountLibraryResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { result in
             switch result {
-            case .success(let response):
+            case .success(var response):
+                if response.history?.title == "" {
+                    response.history?.title = "History"
+                }
+                
+                if response.likes?.title == "" {
+                    response.likes?.title = "Likes"
+                }
+                
+                if response.watchLater?.title == "" {
+                    response.watchLater?.title = "Watch Later"
+                }
+                
                 DispatchQueue.main.async {
                     self.libraryContent = response
                 }
