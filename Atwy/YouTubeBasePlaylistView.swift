@@ -22,7 +22,19 @@ struct YouTubeBasePlaylistView: View {
                                 .font(.title2)
                                 .padding()
                                 .foregroundColor(colorScheme.textColor)
+                            
                             Spacer()
+                            
+                            if playlist.frontVideos.isEmpty {
+                                Image(systemName: "chevron.right")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundColor(colorScheme.textColor)
+                                    .padding(.top)
+                            }
+                            Spacer()
+                                .frame(width: geometry.size.width * 0.2 - 40)
                         }
                         HStack {
                             ZStack {
@@ -41,7 +53,7 @@ struct YouTubeBasePlaylistView: View {
                                         }
                                 }
                                 VStack {
-                                    if let elementsCount = playlist.videoCount {
+                                    if let elementsCount = playlist.videoCount?.components(separatedBy: " ").first, !playlist.frontVideos.isEmpty {
                                         Text(elementsCount)
                                             .font(.title2)
                                             .foregroundColor(colorScheme.textColor)
@@ -49,6 +61,12 @@ struct YouTubeBasePlaylistView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .font(.title2)
+                                            .foregroundColor(colorScheme.textColor)
+                                    } else if !playlist.frontVideos.isEmpty {
+                                        Image(systemName: "chevron.right")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 30, height: 30)
                                             .foregroundColor(colorScheme.textColor)
                                     }
                                 }

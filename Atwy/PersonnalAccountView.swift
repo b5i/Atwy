@@ -83,9 +83,10 @@ struct PersonnalAccountView: View {
                 if response.history?.title == "" {
                     response.history?.title = "History"
                 }
+                response.history?.frontVideos = []
                 
                 if response.likes?.title == "" {
-                    response.likes?.title = "Likes"
+                    response.likes?.title = "Liked videos"
                 }
                 
                 if response.watchLater?.title == "" {

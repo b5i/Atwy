@@ -10,32 +10,44 @@ import YouTubeKit
 
 struct UsersPlaylistsListView: View {
     let playlists: [YTPlaylist]
-    @StateObject private var model = Model()
+    @StateObject private var model: Model
     @State private var search: String = ""
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
+    
+    init(playlists: [YTPlaylist]) {
+        self.playlists = playlists
+        self._model = StateObject(wrappedValue: Model(defaultPlaylists: playlists))
+    }
+    
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(.vertical, content: {
-                LazyVStack {
-                    Color.clear.frame(width: 0, height: 20)
-                    let playlistsToDisplay: [YTPlaylist] = search.isEmpty ? model.playlists ?? playlists : (model.playlists ?? playlists).filter({$0.title?.contains(search) ?? false})
-                    ForEach(Array(playlistsToDisplay.enumerated()), id: \.offset) { _, playlist in
-                        PlaylistView(playlist: playlist)
-                            .padding(.horizontal, 5)
-                            .frame(width: geometry.size.width, height: 180)
-                            .routeTo(.playlistDetails(playlist: playlist))
-                    }
-                    Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 50 : 0)
-                }
-            })
+        VStack {
+            if model.isFetching {
+                LoadingView()
+            } else {
+                GeometryReader { geometry in
+                    ScrollView(.vertical, content: {
+                        LazyVStack {
+                            Color.clear.frame(width: 0, height: 20)
+                            let playlistsToDisplay: [YTPlaylist] = search.isEmpty ? model.playlists ?? playlists : (model.playlists ?? playlists).filter({$0.title?.contains(search) ?? false})
+                            ForEach(Array(playlistsToDisplay.enumerated()), id: \.offset) { _, playlist in
+                                PlaylistView(playlist: playlist)
+                                    .padding(.horizontal, 5)
+                                    .frame(width: geometry.size.width, height: 180)
+                                    .routeTo(.playlistDetails(playlist: playlist))
+                            }
+                            Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 50 : 0)
+                        }
+                    })
 #if os(macOS)
-            .searchable(text: $search, placement: .toolbar)
+                    .searchable(text: $search, placement: .toolbar)
 #else
-            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
+                    .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
 #endif
+                }
+            }
         }
         .onAppear {
             self.model.getPlaylists()
@@ -49,22 +61,37 @@ struct UsersPlaylistsListView: View {
     private class Model: ObservableObject {
         @Published private(set) var playlists: [YTPlaylist]? = nil
         
-        private var isFetching: Bool = false
+        init(defaultPlaylists: [YTPlaylist]?) {
+            self.defaultPlaylists = defaultPlaylists
+        }
+        
+        private var defaultPlaylists: [YTPlaylist]?
+        
+        @Published private(set) var isFetching: Bool = false
         
         func getPlaylists() {
             guard !isFetching else { return }
             
-            self.isFetching = true
+            DispatchQueue.main.safeSync {
+                self.isFetching = true
+            }
             
             AccountPlaylistsResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [:], result: { result in
-                self.isFetching = false
                 switch result {
                 case .success(let success):
+                    self.defaultPlaylists = success.results
                     DispatchQueue.main.async {
                         self.playlists = success.results
+                        self.isFetching = false
                     }
                 case .failure(let failure):
                     print(failure.localizedDescription)
+                    DispatchQueue.main.async {
+                        if let defaultPlaylists = self.defaultPlaylists {
+                            self.playlists = defaultPlaylists
+                        }
+                        self.isFetching = false
+                    }
                 }
             })
         }
