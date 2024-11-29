@@ -24,7 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/b5i/YouTubeKit",
       "state" : {
-        "revision" : "5530da9976b89ac698d05e6a496ad244f5c5fa35"
+        "revision" : "711af0d266208b1df8fdd59b1cb0bca967416fc6",
+        "version" : "2.3.0"
       }
     }
   ],
