@@ -20,6 +20,7 @@ struct ShareButtonView: View {
                 .scaledToFit()
                 .frame(width: 20, height: 20)
                 .contentShape(Rectangle())
+                .foregroundStyle(Color.accentColor)
         }
         .buttonStyle(.plain)
     }
