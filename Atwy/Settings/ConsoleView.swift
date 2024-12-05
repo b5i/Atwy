@@ -89,7 +89,7 @@ public struct ConsoleView: View {
         }
         
         func fetchLogs() {
-            guard let store = self.store else { return }
+            guard let store = self.store, !self.isFetching else { return }
             
             Task.detached {
                 DispatchQueue.main.safeSync {
