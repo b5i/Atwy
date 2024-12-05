@@ -48,6 +48,7 @@ class FileManagerModel: ObservableObject {
             for (index, file) in newFileList.enumerated() where file.pathExtension == "movpkg" {
                 do {
                     if !PersistenceModel.shared.currentData.downloadedVideoIds.contains(where: {$0.videoId == file.lastPathComponent.replacingOccurrences(of: ".movpkg", with: "")}) {
+                        Logger.atwyLogs.simpleLog("Removing file: \(file.lastPathComponent), because it's not in CoreData.")
                         try FileManager.default.removeItem(at: file)
                         fileList.remove(at: index - newFileList.count + fileList.count)
                     }
@@ -60,6 +61,7 @@ class FileManagerModel: ObservableObject {
                 for (index, file) in newFileList.enumerated() where file.pathExtension == "movpkg" {
                     do {
                         if file.lastPathComponent.contains(downloadedVideoId) {
+                            Logger.atwyLogs.simpleLog("Found downloaded video in CoreData, but it's not in the downloaded folder. Removing file: \(file.lastPathComponent).")
                             try FileManager.default.removeItem(at: file)
                             fileList.remove(at: index - newFileList.count + fileList.count)
                         }
