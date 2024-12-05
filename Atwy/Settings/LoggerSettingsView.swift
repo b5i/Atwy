@@ -74,14 +74,9 @@ struct LoggerSettingsView: View {
             HStack {
                 Text("\(String(describing: log.expectedResultType)) at \(log.date.formatted(date: .numeric, time: .standard))")
                 Spacer()
-                Image(systemName: "square.and.arrow.up")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.showShareLogSheet()
-                    }
+                ShareButtonView(onTap: {
+                    self.showShareLogSheet()
+                })
             }
             .frame(maxWidth: .infinity)
             .onTapGesture {
@@ -107,33 +102,12 @@ struct LoggerSettingsView: View {
     struct DetailledLogView: View {
         let log: any GenericRequestLog
         let showCredentials: Bool
-                
-        @State private var copiedToClipboard: Bool = false {
-            didSet {
-                if self.copiedToClipboard {
-                    self.resetClipboardIconTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false, block: { timer in
-                        self.copiedToClipboard = false
-                    })
-                }
-            }
-        }
-        
-        @State private var resetClipboardIconTimer: Timer? = nil
         
         @State private var currentCategory: YouTubeModelLogger.LogCategory = .baseInfos
         var body: some View {
             VStack {
                 HStack {
-                    let categoryBinding: Binding<YouTubeModelLogger.LogCategory> = Binding(get: {
-                        return self.currentCategory
-                    }, set: { newValue in
-                        if self.currentCategory != newValue {
-                            self.resetClipboardIconTimer?.invalidate()
-                            self.copiedToClipboard = false
-                        }
-                        self.currentCategory = newValue
-                    })
-                    Picker("", selection: categoryBinding) {
+                    Picker("", selection: self.$currentCategory) {
                         Text("Base infos")
                             .tag(YouTubeModelLogger.LogCategory.baseInfos)
                         Text("Request infos")
@@ -145,16 +119,10 @@ struct LoggerSettingsView: View {
                     }
                     .pickerStyle(.menu)
                     Spacer()
-                    Image(systemName: copiedToClipboard ? "doc.on.clipboard.fill" : "doc.on.clipboard")
-                        .resizable()
-                        .scaledToFit()
-                        .animation(.default, value: copiedToClipboard)
-                        .onTapGesture {
-                            UIPasteboard.general.string = YouTubeModelLogger.getTextForSelection(log: log, category: currentCategory, showCredentials: showCredentials)
-                            self.copiedToClipboard = true
-                        }
-                        .frame(width: 20, height: 20)
-                        .contentShape(Rectangle())
+                    CopyToClipboardView(textToCopy: {
+                        YouTubeModelLogger.getTextForSelection(log: log, category: currentCategory, showCredentials: showCredentials)
+                    })
+                    .id(self.currentCategory)
                 }
                 .padding()
                 ScrollView {

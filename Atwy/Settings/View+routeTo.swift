@@ -39,6 +39,8 @@ public extension View {
                     AppearanceSettingsView()
                 case .storageSettings:
                     StorageSettingsView()
+                case .consoleSettings:
+                    ConsoleView()
                 case .loggerSettings:
                     LoggerSettingsView()
                 case .privateAPIsSettings:

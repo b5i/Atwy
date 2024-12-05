@@ -67,7 +67,7 @@ struct SettingsView: View {
                             .padding(.top)
                         }
                     } else if APIM.isFetchingAccountInfos {
-                        LoadingView(customText: "account infos.")
+                        LoadingView(customText: "account infos")
                     } else {
                         VStack {
                             HStack {
@@ -80,92 +80,50 @@ struct SettingsView: View {
                         .padding()
                     }
                     List {
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.green)
-                                    Image(systemName: "doc.questionmark.fill")
-                                        .foregroundColor(.white)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Behavior")
-                            Spacer()
-                        }
-                        .routeTo(.behaviorSettings)
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.blue)
-                                    Image(systemName: "textformat.size")
-                                        .foregroundColor(.white)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Appeareance")
-                            Spacer()
-                        }
-                        .routeTo(.appearanceSettings)
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.gray)
-                                    Image(systemName: "gear")
-                                        .foregroundColor(.white)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Storage")
-                            Spacer()
-                        }
-                        .routeTo(.storageSettings)
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.red)
-                                    Image(systemName: "list.bullet.clipboard")
-                                        .foregroundColor(.white)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Logger")
-                            Spacer()
-                        }
-                        .routeTo(.loggerSettings)
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.black)
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.yellow)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Private APIs")
-                            Spacer()
-                        }
-                        .routeTo(.privateAPIsSettings)
-                        Group {
-                            HStack {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(.orange)
-                                    Image(systemName: "book.fill")
-                                        .foregroundColor(.white)
-                                }
-                                .frame(width: 30, height: 30)
-                            }
-                            Text("Licenses")
-                            Spacer()
-                        }
-                        .routeTo(.licensesSettings)
+                        SettingsEntry(
+                            iconName: "doc.questionmark.fill",
+                            iconColor: .white,
+                            iconBackgroundColor: .green,
+                            title: "Behavior",
+                            routeTo: .behaviorSettings)
+                        SettingsEntry(
+                            iconName: "textformat.size",
+                            iconColor: .white,
+                            iconBackgroundColor: .blue,
+                            title: "Appeareance",
+                            routeTo: .appearanceSettings)
+                        SettingsEntry(
+                            iconName: "gear",
+                            iconColor: .white,
+                            iconBackgroundColor: .gray,
+                            title: "Storage",
+                            routeTo: .storageSettings)
+                        SettingsEntry(
+                            iconName: "list.bullet.rectangle",
+                            iconColor: .black,
+                            iconBackgroundColor: .yellow,
+                            title: "Console",
+                            routeTo: .consoleSettings)
+                        SettingsEntry(
+                            iconName: "list.bullet.clipboard",
+                            iconColor: .white,
+                            iconBackgroundColor: .red,
+                            title: "YouTubeKit Logger",
+                            routeTo: .loggerSettings)
+                        SettingsEntry(
+                            iconName: "exclamationmark.triangle.fill",
+                            iconColor: .yellow,
+                            iconBackgroundColor: .black,
+                            title: "Private APIs",
+                            routeTo: .privateAPIsSettings)
+                        SettingsEntry(
+                            iconName: "book.fill",
+                            iconColor: .white,
+                            iconBackgroundColor: .orange,
+                            title: "Licenses",
+                            routeTo: .licensesSettings)
                     }
-                    .frame(height: 330)
+                    .frame(height: 360)
                 }
             }
             .routeContainer()
@@ -196,4 +154,8 @@ struct SettingsView: View {
             #endif
         }
     }
+}
+
+#Preview {
+    SettingsView()
 }

@@ -14,7 +14,7 @@ struct LoadingView: View {
             ProgressView()
                 .foregroundColor(.gray)
                 .padding(.bottom, 0.3)
-            Text("LOADING" + ((customText == nil) ? "" : " ") + (customText?.uppercased() ?? ""))
+            Text("LOADING" + ((customText == nil) ? "" : " ") + (customText?.uppercased() ?? "") + "...")
                 .foregroundColor(.gray)
                 .font(.caption2)
         }

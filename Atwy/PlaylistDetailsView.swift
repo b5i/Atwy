@@ -141,11 +141,9 @@ struct PlaylistDetailsView: View {
             }
             if self.playlist.playlistId.hasPrefix("PL") || self.playlist.playlistId.hasPrefix("VLPL") { // avoid private playlists like history and watch later
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
+                    ShareButtonView(onTap: {
                         self.playlist.showShareSheet()
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
+                    })
                 }
             }
 #endif

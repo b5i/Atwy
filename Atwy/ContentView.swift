@@ -44,7 +44,7 @@ struct ContentView: View {
                     if !(APIM.userAccount?.isDisconnected ?? true) {
                         PersonnalAccountView()
                     } else if APIM.isFetchingAccountInfos {
-                        LoadingView(customText: "account infos.")
+                        LoadingView(customText: "account infos")
                     } else {
                         NotConnectedToGoogleView()
                     }

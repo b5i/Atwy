@@ -9,7 +9,9 @@
 import OSLog
 
 public extension Logger {
-    static let atwyLogs = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "all")
+    static let atwyLogsSubsytsem = Bundle.main.bundleIdentifier!
+    
+    static let atwyLogs = Logger(subsystem: atwyLogsSubsytsem, category: "all")
     
     func simpleLog(_ message: String) {
         self.debug("\(message)")

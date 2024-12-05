@@ -238,11 +238,9 @@ struct ChannelDetailsView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
+                        ShareButtonView(onTap: {
                             self.channel.showShareSheet()
-                        } label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
+                        })
                     }
 #endif
                 })
