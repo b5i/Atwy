@@ -12,8 +12,7 @@ public extension Logger {
     static let atwyLogsSubsytsem = Bundle.main.bundleIdentifier!
     
     static let atwyLogs = Logger(subsystem: atwyLogsSubsytsem, category: "all")
-    
     func simpleLog(_ message: String) {
-        self.debug("\(message)")
+        self.log("\(message)")
     }
 }
