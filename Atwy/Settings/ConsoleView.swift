@@ -16,24 +16,28 @@ public struct ConsoleView: View {
     @ObservedObject private var console = ConsoleModel.shared
     public var body: some View {
         VStack {
-            if self.console.logs.isEmpty && self.console.isFetching {
+            if self.console.logs == nil && self.console.isFetching {
                 LoadingView(customText: "console logs")
             } else {
                 TimelineView(.periodic(from: .now, by: 5), content: { timeline in
-                    let displayedLogs = self.console.logs.filter { $0.contains(filter) || filter == "" }
+                    let displayedLogs = self.console.logs?.filter { $0.contains(filter) || filter == "" }
                     ScrollView {
-                        LazyVStack(alignment: .leading) {
-                            ForEach(Array(displayedLogs.enumerated()), id: \.offset) { log in
-                                let log = log.element
-                                Text(log)
-                                    .castedFontDesign(.monospaced)
-                                    .padding(.vertical)
-                                    .textSelection(.enabled)
-                                    .padding(.horizontal)
+                        if displayedLogs?.isEmpty == true {
+                            Text("No logs found")
+                        } else {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(Array((displayedLogs ?? []).enumerated()), id: \.offset) { log in
+                                    let log = log.element
+                                    Text(log)
+                                        .castedFontDesign(.monospaced)
+                                        .padding(.vertical)
+                                        .textSelection(.enabled)
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
-                    .castedDefaultScrollAnchor(.bottom)
+                    .castedDefaultScrollAnchor(displayedLogs?.isEmpty == true ? .center : .bottom)
                     .onAppear {
                         self.console.fetchLogs()
                     }
@@ -42,14 +46,14 @@ public struct ConsoleView: View {
                     .toolbar(content: {
                         ToolbarItem(placement: .topBarTrailing, content: {
                             CopyToClipboardView(textToCopy: {
-                                displayedLogs.joined(separator: "\n")
+                                (displayedLogs ?? []).joined(separator: "\n")
                             })
                             .padding(.trailing)
                         })
                         ToolbarItem(placement: .topBarTrailing, content: {
                             ShareButtonView(onTap: {
                                 let vc = UIActivityViewController(
-                                    activityItems: [ConsoleLogsShareSource(logs: displayedLogs.joined(separator: "\n"))],
+                                    activityItems: [ConsoleLogsShareSource(logs: (displayedLogs ?? []).joined(separator: "\n"))],
                                     applicationActivities: nil
                                 )
                                 
@@ -67,7 +71,7 @@ public struct ConsoleView: View {
     class ConsoleModel: ObservableObject {
         static let shared = ConsoleModel()
         
-        @Published private(set) var logs: [String] = []
+        @Published private(set) var logs: [String]? = nil
         
         @Published private(set) var isFetching: Bool = false
         
@@ -82,7 +86,7 @@ public struct ConsoleView: View {
                 #endif
             } catch {
                 Logger.atwyLogs.error("Error while initializing ConsoleModel: \(error)")
-                self.logs.append("Error while initializing ConsoleModel: \(error)")
+                self.logs = ["Error while initializing ConsoleModel: \(error)"]
             }
                         
             self.fetchLogs()
@@ -101,13 +105,13 @@ public struct ConsoleView: View {
                         .map({
                             $0.date.formatted(date: .abbreviated, time: .complete) + "\n" + $0.composedMessage
                         })
-                    
+                                        
                     DispatchQueue.main.safeSync {
                         self.logs = logs
                     }
                 } catch {
                     Logger.atwyLogs.error("Error while fetching logs: \(error)")
-                    self.logs.append("Error while fetching logs: \(error)")
+                    self.logs = ["Error while fetching logs: \(error)"]
                 }
                 
                 DispatchQueue.main.safeSync {
