@@ -436,6 +436,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
             do {
                 try backgroundContext.save()
                 PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.downloadInfo.video.videoId, storageLocation: finalURL)
+                Logger.atwyLogs.simpleLog("Video downloaded successfully, saved to \(finalURL)")
                 DispatchQueue.main.async {
                     self.percentComplete = 100
                     self.downloaderState = .success

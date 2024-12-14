@@ -42,33 +42,18 @@ class FileManagerModel: ObservableObject {
     }
     
     func removeNonDownloadedVideos(fileList: inout [URL]) -> [PersistenceModel.PersistenceData.VideoIdAndLocation] {
-        let newFileList = fileList
         let downloadedVideoIds = PersistenceModel.shared.currentData.downloadedVideoIds
-        if newFileList.count > downloadedVideoIds.count {
-            for (index, file) in newFileList.enumerated() where file.pathExtension == "movpkg" {
+        var newFileList: [URL] = []
+        for (_, file) in fileList.enumerated() where file.pathExtension == "movpkg" {
+            if !downloadedVideoIds.contains(where: {$0.videoId == file.lastPathComponent.replacingOccurrences(of: ".movpkg", with: "")}) {
                 do {
-                    if !PersistenceModel.shared.currentData.downloadedVideoIds.contains(where: {$0.videoId == file.lastPathComponent.replacingOccurrences(of: ".movpkg", with: "")}) {
-                        Logger.atwyLogs.simpleLog("Removing file: \(file.lastPathComponent), because it's not in CoreData.")
-                        try FileManager.default.removeItem(at: file)
-                        fileList.remove(at: index - newFileList.count + fileList.count)
-                    }
+                    Logger.atwyLogs.simpleLog("Removing file: \(file.lastPathComponent), because it's not in CoreData.")
+                    try FileManager.default.removeItem(at: file)
                 } catch {
                     Logger.atwyLogs.simpleLog("Couldn't delete file: \(error.localizedDescription)")
                 }
-            }
-        } else {
-            for downloadedVideoId in downloadedVideoIds.map({$0.videoId}) {
-                for (index, file) in newFileList.enumerated() where file.pathExtension == "movpkg" {
-                    do {
-                        if file.lastPathComponent.contains(downloadedVideoId) {
-                            Logger.atwyLogs.simpleLog("Found downloaded video in CoreData, but it's not in the downloaded folder. Removing file: \(file.lastPathComponent).")
-                            try FileManager.default.removeItem(at: file)
-                            fileList.remove(at: index - newFileList.count + fileList.count)
-                        }
-                    } catch {
-                        Logger.atwyLogs.simpleLog("Couldn't delete file: \(error.localizedDescription)")
-                    }
-                }
+            } else {
+                newFileList.append(file)
             }
         }
         DispatchQueue.main.async {
