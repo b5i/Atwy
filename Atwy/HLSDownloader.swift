@@ -119,6 +119,10 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                 YTM.customHeaders[.videoInfos] = nil
                 
                 if let streamingURL = firstFetchResult.streamingURL {
+                    DispatchQueue.main.safeSync {
+                        self.downloadInfo.videoDescription = firstFetchResult.videoDescription
+                    }
+                    
                     let defaultLocaleCode = firstFetchResult.downloadFormats
                         .compactMap { $0 as? VideoInfosWithDownloadFormatsResponse.AudioOnlyFormat }
                         .first(where: { $0.formatLocaleInfos?.isDefaultAudioFormat == true })?.formatLocaleInfos?.localeId

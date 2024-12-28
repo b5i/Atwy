@@ -393,6 +393,8 @@ class PersistenceModel: ObservableObject {
         let backgroundContext = self.controller.container.newBackgroundContext()
         return backgroundContext.performAndWait {
             let fetchRequest = DownloadedVideo.fetchRequest()
+            fetchRequest.includesSubentities = true
+            fetchRequest.includesPropertyValues = true
             fetchRequest.returnsObjectsAsFaults = false
             fetchRequest.fetchLimit = 1
             fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)

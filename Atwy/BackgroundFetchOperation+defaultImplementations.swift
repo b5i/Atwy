@@ -30,7 +30,7 @@ extension BackgroundFetchOperation {
     }
     
     static func scheduleTask() {
-        Task {
+        Task.detached {
             let request = BGAppRefreshTaskRequest(identifier: Self.identifier)
             
             //request.earliestBeginDate = Date.now + fetchInterval

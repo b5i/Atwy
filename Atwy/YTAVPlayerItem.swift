@@ -118,7 +118,9 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     func fetchMoreInfos() {
         guard NetworkReachabilityModel.shared.connected else { return }
         guard self.moreVideoInfos == nil, !self.isFetchingMoreVideoInfos else { return }
-        self.isFetchingMoreVideoInfos = true
+        DispatchQueue.main.safeSync {
+            self.isFetchingMoreVideoInfos = true
+        }
         
         Task.detached { [weak self] in
             guard let self = self else { return }
