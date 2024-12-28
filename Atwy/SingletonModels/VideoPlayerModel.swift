@@ -271,6 +271,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                        }
                 //                    } else {
                 
+                guard self.loadingVideo?.videoId == video.videoId else { return }
                 self.player.replaceCurrentItem(with: newItem)
                 await self.player.updateEndAction()
                 if let seekTo = seekTo {
@@ -282,7 +283,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
                     self.objectWillChange.send()
                 }
             } catch {
-                guard self.loadingVideo?.videoId == video.videoId else { return }
                 Logger.atwyLogs.simpleLog("Error while trying to load video: \(error)")
                 NotificationCenter.default.post(name: .atwyDismissPlayerSheet, object: nil)
             }
