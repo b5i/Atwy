@@ -197,7 +197,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                 
                 for chapter in self.downloadInfo.videoInfo?.chapters ?? [] {
                     guard let startTimeSeconds = chapter.startTimeSeconds else { continue }
-                    var chapterEntity = DownloadedVideoChapter.NonEntityDownloadedVideoChapter(startTimeSeconds: Int32(startTimeSeconds), shortTimeDescription: chapter.timeDescriptions.shortTimeDescription)
+                    var chapterEntity = WrappedDownloadedVideoChapter(startTimeSeconds: Int32(startTimeSeconds), shortTimeDescription: chapter.timeDescriptions.shortTimeDescription)
                     if let chapterThumbnailURL = chapter.thumbnail.last?.url {
                         let imageTask = DownloadImageOperation(imageURL: chapterThumbnailURL)
                         imageTask.start()
@@ -371,7 +371,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         let video: YTVideo
         let timestamp = Date()
         var videoInfo: MoreVideoInfosResponse?
-        var chapters: [DownloadedVideoChapter.NonEntityDownloadedVideoChapter] = []
+        var chapters: [WrappedDownloadedVideoChapter] = []
         var thumbnailData: Data?
         var thumbnailURL: URL?
         var channelThumbnailData: Data?

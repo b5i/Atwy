@@ -52,7 +52,7 @@ extension DownloadedVideo {
             timePosted: self.timePosted,
             thumbnail: self.thumbnail,
             storageLocation: self.storageLocation,
-            chaptersArray: self.chaptersArray
+            chaptersArray: self.chaptersArray.map(\.wrapped)
         )
     }
 }
@@ -90,5 +90,5 @@ public struct WrappedDownloadedVideo {
     public var thumbnail: Data?
     public var storageLocation: URL
     
-    public var chaptersArray: [DownloadedVideoChapter]
+    public var chaptersArray: [WrappedDownloadedVideoChapter]
 }
