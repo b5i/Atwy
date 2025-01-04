@@ -89,6 +89,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
 
         let asset: AVURLAsset
         
+        /*
         if !isDownloaded {
             let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
             components?.scheme = "customloader"
@@ -97,6 +98,9 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         } else {
             asset = AVURLAsset(url: url)
         }
+         */
+        
+        asset = AVURLAsset(url: url)
         
         super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         
