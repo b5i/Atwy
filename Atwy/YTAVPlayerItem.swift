@@ -255,18 +255,29 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             } catch {}
         }
     }
-    
-    func mergeRepliesToComment(_ commentId: String, replies: [YTComment], newToken: String?) {        
+        
+    func mergeRepliesToComment(_ commentId: String, replies: [YTComment], newToken: String?) {
         guard let commentIndex = self.getCommentIndex(forId: commentId) else { return }
         
         if let replyIndex = commentIndex.replyIndex {
             self.comments?.results[commentIndex.commentIndex].replies[replyIndex].replies.append(contentsOf: replies)
             self.comments?.results[commentIndex.commentIndex].replies[replyIndex].actionsParams[.repliesContinuation] = newToken
+            
+            self.comments?.results[commentIndex.commentIndex].replies = self.comments?.results[commentIndex.commentIndex].replies.unique({$0.commentIdentifier == $1.commentIdentifier}) ?? []
             return
         } else {
             self.comments?.results[commentIndex.commentIndex].replies.append(contentsOf: replies)
             self.comments?.results[commentIndex.commentIndex].actionsParams[.repliesContinuation] = newToken
+            
+            self.comments?.results[commentIndex.commentIndex].replies = self.comments?.results[commentIndex.commentIndex].replies.unique({$0.commentIdentifier == $1.commentIdentifier}) ?? []
+            return
         }
+    }
+    
+    func addReplyToComment(_ commentId: String, reply: YTComment) {
+        guard let commentIndex = self.getCommentIndex(forId: commentId) else { return }
+
+        self.comments?.results[commentIndex.commentIndex].replies.insert(reply, at: (commentIndex.replyIndex ?? -1) + 1)
     }
     
     struct CommentPosition {

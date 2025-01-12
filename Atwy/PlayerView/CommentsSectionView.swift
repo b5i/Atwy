@@ -54,11 +54,19 @@ struct CommentsSectionView: View {
 struct CommentView: View {
     let comment: YTComment
     
+    var baseReplyText: String? = nil
+    @State private var baseReplyTextAlreadySet: Bool = false
+    
     @State private var isExpanded: Bool = false
     @State private var textHeight: CGFloat? = nil
     
     @State private var repliesExpanded: Bool = false
     @State private var isFetchingNewReplies: Bool = false
+    
+    @State private var isReplying: Bool = false
+    @State private var replyText: String = ""
+    @State private var replyTextSize: CGFloat? = nil
+    @State private var isSubmittingReply: Bool = false
     
     private let maxLines: Int = 5
     
@@ -73,7 +81,7 @@ struct CommentView: View {
     private let otherStuffThanTextHeight: CGFloat = 120
     
     private var nonExpandedBlocHeight: CGFloat {
-        (self.textHeight ?? 0) + otherStuffThanTextHeight
+        (self.textHeight ?? 0) + otherStuffThanTextHeight + (isReplying ? (replyTextSize ?? 0) + 20 : 0)
     }
     
     private let commentFontSize: CGFloat = 14
@@ -100,14 +108,14 @@ struct CommentView: View {
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(nil)
                                     .fixedSize(horizontal: false, vertical: true)
-                                    .overlay(
+                                    .overlay {
                                         GeometryReader { geometry in
                                             Color.clear
                                                 .onAppear {
                                                     self.textHeight = geometry.size.height
                                                 }
                                         }
-                                    )
+                                    }
                                     .frame(height: 99999)
                                     .hidden()
                             }
@@ -137,6 +145,11 @@ struct CommentView: View {
             }
         }
         .clipped()
+        .onAppear {
+            if !self.baseReplyTextAlreadySet, let baseReplyText = self.baseReplyText {
+                self.replyText = baseReplyText
+            }
+        }
     }
     
     @ViewBuilder private var topUtilitiesView: some View {
@@ -187,71 +200,130 @@ struct CommentView: View {
     @ViewBuilder private var bottomUtilitiesView: some View {
         let displayLikeButton = comment.likesCount != nil || comment.likeState != nil || comment.actionsParams[.like] != nil
         let displayDislikeButton = comment.actionsParams[.dislike] != nil
-        let displayReplyButton = comment.actionsParams[.reply] != nil || !comment.replies.isEmpty
+        let displayReplyButton = comment.actionsParams[.reply] != nil
         
         let isSomethingInThisBar = displayReplyButton || displayLikeButton || displayDislikeButton || comment.totalRepliesNumber != nil
-        HStack {
-            if displayLikeButton {
-                Button {
-                    if comment.likeState == .liked {
-                        VideoPlayerModel.shared.currentItem?.commentLikeAction(.removeLike, comment: comment)
-                    } else {
-                        VideoPlayerModel.shared.currentItem?.commentLikeAction(.like, comment: comment)
+        VStack {
+            HStack {
+                if displayLikeButton {
+                    Button {
+                        if comment.likeState == .liked {
+                            VideoPlayerModel.shared.currentItem?.commentLikeAction(.removeLike, comment: comment)
+                        } else {
+                            VideoPlayerModel.shared.currentItem?.commentLikeAction(.like, comment: comment)
+                        }
+                    } label: {
+                        Image(systemName: comment.likeState == .liked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                        if let likeCount = comment.likeState == .liked ? comment.likesCountWhenUserLiked ?? comment.likesCount : comment.likesCount {
+                            Text(likeCount)
+                        }
                     }
-                } label: {
-                    Image(systemName: comment.likeState == .liked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                    if let likeCount = comment.likeState == .liked ? comment.likesCountWhenUserLiked ?? comment.likesCount : comment.likesCount {
-                        Text(likeCount)
-                    }
+                    .disabled(comment.actionsParams[.like] == nil)
+                    .buttonStyle(.plain)
+                    .foregroundStyle(accessoriesColor)
                 }
-                .disabled(comment.actionsParams[.like] == nil)
-                .buttonStyle(.plain)
-                .foregroundStyle(accessoriesColor)
+                if displayDislikeButton {
+                    Button {
+                        if comment.likeState == .disliked {
+                            VideoPlayerModel.shared.currentItem?.commentLikeAction(.removeDislike, comment: comment)
+                        } else {
+                            VideoPlayerModel.shared.currentItem?.commentLikeAction(.dislike, comment: comment)
+                        }
+                    } label: {
+                        Image(systemName: comment.likeState == .disliked ? "hand.thumbsdown.fill" : "hand.thumbsdown")
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, displayLikeButton ? nil : 0)
+                    .foregroundStyle(accessoriesColor)
+                }
+                Spacer()
+                if let totalRepliesNumber = comment.totalRepliesNumber ?? (comment.replies.isEmpty ? nil : String(comment.replies.count)), !totalRepliesNumber.isEmpty {
+                    Button {
+                        withAnimation {
+                            self.repliesExpanded.toggle()
+                        }
+                    } label: {
+                        Text(totalRepliesNumber == "1" ? totalRepliesNumber + " reply" : totalRepliesNumber + " replies")
+                        Image(systemName: "chevron.down")
+                            .rotationEffect(.degrees(self.repliesExpanded ? -180 : 0))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(accessoriesColor)
+                }
+                
+                if displayReplyButton {
+                    Button {
+                        withAnimation {
+                            self.isReplying.toggle()
+                        }
+                    } label: {
+                        if self.isSubmittingReply {
+                            ProgressView()
+                                .tint(self.accessoriesColor)
+                        } else {
+                            Image(systemName: "bubble.and.pencil")
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, displayLikeButton ? nil : 0)
+                    .foregroundStyle(accessoriesColor)
+                }
             }
-            if displayDislikeButton {
-                Button {
-                    if comment.likeState == .disliked {
-                        VideoPlayerModel.shared.currentItem?.commentLikeAction(.removeDislike, comment: comment)
-                    } else {
-                        VideoPlayerModel.shared.currentItem?.commentLikeAction(.dislike, comment: comment)
-                    }
-                } label: {
-                    Image(systemName: comment.likeState == .disliked ? "hand.thumbsdown.fill" : "hand.thumbsdown")
-                }
-                .buttonStyle(.plain)
-                .padding(.leading, displayLikeButton ? nil : 0)
-                .foregroundStyle(accessoriesColor)
-            }
-            Spacer()
-            if let totalRepliesNumber = comment.totalRepliesNumber ?? (comment.replies.isEmpty ? nil : String(comment.replies.count)), !totalRepliesNumber.isEmpty {
-                Button {
-                    withAnimation {
-                        self.repliesExpanded.toggle()
-                    }
-                } label: {
-                    Text(totalRepliesNumber == "1" ? totalRepliesNumber + " reply" : totalRepliesNumber + " replies")
-                    Image(systemName: "chevron.down")
-                        .rotationEffect(.degrees(self.repliesExpanded ? -180 : 0))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(accessoriesColor)
-            }
-            
-            // TODO: implement this button
-            if displayReplyButton && false {
-                Button {
-                    
-                } label: {
-                    Image(systemName: "bubble.and.pencil")
-                }
-                .buttonStyle(.plain)
-                .padding(.leading, displayLikeButton ? nil : 0)
-                .foregroundStyle(accessoriesColor)
+            if isReplying {
+                replyTextField
+                    .padding(.top)
             }
         }
         .padding(.top, isSomethingInThisBar ? 5 : 0)
         .frame(maxHeight: isSomethingInThisBar ? .infinity : 0, alignment: .bottom)
         .clipped()
+    }
+    
+    @ViewBuilder private var replyTextField: some View {
+        TextField("Comment", text: self.$replyText, prompt: Text("Comment").foregroundColor(accessoriesColor), axis: .vertical)
+            .textFieldStyle(ReplyCommentTextFieldStyle())
+            .background {
+                TextField("CommentHidden", text: self.$replyText, prompt: Text("CommentHidden").foregroundColor(accessoriesColor), axis: .vertical)
+                    .textFieldStyle(ReplyCommentTextFieldStyle())
+                    .disabled(true)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .overlay {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    self.replyTextSize = geometry.size.height
+                                }
+                        }
+                        .id(self.replyText)
+                    }
+                    .hidden()
+            }
+            .submitLabel(.send)
+            .onSubmit {
+                withAnimation {
+                    self.isSubmittingReply = true
+                }
+                Task {
+                    do {
+                        let result = try await self.comment.replyToComment(youtubeModel: YTM, text: self.replyText)
+                        guard result.success, let newComment = result.newComment else { return }
+                        DispatchQueue.main.safeSync {
+                            self.replyText = ""
+                            withAnimation {
+                                VideoPlayerModel.shared.currentItem?.addReplyToComment(self.comment.commentIdentifier, reply: newComment)
+                                self.isReplying = false
+                                self.repliesExpanded = true
+                            }
+                        }
+                    } catch {}
+                    
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            self.isSubmittingReply = false
+                        }
+                    }
+                }
+            }
     }
     
     @ViewBuilder private var repliesView: some View {
@@ -264,7 +336,7 @@ struct CommentView: View {
                     .padding(.leading)
                 LazyVStack {
                     ForEach(self.comment.replies, id: \.commentIdentifier) { reply in
-                        CommentView(comment: reply)
+                        CommentView(comment: reply, baseReplyText: self.comment.sender?.name != nil ? (self.comment.sender?.name ?? "") + " " : nil)
                     }
                 }
             }
@@ -290,7 +362,7 @@ struct CommentView: View {
                                 DispatchQueue.main.async {
                                     withAnimation {
                                         self.isFetchingNewReplies = false
-                                        self.repliesExpanded = false
+                                        self.repliesExpanded = !self.comment.replies.isEmpty
                                     }
                                 }
                             }
@@ -298,6 +370,21 @@ struct CommentView: View {
                     }
             }
         }
+    }
+}
+
+struct ReplyCommentTextFieldStyle: TextFieldStyle {
+    let borderColor: Color = Color(cgColor: .init(red: 0.85, green: 0.85, blue: 0.85, alpha: 1))
+    
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration.body
+            .foregroundStyle(.white)
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(style: .init(lineWidth: 2))
+                    .foregroundStyle(borderColor)
+            }
     }
 }
 
@@ -309,7 +396,7 @@ struct CommentView: View {
         .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video!", timePosted: "2 days ago", replies: [], actionsParams: [:]),
         .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video!", timePosted: "2 days ago",  likesCount: "1", likesCountWhenUserLiked: "2", replies: [], totalRepliesNumber: "gg",actionsParams: [.like: "test", .dislike: "test", .reply: "rep"]),
         .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video!", timePosted: "2 days ago", replies: [], actionsParams: [.dislike: "test", .reply: "rep"]),
-        .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video! This is a very very very very very very very very very very very very very long comment",  timePosted: "2 days ago", replies: [], actionsParams: [:]),
+        .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video! This is a very very very very very very very very very very very very very long comment",  timePosted: "2 days ago", replies: [], actionsParams: [.reply: ""]),
         .init(commentIdentifier: UUID().uuidString, sender: .init(name: "Antoine Bollengier", channelId: "", thumbnails: [.init(url: .init(string: "https://yt3.ggpht.com/8e1-6kx0mo8BRgIkkO4u7auZlaACmHyAvaEeEtl1mW6csiZtli6p-PHDi7-R5ZkT-Afr98X_=s68-c-k-c0x00ffffff-no-rj")!)]), text: "Amazing video! This is a very \(Array(repeating: "very", count: 100).joined(separator: " ")) long comment", timePosted: "2 days ago", likesCount: "10", replies: [], actionsParams: [:])
     ]
     
