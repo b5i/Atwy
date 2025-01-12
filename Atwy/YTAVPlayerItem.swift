@@ -22,7 +22,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     let video: YTVideo
     var streamingInfos: VideoInfosResponse
     
-    @Published var isFetchingMoreVideoInfos: Bool = false
+    @Published private(set) var isFetchingMoreVideoInfos: Bool = false
     @Published var isFetchingMoreRecommendedVideos: Bool = false
     
     var isAbleToLike: Bool {
@@ -46,6 +46,9 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             }
         }
     }
+    
+    @Published private(set) var comments: VideoCommentsResponse? = nil
+    @Published private(set) var isFetchingComments: Bool = false
     
     var chapters: [Chapter]?
     var videoThumbnailData: Data? = nil
@@ -172,6 +175,138 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                 self.isFetchingMoreRecommendedVideos = false
             }
         })
+    }
+    
+    func fetchVideoComments() {
+        guard !self.isFetchingComments, let commentsToken = self.moreVideoInfos?.commentsContinuationToken else { return }
+        
+        DispatchQueue.main.safeSync {
+            self.isFetchingComments = true
+        }
+        
+        Task {
+            do {
+                let comments = try await VideoCommentsResponse.sendThrowingRequest(youtubeModel: YTM, data: [.continuation: commentsToken])
+                
+                DispatchQueue.main.safeSync {
+                    self.comments = comments
+                }
+            } catch {
+                Logger.atwyLogs.simpleLog("Couldn't fetch comments: \(error.localizedDescription)")
+            }
+            
+            DispatchQueue.main.safeSync {
+                self.isFetchingComments = false
+            }
+        }
+    }
+    
+    func fetchVideoCommentsContinuation() {
+        guard !self.isFetchingComments, let comments  = self.comments else { return }
+        
+        DispatchQueue.main.safeSync {
+            self.isFetchingComments = true
+        }
+        
+        Task {
+            do {
+                let continuation = try await comments.fetchContinuationThrowing(youtubeModel: YTM)
+                
+                DispatchQueue.main.safeSync {
+                    self.comments?.mergeContinuation(continuation)
+                }
+            } catch {
+                Logger.atwyLogs.simpleLog("Couldn't fetch continuation of comments: \(error.localizedDescription)")
+            }
+            
+            DispatchQueue.main.safeSync {
+                self.isFetchingComments = false
+            }
+        }
+    }
+    
+    func commentLikeAction(_ action: YTComment.CommentAction, comment: YTComment) {
+        Task {
+            do {
+                switch action {
+                case .like:
+                    if comment.likeState != .liked {
+                        try await comment.commentAction(youtubeModel: YTM, action: .like)
+                        self.changeLikeStatusWithId(comment.commentIdentifier, newStatus: .liked)
+                    }
+                case .dislike:
+                    if comment.likeState != .disliked {
+                        try await comment.commentAction(youtubeModel: YTM, action: .dislike)
+                        self.changeLikeStatusWithId(comment.commentIdentifier, newStatus: .disliked)
+                    }
+                case .removeLike:
+                    if comment.likeState == .liked {
+                        try await comment.commentAction(youtubeModel: YTM, action: .removeLike)
+                        self.changeLikeStatusWithId(comment.commentIdentifier, newStatus: .nothing)
+                    }
+                case .removeDislike:
+                    if comment.likeState == .disliked {
+                        try await comment.commentAction(youtubeModel: YTM, action: .removeDislike)
+                        self.changeLikeStatusWithId(comment.commentIdentifier, newStatus: .nothing)
+                    }
+                default:
+                    return
+                }
+            } catch {}
+        }
+    }
+    
+    func mergeRepliesToComment(_ commentId: String, replies: [YTComment], newToken: String?) {        
+        guard let commentIndex = self.getCommentIndex(forId: commentId) else { return }
+        
+        if let replyIndex = commentIndex.replyIndex {
+            self.comments?.results[commentIndex.commentIndex].replies[replyIndex].replies.append(contentsOf: replies)
+            self.comments?.results[commentIndex.commentIndex].replies[replyIndex].actionsParams[.repliesContinuation] = newToken
+            return
+        } else {
+            self.comments?.results[commentIndex.commentIndex].replies.append(contentsOf: replies)
+            self.comments?.results[commentIndex.commentIndex].actionsParams[.repliesContinuation] = newToken
+        }
+    }
+    
+    struct CommentPosition {
+        var commentIndex: Int
+        var replyIndex: Int?
+    }
+        
+    func getCommentIndex(forId commentId: String) -> CommentPosition? {
+        guard let comments = self.comments else { return nil }
+        for (index, comment) in comments.results.enumerated() {
+            if comment.commentIdentifier == commentId {
+                return CommentPosition(commentIndex: index, replyIndex: nil)
+            }
+            
+            if let commentPosition = comment.replies.firstIndex(where: {$0.commentIdentifier == commentId}) {
+                return CommentPosition(commentIndex: index, replyIndex: commentPosition)
+            }
+        }
+        
+        return nil
+    }
+    
+    func changeLikeStatusAtPosition(_ position: CommentPosition, newStatus: YTLikeStatus) {
+        guard self.comments != nil else { return }
+        
+        guard self.comments?.results.count ?? 0 > position.commentIndex else { return }
+        
+        if let replyIndex = position.replyIndex {
+            guard self.comments?.results[position.commentIndex].replies.count ?? 0 > replyIndex else { return }
+            self.comments?.results[position.commentIndex].replies[replyIndex].likeState = newStatus
+        } else {
+            self.comments?.results[position.commentIndex].likeState = newStatus
+        }
+    }
+    
+    func changeLikeStatusWithId(_ commentId: String, newStatus: YTLikeStatus) {
+        DispatchQueue.main.async {
+            guard let position = self.getCommentIndex(forId: commentId) else { return }
+            self.changeLikeStatusAtPosition(position, newStatus: newStatus)
+        }
     }
     
     func setNewLikeStatus(_ likeStatus: YTLikeStatus) {

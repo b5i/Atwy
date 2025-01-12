@@ -24,8 +24,38 @@ struct WatchVideoView: View {
     @State private var usedAnimationColors: [Color] = [.white, .gray, .white, .gray]
     @State private var animateStartPoint: UnitPoint = .topLeading
     @State private var animateEndPoint: UnitPoint = .bottomTrailing
-    @State private var showQueue: Bool = false
-    @State private var showDescription: Bool = false
+    @State private var showQueue: Bool = false {
+        willSet {
+            if showDescription {
+                showDescription = false
+            }
+            
+            if showComments {
+                showComments = false
+            }
+        }
+    }
+    @State private var showDescription: Bool = false {
+        willSet {
+            if showQueue {
+                showQueue = false
+            }
+            
+            if showComments {
+                showComments = false
+            }
+        }
+    }
+    @State private var showComments: Bool = false {
+        willSet {
+            if showDescription {
+                showDescription = false
+            }
+            if showQueue {
+                showQueue = false
+            }
+        }
+    }
     @Namespace private var animation
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
@@ -63,16 +93,17 @@ struct WatchVideoView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {
+                        let menuShown = showQueue || showDescription || showComments
                         VStack {
                             ZStack {
-                                ZStack(alignment: (showQueue || showDescription) ? .topLeading : .center) {
+                                ZStack(alignment: menuShown ? .topLeading : .center) {
                                     ZStack {
                                         Rectangle()
                                             .fill(Color.black.opacity(0.4))
                                             .shadow(radius: 10)
                                     }
-                                    //                                .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: (showQueue || showDescription) ? geometry.size.height * 0.40 : geometry.size.height * 0.45)
-                                    .frame(width: geometry.size.width, height: (showQueue || showDescription) ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
+                                    //                                .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: menuShown ? geometry.size.height * 0.40 : geometry.size.height * 0.45)
+                                    .frame(width: geometry.size.width, height: menuShown ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
                                     .padding(.top, -geometry.size.height * 0.01)
                                     //.padding(.bottom, geometry.size.height * 0.05)
                                     //(showQueue || showDescription) ? :
@@ -82,8 +113,8 @@ struct WatchVideoView: View {
                                                 player: VPM.player,
                                                 controller: VPM.controller
                                             )
-                                            .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
-                                            .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
+                                            .frame(width: menuShown ? geometry.size.width / 2 : geometry.size.width, height: menuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
+                                            .padding(.top, menuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
                                             .shadow(radius: 10)
                                             /* TODO: Remove that in a future version (17/04/2024)
                                              .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
@@ -93,15 +124,14 @@ struct WatchVideoView: View {
                                              })*/
                                             
                                         } else if VPM.isLoadingVideo {
-                                            LoadingView()
-                                                .tint(.white)
+                                            LoadingView(style: .light)
                                                 .frame(alignment: .center)
                                         }
                                         //                                    VideoPlayer(player: player)
-                                        //                                        .frame(width: (showQueue || showDescription) ? geometry.size.width / 2 : geometry.size.width, height: (showQueue || showDescription) ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
-                                        //                                        .padding(.top, (showQueue || showDescription) ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
+                                        //                                        .frame(width: menuShown ? geometry.size.width / 2 : geometry.size.width, height: menuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
+                                        //                                        .padding(.top, menuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
                                         //                                        .shadow(radius: 10)
-                                        if showQueue || showDescription {
+                                        if menuShown {
                                             ZStack {
                                                 VStack(alignment: .leading) {
                                                     Text(VPM.currentItem?.video.title ?? "")
@@ -132,11 +162,11 @@ struct WatchVideoView: View {
                                 HStack(alignment: .bottom) {
                                     OptionalItemChannelAvatarView(makeGradient: makeGradient)
                                         .padding(.horizontal)
-                                        .frame(height: (showDescription || showQueue) ? 0 : geometry.size.height * 0.07)
+                                        .frame(height: menuShown ? 0 : geometry.size.height * 0.07)
                                         .padding(.vertical)
                                         .shadow(radius: 5)
-                                        .offset(x: (showQueue || showDescription) ? -geometry.size.width * 0.55 : 0, y: (showQueue || showDescription) ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
-                                    if !(showQueue || showDescription) {
+                                        .offset(x: menuShown ? -geometry.size.width * 0.55 : 0, y: menuShown ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
+                                    if !menuShown {
                                         VStack(alignment: .leading, spacing: 2) {
                                             let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
                                             Text(videoTitle)
@@ -182,7 +212,7 @@ struct WatchVideoView: View {
                         GeometryReader { scrollViewGeometry in
                             if let playerItem = self.VPM.currentItem {
                                 RecommendedVideosView(playerItem: playerItem, topSpacing: 80, bottomSpacing: geometry.size.height * 0.12)
-                                    .frame(height: !(showQueue || showDescription) ? max(180, scrollViewGeometry.size.height) : 0)
+                                    .frame(height: !menuShown ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
                                     .environment(\.colorScheme, .dark)
                             }
@@ -227,6 +257,11 @@ struct WatchVideoView: View {
                             PlayingQueueView()
                                 .opacity(showQueue ? 1 : 0)
                                 .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
+                            if let currentItem = VPM.currentItem {
+                                CommentsSectionView(currentItem: currentItem)
+                                    .opacity(showComments ? 1 : 0)
+                                    .frame(height: showComments ? geometry.size.height * 0.85 - 120 : 0)
+                            }
                             Spacer()
                         }
                         .padding(.bottom, geometry.size.height * 0.12)
@@ -236,13 +271,13 @@ struct WatchVideoView: View {
                                     .ignoresSafeArea()
                                 ScrollView(.horizontal) {
                                     HStack {
-                                        Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
+                                        Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
                                         Group {
                                             if let currentItem = VPM.currentItem {
                                                 VideoAppreciationView(currentItem: currentItem)
                                             }
                                         }
-                                        .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                        .opacity(!menuShown ? 1 : 0)
                                         if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
                                             if NRM.connected {
                                                 ZStack {
@@ -257,7 +292,7 @@ struct WatchVideoView: View {
                                                     DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
                                                         .foregroundStyle(.white)
                                                 }
-                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .opacity(!menuShown ? 1 : 0)
                                                 .frame(width: 60)
                                                 .padding(.horizontal, 10)
                                                 .contextMenu(menuItems: {
@@ -274,7 +309,7 @@ struct WatchVideoView: View {
                                                 })
                                             }
                                             AddToFavoriteWidgetView(video: video, imageData: VPM.currentItem?.videoThumbnailData)
-                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .opacity(!menuShown ? 1 : 0)
                                                 .frame(width: 60)
                                                 .padding(.trailing, 10)
                                             Button {
@@ -292,7 +327,7 @@ struct WatchVideoView: View {
                                                         .foregroundStyle(.white)
                                                 }
                                             }
-                                            .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                            .opacity(!menuShown ? 1 : 0)
                                             .frame(width: 60)
                                             .padding(.trailing, 10)
                                             if NRM.connected {
@@ -311,20 +346,20 @@ struct WatchVideoView: View {
                                                             .foregroundStyle(.white)
                                                     }
                                                 }
-                                                .opacity(!(showQueue || showDescription) ? 1 : 0)
+                                                .opacity(!menuShown ? 1 : 0)
                                                 .frame(width: 60)
                                                 .padding(.trailing, 10)
                                             }
                                         }
-                                        Color.clear.frame(width: 10, height: !(showQueue || showDescription) ? 50 : 0)
+                                        Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
                                     }
                                 }
                                 .scrollIndicators(.hidden)
                                 .padding(.vertical, 15)
-                                .frame(height: !(showQueue || showDescription) ? 80 : 0)
+                                .frame(height: !menuShown ? 80 : 0)
                                 .mask(FadeInOutView(mode: .horizontal))
                             }
-                            .frame(height: !(showQueue || showDescription) ? 80 : 0)
+                            .frame(height: !menuShown ? 80 : 0)
                         })
                         .overlay(alignment: .bottom, content: {
                             ZStack {
@@ -332,12 +367,10 @@ struct WatchVideoView: View {
                                     .ignoresSafeArea()
                                 HStack {
                                     let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
+                                    let canLoadComments = VPM.currentItem?.moreVideoInfos != nil
                                     Spacer()
                                     Button {
                                         withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                            if showQueue {
-                                                showQueue = false
-                                            }
                                             showDescription.toggle()
                                         }
                                     } label: {
@@ -357,16 +390,37 @@ struct WatchVideoView: View {
                                     .opacity(hasDescription ? 1 : 0.5)
                                     .disabled(!hasDescription)
                                     Spacer()
+                                    Button {
+                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
+                                            showComments.toggle()
+                                        }
+                                    } label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .foregroundStyle(showComments ? Color(uiColor: UIColor.lightGray) : .clear)
+                                                .animation(nil, value: 0)
+                                            Image(systemName: "ellipsis.bubble")
+                                                .resizable()
+                                                .foregroundStyle(showComments ? .white : Color(uiColor: UIColor.lightGray))
+                                                .scaledToFit()
+                                                .frame(width: showComments ? 21 : 24)
+                                                .blendMode(showComments ? .exclusion : .screen)
+                                        }
+                                        .frame(width: 30, height: 30)
+                                    }
+                                    .opacity(canLoadComments ? 1 : 0.5)
+                                    .disabled(!canLoadComments)
+                                    //.opacity(hasDescription ? 1 : 0.5)
+                                    //.disabled(!hasDescription)
+                                    /*
                                     AirPlayButton()
                                         .scaledToFit()
                                         .blendMode(.screen)
                                         .frame(width: 50)
+                                     */
                                     Spacer()
                                     Button {
                                         withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                            if showDescription {
-                                                showDescription = false
-                                            }
                                             showQueue.toggle()
                                         }
                                     } label: {
@@ -383,6 +437,9 @@ struct WatchVideoView: View {
                                         }
                                         .frame(width: 30, height: 30)
                                     }
+                                    // TODO: disable the button is the queue is empty
+                                    //.opacity(isQueueEmpty ? 1 : 0.5)
+                                    //.disabled(!isQueueEmpty)
                                     Spacer()
                                 }
                                 .padding(.bottom)

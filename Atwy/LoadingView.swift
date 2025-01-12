@@ -9,7 +9,22 @@ import SwiftUI
 
 struct LoadingView: View {
     var customText: String? = nil
+    var style: LoadingViewStyle = .automatic
+    
+    @Environment(\.colorScheme) private var colorScheme
+    
     var body: some View {
+        let loadingTint: Color = {
+            switch style {
+            case .automatic:
+                return colorScheme.textColor
+            case .dark:
+                return .black
+            case .light:
+                return .white
+            }
+        }()
+        
         VStack {
             ProgressView()
                 .foregroundColor(.gray)
@@ -19,5 +34,11 @@ struct LoadingView: View {
                 .font(.caption2)
         }
         .frame(width: 160, height: 50)
+        .foregroundStyle(loadingTint)
+        .tint(loadingTint)
+    }
+    
+    enum LoadingViewStyle {
+        case automatic, dark, light
     }
 }

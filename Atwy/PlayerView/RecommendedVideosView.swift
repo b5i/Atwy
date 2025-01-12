@@ -32,7 +32,7 @@ struct RecommendedVideosView: View {
                     self.playerItem.fetchMoreRecommendedVideos()
                 }, topSpacing: topSpacing, bottomSpacing: bottomSpacing, orientation: .vertical)
             } else if self.playerItem.isFetchingMoreRecommendedVideos || self.playerItem.isFetchingMoreVideoInfos {
-                LoadingView()
+                LoadingView(style: .light)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {
                 Color.clear.frame(width: 0, height: 0)
