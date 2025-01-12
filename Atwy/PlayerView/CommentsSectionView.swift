@@ -270,6 +270,7 @@ struct CommentView: View {
             }
             if self.isFetchingNewReplies {
                 LoadingView(style: .light)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
             if self.comment.actionsParams[.repliesContinuation] != nil {
                 Color.clear
