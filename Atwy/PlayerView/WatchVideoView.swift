@@ -261,6 +261,7 @@ struct WatchVideoView: View {
                                 CommentsSectionView(currentItem: currentItem)
                                     .opacity(showComments ? 1 : 0)
                                     .frame(height: showComments ? geometry.size.height * 0.85 - 120 : 0)
+                                    .mask(FadeInOutView(mode: .vertical, gradientSize: 15))
                             }
                             Spacer()
                         }

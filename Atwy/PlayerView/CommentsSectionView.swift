@@ -15,7 +15,7 @@ struct CommentsSectionView: View {
     
     var body: some View {
         Group {
-            if currentItem.isFetchingComments == true && currentItem.moreVideoInfos == nil {
+            if currentItem.isFetchingComments == true && currentItem.moreVideoInfos != nil {
                 LoadingView(style: .light)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else if currentItem.comments == nil && self.currentItem.moreVideoInfos != nil {
