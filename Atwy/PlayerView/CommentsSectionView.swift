@@ -125,7 +125,7 @@ struct CommentView: View {
                     .fill(.gray.gradient)
                     .opacity(0.5)
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(style: .init(lineWidth: 2))
+                    .strokeBorder(style: .init(lineWidth: 2))
                     .foregroundStyle(Color(cgColor: .init(red: 0.7, green: 0.7, blue: 0.7, alpha: 1)))
                     .opacity(0.5)
             }
@@ -250,7 +250,6 @@ struct CommentView: View {
             }
         }
         .padding(.top, isSomethingInThisBar ? 5 : 0)
-        .padding(.vertical, 3) // for the light gray stroke
         .frame(maxHeight: isSomethingInThisBar ? .infinity : 0, alignment: .bottom)
         .clipped()
     }
