@@ -200,7 +200,7 @@ struct CommentView: View {
     @ViewBuilder private var bottomUtilitiesView: some View {
         let displayLikeButton = comment.likesCount != nil || comment.likeState != nil || comment.actionsParams[.like] != nil
         let displayDislikeButton = comment.actionsParams[.dislike] != nil
-        let displayReplyButton = comment.actionsParams[.reply] != nil
+        let displayReplyButton = comment.actionsParams[.reply] != nil && false
         
         let isSomethingInThisBar = displayReplyButton || displayLikeButton || displayDislikeButton || comment.totalRepliesNumber != nil
         VStack {
