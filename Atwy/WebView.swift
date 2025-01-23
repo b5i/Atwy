@@ -121,6 +121,7 @@ extension WKWebView {
     
     func getCookies(for domain: String? = nil, completion: @escaping (String) -> Void) {
         httpCookieStore.getAllCookies { cookies in
+            //cookies.filter({$0.domain.contains("youtube")}).map({"\($0.name)=\($0.value)"}).joined(separator: "; ")
             completion("\(cookies)")
         }
     }

@@ -86,6 +86,16 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             isDownloaded = false
             
             guard NetworkReachabilityModel.shared.connected else { throw "Attempted to load a non-downloaded video while being offline." }
+            
+            // get the visitorData if it isn't already set
+            if YTM.visitorData.isEmpty {
+                if let visitorData = try await SearchResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: "homefwhfjoifj"]).visitorData {
+                    YTM.visitorData = visitorData
+                } else {
+                    Logger.atwyLogs.simpleLog("Couldn't get visitorData, request may fail.")
+                }
+            }
+            
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }

@@ -169,7 +169,7 @@ struct SearchView: View {
         public func getVideos(_ end: (() -> Void)? = nil) {
             if !isFetching, !isFetchingContination {
                 if search.isEmpty {
-                    if self.homeResponse == nil {
+                    if self.homeResponse == nil || self.homeResponse?.results.isEmpty ?? true {
                         self.getHomeVideos(end)
                     }
                 } else {
