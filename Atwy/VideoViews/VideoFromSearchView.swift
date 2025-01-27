@@ -21,9 +21,7 @@ struct VideoFromSearchView: View {
             }
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {
-            if PSM.videoViewMode == .halfThumbnail {
-                    VideoView(videoWithData: videoWithData)
-            } else if self.videoWithData.data.videoViewMode == .halfThumbnail {
+            if PSM.videoViewMode == .halfThumbnail || self.videoWithData.data.videoViewMode == .halfThumbnail {
                 VideoView(videoWithData: videoWithData)
             } else {
                 // Big thumbnail view by default

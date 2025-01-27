@@ -4,7 +4,7 @@
 //
 //  Created by Antoine Bollengier on 19.03.2024.
 //  Copyright © 2024 Antoine Bollengier (github.com/b5i). All rights reserved.
-//  
+//
 
 import Foundation
 import YouTubeKit
@@ -162,6 +162,9 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                 
                 self.update()
             }
+            
+            await self.fetchMoreRecommendedVideos()
+            await self.fetchVideoComments()
         }
     }
     
@@ -175,7 +178,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         self.moreVideoInfos?.getRecommendedVideosContination(youtubeModel: YTM, result: { result in
             switch result {
             case .success(let response):
-                DispatchQueue.main.async {
+                DispatchQueue.main.safeSync {
                     self.moreVideoInfos?.mergeRecommendedVideosContination(response)
                 }
             case .failure(_):

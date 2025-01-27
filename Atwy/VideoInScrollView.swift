@@ -15,18 +15,10 @@ struct VideoInScrollView: View {
     
     var body: some View {
         Group {
-            if PSM.videoViewMode == .halfThumbnail {
-                VideoFromSearchView(videoWithData: video)
-                    .frame(width: geometry.size.width, height: 180, alignment: .center)
-            } else if video.data.videoViewMode == .halfThumbnail {
-                VideoFromSearchView(videoWithData: video)
-                    .frame(width: geometry.size.width, height: 180, alignment: .center)
-            } else {
-                // Big thumbnail view by default
-                VideoFromSearchView(videoWithData: video)
-                    .frame(width: geometry.size.width, height: geometry.size.width * 9/16 + 90, alignment: .center)
-                //                                            .padding(.bottom, resultIndex == 0 ? geometry.size.height * 0.2 : 0)
-            }
+            let isHalfThumbnail = PSM.videoViewMode == .halfThumbnail || video.data.videoViewMode == .halfThumbnail
+            // Big thumbnail view by default
+            VideoFromSearchView(videoWithData: video)
+                .frame(width: geometry.size.width, height: isHalfThumbnail ? 180 : geometry.size.width * 9/16 + 90, alignment: .center)
         }
     }
 }
