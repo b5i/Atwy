@@ -18,7 +18,7 @@ struct CommentsSectionView: View {
             if currentItem.isFetchingComments == true && currentItem.comments == nil {
                 LoadingView(style: .light)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            } else if currentItem.comments == nil && self.currentItem.moreVideoInfos != nil {
+            } else if currentItem.comments == nil && currentItem.moreVideoInfos?.commentsContinuationToken != nil  {
                 Color.clear
                     .onAppear {
                         currentItem.fetchVideoComments()
@@ -43,7 +43,7 @@ struct CommentsSectionView: View {
                 }
                 .scrollContentBackground(.hidden)
             } else {
-                Text("Can't load comments at the moment")
+                Text("No comments")
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
