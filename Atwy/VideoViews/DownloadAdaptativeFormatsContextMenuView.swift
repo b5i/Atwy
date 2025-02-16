@@ -84,14 +84,7 @@ struct DownloadAdaptativeFormatsContextMenuView: View {
                 Text("Loading formats...")
                     .task {
                         if self.formats == nil {
-                            // get the visitorData if it isn't already set
-                            if YTM.visitorData.isEmpty {
-                                if let visitorData = try? await SearchResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: "homefwhfjoifj"]).visitorData {
-                                    YTM.visitorData = visitorData
-                                } else {
-                                    Logger.atwyLogs.simpleLog("Couldn't get visitorData, request may fail.")
-                                }
-                            }
+                            await YTM.getVisitorData()
                             self.formats = try? await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
                         }
                     }

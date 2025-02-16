@@ -62,6 +62,7 @@ struct WatchVideoView: View {
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
+    @ObservedObject private var IUTM = IsUserTypingModel.shared
     var body: some View {
         ZStack {
             GeometryReader { geometry in

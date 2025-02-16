@@ -114,6 +114,8 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                     ]
                 )
                 
+                await YTM.getVisitorData()
+                
                 let firstFetchResult = try await self.downloadInfo.video.fetchStreamingInfosThrowing(youtubeModel: YTM)
                 
                 YTM.customHeaders[.videoInfos] = nil
@@ -129,6 +131,7 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
                     if defaultLocaleCode == nil {
                         self.downloadHLS(downloadURL: streamingURL, defaultLocaleCode: nil)
                     } else {
+                        await YTM.getVisitorData()
                         let newResponse = try await self.downloadInfo.video.fetchStreamingInfosThrowing(youtubeModel: YTM)
                         
                         let audioDownloadFormat = newResponse.downloadFormats
