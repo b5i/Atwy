@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftUI
+import CoreImage.CIFilterBuiltins
 
 class VariableBlurEffectView: UIVisualEffectView {
     let orientation: Orientation
@@ -67,7 +68,7 @@ class VariableBlurEffectView: UIVisualEffectView {
 
         guard let cgMaskImage = Self.imageForOrientation[orientation] else { return false }
         
-        variableBlur.setValue(30, forKey: "inputRadius")
+        variableBlur.setValue(20, forKey: "inputRadius")
         variableBlur.setValue(cgMaskImage, forKey: "inputMaskImage")
         variableBlur.setValue(true, forKey: "inputNormalizeEdges")
         
@@ -88,6 +89,7 @@ class VariableBlurEffectView: UIVisualEffectView {
     }
     
     private static func createAlphaGradientImage(size: CGSize, orientation: Orientation) -> UIImage? {
+        
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let colors: [CGColor]
         if orientation == .bottomToTop {

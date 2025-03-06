@@ -24,8 +24,8 @@ struct AddToFavoriteWidgetView: View {
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(.white)
-                    .opacity(0.3)
+                    .foregroundStyle(.ultraThinMaterial)
+                    .preferredColorScheme(.light)
                     .frame(height: 45)
                 Image(systemName: isFavorite ? "star.fill" : "star")
                     .resizable()

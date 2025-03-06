@@ -210,9 +210,10 @@ struct WatchVideoView: View {
                             }
                             .ignoresSafeArea()
                         }
+                        let bottomBarHeight: CGFloat = geometry.safeAreaInsets.bottom + 50
                         GeometryReader { scrollViewGeometry in
                             if let playerItem = self.VPM.currentItem {
-                                RecommendedVideosView(playerItem: playerItem, topSpacing: 80, bottomSpacing: geometry.size.height * 0.12)
+                                RecommendedVideosView(playerItem: playerItem)
                                     .frame(height: !menuShown ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
                                     .environment(\.colorScheme, .dark)
@@ -266,7 +267,8 @@ struct WatchVideoView: View {
                             }
                             Spacer()
                         }
-                        .padding(.bottom, geometry.size.height * 0.12)
+                        .contentMargins(.bottom, length: bottomBarHeight)
+                        .contentMargins(.top, length: !menuShown ? 80 : 0)
                         .overlay(alignment: .top, content: {
                             ZStack {
                                 VariableBlurView(orientation: .topToBottom)
@@ -284,8 +286,9 @@ struct WatchVideoView: View {
                                             if NRM.connected {
                                                 ZStack {
                                                     RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundStyle(.white)
-                                                        .opacity(0.3)
+                                                        .foregroundStyle(.ultraThinMaterial)
+                                                        .preferredColorScheme(.light)
+                                                        //.opacity(0.3)
                                                         .frame(height: 45)
                                                     let downloadLocation: URL? = PM.currentData.downloadedVideoIds
                                                             .first(where: {
@@ -319,8 +322,8 @@ struct WatchVideoView: View {
                                             } label: {
                                                 ZStack {
                                                     RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundStyle(.white)
-                                                        .opacity(0.3)
+                                                        .foregroundStyle(.ultraThinMaterial)
+                                                        .preferredColorScheme(.light)
                                                         .frame(height: 45)
                                                     Image(systemName: "square.and.arrow.up")
                                                         .resizable()
@@ -338,8 +341,8 @@ struct WatchVideoView: View {
                                                 } label: {
                                                     ZStack {
                                                         RoundedRectangle(cornerRadius: 8)
-                                                            .foregroundStyle(.white)
-                                                            .opacity(0.3)
+                                                            .foregroundStyle(.ultraThinMaterial)
+                                                            .preferredColorScheme(.light)
                                                             .frame(height: 45)
                                                         Image(systemName: "shareplay")
                                                             .resizable()
@@ -446,7 +449,7 @@ struct WatchVideoView: View {
                                 }
                                 .padding(.bottom)
                             }
-                            .frame(width: geometry.size.width, height: geometry.size.height * 0.12)
+                            .frame(width: geometry.size.width, height: bottomBarHeight)
                         })
                         .ignoresSafeArea()
                     }

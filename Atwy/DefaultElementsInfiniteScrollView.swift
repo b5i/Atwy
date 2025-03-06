@@ -86,9 +86,8 @@ struct DefaultElementsInfiniteScrollView: View {
                         }
                     }
                 })
-                Color.clear.frame(height: shouldAddBottomSpacing ? 49 : 0)
-                Color.clear.frame(height: bottomSpacing)
             }
+            .contentMargins(.bottom, length: bottomSpacing + (shouldAddBottomSpacing ? 49 : 0))
             // .listStyle(.plain)
             .optionalRefreshable(self.refreshAction == nil ? nil : {
                 refreshAction?{}

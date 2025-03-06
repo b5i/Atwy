@@ -21,8 +21,8 @@ struct VideoAppreciationView: View {
         VStack {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(.white)
-                    .opacity(0.3)
+                    .foregroundStyle(.ultraThinMaterial)
+                    .preferredColorScheme(.light)
                     .frame(height: 45)
                 HStack {
                     let likeStatus = currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus

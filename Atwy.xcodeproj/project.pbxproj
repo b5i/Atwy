@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		340220202B00E5B20007E9EB /* DownloadImageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */; };
+		3403C5A92D7A046400E33349 /* View+contentMargins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3403C5A82D7A046400E33349 /* View+contentMargins.swift */; };
+		3403C5AA2D7A046400E33349 /* View+contentMargins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3403C5A82D7A046400E33349 /* View+contentMargins.swift */; };
 		340995622A759EC9004F9AAF /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 340995612A759EC9004F9AAF /* SwipeActions */; };
 		341333FE2D346D47001110EF /* Array<Equatable&Hashable>+unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */; };
 		341333FF2D346D47001110EF /* Array<Equatable&Hashable>+unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */; };
@@ -72,6 +74,7 @@
 
 /* Begin PBXFileReference section */
 		3402201F2B00E5B20007E9EB /* DownloadImageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadImageOperation.swift; sourceTree = "<group>"; };
+		3403C5A82D7A046400E33349 /* View+contentMargins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+contentMargins.swift"; sourceTree = "<group>"; };
 		341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array<Equatable&Hashable>+unique.swift"; sourceTree = "<group>"; };
 		3417B20C2BA99CD2001D354C /* CoreAudioTypes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioTypes.framework; path = System/Library/Frameworks/CoreAudioTypes.framework; sourceTree = SDKROOT; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
@@ -224,6 +227,7 @@
 		34AB99A72B1A79DF0083B1DB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				3403C5A82D7A046400E33349 /* View+contentMargins.swift */,
 				341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */,
 				34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */,
 				34BE05CC2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift */,
@@ -400,6 +404,7 @@
 				34B8B2DE2AE0265200C5C07C /* DownloadedVideo+CoreDataProperties.swift in Sources */,
 				349ED14D2BA3939C00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
 				34B8B2DA2AE0265200C5C07C /* DownloadedVideoChapter+CoreDataProperties.swift in Sources */,
+				3403C5A92D7A046400E33349 /* View+contentMargins.swift in Sources */,
 				34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */,
 				34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */,
 				34B5FE1B2ADA856900367036 /* Persistence.swift in Sources */,
@@ -428,6 +433,7 @@
 				349ED14B2BA38EC200F4B805 /* NotificationName+AtwyNotifications.swift in Sources */,
 				349ED14C2BA38EC200F4B805 /* ColorSchemeExtension.swift in Sources */,
 				349ED13D2BA38CAC00F4B805 /* AtwyWidgetsLiveActivity.swift in Sources */,
+				3403C5AA2D7A046400E33349 /* View+contentMargins.swift in Sources */,
 				341333FF2D346D47001110EF /* Array<Equatable&Hashable>+unique.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
