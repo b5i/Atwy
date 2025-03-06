@@ -112,6 +112,6 @@ struct VideoAppreciationView: View {
         } action: {}
         .frame(width: shouldShowWidget ? (APIM.userAccount != nil /* the user can't like the video so we only show the likes count */ ? 180 : 110) : 0)
         .opacity(shouldShowWidget ? 1 : 0)
-        .padding(.trailing, shouldShowWidget ? 5 : 0)
+        .padding(.horizontal, shouldShowWidget ? 5 : 0)
     }
 }

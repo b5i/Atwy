@@ -94,17 +94,17 @@ struct WatchVideoView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {
-                        let menuShown = showQueue || showDescription || showComments
+                        let topMenuShown = showQueue || showDescription || showComments
                         VStack {
                             ZStack {
-                                ZStack(alignment: menuShown ? .topLeading : .center) {
+                                ZStack(alignment: topMenuShown ? .topLeading : .center) {
                                     ZStack {
                                         Rectangle()
                                             .fill(Color.black.opacity(0.4))
                                             .shadow(radius: 10)
                                     }
                                     //                                .frame(width: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing, height: menuShown ? geometry.size.height * 0.40 : geometry.size.height * 0.45)
-                                    .frame(width: geometry.size.width, height: menuShown ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
+                                    .frame(width: geometry.size.width, height: topMenuShown ?  geometry.size.height * 0.175 : geometry.size.height * 0.45)
                                     .padding(.top, -geometry.size.height * 0.01)
                                     //.padding(.bottom, geometry.size.height * 0.05)
                                     //(showQueue || showDescription) ? :
@@ -114,8 +114,8 @@ struct WatchVideoView: View {
                                                 player: VPM.player,
                                                 controller: VPM.controller
                                             )
-                                            .frame(width: menuShown ? geometry.size.width / 2 : geometry.size.width, height: menuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
-                                            .padding(.top, menuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
+                                            .frame(width: topMenuShown ? geometry.size.width / 2 : geometry.size.width, height: topMenuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
+                                            .padding(.top, topMenuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
                                             .shadow(radius: 10)
                                             /* TODO: Remove that in a future version (17/04/2024)
                                              .onReceive(of: UIApplication.willEnterForegroundNotification, handler: { _ in
@@ -132,7 +132,7 @@ struct WatchVideoView: View {
                                         //                                        .frame(width: menuShown ? geometry.size.width / 2 : geometry.size.width, height: menuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
                                         //                                        .padding(.top, menuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
                                         //                                        .shadow(radius: 10)
-                                        if menuShown {
+                                        if topMenuShown {
                                             ZStack {
                                                 VStack(alignment: .leading) {
                                                     Text(VPM.currentItem?.video.title ?? "")
@@ -163,11 +163,11 @@ struct WatchVideoView: View {
                                 HStack(alignment: .bottom) {
                                     OptionalItemChannelAvatarView(makeGradient: makeGradient)
                                         .padding(.horizontal)
-                                        .frame(height: menuShown ? 0 : geometry.size.height * 0.07)
+                                        .frame(height: topMenuShown ? 0 : geometry.size.height * 0.07)
                                         .padding(.vertical)
                                         .shadow(radius: 5)
-                                        .offset(x: menuShown ? -geometry.size.width * 0.55 : 0, y: menuShown ? -geometry.size.height * 0.14 : -geometry.size.height * 0.01)
-                                    if !menuShown {
+                                        .offset(x: topMenuShown ? -geometry.size.width * 0.55 : 0, y: topMenuShown ? -geometry.size.height * 0.15 : -geometry.size.height * 0.01)
+                                    if !topMenuShown {
                                         VStack(alignment: .leading, spacing: 2) {
                                             let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
                                             Text(videoTitle)
@@ -206,7 +206,7 @@ struct WatchVideoView: View {
                                         .padding(.vertical)
                                     }
                                 }
-                                .offset(y: geometry.size.height * 0.17)
+                                .offset(y: geometry.size.height * 0.16)
                             }
                             .ignoresSafeArea()
                         }
@@ -214,7 +214,7 @@ struct WatchVideoView: View {
                         GeometryReader { scrollViewGeometry in
                             if let playerItem = self.VPM.currentItem {
                                 RecommendedVideosView(playerItem: playerItem)
-                                    .frame(height: !menuShown ? max(180, scrollViewGeometry.size.height) : 0)
+                                    .frame(height: !topMenuShown ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
                                     .environment(\.colorScheme, .dark)
                             }
@@ -268,84 +268,10 @@ struct WatchVideoView: View {
                             Spacer()
                         }
                         .contentMargins(.bottom, length: bottomBarHeight)
-                        .contentMargins(.top, length: !menuShown ? 80 : 0)
-                        .overlay(alignment: .top, content: {
-                            ZStack {
-                                VariableBlurView(orientation: .topToBottom)
-                                    .ignoresSafeArea()
-                                ScrollView(.horizontal) {
-                                    HStack {
-                                        Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
-                                        if let currentItem = VPM.currentItem {
-                                            VideoAppreciationView(currentItem: currentItem)
-                                        }
-                                        if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
-                                            if NRM.connected {
-                                                PlayerQuickActionView {
-                                                    let downloadLocation: URL? = PM.currentData.downloadedVideoIds
-                                                            .first(where: {
-                                                                $0.videoId == video.videoId
-                                                            })?.storageLocation
-                                                    DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
-                                                        .foregroundStyle(.white)
-                                                } action: {}
-                                                .contextMenu(menuItems: {
-                                                    if DM.downloaders[video.videoId] != nil {
-                                                        Button(role: .destructive) {
-                                                            DownloadersModel.shared.cancelDownloadFor(videoId: video.videoId)
-                                                        } label: {
-                                                            HStack {
-                                                                Text("Cancel Download")
-                                                                Image(systemName: "multiply")
-                                                            }
-                                                        }
-                                                    }
-                                                })
-                                            }
-                                            
-                                            PlayerQuickActionView {
-                                                AddToFavoriteWidgetView(video: video)
-                                            } action: {
-                                                if PM.checkIfFavorite(video: video) {
-                                                    PersistenceModel.shared.removeFromFavorites(video: video)
-                                                } else {
-                                                    PersistenceModel.shared.addToFavorites(video: video, imageData: VPM.currentItem?.videoThumbnailData)
-                                                }
-                                            }
-                                            
-                                            PlayerQuickActionView {
-                                                Image(systemName: "square.and.arrow.up")
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: 18)
-                                                    .foregroundStyle(.white)
-                                            } action: {
-                                                video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
-                                            }
-                                            
-                                            if NRM.connected {
-                                                PlayerQuickActionView {
-                                                    Image(systemName: "shareplay")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 30)
-                                                        .foregroundStyle(.white)
-                                                } action: {
-                                                    CoordinationManager.shared.prepareToPlay(video)
-                                                }
-                                            }
-                                        }
-                                        Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
-                                    }
-                                }
-                                .scrollIndicators(.hidden)
-                                .padding(.vertical, 15)
-                                .frame(height: !menuShown ? 80 : 0)
-                                .mask(FadeInOutView(mode: .horizontal))
-                            }
-                            .frame(height: !menuShown ? 80 : 0)
-                            .opacity(!menuShown ? 1 : 0)
-                        })
+                        .contentMargins(.top, length: !topMenuShown ? 80 : 0)
+                        .overlay(alignment: .top) {
+                            PlayerTopActionsView(menuShown: topMenuShown)
+                        }
                         .overlay(alignment: .bottom, content: {
                             ZStack {
                                 VariableBlurView(orientation: .bottomToTop)
@@ -468,64 +394,6 @@ struct WatchVideoView: View {
 //                }
 //            }
 //        }
-    }
-    
-    private struct FadeInOutView: View {
-        let mode: FadeMode
-        var gradientSize: CGFloat = 15
-        var body: some View {
-            switch mode {
-            case .horizontal:
-                HStack(spacing: 0) {
-                    
-                    // Left gradient
-                    LinearGradient(gradient:
-                                    Gradient(
-                                        colors: [Color.black.opacity(0), Color.black]),
-                                   startPoint: .leading, endPoint: .trailing
-                    )
-                    .frame(width: gradientSize)
-                    
-                    // Middle
-                    Rectangle().fill(Color.black)
-                    
-                    // Right gradient
-                    LinearGradient(gradient:
-                                    Gradient(
-                                        colors: [Color.black, Color.black.opacity(0)]),
-                                   startPoint: .leading, endPoint: .trailing
-                    )
-                    .frame(width: gradientSize)
-                }
-            case .vertical:
-                VStack(spacing: 0) {
-                    
-                    // Top gradient
-                    LinearGradient(gradient:
-                                    Gradient(
-                                        colors: [Color.black.opacity(0), Color.black]),
-                                   startPoint: .top, endPoint: .bottom
-                    )
-                    .frame(height: gradientSize)
-                    
-                    // Middle
-                    Rectangle().fill(Color.black)
-                    
-                    // Bottom gradient
-                    LinearGradient(gradient:
-                                    Gradient(
-                                        colors: [Color.black, Color.black.opacity(0)]),
-                                   startPoint: .top, endPoint: .bottom
-                    )
-                    .frame(height: gradientSize)
-                }
-            }
-        }
-        
-        enum FadeMode {
-            case horizontal
-            case vertical
-        }
     }
     
     private func getChapterInText(_ text: String) -> [YTAVPlayerItem.Chapter] {
