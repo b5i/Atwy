@@ -147,6 +147,7 @@ struct AtwyApp: App {
                     }
                 }
             })
+            .persistentSystemOverlays(.hidden)
         }
     }
     

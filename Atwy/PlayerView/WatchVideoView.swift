@@ -210,7 +210,7 @@ struct WatchVideoView: View {
                             }
                             .ignoresSafeArea()
                         }
-                        let bottomBarHeight: CGFloat = geometry.safeAreaInsets.bottom + 50
+                        let bottomBarHeight: CGFloat = geometry.safeAreaInsets.bottom + 60
                         GeometryReader { scrollViewGeometry in
                             if let playerItem = self.VPM.currentItem {
                                 RecommendedVideosView(playerItem: playerItem)
@@ -272,91 +272,10 @@ struct WatchVideoView: View {
                         .overlay(alignment: .top) {
                             PlayerTopActionsView(menuShown: topMenuShown)
                         }
-                        .overlay(alignment: .bottom, content: {
-                            ZStack {
-                                VariableBlurView(orientation: .bottomToTop)
-                                    .ignoresSafeArea()
-                                HStack {
-                                    let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
-                                    let canLoadComments = VPM.currentItem?.moreVideoInfos != nil
-                                    Spacer()
-                                    Button {
-                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                            showDescription.toggle()
-                                        }
-                                    } label: {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .foregroundStyle(showDescription ? Color(uiColor: UIColor.lightGray) : .clear)
-                                                .animation(nil, value: 0)
-                                            Image(systemName: "doc.append")
-                                                .resizable()
-                                                .foregroundStyle(showDescription ? .white : Color(uiColor: UIColor.lightGray))
-                                                .scaledToFit()
-                                                .frame(width: showDescription ? 18 : 21)
-                                                .blendMode(showDescription ? .exclusion : .screen)
-                                        }
-                                        .frame(width: 30, height: 30)
-                                    }
-                                    .opacity(hasDescription ? 1 : 0.5)
-                                    .disabled(!hasDescription)
-                                    Spacer()
-                                    Button {
-                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                            showComments.toggle()
-                                        }
-                                    } label: {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .foregroundStyle(showComments ? Color(uiColor: UIColor.lightGray) : .clear)
-                                                .animation(nil, value: 0)
-                                            Image(systemName: "ellipsis.bubble")
-                                                .resizable()
-                                                .foregroundStyle(showComments ? .white : Color(uiColor: UIColor.lightGray))
-                                                .scaledToFit()
-                                                .frame(width: showComments ? 21 : 24)
-                                                .blendMode(showComments ? .exclusion : .screen)
-                                        }
-                                        .frame(width: 30, height: 30)
-                                    }
-                                    .opacity(canLoadComments ? 1 : 0.5)
-                                    .disabled(!canLoadComments)
-                                    //.opacity(hasDescription ? 1 : 0.5)
-                                    //.disabled(!hasDescription)
-                                    /*
-                                    AirPlayButton()
-                                        .scaledToFit()
-                                        .blendMode(.screen)
-                                        .frame(width: 50)
-                                     */
-                                    Spacer()
-                                    Button {
-                                        withAnimation(.interpolatingSpring(duration: 0.3)) {
-                                            showQueue.toggle()
-                                        }
-                                    } label: {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .foregroundStyle(showQueue ? Color(uiColor: UIColor.lightGray) : .clear)
-                                                .animation(nil, value: 0)
-                                            Image(systemName: "list.bullet")
-                                                .resizable()
-                                                .foregroundStyle(showQueue ? .white : Color(uiColor: UIColor.lightGray))
-                                                .scaledToFit()
-                                                .frame(width: showQueue ? 18 : 22)
-                                                .blendMode(showQueue ? .exclusion : .screen)
-                                        }
-                                        .frame(width: 30, height: 30)
-                                    }
-                                    // TODO: disable the button is the queue is empty
-                                    //.opacity(isQueueEmpty ? 1 : 0.5)
-                                    //.disabled(!isQueueEmpty)
-                                    Spacer()
-                                }
-                                .padding(.bottom)
-                            }
-                            .frame(width: geometry.size.width, height: bottomBarHeight)
-                        })
+                        .overlay(alignment: .bottom) {
+                            PlayerBottomBarView(showDescription: $showDescription, showComments: $showComments, showQueue: $showQueue)
+                                .frame(height: bottomBarHeight)
+                        }
                         .ignoresSafeArea()
                     }
                     Spacer()
