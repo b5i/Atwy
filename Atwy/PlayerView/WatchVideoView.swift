@@ -276,30 +276,19 @@ struct WatchVideoView: View {
                                 ScrollView(.horizontal) {
                                     HStack {
                                         Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
-                                        Group {
-                                            if let currentItem = VPM.currentItem {
-                                                VideoAppreciationView(currentItem: currentItem)
-                                            }
+                                        if let currentItem = VPM.currentItem {
+                                            VideoAppreciationView(currentItem: currentItem)
                                         }
-                                        .opacity(!menuShown ? 1 : 0)
                                         if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
                                             if NRM.connected {
-                                                ZStack {
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundStyle(.ultraThinMaterial)
-                                                        .preferredColorScheme(.light)
-                                                        //.opacity(0.3)
-                                                        .frame(height: 45)
+                                                PlayerQuickActionView {
                                                     let downloadLocation: URL? = PM.currentData.downloadedVideoIds
                                                             .first(where: {
                                                                 $0.videoId == video.videoId
                                                             })?.storageLocation
                                                     DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
                                                         .foregroundStyle(.white)
-                                                }
-                                                .opacity(!menuShown ? 1 : 0)
-                                                .frame(width: 60)
-                                                .padding(.horizontal, 10)
+                                                } action: {}
                                                 .contextMenu(menuItems: {
                                                     if DM.downloaders[video.videoId] != nil {
                                                         Button(role: .destructive) {
@@ -313,47 +302,37 @@ struct WatchVideoView: View {
                                                     }
                                                 })
                                             }
-                                            AddToFavoriteWidgetView(video: video, imageData: VPM.currentItem?.videoThumbnailData)
-                                                .opacity(!menuShown ? 1 : 0)
-                                                .frame(width: 60)
-                                                .padding(.trailing, 10)
-                                            Button {
-                                                video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
-                                            } label: {
-                                                ZStack {
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .foregroundStyle(.ultraThinMaterial)
-                                                        .preferredColorScheme(.light)
-                                                        .frame(height: 45)
-                                                    Image(systemName: "square.and.arrow.up")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 18)
-                                                        .foregroundStyle(.white)
+                                            
+                                            PlayerQuickActionView {
+                                                AddToFavoriteWidgetView(video: video)
+                                            } action: {
+                                                if PM.checkIfFavorite(video: video) {
+                                                    PersistenceModel.shared.removeFromFavorites(video: video)
+                                                } else {
+                                                    PersistenceModel.shared.addToFavorites(video: video, imageData: VPM.currentItem?.videoThumbnailData)
                                                 }
                                             }
-                                            .opacity(!menuShown ? 1 : 0)
-                                            .frame(width: 60)
-                                            .padding(.trailing, 10)
+                                            
+                                            PlayerQuickActionView {
+                                                Image(systemName: "square.and.arrow.up")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 18)
+                                                    .foregroundStyle(.white)
+                                            } action: {
+                                                video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
+                                            }
+                                            
                                             if NRM.connected {
-                                                Button {
+                                                PlayerQuickActionView {
+                                                    Image(systemName: "shareplay")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 30)
+                                                        .foregroundStyle(.white)
+                                                } action: {
                                                     CoordinationManager.shared.prepareToPlay(video)
-                                                } label: {
-                                                    ZStack {
-                                                        RoundedRectangle(cornerRadius: 8)
-                                                            .foregroundStyle(.ultraThinMaterial)
-                                                            .preferredColorScheme(.light)
-                                                            .frame(height: 45)
-                                                        Image(systemName: "shareplay")
-                                                            .resizable()
-                                                            .scaledToFit()
-                                                            .frame(width: 30)
-                                                            .foregroundStyle(.white)
-                                                    }
                                                 }
-                                                .opacity(!menuShown ? 1 : 0)
-                                                .frame(width: 60)
-                                                .padding(.trailing, 10)
                                             }
                                         }
                                         Color.clear.frame(width: 10, height: !menuShown ? 50 : 0)
@@ -365,6 +344,7 @@ struct WatchVideoView: View {
                                 .mask(FadeInOutView(mode: .horizontal))
                             }
                             .frame(height: !menuShown ? 80 : 0)
+                            .opacity(!menuShown ? 1 : 0)
                         })
                         .overlay(alignment: .bottom, content: {
                             ZStack {
