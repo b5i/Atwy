@@ -59,10 +59,6 @@ struct WatchVideoView: View {
     @Namespace private var animation
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var NRM = NetworkReachabilityModel.shared
-    @ObservedObject private var DM = DownloadersModel.shared
-    @ObservedObject private var PM = PersistenceModel.shared
-    @ObservedObject private var IUTM = IsUserTypingModel.shared
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -206,7 +202,7 @@ struct WatchVideoView: View {
                                         .padding(.vertical)
                                     }
                                 }
-                                .offset(y: geometry.size.height * 0.16)
+                                .offset(y: geometry.size.height * 0.165)
                             }
                             .ignoresSafeArea()
                         }
@@ -258,11 +254,11 @@ struct WatchVideoView: View {
                             .frame(height: showDescription ? scrollViewGeometry.size.height : 0)
                             PlayingQueueView()
                                 .opacity(showQueue ? 1 : 0)
-                                .frame(height: showQueue ? geometry.size.height * 0.85 - 120 : 0)
+                                .frame(height: showQueue ? geometry.size.height * 0.85 : 0)
                             if let currentItem = VPM.currentItem {
                                 CommentsSectionView(currentItem: currentItem)
                                     .opacity(showComments ? 1 : 0)
-                                    .frame(height: showComments ? geometry.size.height * 0.85 - 120 : 0)
+                                    .frame(height: showComments ? geometry.size.height * 0.85 : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 15))
                             }
                             Spacer()

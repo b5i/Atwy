@@ -22,6 +22,10 @@ struct PlayerBottomBarView: View {
             Button {
                 withAnimation(.interpolatingSpring(duration: 0.3)) {
                     showDescription.toggle()
+                    if showDescription {
+                        showComments = false
+                        showQueue = false
+                    }
                 }
             } label: {
                 ZStack {
@@ -43,6 +47,10 @@ struct PlayerBottomBarView: View {
             Button {
                 withAnimation(.interpolatingSpring(duration: 0.3)) {
                     showComments.toggle()
+                    if showComments {
+                        showDescription = false
+                        showQueue = false
+                    }
                 }
             } label: {
                 ZStack {
@@ -72,6 +80,10 @@ struct PlayerBottomBarView: View {
             Button {
                 withAnimation(.interpolatingSpring(duration: 0.3)) {
                     showQueue.toggle()
+                    if showQueue {
+                        showDescription = false
+                        showComments = false
+                    }
                 }
             } label: {
                 ZStack {
