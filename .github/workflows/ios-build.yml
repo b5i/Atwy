@@ -1,0 +1,30 @@
+name: iOS Build Workflow
+
+on:
+  push:
+    branches: "**"
+  pull_request:
+    branches: "**"
+
+jobs:
+  build:
+    name: iOS IPA build
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Atwy
+        run: |
+          xcodebuild -project Atwy.xcodeproj -scheme Atwy -archivePath build/Atwy.xcarchive archive CODE_SIGNING_ALLOWED="NO"
+
+      - name: Create IPA
+        run: |
+          mkdir build/Payload && mv build/Atwy.xcarchive/Products/Applications/Atwy.app build/Payload/Atwy.app && cd build && zip -r Atwy.zip Payload/Atwy.app && mv Atwy.zip Atwy.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA
+          path: build/*.ipa
