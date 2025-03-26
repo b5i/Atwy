@@ -99,7 +99,8 @@ class PersistenceModel: ObservableObject {
         self.controller = PersistenceController.shared
         self.context = controller.context
         self.currentData = PersistenceData(downloadedVideoIds: [], favoriteVideoIds: [], searchHistory: [])
-        self.currentData = getPersistenceData()
+        self.currentData = .init(downloadedVideoIds: [], favoriteVideoIds: [], searchHistory: [])
+        updatePersistenceData()
         NotificationCenter.default.addObserver(self, selector: #selector(updateContext), name: .atwyCoreDataChanged, object: nil)
     }
 
@@ -116,36 +117,45 @@ class PersistenceModel: ObservableObject {
         }
     }
     
-    public func getPersistenceData() -> PersistenceData {
-        let backgroundContext = self.controller.container.newBackgroundContext()
-        return backgroundContext.performAndWait {
-            let downloadsFetchRequest = DownloadedVideo.fetchRequest()
-            downloadsFetchRequest.returnsObjectsAsFaults = false
-            
-            let favoritesFetchRequest = FavoriteVideo.fetchRequest()
-            favoritesFetchRequest.returnsObjectsAsFaults = false
-            
-            let downloads: [PersistenceData.VideoIdAndLocation]
-            let favorites: [String]
-            let searchHistory: [PersistenceData.Search]
-            do {
-                downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
-                favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
-                searchHistory = try backgroundContext.fetch(NSFetchRequest<SearchHistory>(entityName: "SearchHistory")).compactMap {
-                    guard let query = $0.query, let timestamp = $0.timestamp, let uuid = $0.uuid else { return nil }
-                    return PersistenceData.Search(query: query, timestamp: timestamp, uuid: uuid)
+    public func updatePersistenceData() {
+        Task.detached {
+            let backgroundContext = self.controller.container.newBackgroundContext()
+            backgroundContext.performAndWait {
+                let downloadsFetchRequest = DownloadedVideo.fetchRequest()
+                downloadsFetchRequest.returnsObjectsAsFaults = false
+                
+                let favoritesFetchRequest = FavoriteVideo.fetchRequest()
+                favoritesFetchRequest.returnsObjectsAsFaults = false
+                
+                let downloads: [PersistenceData.VideoIdAndLocation]
+                let favorites: [String]
+                let searchHistory: [PersistenceData.Search]
+                do {
+                    downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
+                    favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
+                    searchHistory = try backgroundContext.fetch(NSFetchRequest<SearchHistory>(entityName: "SearchHistory")).compactMap {
+                        guard let query = $0.query, let timestamp = $0.timestamp, let uuid = $0.uuid else { return nil }
+                        return PersistenceData.Search(query: query, timestamp: timestamp, uuid: uuid)
+                    }
+                    .sorted(by: {$0.timestamp > $1.timestamp})
+                } catch {
+                    Logger.atwyLogs.simpleLog("Error while refreshing data")
+                    return
                 }
-                .sorted(by: {$0.timestamp > $1.timestamp})
-            } catch {
-                Logger.atwyLogs.simpleLog("Error while refreshing data")
-                return self.currentData
+                
+                let tempData = self.currentData
+                
+                self.currentData = PersistenceData(
+                    downloadedVideoIds: downloads,
+                    favoriteVideoIds: favorites,
+                    searchHistory: searchHistory
+                )
+                
+                tempData.searchHistory.forEach { self.currentData.addSearch($0) }
+                tempData.downloadedVideoIds.forEach { self.currentData.addDownloadedVideo(videoId: $0.videoId, storageLocation: $0.storageLocation) }
+                tempData.favoriteVideoIds.forEach { self.currentData.addFavoriteVideo(videoId: $0) }
             }
-            
-            return PersistenceData(
-                downloadedVideoIds: downloads,
-                favoriteVideoIds: favorites,
-                searchHistory: searchHistory
-            )
+            FileManagerModel.shared.updateNewDownloadPathsAndCleanUpFiles()
         }
     }
     

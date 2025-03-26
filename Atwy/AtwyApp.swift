@@ -88,9 +88,7 @@ struct AtwyApp: App {
                 LiveActivitesManager.shared.removeAllActivities()
             }
         }
-        Task {
-            FileManagerModel.shared.updateNewDownloadPathsAndCleanUpFiles()
-        }
+        _ = PersistenceModel.shared // triggers the data fetching
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
         }
