@@ -17,9 +17,7 @@ struct FavoritesView: View {
         animation: .default)
     private var favorites: FetchedResults<FavoriteVideo>
     @State private var search: String = ""
-    @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
@@ -46,11 +44,8 @@ struct FavoritesView: View {
                     Color.clear
                         .frame(height: 30)
                 }
-                if VPM.currentItem != nil {
-                    Color.clear
-                        .frame(height: 50)
-                }
             }
+            .contentMargins(.bottom, length: VPM.currentItem != nil ? 50 : 0)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .routeContainer()

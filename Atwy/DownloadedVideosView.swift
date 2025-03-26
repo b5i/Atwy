@@ -46,12 +46,8 @@ struct DownloadedVideosView: View {
                         Color.clear
                             .frame(height: 30)
                     }
-                    
-                    if VPM.currentItem != nil {
-                        Color.clear
-                            .frame(height: 50)
-                    }
                 }
+                .contentMargins(.bottom, length: VPM.currentItem != nil ? 50 : 0)
             }
 #if os(macOS)
             .searchable(text: $search, placement: .toolbar)
