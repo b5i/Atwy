@@ -20,7 +20,7 @@ struct DownloadingsView: View {
         VStack {
             Button {
                 for downloader in DM.downloaders.values {
-                    downloader.cancelDownload()
+                    DM.cancelDownloadFor(downloader: downloader)
                 }
             } label: {
                 Text("Cancel all downloadings")
