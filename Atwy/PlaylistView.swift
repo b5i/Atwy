@@ -89,12 +89,7 @@ struct PlaylistView: View {
                             .resizable()
                             .scaledToFit()
                     } placeholder: {
-                        ZStack {
-                            ProgressView()
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.clear)
-                                .aspectRatio(16/9, contentMode: .fit)
-                        }
+                        RectangularThumbnailPlaceholderView()
                     }
                 } else {
                     ZStack {

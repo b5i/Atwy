@@ -19,6 +19,7 @@ struct ChannelAvatarCircleView: View {
         }, placeholder: {
             ProgressView()
                 .clipShape(Circle())
+                .background(.ultraThinMaterial)
         })
     }
 }

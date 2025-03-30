@@ -19,17 +19,12 @@ struct ChannelView: View {
                         image
                             .resizable()
                             .clipShape(Circle())
-                            .frame(width: 125)
                             .shadow(radius: 3)
                             .padding(.trailing)
                     } placeholder: {
-                        ZStack {
-                            Circle()
-                                .foregroundColor(.black)
-                            ProgressView()
-                        }
-                        .frame(width: 125)
+                        RoundedThumbnailPlaceholderView()
                     }
+                    .frame(width: 125)
                     // Add badges
                 }
                 .frame(width: geometry.size.width * 0.5, height: 125, alignment: .center)

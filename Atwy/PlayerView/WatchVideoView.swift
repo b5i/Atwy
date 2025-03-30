@@ -429,12 +429,7 @@ struct WatchVideoView: View {
                                             .scaledToFill()
                                             .aspectRatio(16/9, contentMode: .fit)
                                     } placeholder: {
-                                        ZStack {
-                                            ProgressView()
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .foregroundStyle(.clear)
-                                                .aspectRatio(16/9, contentMode: .fit)
-                                        }
+                                        RectangularThumbnailPlaceholderView()
                                     }
                                 }
                             }

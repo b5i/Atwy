@@ -152,13 +152,7 @@ struct VideoView: View {
                             .resizable()
                             .scaledToFit()
                     } placeholder: {
-                        ZStack {
-                            ProgressView()
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.clear)
-                                .aspectRatio(16/9, contentMode: .fit)
-                            //                                .border(colorScheme.textColor)
-                        }
+                        RectangularThumbnailPlaceholderView()
                     }
                 } else if hqImage, let thumbnailURL = URL(string: "https://i.ytimg.com/vi/\(self.videoWithData.video.videoId)/hqdefault.jpg") {
                     CachedAsyncImage(url: thumbnailURL) { image in
@@ -168,22 +162,10 @@ struct VideoView: View {
                                 .scaledToFill()
                                 .aspectRatio(16/9, contentMode: .fit)
                         } else {
-                            ZStack {
-                                ProgressView()
-                                RoundedRectangle(cornerRadius: 10)
-                                    .foregroundStyle(.clear)
-                                    .aspectRatio(16/9, contentMode: .fit)
-                                //                                .border(colorScheme.textColor)
-                            }
+                            RectangularThumbnailPlaceholderView()
                         }
                     } placeholder: {
-                        ZStack {
-                            ProgressView()
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.clear)
-                                .aspectRatio(16/9, contentMode: .fit)
-                            //                                .border(colorScheme.textColor)
-                        }
+                        RectangularThumbnailPlaceholderView()
                     }
                 } else if let url = self.videoWithData.video.thumbnails.last?.url {
                     CachedAsyncImage(url: url) { image in
@@ -191,13 +173,7 @@ struct VideoView: View {
                             .resizable()
                             .scaledToFit()
                     } placeholder: {
-                        ZStack {
-                            ProgressView()
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.clear)
-                                .aspectRatio(16/9, contentMode: .fit)
-                            //                                .border(colorScheme.textColor)
-                        }
+                        RectangularThumbnailPlaceholderView()
                     }
                 }
             }
@@ -307,11 +283,7 @@ struct VideoView2: View {
                                             .scaledToFit()
                                             .frame(width: geometry.size.width * 0.11)
                                     }, placeholder: {
-                                        HStack {
-                                            Spacer()
-                                            ProgressView()
-                                            Spacer()
-                                        }
+                                        RoundedThumbnailPlaceholderView()
                                     })
                                     .clipShape(Circle())
                                     Spacer()
