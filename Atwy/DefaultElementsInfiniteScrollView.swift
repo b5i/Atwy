@@ -51,13 +51,13 @@ struct DefaultElementsInfiniteScrollView: View {
                             case let item as YTChannel:
                                 item.getView()
                                     .frame(width: geometry.size.width, height: 180, alignment: .center)
-                            case let item as YTPlaylist:
+                            case let rawPlaylist as YTPlaylist:
                                 SwipeView {
-                                    item.getView()
+                                    rawPlaylist.getView()
                                         .padding(.horizontal, 5)
                                 } trailingActions: { context in
-                                    if NRM.connected {
-                                        if let channel = item.channel {
+                                    if NRM.connected && item.data.allowChannelLinking {
+                                        if let channel = rawPlaylist.channel {
                                             SwipeAction(
                                                 action: {},
                                                 label: { _ in
