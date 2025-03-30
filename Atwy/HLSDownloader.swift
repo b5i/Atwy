@@ -359,7 +359,12 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
         }
     }
 
+    /// Avoid to call this function directly, use ``DownloadersModel/cancelDownloadFor(downloader:)`` instead
     func cancelDownload() {
+        guard !DownloadersModel.shared.downloaders.values.contains(self) else {
+            DownloadersModel.shared.cancelDownloadFor(downloader: self)
+            return
+        }
         DispatchQueue.main.async {
             self.separatedVideoAndAudioDownloader?.cancel()
             self.downloadTask?.cancel()

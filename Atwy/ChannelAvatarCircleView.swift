@@ -17,9 +17,7 @@ struct ChannelAvatarCircleView: View {
                 .scaledToFit()
                 .shadow(radius: 15)
         }, placeholder: {
-            ProgressView()
-                .clipShape(Circle())
-                .background(.ultraThinMaterial)
+            RoundedThumbnailPlaceholderView()
         })
     }
 }

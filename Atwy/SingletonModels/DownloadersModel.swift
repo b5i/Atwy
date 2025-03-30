@@ -92,9 +92,9 @@ class DownloadersModel: ObservableObject, HLSDownloaderDelegate {
     }
     
     public func removeDownloader(downloader: HLSDownloader) {
+        self.downloaders.removeValue(forKey: downloader.downloadInfo.video.videoId)
         downloader.cancelDownload()
         downloader.delegate = nil
-        self.downloaders.removeValue(forKey: downloader.downloadInfo.video.videoId)
         NotificationCenter.default.post(name: .atwyDownloadingChanged(for: downloader.downloadInfo.video.videoId), object: nil)
         self.launchDownloaders()
     }

@@ -13,7 +13,7 @@ struct CancelDownloadContextMenuView: View {
     @ObservedObject var downloader: HLSDownloader
     var body: some View {
         Button(role: .destructive) {
-            self.downloader.cancelDownload()
+            DownloadersModel.shared.cancelDownloadFor(downloader: downloader)
         } label: {
             HStack {
                 Text("Cancel download")
