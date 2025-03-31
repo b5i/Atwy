@@ -257,16 +257,56 @@ struct CommentView: View {
                             self.isReplying.toggle()
                         }
                     } label: {
-                        if self.isSubmittingReply {
-                            ProgressView()
-                                .tint(self.accessoriesColor)
+                        if #available(iOS 17.0, *) {
+                            Image(systemName: isReplying ? "multiply" : "bubble.and.pencil")
+                                .contentTransition(.symbolEffect(.replace))
                         } else {
-                            Image(systemName: "bubble.and.pencil")
+                            Image(systemName: isReplying ? "multiply" : "bubble.and.pencil")
                         }
                     }
                     .buttonStyle(.plain)
                     .padding(.leading, displayLikeButton ? nil : 0)
                     .foregroundStyle(accessoriesColor)
+                    if isReplying {
+                        Button {
+                            withAnimation {
+                                self.isSubmittingReply = true
+                            }
+                            Task {
+                                do {
+                                    let result = try await self.comment.replyToComment(youtubeModel: YTM, text: self.replyText)
+                                    guard result.success, let newComment = result.newComment else { return }
+                                    DispatchQueue.main.safeSync {
+                                        self.replyText = ""
+                                        withAnimation {
+                                            VideoPlayerModel.shared.currentItem?.addReplyToComment(self.comment.commentIdentifier, reply: newComment)
+                                            self.isReplying = false
+                                            self.repliesExpanded = true
+                                        }
+                                    }
+                                } catch {}
+                                
+                                DispatchQueue.main.async {
+                                    withAnimation {
+                                        self.isSubmittingReply = false
+                                        self.isReplying = false
+                                        self.replyText = ""
+                                    }
+                                }
+                            }
+                        } label: {
+                            if self.isSubmittingReply {
+                                ProgressView()
+                                    .tint(self.accessoriesColor)
+                            } else {
+                                Image(systemName: "paperplane")
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.leading)
+                        .foregroundStyle(accessoriesColor)
+                        .disabled(replyText.isEmpty)
+                    }
                 }
             }
             if isReplying {
@@ -297,32 +337,6 @@ struct CommentView: View {
                         .id(self.replyText)
                     }
                     .hidden()
-            }
-            .submitLabel(.send)
-            .onSubmit {
-                withAnimation {
-                    self.isSubmittingReply = true
-                }
-                Task {
-                    do {
-                        let result = try await self.comment.replyToComment(youtubeModel: YTM, text: self.replyText)
-                        guard result.success, let newComment = result.newComment else { return }
-                        DispatchQueue.main.safeSync {
-                            self.replyText = ""
-                            withAnimation {
-                                VideoPlayerModel.shared.currentItem?.addReplyToComment(self.comment.commentIdentifier, reply: newComment)
-                                self.isReplying = false
-                                self.repliesExpanded = true
-                            }
-                        }
-                    } catch {}
-                    
-                    DispatchQueue.main.async {
-                        withAnimation {
-                            self.isSubmittingReply = false
-                        }
-                    }
-                }
             }
     }
     
