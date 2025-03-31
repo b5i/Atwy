@@ -371,7 +371,7 @@ private extension CachedAsyncImage {
     private func remoteImage(from request: URLRequest, session: URLSession) async throws -> (Image, Data, URLSessionTaskMetrics) {
         let (data, _, metrics) = try await session.data(for: request)
         if metrics.redirectCount > 0, let lastResponse = metrics.transactionMetrics.last?.response {
-            let requests = metrics.transactionMetrics.map { $0.request }
+            let requests = metrics.transactionMetrics.map(\.request)
             requests.forEach(session.configuration.urlCache!.removeCachedResponse)
             let lastCachedResponse = CachedURLResponse(response: lastResponse, data: data)
             session.configuration.urlCache!.storeCachedResponse(lastCachedResponse, for: request)

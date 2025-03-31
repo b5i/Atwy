@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 23.01.23.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -14,15 +15,15 @@ struct ChannelBannerRectangleView: View {
         GeometryReader { geometry in
             VStack {
                 if channelBannerURL != nil {
-                    CachedAsyncImage(url: channelBannerURL, content: { image in
+                    CachedAsyncImage(url: channelBannerURL) { image in
                         image
                             .resizable()
                             .opacity(0.8)
                             .aspectRatio(contentMode: .fit)
                             .frame(width: geometry.size.width)
-                    }, placeholder: {
+                    } placeholder: {
                         ProgressView()
-                    })
+                    }
                 } else {
                     Rectangle()
                         .foregroundColor(colorScheme.textColor)

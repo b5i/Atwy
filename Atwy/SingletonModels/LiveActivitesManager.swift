@@ -3,7 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 14.03.2024.
-//  Copyright © 2024 Antoine Bollengier. All rights reserved.
+//  Copyright © 2024-2025 Antoine Bollengier. All rights reserved.
 //  
 
 import ActivityKit

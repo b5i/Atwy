@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 11.02.23.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -12,10 +13,7 @@ struct UsersPlaylistsListView: View {
     let playlists: [YTPlaylist]
     @StateObject private var model: Model
     @State private var search: String = ""
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var NRM = NetworkReachabilityModel.shared
     
     init(playlists: [YTPlaylist]) {
         self.playlists = playlists

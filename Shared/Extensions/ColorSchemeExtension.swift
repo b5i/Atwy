@@ -3,7 +3,9 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 04.02.23.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
+
 import SwiftUI
 
 extension ColorScheme {

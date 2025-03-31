@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 28.12.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -22,10 +23,6 @@ struct ChannelDetailsView: View {
     @State private var shouldReloadScrollView: Bool = false
     @State private var scrollPosition: CGPoint = .zero
     @State private var isChangingSubscriptionStatus: Bool = false
-    private let changeIndex: Int = 0
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     var body: some View {
         GeometryReader { mainGeometry in
             ZStack {
@@ -173,7 +170,7 @@ struct ChannelDetailsView: View {
                                             })
                                     }, set: { newValue in
                                         var itemsContents = model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent)
-                                        itemsContents?.items = newValue.map({$0.element})
+                                        itemsContents?.items = newValue.map(\.element)
                                         model.channelInfos?.channelContentStore[selectedCategory] = itemsContents
                                     })
                                     if itemsBinding.wrappedValue.isEmpty {

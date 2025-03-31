@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 12.10.2023.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import Foundation
@@ -22,8 +23,8 @@ struct CustomElementsInfiniteScrollView: View {
     var fetchMoreResultsAction: (() -> Void)?
     
     // not really useful in this view for the moment
-    var topSpacing: CGFloat = 0
-    var bottomSpacing: CGFloat = 0
+    //var topSpacing: CGFloat = 0
+    //var bottomSpacing: CGFloat = 0
     
     var orientation: Axis = .vertical
     var body: some View {

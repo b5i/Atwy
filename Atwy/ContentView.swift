@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 19.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -27,7 +28,6 @@ struct ContentView: View {
     @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
-    @ObservedObject private var SM = SheetsModel.shared
     var body: some View {
         TabView(selection: $NPM.currentTab) {
             TabBarElement(DestinationView: {

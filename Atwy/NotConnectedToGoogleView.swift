@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 21.10.2023.
+//  Copyright © 2023-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import SwiftUI

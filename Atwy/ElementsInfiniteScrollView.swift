@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 04.01.2024.
+//  Copyright © 2024-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import SwiftUI
@@ -45,8 +46,6 @@ struct ElementsInfiniteScrollView: View {
                 fetchNewResultsAtKLast: fetchNewResultsAtKLast,
                 refreshAction: refreshAction,
                 fetchMoreResultsAction: fetchMoreResultsAction,
-                topSpacing: topSpacing,
-                bottomSpacing: bottomSpacing,
                 orientation: orientation
             )
         }

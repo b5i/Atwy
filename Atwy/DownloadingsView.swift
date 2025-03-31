@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 27.12.22.
+//  Copyright © 2022-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import SwiftUI
@@ -11,8 +12,6 @@ import YouTubeKit
 struct DownloadingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var DM = DownloadersModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var PM = PersistenceModel.shared
     
     @State private var observer: (any NSObjectProtocol)? = nil

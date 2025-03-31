@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 24.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -22,7 +23,6 @@ struct SearchView: View {
     
     @ObservedObject private var model = Model.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
-    @ObservedObject private var NPM = NavigationPathModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         VStack {
@@ -95,7 +95,7 @@ struct SearchView: View {
                     let itemsBinding = Binding(get: {
                         return model.items.map { YTElementWithData(element: $0, data: .init()) }
                     }, set: { newValue in
-                        model.items = newValue.map({$0.element})
+                        model.items = newValue.map(\.element)
                     })
                     ElementsInfiniteScrollView(
                         items: itemsBinding,

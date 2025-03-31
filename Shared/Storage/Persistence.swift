@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 19.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import CoreData
@@ -132,7 +133,7 @@ class PersistenceModel: ObservableObject {
                 let searchHistory: [PersistenceData.Search]
                 do {
                     downloads = try backgroundContext.fetch(downloadsFetchRequest).map({($0.videoId, $0.storageLocation)})
-                    favorites = try backgroundContext.fetch(favoritesFetchRequest).map({$0.videoId})
+                    favorites = try backgroundContext.fetch(favoritesFetchRequest).map(\.videoId)
                     searchHistory = try backgroundContext.fetch(NSFetchRequest<SearchHistory>(entityName: "SearchHistory")).compactMap {
                         guard let query = $0.query, let timestamp = $0.timestamp, let uuid = $0.uuid else { return nil }
                         return PersistenceData.Search(query: query, timestamp: timestamp, uuid: uuid)
@@ -548,9 +549,9 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.thumbnailData = item.thumbnail
             attributeSet.containerDisplayName = "Downloaded Video"
             if attributeSet.keywords != nil {
-                attributeSet.keywords?.append(contentsOf: [item.title, item.channel?.name, item.videoDescription].compactMap({$0}))
+                attributeSet.keywords?.append(contentsOf: [item.title, item.channel?.name, item.videoDescription].compactMap(\.self))
             } else {
-                attributeSet.keywords = [item.title, item.channel?.name, item.videoDescription].compactMap({$0})
+                attributeSet.keywords = [item.title, item.channel?.name, item.videoDescription].compactMap(\.self)
             }
             return attributeSet
         } else if let channel = object as? DownloadedChannel {
@@ -560,9 +561,9 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.thumbnailData = channel.thumbnail
             attributeSet.containerDisplayName = "Channel"
             if attributeSet.keywords != nil {
-                attributeSet.keywords?.append(contentsOf: [channel.name].compactMap({$0}))
+                attributeSet.keywords?.append(contentsOf: [channel.name].compactMap(\.self))
             } else {
-                attributeSet.keywords = [channel.name].compactMap({$0})
+                attributeSet.keywords = [channel.name].compactMap(\.self)
             }
             return attributeSet
         } else if let favorite = object as? FavoriteVideo {
@@ -573,9 +574,9 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.thumbnailData = favorite.thumbnailData
             attributeSet.containerDisplayName = "Favorite"
             if attributeSet.keywords != nil {
-                attributeSet.keywords?.append(contentsOf: [favorite.title, favorite.channel?.name].compactMap({$0}))
+                attributeSet.keywords?.append(contentsOf: [favorite.title, favorite.channel?.name].compactMap(\.self))
             } else {
-                attributeSet.keywords = [favorite.title, favorite.channel?.name].compactMap({$0})
+                attributeSet.keywords = [favorite.title, favorite.channel?.name].compactMap(\.self)
             }
             return attributeSet
         } else if let chapter = object as? DownloadedVideoChapter {
@@ -586,9 +587,9 @@ class YTSpotlightDelegate: NSCoreDataCoreSpotlightDelegate {
             attributeSet.thumbnailData = chapter.thumbnail
             attributeSet.containerDisplayName = "Video Chapter"
             if attributeSet.keywords != nil {
-                attributeSet.keywords?.append(contentsOf: [chapter.title].compactMap({$0}))
+                attributeSet.keywords?.append(contentsOf: [chapter.title].compactMap(\.self))
             } else {
-                attributeSet.keywords = [chapter.title].compactMap({$0})
+                attributeSet.keywords = [chapter.title].compactMap(\.self)
             }
             return attributeSet
         }

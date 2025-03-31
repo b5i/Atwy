@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 10.02.23.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -11,10 +12,7 @@ import OSLog
 
 struct PersonnalAccountView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var NPM = NavigationPathModel.shared
     @State private var libraryContent: AccountLibraryResponse?
     @State private var isFetching: Bool = false
     var body: some View {

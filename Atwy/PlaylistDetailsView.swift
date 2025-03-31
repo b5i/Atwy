@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 22.01.23.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -17,9 +18,7 @@ struct PlaylistDetailsView: View {
     @State private var navigationTitle: String = ""
     @State private var shouldReloadScrollView: Bool = false
     @StateObject private var model = Model()
-    @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     private let changeIndex: Int = 0
     var body: some View {
         GeometryReader { geometry in
@@ -130,7 +129,6 @@ struct PlaylistDetailsView: View {
                     Image(systemName: "chevron.left")
                 }
             }
-            // TODO: add the share option here too
 #else
             ToolbarItem(placement: .topBarLeading) {
                 Button {

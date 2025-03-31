@@ -3,13 +3,13 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 18.11.2023.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
 
 
 struct ShowSettingsButtonView: View {
-    @ObservedObject private var NRM = NetworkReachabilityModel.shared
     var body: some View {
         Button {
             SheetsModel.shared.showSheet(.settings)

@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 19.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -72,9 +73,7 @@ class NavigationPathModel: ObservableObject {
 struct AtwyApp: App {
     @UIApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
     
-    @State private var isCleaningFiles: Bool = false
     @ObservedObject private var FMM = FileManagerModel.shared
-    @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     private var appWillTerminateObserver: NSObjectProtocol?
     

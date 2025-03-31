@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 27.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
@@ -15,9 +16,6 @@ struct DownloadedVideosView: View {
     private var downloadedVideos: FetchedResults<DownloadedVideo>
     @State private var search: String = ""
     @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var NPM = NavigationPathModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     var body: some View {
         GeometryReader { geometry in

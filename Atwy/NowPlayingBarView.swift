@@ -2,14 +2,14 @@
 //  NowPlayingBarView.swift
 //
 //  Created by Antoine Bollengier (github.com/b5i) on 05.05.23.
-//  Copyright © 2023 Antoine Bollengier. All rights reserved.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //  
 
 import SwiftUI
 import AVKit
 
 struct NowPlayingBarView: View {
-    var sheetAnimation: Namespace.ID
+    let sheetAnimation: Namespace.ID
     @Binding var isSheetPresented: Bool
     var isSettingsSheetPresented: Bool = false
     @Environment(\.colorScheme) private var colorScheme

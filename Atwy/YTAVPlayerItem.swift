@@ -3,7 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 19.03.2024.
-//  Copyright © 2024 Antoine Bollengier (github.com/b5i). All rights reserved.
+//  Copyright © 2024-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import Foundation
@@ -17,7 +17,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     var videoId: String { self.video.videoId }
     var videoTitle: String? { self.video.title ?? self.streamingInfos.title ?? self.moreVideoInfos?.videoTitle }
     var channelName: String? { self.video.channel?.name ?? self.streamingInfos.channel?.name ?? self.moreVideoInfos?.channel?.name }
-    var videoDescription: String? { self.streamingInfos.videoDescription ?? self.moreVideoInfos?.videoDescription?.map({$0.text ?? ""}).joined() }
+    var videoDescription: String? { self.streamingInfos.videoDescription ?? self.moreVideoInfos?.videoDescription?.compactMap(\.text).joined() }
     
     let video: YTVideo
     var streamingInfos: VideoInfosResponse
@@ -32,7 +32,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     @Published private(set) var moreVideoInfos: MoreVideoInfosResponse? = nil {
         didSet {
             // just modify the chapter's url because they could have some thumbnailData
-            if let chapters = self.chapters, self.moreVideoInfos?.chapters?.map({$0.startTimeSeconds}) == chapters.map({$0.time}) {
+            if let chapters = self.chapters, self.moreVideoInfos?.chapters?.map(\.startTimeSeconds) == chapters.map(\.time) {
                 for i in 0..<chapters.count {
                     self.chapters?[i].thumbnailURLs = self.moreVideoInfos?.chapters?[i].thumbnail
                 }

@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 03.01.2024.
+//  Copyright © 2024-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import SwiftUI
@@ -166,7 +167,7 @@ struct HistoryView: View {
         
         func getBindingFromGroup(_ group: (groupTitle: String, videosArray: [(YTVideo, suppressToken: String?)])) -> Binding<[any YTSearchResult]> {
             return Binding(get: {
-                return group.videosArray.map({$0.0})
+                return group.videosArray.map(\.0)
             }, set: { _ in
                 return
             })

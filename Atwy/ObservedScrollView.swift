@@ -3,13 +3,13 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 30.09.2023.
+//  Copyright © 2023-2025 Antoine Bollengier. All rights reserved.
 //
 
 import SwiftUI
 
 //Inspired from https://saeedrz.medium.com/detect-scroll-position-in-swiftui-3d6e0d81fc6b#:~:text=To%20detect%20the%20scroll%20position,to%20a%20given%20coordinate%20system.
 struct ObservedScrollView: ViewModifier {
-    
     @State private var scrollPosition: ((CGPoint) -> Void)
     @State private var displayIndicator: Bool
     

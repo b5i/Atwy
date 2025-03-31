@@ -3,6 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 26.11.22.
+//  Copyright © 2022-2025 Antoine Bollengier (github.com/b5i). All rights reserved.
 //
 
 import Foundation
@@ -18,7 +19,6 @@ protocol HLSDownloaderDelegate {
 }
 
 class HLSDownloader: NSObject, ObservableObject, Identifiable {
-
     var separatedVideoAndAudioDownloader: SeparatedAudioAndVideoDownloader?
     var delegate: HLSDownloaderDelegate? = nil
     var resourceLoader: HLSDownloaderRessourceLoader?
