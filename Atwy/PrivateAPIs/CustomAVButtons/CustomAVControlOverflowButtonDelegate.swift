@@ -73,6 +73,27 @@ class CustomAVControlOverflowButtonDelegate: NSObject {
                 
                 class_addMethod(CustomAVControlOverflowButtonDelegate.self, selector, imp, args)
             }
+            
+            // we need to pass the willShow and didHide info to the global delegate in order for it not to dismiss automatically, but wait for the menu to close before disappearing
+            if selector.description.contains("overflowButtonWillShowContextMenu") {
+                let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> Void) = { delegate, button in
+                    delegate.globalDelegate.perform(NSSelectorFromString("overflowButtonWillShowContextMenu:"), with: button)
+                }
+
+                let imp = imp_implementationWithBlock(unsafeBitCast(handler, to: CustomAVControlOverflowButtonDelegate.self))
+                
+                class_addMethod(CustomAVControlOverflowButtonDelegate.self, selector, imp, args)
+            }
+            
+            if selector.description.contains("overflowButtonDidHideContextMenu") {
+                let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> Void) = { delegate, button in
+                    delegate.globalDelegate.perform(NSSelectorFromString("overflowButtonDidHideContextMenu:"), with: button)
+                }
+
+                let imp = imp_implementationWithBlock(unsafeBitCast(handler, to: CustomAVControlOverflowButtonDelegate.self))
+                
+                class_addMethod(CustomAVControlOverflowButtonDelegate.self, selector, imp, args)
+            }
         }
         class_addProtocol(CustomAVControlOverflowButtonDelegate.self, self.manager.AVControlOverflowButtonDelegateProtocol)
     }

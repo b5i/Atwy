@@ -14,7 +14,7 @@ func getMethodsForProtocol(_ protocolToUse: Protocol) -> [(Selector, arguments: 
     let _protocol_getMethodTypeEncoding = unsafeBitCast(_protocol_getMethodTypeEncodingPtr, to: (@convention(c) (Protocol, Selector, Bool, Bool) -> UnsafePointer<Int8>?).self)
 
     var toReturn: [(Selector, arguments: UnsafeMutablePointer<CChar>, textDescription: String)] = []
-    var methodCount: [UInt32] = [1]
+    var methodCount: [UInt32] = [0] // value that will be used to store the number of selectors
     methodCount.withUnsafeMutableBytes { methodCountPtr in
         let castedPtr = methodCountPtr.assumingMemoryBound(to: UInt32.self).baseAddress!
         if let methodList = protocol_copyMethodDescriptionList(protocolToUse, true, true, castedPtr) {
@@ -23,6 +23,17 @@ func getMethodsForProtocol(_ protocolToUse: Protocol) -> [(Selector, arguments: 
                 let name = methodDesc.name
                 
                 let result = _protocol_getMethodTypeEncoding(protocolToUse, name!, true, true)
+                
+                toReturn.append((methodDesc.name!, methodDesc.types!, String(cString: result!)))
+            }
+        }
+        
+        if let methodList = protocol_copyMethodDescriptionList(protocolToUse, false /* optional methods */, true, castedPtr) {
+            for i in 0..<Int(castedPtr.pointee) {
+                let methodDesc = methodList[i];
+                let name = methodDesc.name
+                
+                let result = _protocol_getMethodTypeEncoding(protocolToUse, name!, false /* optional methods */, true)
                 
                 toReturn.append((methodDesc.name!, methodDesc.types!, String(cString: result!)))
             }

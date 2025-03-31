@@ -225,7 +225,6 @@ struct ChannelDetailsView: View {
                             Image(systemName: "chevron.left")
                         }
                     }
-                    // TODO: add the share option here too
 #else
                     ToolbarItem(placement: .topBarLeading) {
                         Button {

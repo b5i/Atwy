@@ -38,6 +38,7 @@ class CustomAVButtonsManager {
     }()
         
     init?() {
+        
         guard let AVMenuButtonClass = NSClassFromString("AVMenuButton") as? UIButton.Type,
               let AVMenuButtonDelegateProtocol = objc_getProtocol("AVMenuButtonDelegate"),
               let AVButtonClass = NSClassFromString("AVButton") as? UIButton.Type,
