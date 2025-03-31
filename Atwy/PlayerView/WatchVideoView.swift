@@ -230,10 +230,10 @@ struct WatchVideoView: View {
                                     //                                        }
                                     //                                    }
                                     //                            }
-                                    if let videoDescription = VPM.currentItem?.videoDescription {
+                                    if let playerItem = VPM.currentItem, let videoDescription = playerItem.videoDescription {
                                         ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
                                             VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
-                                        })
+                                        }, videoItem: playerItem)
                                         HStack {
                                             Text("Description")
                                                 .foregroundColor(.gray)
@@ -364,11 +364,11 @@ struct WatchVideoView: View {
         let geometry: GeometryProxy
         let chapterAction: (Chapter) -> Void
         @State private var lastScrolled: Int = 0
-        @ObservedObject private var VPM = VideoPlayerModel.shared
         
+        @ObservedObject var videoItem: YTAVPlayerItem
         var body: some View {
             VStack {
-                if let chapters = VPM.currentItem?.chapters,
+                if let chapters = videoItem.chapters,
                     !chapters.isEmpty {
                     HStack {
                         Text("Chapters")
@@ -392,7 +392,7 @@ struct WatchVideoView: View {
                         .padding([.horizontal, .bottom])
                         .scrollIndicators(.hidden)
                         .onAppear {
-                            VPM.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { time in
+                            VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { time in
                                 if let nextChapter = chapters.last(where: {Int(time.seconds) >= $0.time}), nextChapter.time != lastScrolled {
                                     lastScrolled = nextChapter.time
                                     withAnimation(.spring) {

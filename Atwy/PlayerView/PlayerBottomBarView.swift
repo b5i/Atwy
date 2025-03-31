@@ -4,8 +4,9 @@
 //
 //  Created by Antoine Bollengier on 06.03.2025.
 //  Copyright © 2025 Antoine Bollengier (github.com/b5i). All rights reserved.
-//  
+//
 
+import Combine
 import SwiftUI
 
 struct PlayerBottomBarView: View {
@@ -13,11 +14,10 @@ struct PlayerBottomBarView: View {
     @Binding var showComments: Bool
     @Binding var showQueue: Bool
     
-    @ObservedObject private var VPM = VideoPlayerModel.shared
+    @StateObject private var model = Model.shared
+    
     var body: some View {
         HStack {
-            let hasDescription = VPM.currentItem?.videoDescription ?? "" != ""
-            let canLoadComments = VPM.currentItem?.moreVideoInfos != nil
             Spacer()
             Button {
                 withAnimation(.interpolatingSpring(duration: 0.3)) {
@@ -41,8 +41,8 @@ struct PlayerBottomBarView: View {
                 }
                 .frame(width: 30, height: 30)
             }
-            .opacity(hasDescription ? 1 : 0.5)
-            .disabled(!hasDescription)
+            .opacity(model.descriptionButtonEnabled ? 1 : 0.5)
+            .disabled(!model.descriptionButtonEnabled)
             Spacer()
             Button {
                 withAnimation(.interpolatingSpring(duration: 0.3)) {
@@ -66,8 +66,8 @@ struct PlayerBottomBarView: View {
                 }
                 .frame(width: 30, height: 30)
             }
-            .opacity(canLoadComments ? 1 : 0.5)
-            .disabled(!canLoadComments)
+            .opacity(model.commentsButtonEnabled ? 1 : 0.5)
+            .disabled(!model.commentsButtonEnabled)
             //.opacity(hasDescription ? 1 : 0.5)
             //.disabled(!hasDescription)
             /*
@@ -100,14 +100,79 @@ struct PlayerBottomBarView: View {
                 .frame(width: 30, height: 30)
             }
             // TODO: disable the button is the queue is empty
-            //.opacity(isQueueEmpty ? 1 : 0.5)
-            //.disabled(!isQueueEmpty)
+            .opacity(model.queueButtonEnabled ? 1 : 0.5)
+            .disabled(!model.queueButtonEnabled)
             Spacer()
         }
         .padding(.vertical)
         .background {
             VariableBlurView(orientation: .bottomToTop)
                 .ignoresSafeArea()
+        }
+    }
+    
+    class Model: ObservableObject {
+        static let shared = Model()
+        
+        @Published fileprivate(set) var descriptionButtonEnabled: Bool
+        @Published fileprivate(set) var queueButtonEnabled: Bool = true
+        @Published fileprivate(set) var commentsButtonEnabled: Bool
+        private var observers: Set<AnyCancellable> = .init()
+        private var removableObservers: Set<AnyCancellable> = .init()
+        
+        init() {
+            self.descriptionButtonEnabled = Self.descriptionButtonEnabledFor(VideoPlayerModel.shared.currentItem?.videoDescription)
+            //self.queueButtonEnabled = Self.queueButtonEnabledForQueueCount(VideoPlayerModel.shared.player.items().count)
+            self.commentsButtonEnabled = VideoPlayerModel.shared.currentItem?.moreVideoInfos != nil
+            
+            VideoPlayerModel.shared.publisher(for: \.currentItem)
+                .sink { [weak self] newValue in
+                    guard let self = self else { return }
+                    self.setNewObservers(forItem: newValue)
+                }
+                .store(in: &observers)
+        }
+        
+        private func setNewObservers(forItem item: YTAVPlayerItem?) {
+            self.removableObservers.removeAll(keepingCapacity: true)
+            
+            guard let item = item else {
+                self.commentsButtonEnabled = false
+                self.descriptionButtonEnabled = false
+                return
+            }
+            
+            item.videoDescription.publisher
+                .sink { [weak self] newValue in
+                    guard let self = self else { return }
+                    let newFinalValue = Self.descriptionButtonEnabledFor(newValue)
+                    if newFinalValue != self.descriptionButtonEnabled {
+                        DispatchQueue.main.async {
+                            self.descriptionButtonEnabled = newFinalValue
+                        }
+                    }
+                }
+                .store(in: &removableObservers)
+            
+            item.$moreVideoInfos
+                .sink { [weak self] newValue in
+                    guard let self = self else { return }
+                    let newFinalValue = newValue != nil
+                    if newFinalValue != self.commentsButtonEnabled {
+                        DispatchQueue.main.async {
+                            self.commentsButtonEnabled = newFinalValue
+                        }
+                    }
+                }
+                .store(in: &removableObservers)
+        }
+        
+        private static func descriptionButtonEnabledFor(_ value: String?) -> Bool {
+            return value ?? "" != ""
+        }
+        
+        private static func queueButtonEnabledForQueueCount(_ value: Int) -> Bool {
+            return value > 0
         }
     }
 }

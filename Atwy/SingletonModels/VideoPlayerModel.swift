@@ -32,7 +32,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     private var loadingVideoTask: Task<Void, Never>? = nil
     
     @Published var isFetchingAppreciation: Bool = false
-    @Published private(set) var currentItem: YTAVPlayerItem? = nil {
+    @Published @objc dynamic private(set) var currentItem: YTAVPlayerItem? = nil {
         didSet {
             self.player.updateEndAction()
         }
