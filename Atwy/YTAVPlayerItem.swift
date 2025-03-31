@@ -280,6 +280,10 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         }
     }
     
+    func addComment(_ comment: YTComment, at index: Int = 0) {
+        self.comments?.results.insert(comment, at: index)
+    }
+    
     func addReplyToComment(_ commentId: String, reply: YTComment) {
         guard let commentIndex = self.getCommentIndex(forId: commentId) else { return }
 
