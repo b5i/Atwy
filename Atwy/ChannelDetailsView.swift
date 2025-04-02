@@ -270,7 +270,7 @@ struct ChannelDetailsView: View {
         }
     }
     
-    private class Model: ObservableObject {
+    class Model: ObservableObject {
         @Published var channelInfos: ChannelInfosResponse?
         
         @Published var isFetchingChannelInfos: Bool = false

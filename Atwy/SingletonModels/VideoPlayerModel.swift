@@ -23,7 +23,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
 
     let player = CustomAVPlayer(playerItem: nil)
     #if !os(macOS)
-    // TODO: implement AVNavigationMarkersGroup
     private(set) lazy var controller = AVPlayerViewController() // lazy var to avoid  -[UIViewController init] must be used from main thread only
 
     private(set) var nowPlayingSession: MPNowPlayingSession?

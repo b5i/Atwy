@@ -12,6 +12,7 @@ import CoreImage.CIFilterBuiltins
 
 class VariableBlurEffectView: UIVisualEffectView {
     let orientation: Orientation
+    let radius: CGFloat
     
     private var observer: AnyObject? = nil
     
@@ -33,8 +34,9 @@ class VariableBlurEffectView: UIVisualEffectView {
         self.updateBlur()
     }
     
-    init(orientation: Orientation) {
+    init(orientation: Orientation, radius: CGFloat = 20) {
         self.orientation = orientation
+        self.radius = radius
         super.init(effect: UIBlurEffect(style: .regular))
         if !self.updateBlur() {
             self.effect = .some(UIBlurEffect(style: .regular))
@@ -68,7 +70,7 @@ class VariableBlurEffectView: UIVisualEffectView {
 
         guard let cgMaskImage = Self.imageForOrientation[orientation] else { return false }
         
-        variableBlur.setValue(20, forKey: "inputRadius")
+        variableBlur.setValue(radius, forKey: "inputRadius")
         variableBlur.setValue(cgMaskImage, forKey: "inputMaskImage")
         variableBlur.setValue(true, forKey: "inputNormalizeEdges")
         
@@ -131,9 +133,10 @@ class VariableBlurEffectView: UIVisualEffectView {
 
 struct VariableBlurView: UIViewRepresentable {
     let orientation: VariableBlurEffectView.Orientation
+    var radius: CGFloat = 20
 
     func makeUIView(context: Context) -> VariableBlurEffectView {
-        VariableBlurEffectView(orientation: orientation)
+        VariableBlurEffectView(orientation: orientation, radius: radius)
     }
 
     func updateUIView(_ uiView: VariableBlurEffectView, context: Context) {}

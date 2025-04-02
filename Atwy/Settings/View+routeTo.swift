@@ -48,6 +48,9 @@ public extension View {
                     PrivateAPIsSettingsView()
                 case .licensesSettings:
                     LicensesView()
+                case .channelDetailsv2:
+                    //ChannelDetailsUIKit()
+                    LoadingView()
                 }
             })
     }

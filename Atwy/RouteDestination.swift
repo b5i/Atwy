@@ -32,6 +32,8 @@ public enum RouteDestination: Hashable {
     case loggerSettings
     case privateAPIsSettings
     case licensesSettings
+    
+    case channelDetailsv2
 }
 
 extension YTLittleChannelInfos {

@@ -19,8 +19,6 @@ struct ContentView: View {
     @Namespace private var sheetAnimation
     @State private var errorText = ""
     @State private var showOverlay: Bool = true
-    private var settingsSheetBinding = SheetsModel.shared.makeSheetBinding(.settings)
-    private var watchVideoBinding = SheetsModel.shared.makeSheetBinding(.watchVideo)
     @ObservedObject private var network = NetworkReachabilityModel.shared
     @ObservedObject private var APIM = APIKeyModel.shared
     @ObservedObject private var VPM = VideoPlayerModel.shared
@@ -28,7 +26,10 @@ struct ContentView: View {
     @ObservedObject private var DM = DownloadersModel.shared
     @ObservedObject private var PM = PopupsModel.shared
     @ObservedObject private var NPM = NavigationPathModel.shared
+    @ObservedObject private var SM = SheetsModel.shared
     var body: some View {
+        let settingsSheetBinding = SM.makeSheetBinding(.settings)
+        let watchVideoBinding = SM.makeSheetBinding(.watchVideo)
         TabView(selection: $NPM.currentTab) {
             TabBarElement(DestinationView: {
                 SearchView()
