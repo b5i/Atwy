@@ -50,6 +50,9 @@ struct UsersPlaylistsListView: View {
         .onAppear {
             self.model.getPlaylists()
         }
+        .refreshable {
+            self.model.getPlaylists(forceRefresh: true)
+        }
         .navigationTitle("Playlists")
         .customNavigationTitleWithRightIcon {
             ShowSettingsButtonView()
@@ -67,8 +70,9 @@ struct UsersPlaylistsListView: View {
         
         @Published private(set) var isFetching: Bool = false
         
-        func getPlaylists() {
+        func getPlaylists(forceRefresh: Bool = false) {
             guard !isFetching else { return }
+            guard forceRefresh || playlists == nil else { return }
             
             DispatchQueue.main.safeSync {
                 self.isFetching = true
