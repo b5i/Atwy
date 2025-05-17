@@ -11,6 +11,8 @@ import SwiftUI
 struct CommentBoxView<Content: View>: View {
     @ViewBuilder let content: () -> Content
     
+    let shouldPadTrailing: Bool // used for swipeactions that can already pad
+    
     var body: some View {
         VStack {
             content()
@@ -26,6 +28,6 @@ struct CommentBoxView<Content: View>: View {
                 .foregroundStyle(Color(cgColor: .init(red: 0.7, green: 0.7, blue: 0.7, alpha: 1)))
                 .opacity(0.5)
         }
-        .padding(.horizontal)
+        .padding(self.shouldPadTrailing ? .horizontal : .leading)
     }
 }

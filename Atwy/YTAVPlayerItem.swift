@@ -290,6 +290,18 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         self.comments?.results[commentIndex.commentIndex].replies.insert(reply, at: (commentIndex.replyIndex ?? -1) + 1)
     }
     
+    func removeComment(withIdentifier identifier: String, animated: Bool) {
+        self.comments?.results = self.comments?.results
+            .filter {
+                $0.commentIdentifier != identifier
+            }
+            .map { comment in
+                var new = comment
+                new.replies = new.replies.filter({$0.commentIdentifier != identifier}) // only one level of replies
+                return new
+            } ?? []
+    }
+    
     struct CommentPosition {
         var commentIndex: Int
         var replyIndex: Int?

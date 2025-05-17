@@ -19,7 +19,7 @@ struct GlobalCustomCommentView: View {
     @ObservedObject private var APIM = APIKeyModel.shared
     private let accessoriesColor: Color = Color(cgColor: .init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1))
     var body: some View {
-        CommentBoxView {
+        CommentBoxView(content: {
             let username = APIM.userAccount?.channelHandle
             TopUtilitiesView(comment: .init(commentIdentifier: "", sender: .init(name: username ?? "You", channelId: "", thumbnails: APIM.userAccount?.avatar ?? []), text: "", replies: [], actionsParams: [:]), largeText: false, isExpanded: .constant(false))
             CommentTextField(replyText: $commentText, replyTextSize: .constant(nil))
@@ -62,7 +62,7 @@ struct GlobalCustomCommentView: View {
             .disabled(commentText.isEmpty)
             .padding(.top, 10)
             .frame(maxWidth: .infinity, alignment: .trailing)
-        }
+        }, shouldPadTrailing: true)
         .disabled(APIM.userAccount == nil || postCommentToken == nil)
         .fixedSize(horizontal: false, vertical: true)
     }

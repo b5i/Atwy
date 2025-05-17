@@ -23,16 +23,22 @@ struct CommentsSectionView: View {
                     }
             } else if currentItem.comments != nil {
                 ScrollView {
-                    LazyVStack {
+                    LazyVStack(spacing: 10) {
                         GlobalCustomCommentView(postCommentToken: currentItem.comments?.commentCreationToken, addCommentAction: { newComment in
                             currentItem.addComment(newComment)
                         })
                         ForEach(currentItem.comments?.results ?? [], id: \.commentIdentifier) { comment in
+                            let deleteCallback: (String) -> Void = { commentId in
+                                withAnimation {
+                                    self.currentItem.removeComment(withIdentifier: commentId, animated: true)
+                                }
+                            }
+                            
                             if #available(iOS 17.0, *) {
-                                CommentView(comment: comment)
+                                CommentView(comment: comment, deleteCallback: deleteCallback)
                                     .geometryGroup() // avoid jumping comments
                             } else {
-                                CommentView(comment: comment)
+                                CommentView(comment: comment, deleteCallback: deleteCallback)
                             }
                         }
                         if currentItem.isFetchingComments == true {

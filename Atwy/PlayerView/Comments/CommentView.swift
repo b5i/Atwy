@@ -9,11 +9,14 @@
 import SwiftUI
 import YouTubeKit
 import OSLog
+import SwipeActions
 
 struct CommentView: View {
     let comment: YTComment
     
+    let deleteCallback: (_ commentId: String) -> Void
     var baseReplyText: String? = nil
+    
     @State private var baseReplyTextAlreadySet: Bool = false
     
     @State private var isExpanded: Bool = false
@@ -26,7 +29,7 @@ struct CommentView: View {
     @State private var replyText: String = ""
     @State private var replyTextSize: CGFloat? = nil
     @State private var isSubmittingReply: Bool = false
-    
+        
     private let maxLines: Int = 5
     
     private var largeText: Bool {
@@ -49,42 +52,61 @@ struct CommentView: View {
     
     var body: some View {
         VStack {
-            CommentBoxView {
-                HStack {
-                    VStack(alignment: .leading) {
-                        TopUtilitiesView(comment: self.comment, largeText: self.largeText, isExpanded: $isExpanded)
-                        Text(self.comment.text)
-                            .foregroundStyle(.white)
-                            .font(.system(size: self.commentFontSize))
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(self.isExpanded ? nil : self.maxLines) // we add a "Read More button that takes one line"
-                        //.frame(maxHeight: .infinity, alignment: .top)
-                            .background {
-                                // get size of text
-                                Text(self.comment.text)
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: self.commentFontSize))
-                                    .multilineTextAlignment(.leading)
-                                    .lineLimit(nil)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .overlay {
-                                        GeometryReader { geometry in
-                                            Color.clear
-                                                .onAppear {
-                                                    self.textHeight = geometry.size.height
-                                                }
+            SwipeView {
+                CommentBoxView(content: {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            TopUtilitiesView(comment: self.comment, largeText: self.largeText, isExpanded: $isExpanded)
+                            Text(self.comment.text)
+                                .foregroundStyle(.white)
+                                .font(.system(size: self.commentFontSize))
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(self.isExpanded ? nil : self.maxLines) // we add a "Read More button that takes one line"
+                            //.frame(maxHeight: .infinity, alignment: .top)
+                                .background {
+                                    // get size of text
+                                    Text(self.comment.text)
+                                        .foregroundStyle(.white)
+                                        .font(.system(size: self.commentFontSize))
+                                        .multilineTextAlignment(.leading)
+                                        .lineLimit(nil)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .overlay {
+                                            GeometryReader { geometry in
+                                                Color.clear
+                                                    .onAppear {
+                                                        self.textHeight = geometry.size.height
+                                                    }
+                                            }
                                         }
-                                    }
-                                    .frame(height: 99999)
-                                    .hidden()
-                            }
-                            .frame(maxHeight: self.isExpanded ? 99999 : self.textHeight)
-                            .clipped()
-                        self.bottomUtilitiesView
+                                        .frame(height: 99999)
+                                        .hidden()
+                                }
+                                .frame(maxHeight: self.isExpanded ? 99999 : self.textHeight)
+                                .clipped()
+                            self.bottomUtilitiesView
+                        }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: (self.isExpanded ? 9999 : nonExpandedBlocHeight), alignment: .top)
+                }, shouldPadTrailing: false)
+            } trailingActions: { _ in
+                if self.comment.actionsParams[.delete] != nil {
+                    SwipeAction(systemImage: "trash", backgroundColor: .red, action: {
+                        Task {
+                            do {
+                                try await comment.commentAction(youtubeModel: YTM, action: .delete)
+                                self.deleteCallback(comment.commentIdentifier)
+                            } catch {
+                                Logger.atwyLogs.simpleLog("Couldn't delete comment: \(error.localizedDescription)")
+                            }
+                        }
+                    })
+                    .colorScheme(.dark) // white icon
                 }
-                .frame(maxWidth: .infinity, maxHeight: (self.isExpanded ? 9999 : nonExpandedBlocHeight), alignment: .top)
             }
+            .swipeActionCornerRadius(10)
+            .swipeMinimumDistance(20)
+            .padding(.trailing)
             if self.repliesExpanded {
                 self.repliesView
             }
@@ -227,9 +249,9 @@ struct CommentView: View {
                     .frame(width: 4)
                     .opacity(self.comment.replies.isEmpty ? 0 : 0.6)
                     .padding(.leading)
-                LazyVStack {
+                LazyVStack(spacing: 10) {
                     ForEach(self.comment.replies, id: \.commentIdentifier) { reply in
-                        CommentView(comment: reply, baseReplyText: self.comment.sender?.name != nil ? (self.comment.sender?.name ?? "") + " " : nil)
+                        CommentView(comment: reply, deleteCallback: deleteCallback, baseReplyText: self.comment.sender?.name != nil ? (self.comment.sender?.name ?? "") + " " : nil)
                     }
                 }
             }
@@ -279,10 +301,10 @@ struct CommentView: View {
     ]
     
     ScrollView {
-        LazyVStack {
+        LazyVStack(spacing: 10) {
             GlobalCustomCommentView(postCommentToken: "", addCommentAction: {_ in})
             ForEach(comments, id: \.commentIdentifier) { comment in
-                CommentView(comment: comment)
+                CommentView(comment: comment, deleteCallback: {_ in})
             }
         }
         .padding()
