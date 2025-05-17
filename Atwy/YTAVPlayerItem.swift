@@ -208,7 +208,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     }
     
     func fetchVideoCommentsContinuation() {
-        guard !self.isFetchingComments, let comments  = self.comments else { return }
+        guard !self.isFetchingComments, let comments  = self.comments, comments.continuationToken != nil else { return }
         
         DispatchQueue.main.safeSync {
             self.isFetchingComments = true
