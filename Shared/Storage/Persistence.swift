@@ -264,14 +264,13 @@ class PersistenceModel: ObservableObject {
                 let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                 imageTask.start()
                 imageTask.waitUntilFinished()
-                backgroundContext.performAndWait {
-                    if let imageData = imageTask.imageData {
-                        thumbnailData = self.cropImage(data: imageData)
-                    }
-                }
+                thumbnailData = imageData
             }
-            newItem.thumbnailData = thumbnailData
-            
+        
+            if let rawThumbnailData = thumbnailData {
+                newItem.thumbnailData = self.cropImage(data: rawThumbnailData)
+            }
+                        
             if let channelId = video.channel?.channelId {
                 let fetchRequest = DownloadedChannel.fetchRequest()
                 fetchRequest.fetchLimit = 1
