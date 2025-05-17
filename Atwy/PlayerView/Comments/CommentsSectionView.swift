@@ -54,6 +54,7 @@ struct CommentsSectionView: View {
                     .padding(.vertical)
                 }
                 .scrollContentBackground(.hidden)
+                .ignoresSafeArea(.keyboard, edges: .bottom)
             } else {
                 Text("No comments")
                     .foregroundStyle(.white)

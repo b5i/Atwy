@@ -16,50 +16,64 @@ struct GlobalCustomCommentView: View {
     @State private var commentText: String = ""
     @State private var isSubmittingReply: Bool = false
     
+    @FocusState private var isFocused: Bool
+    
     @ObservedObject private var APIM = APIKeyModel.shared
     private let accessoriesColor: Color = Color(cgColor: .init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1))
     var body: some View {
         CommentBoxView(content: {
             let username = APIM.userAccount?.channelHandle
             TopUtilitiesView(comment: .init(commentIdentifier: "", sender: .init(name: username ?? "You", channelId: "", thumbnails: APIM.userAccount?.avatar ?? []), text: "", replies: [], actionsParams: [:]), largeText: false, isExpanded: .constant(false))
-            CommentTextField(replyText: $commentText, replyTextSize: .constant(nil))
-            Button {
-                guard let postCommentToken = postCommentToken else { return }
-                
-                withAnimation {
-                    self.isSubmittingReply = true
+            CommentTextField(replyText: $commentText, replyTextSize: .constant(nil), isFocused: $isFocused)
+            HStack(spacing: 20) {
+                if isFocused {
+                    Button {
+                        self.isFocused = false
+                    } label: {
+                        Image(systemName: "multiply")
+                    }
+                    .buttonStyle(.plain)
                 }
-                Task {
-                    do {
-                        let result = try await CreateCommentResponse.sendThrowingRequest(youtubeModel: YTM, data: [.params: postCommentToken, .text: commentText])
-                        guard result.success, let newComment = result.newComment else { return }
-                        DispatchQueue.main.safeSync {
-                            self.commentText = ""
+                Button {
+                    self.isFocused = false
+                    guard let postCommentToken = postCommentToken else { return }
+                    
+                    withAnimation {
+                        self.isSubmittingReply = true
+                    }
+                    Task {
+                        do {
+                            let result = try await CreateCommentResponse.sendThrowingRequest(youtubeModel: YTM, data: [.params: postCommentToken, .text: commentText])
+                            guard result.success, let newComment = result.newComment else { return }
+                            DispatchQueue.main.safeSync {
+                                self.commentText = ""
+                                withAnimation {
+                                    self.addCommentAction(newComment)
+                                }
+                            }
+                        } catch {}
+                        
+                        DispatchQueue.main.async {
                             withAnimation {
-                                self.addCommentAction(newComment)
+                                self.isSubmittingReply = false
+                                self.commentText = ""
                             }
                         }
-                    } catch {}
-                    
-                    DispatchQueue.main.async {
-                        withAnimation {
-                            self.isSubmittingReply = false
-                            self.commentText = ""
-                        }
+                    }
+                } label: {
+                    if self.isSubmittingReply {
+                        ProgressView()
+                            .tint(self.accessoriesColor)
+                    } else {
+                        Image(systemName: "paperplane")
                     }
                 }
-            } label: {
-                if self.isSubmittingReply {
-                    ProgressView()
-                        .tint(self.accessoriesColor)
-                } else {
-                    Image(systemName: "paperplane")
-                }
+                .buttonStyle(.plain)
+                .disabled(commentText.isEmpty)
             }
-            .buttonStyle(.plain)
+            .animation(.spring(duration: 0.1), value: self.isFocused)
             .padding(.leading)
             .foregroundStyle(accessoriesColor)
-            .disabled(commentText.isEmpty)
             .padding(.top, 10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }, shouldPadTrailing: true)

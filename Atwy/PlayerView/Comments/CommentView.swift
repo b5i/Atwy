@@ -29,6 +29,8 @@ struct CommentView: View {
     @State private var replyText: String = ""
     @State private var replyTextSize: CGFloat? = nil
     @State private var isSubmittingReply: Bool = false
+    
+    @FocusState private var isFocused: Bool
         
     private let maxLines: Int = 5
     
@@ -177,6 +179,7 @@ struct CommentView: View {
                     Button {
                         withAnimation {
                             self.isReplying.toggle()
+                            self.isFocused = self.isReplying
                         }
                     } label: {
                         if #available(iOS 17.0, *) {
@@ -193,6 +196,7 @@ struct CommentView: View {
                         Button {
                             withAnimation {
                                 self.isSubmittingReply = true
+                                self.isFocused = false
                             }
                             Task {
                                 do {
@@ -232,7 +236,7 @@ struct CommentView: View {
                 }
             }
             if isReplying {
-                CommentTextField(replyText: $replyText, replyTextSize: $replyTextSize)
+                CommentTextField(replyText: $replyText, replyTextSize: $replyTextSize, isFocused: $isFocused)
                     .padding(.top)
             }
         }

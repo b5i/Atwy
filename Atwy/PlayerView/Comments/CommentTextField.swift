@@ -11,12 +11,14 @@ import SwiftUI
 struct CommentTextField: View {
     @Binding var replyText: String
     @Binding var replyTextSize: CGFloat?
+    @FocusState.Binding var isFocused: Bool
     
     private let accessoriesColor: Color = Color(cgColor: .init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1))
     
     var body: some View {
         TextField("Comment", text: self.$replyText, prompt: Text("Comment").foregroundColor(accessoriesColor), axis: .vertical)
             .textFieldStyle(ReplyCommentTextFieldStyle())
+            .focused($isFocused)
             .background {
                 TextField("CommentHidden", text: self.$replyText, prompt: Text("CommentHidden").foregroundColor(accessoriesColor), axis: .vertical)
                     .textFieldStyle(ReplyCommentTextFieldStyle())
