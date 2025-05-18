@@ -19,14 +19,14 @@ struct PlayerTopActionsView: View {
                 if let currentItem = VPM.currentItem {
                     VideoAppreciationView(currentItem: currentItem)
                 }
-                if let video = VPM.currentItem?.video ?? VPM.loadingVideo {
+                if let video = VPM.currentItem?.video ?? VPM.loadingVideo?.video {
                     if NRM.connected {
                         PlayerQuickActionView {
                             let downloadLocation: URL? = PersistenceModel.shared.currentData.downloadedVideoIds
                                 .first(where: {
                                     $0.videoId == video.videoId
                                 })?.storageLocation
-                            DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData, downloadURL: downloadLocation)
+                            DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData ?? VPM.loadingVideo?.data.thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(.white)
                         } action: {}
                             .contextMenu(menuItems: {

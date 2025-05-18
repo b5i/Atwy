@@ -134,7 +134,7 @@ struct AtwyApp: App {
                            let sanitizedVideoId = sanitizedVideoId
                         {
                             //                                Atwy://watch?_u4GmLb_NCo
-                            VideoPlayerModel.shared.loadVideo(video: YTVideo(videoId: sanitizedVideoId))
+                            VideoPlayerModel.shared.loadVideo(video: YTVideo(videoId: sanitizedVideoId).withData())
                             SheetsModel.shared.showSheet(.watchVideo)
                         }
                     case "channel":
@@ -163,20 +163,20 @@ struct AtwyApp: App {
         switch coreDataItem {
         case is DownloadedVideo:
             guard let video = coreDataItem as? DownloadedVideo else { break }
-            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnail, channelAvatarThumbnailData: video.channel?.thumbnail)
+            loadVideoAndOpenSheet(video: video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
         case is FavoriteVideo:
             guard let video = coreDataItem as? FavoriteVideo, NetworkReachabilityModel.shared.connected || (PersistenceModel.shared.getDownloadedVideo(videoId: video.videoId) != nil) else { break }
-            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnailData, channelAvatarThumbnailData: video.channel?.thumbnail)
+            loadVideoAndOpenSheet(video: video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
         case is DownloadedVideoChapter:
             guard let chapter = coreDataItem as? DownloadedVideoChapter, let video = chapter.video else { return }
-            loadVideoAndOpenSheet(video: video.toYTVideo(), videoThumbnailData: video.thumbnail, channelAvatarThumbnailData: video.channel?.thumbnail, seekTo: Double(chapter.startTimeSeconds))
+            loadVideoAndOpenSheet(video: video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)), seekTo: Double(chapter.startTimeSeconds))
         default:
             break
         }
         
-        func loadVideoAndOpenSheet(video: YTVideo, videoThumbnailData: Data? = nil, channelAvatarThumbnailData: Data? = nil, seekTo: Double? = nil) {
-            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                VideoPlayerModel.shared.loadVideo(video: video, thumbnailData: videoThumbnailData, channelAvatarImageData: channelAvatarThumbnailData, seekTo: seekTo)
+        func loadVideoAndOpenSheet(video: YTVideoWithData, videoThumbnailData: Data? = nil, channelAvatarThumbnailData: Data? = nil, seekTo: Double? = nil) {
+            if VideoPlayerModel.shared.currentItem?.videoId != video.video.videoId {
+                VideoPlayerModel.shared.loadVideo(video: video, seekTo: seekTo)
             } else if let seekTo = seekTo, !VideoPlayerModel.shared.isLoadingVideo {
                 VideoPlayerModel.shared.player.seek(to: CMTime(seconds: seekTo, preferredTimescale: 600))
             }

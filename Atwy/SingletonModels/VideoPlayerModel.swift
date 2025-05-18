@@ -28,7 +28,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     private(set) var nowPlayingSession: MPNowPlayingSession?
     #endif
     var isLoadingVideo: Bool { self.loadingVideo != nil }
-    @Published private(set) var loadingVideo: YTVideo? = nil
+    @Published private(set) var loadingVideo: YTVideoWithData? = nil
     private var loadingVideoTask: Task<Void, Never>? = nil
     
     @Published var isFetchingAppreciation: Bool = false
@@ -67,7 +67,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
         CoordinationManager.shared.$enqueuedVideo
             .sink(receiveValue: { video in
                 if let video = video {
-                    self.loadVideo(video: video)
+                    self.loadVideo(video: video.withData())
                 } else {
                     self.deleteCurrentVideo()
                 }
@@ -108,7 +108,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     func addVideoToBottomQueue(video: YTVideo) {
         if self.currentItem == nil, !self.isLoadingVideo {
-            self.loadVideo(video: video)
+            self.loadVideo(video: video.withData())
         } else {
             Task {
                 if let item = try? await YTAVPlayerItem(video: video) {
@@ -126,7 +126,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     func addVideoToTopQueue(video: YTVideo) {
         if self.currentItem == nil, !self.isLoadingVideo {
-            self.loadVideo(video: video)
+            self.loadVideo(video: video.withData())
         } else {
             Task {
                 if let item = try? await YTAVPlayerItem(video: video) {
@@ -142,13 +142,13 @@ class VideoPlayerModel: NSObject, ObservableObject {
     }
     
     /// `seekTo`: Variable that will make the player seek to that time (in seconds) as soon as it has loaded the video.
-    func loadVideo(video: YTVideo, thumbnailData: Data? = nil, channelAvatarImageData: Data? = nil, seekTo: Double? = nil) {
-        guard loadingVideo?.videoId != video.videoId, self.currentItem?.videoId != video.videoId else { return }
+    func loadVideo(video: YTVideoWithData, seekTo: Double? = nil) {
+        guard loadingVideo?.video.videoId != video.video.videoId, self.currentItem?.videoId != video.video.videoId else { return }
         self.deleteCurrentVideo()
         self.loadingVideo = video
         self.loadingVideoTask = Task {
             do {
-                let newItem = try await YTAVPlayerItem(video: video)
+                let newItem = try await YTAVPlayerItem(video: video.video, thumbnailData: video.data.thumbnailData, channelAvatarImageData: video.data.channelAvatarData)
                 /*
                 let djo = MPRemoteCommandCenter.shared()
             
@@ -271,7 +271,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                        }
                 //                    } else {
                 
-                guard self.loadingVideo?.videoId == video.videoId else { return }
+                guard self.loadingVideo?.video.videoId == video.video.videoId else { return }
                 self.player.replaceCurrentItem(with: newItem)
                 await self.player.updateEndAction()
                 if let seekTo = seekTo {

@@ -65,11 +65,10 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         }
 #endif
         
-        let isDownloaded: Bool
+        self.channelAvatarImageData = channelAvatarImageData
+        self.videoThumbnailData = thumbnailData
 
         if let downloadedVideo = PersistenceModel.shared.getDownloadedVideo(videoId: video.videoId) {
-            isDownloaded = true
-            
             self.streamingInfos = VideoInfosResponse.createEmpty()
             self.streamingInfos.streamingURL = downloadedVideo.storageLocation
             if let channel = downloadedVideo.channel {
@@ -78,13 +77,11 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.streamingInfos.title = downloadedVideo.title
             self.streamingInfos.videoDescription = downloadedVideo.videoDescription
             
-            self.videoThumbnailData = thumbnailData ?? downloadedVideo.thumbnail
-            self.channelAvatarImageData = channelAvatarImageData ?? downloadedVideo.channel?.thumbnail
+            self.videoThumbnailData = self.videoThumbnailData ?? downloadedVideo.thumbnail
+            self.channelAvatarImageData = self.channelAvatarImageData ?? downloadedVideo.channel?.thumbnail
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
         } else {
-            isDownloaded = false
-            
             guard NetworkReachabilityModel.shared.connected else { throw "Attempted to load a non-downloaded video while being offline." }
             
             await YTM.getVisitorData()

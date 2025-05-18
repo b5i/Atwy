@@ -18,7 +18,7 @@ struct VideoFromSearchView: View {
     var body: some View {
         Button {
             if VideoPlayerModel.shared.currentItem?.videoId != videoWithData.video.videoId {
-                VideoPlayerModel.shared.loadVideo(video: videoWithData.video, thumbnailData: self.videoWithData.data.thumbnailData, channelAvatarImageData: self.videoWithData.data.channelAvatarData)
+                VideoPlayerModel.shared.loadVideo(video: videoWithData)
             }
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {

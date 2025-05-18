@@ -17,6 +17,8 @@ struct OptionalItemChannelAvatarView: View {
         Group {
             if let currentItem = VPM.currentItem {
                 ChannelAvatarView(makeGradient: makeGradient, currentItem: currentItem)
+            } else if let imageData = VPM.loadingVideo?.data.channelAvatarData, let uiImage = UIImage(data: imageData) {
+                AvatarCircleView(image: uiImage, makeGradient: makeGradient)
             } else {
                 NoAvatarCircleView(makeGradient: makeGradient)
             }

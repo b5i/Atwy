@@ -72,7 +72,7 @@ struct DownloadingsView: View {
                         })
                         .onTapGesture {
                             if VideoPlayerModel.shared.currentItem?.videoId != downloader.downloadInfo.video.videoId {
-                                VideoPlayerModel.shared.loadVideo(video: downloader.downloadInfo.video)
+                                VideoPlayerModel.shared.loadVideo(video: downloader.downloadInfo.video.withData(.init(channelAvatarData: downloader.downloadInfo.channelThumbnailData, thumbnailData: downloader.downloadInfo.thumbnailData)))
                             }
                             SheetsModel.shared.showSheet(.watchVideo)
                         }

@@ -30,17 +30,9 @@ struct FavoritesView: View {
                     ForEach(sortedVideos) { (video: FavoriteVideo) in
                         let convertedResult = video.toYTVideo()
                         
-                        Button {
-                            if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                                VideoPlayerModel.shared.loadVideo(video: convertedResult)
-                            }
-                            
-                            SheetsModel.shared.showSheet(.watchVideo)
-                        } label: {
-                            VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
-                                .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
-                        }
-                        .listRowSeparator(.hidden)
+                        VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
+                            .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
+                            .listRowSeparator(.hidden)
                     }
                     Color.clear
                         .frame(height: 30)
@@ -189,14 +181,15 @@ struct VideoViewww: View {
     let video: FavoriteVideo
     let size: CGSize
     var body: some View {
+        let videoWithData = video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData))
         Button {
             if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                VideoPlayerModel.shared.loadVideo(video: video.toYTVideo())
+                VideoPlayerModel.shared.loadVideo(video: videoWithData)
             }
             
             SheetsModel.shared.showSheet(.watchVideo)
         } label: {
-            VideoFromSearchView(videoWithData: video.toYTVideo().withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnailData)))
+            VideoFromSearchView(videoWithData: videoWithData)
         }
         .frame(width: size.width, height: size.height)
     }

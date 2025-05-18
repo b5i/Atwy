@@ -29,17 +29,8 @@ struct DownloadedVideosView: View {
                         ForEach(sortedVideos) { (video: DownloadedVideo) in
                             let convertedResult = video.toYTVideo()
                             
-                            Button {
-                                if VideoPlayerModel.shared.currentItem?.videoId != video.videoId {
-                                    VideoPlayerModel.shared.loadVideo(video: convertedResult)
-                                }
-                                
-                                SheetsModel.shared.showSheet(.watchVideo)
-                            } label: {
-                                VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
-                                    .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
-                            }
-                            .listRowSeparator(.hidden)
+                            VideoFromSearchView(videoWithData: convertedResult.withData(.init(channelAvatarData: video.channel?.thumbnail, thumbnailData: video.thumbnail)))
+                                .frame(width: geometry.size.width, height: videoViewHeight, alignment: .center)
                         }
                         Color.clear
                             .frame(height: 30)

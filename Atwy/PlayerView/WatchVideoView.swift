@@ -160,7 +160,7 @@ struct WatchVideoView: View {
                                         .offset(x: topMenuShown ? -geometry.size.width * 0.55 : 0, y: topMenuShown ? -geometry.size.height * 0.15 : -geometry.size.height * 0.01)
                                     if !topMenuShown {
                                         VStack(alignment: .leading, spacing: 2) {
-                                            let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.title ?? ""
+                                            let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.video.title ?? ""
                                             Text(videoTitle)
                                                 .font(.callout)
                                                 .foregroundStyle(.white)
@@ -170,7 +170,7 @@ struct WatchVideoView: View {
                                                 .multilineTextAlignment(.leading)
                                                 .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
                                             
-                                            let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.channel?.name ?? ""
+                                            let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.video.channel?.name ?? ""
                                             Text(channelName)
                                                 .font(.subheadline)
                                                 .lineLimit(2)
