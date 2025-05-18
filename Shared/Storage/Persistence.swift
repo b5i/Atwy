@@ -264,7 +264,7 @@ class PersistenceModel: ObservableObject {
                 let imageTask = DownloadImageOperation(imageURL: thumbnailURL)
                 imageTask.start()
                 imageTask.waitUntilFinished()
-                thumbnailData = imageData
+                thumbnailData = imageTask.imageData
             }
         
             if let rawThumbnailData = thumbnailData {
