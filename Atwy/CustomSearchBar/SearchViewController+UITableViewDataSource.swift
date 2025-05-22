@@ -23,6 +23,7 @@ extension SearchViewController: UITableViewDataSource {
             }, removeAction: { [weak self] in
                 guard let self = self else { return }
                 PersistenceModel.shared.removeSearch(withUUID: searchHistoryEntry.uuid)
+                self.historyAutocompletionEntries.removeAll(where: {$0.uuid == searchHistoryEntry.uuid})
                 self.autocompletionScrollView?.deleteRows(at: [indexPath], with: .automatic)
                 self.clearHistoryLabel?.isHidden = !self.textBinding.text.isEmpty || self.historyAutocompletionEntries.isEmpty
             })

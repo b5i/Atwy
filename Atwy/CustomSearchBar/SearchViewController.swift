@@ -46,7 +46,7 @@ class SearchViewController: UIViewController {
     
     private var isGettingSearchBarHeight: Bool = false
     
-    private(set) var historyAutocompletionEntries: [PersistenceModel.PersistenceData.Search] = []
+    var historyAutocompletionEntries: [PersistenceModel.PersistenceData.Search] = []
         
     init(textBinding: TextBinding, onSubmit: @escaping () -> Void) throws {
         self.textBinding = textBinding
@@ -258,6 +258,7 @@ class SearchViewController: UIViewController {
     
     @objc private func clearHistory() {
         PersistenceModel.shared.removeSearchHistory()
+        self.historyAutocompletionEntries = []
         self.autocompletionScrollView.reloadData()
         self.clearHistoryLabel.isHidden = true
         self.updateIndicationLabel()
