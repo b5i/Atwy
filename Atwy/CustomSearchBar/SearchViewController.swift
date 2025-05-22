@@ -28,6 +28,15 @@ class SearchViewController: UIViewController {
     private var keyboardBackdropView: UIVisualEffectView!
     private var titleLabel: UILabel!
     private var titleBackground: VariableBlurEffectView!
+    private var topTitleBackground: VariableBlurEffectView!
+    
+    /*
+     Title & Clear label
+     TopTitleBackground
+     Section headers ("History" and "Search")
+     TitleBackground
+     Autocompletion entries
+     */
             
     private var publishersStorage: Set<AnyCancellable> = .init()
         
@@ -37,10 +46,21 @@ class SearchViewController: UIViewController {
     
     private var isGettingSearchBarHeight: Bool = false
     
+    private(set) var historyAutocompletionEntries: [PersistenceModel.PersistenceData.Search] = []
+        
     init(textBinding: TextBinding, onSubmit: @escaping () -> Void) throws {
         self.textBinding = textBinding
+        self.historyAutocompletionEntries = PersistenceModel.shared.currentData.getMatchingHistoryEntries(query: textBinding.text)
         self.onSubmit = onSubmit
         super.init(nibName: nil, bundle: nil)
+        
+        self.textBinding.didChangeCallbacks.append({ [weak self] newText in
+            guard let self = self else { return }
+            
+            self.historyAutocompletionEntries = PersistenceModel.shared.currentData.getMatchingHistoryEntries(query: newText)
+            self.clearHistoryLabel?.isHidden = self.historyAutocompletionEntries.isEmpty
+        })
+        
         setupAutocompletionAndHistory()
         setupBackgroundView()
         keyboardBackdropView = try view.addUIKKBBackdropView()
@@ -80,12 +100,16 @@ class SearchViewController: UIViewController {
         autocompletionScrollView.separatorStyle = .none
         autocompletionScrollView.dataSource = self
         autocompletionScrollView.delegate = self
+        autocompletionScrollView.register(SearchSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: SearchSectionHeaderView.reuseIdentifier)
         autocompletionScrollView.register(SearchHistoryEntryView.self, forCellReuseIdentifier: SearchHistoryEntryView.reuseIdentifier)
+        autocompletionScrollView.sectionHeaderTopPadding = 0
         autocompletionScrollView.allowsSelection = false
         autocompletionScrollView.translatesAutoresizingMaskIntoConstraints = false
         autocompletionScrollView.backgroundColor = .clear
-        autocompletionScrollView.contentInset.top = view.safeAreaLayoutGuide.layoutFrame.minY + Self.topSearchTitleBackgroundHeight + 20
-        autocompletionScrollView.contentInset.bottom = TopSearchBarController.searchBarHeight ?? 0
+        autocompletionScrollView.contentInset.top = view.safeAreaLayoutGuide.layoutFrame.minY + Self.topSearchTitleBackgroundHeight
+        autocompletionScrollView.contentInset.bottom = view.frame.height - (TopSearchBarController.searchBarHeight ?? 0) - 15
+        autocompletionScrollView.verticalScrollIndicatorInsets.top = view.safeAreaLayoutGuide.layoutFrame.minY + Self.topSearchTitleBackgroundHeight // looks better without? + SearchSectionHeaderView.headerSize
+        autocompletionScrollView.verticalScrollIndicatorInsets.bottom = view.frame.height - (TopSearchBarController.searchBarHeight ?? 0) - 15
                 
         view.addSubview(autocompletionScrollView)
         
@@ -128,18 +152,17 @@ class SearchViewController: UIViewController {
         titleBackground = VariableBlurEffectView(orientation: .topToBottom)
         titleBackground.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(titleBackground)
-        
+        autocompletionScrollView.addSubview(titleBackground) // so the section headers will go on top of it
+                
         NSLayoutConstraint.activate([
             titleBackground.topAnchor.constraint(equalTo: view.topAnchor),
             titleBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            titleBackground.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Self.topSearchTitleBackgroundHeight),
+            titleBackground.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Self.topSearchTitleBackgroundHeight + SearchSectionHeaderView.headerSize),
             titleBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
         let tapGestureRecognizer = UITapGestureRecognizer()
         tapGestureRecognizer.addTarget(self, action: #selector(tapGestureRecognized))
-        
         titleBackground.addGestureRecognizer(tapGestureRecognizer)
     }
     
@@ -150,11 +173,27 @@ class SearchViewController: UIViewController {
         titleLabel.font = .systemFont(ofSize: 34, weight: .bold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        titleBackground.contentView.addSubview(titleLabel)
+        topTitleBackground = VariableBlurEffectView(orientation: .topToBottom)
+        topTitleBackground.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(topTitleBackground) // so the section headers will go under it
+                
+        NSLayoutConstraint.activate([
+            topTitleBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            topTitleBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topTitleBackground.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Self.topSearchTitleBackgroundHeight),
+            topTitleBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        let tapGestureRecognizer = UITapGestureRecognizer()
+        tapGestureRecognizer.addTarget(self, action: #selector(tapGestureRecognized))
+        topTitleBackground.addGestureRecognizer(tapGestureRecognizer)
+        
+        topTitleBackground.contentView.addSubview(titleLabel)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: titleBackground.safeAreaLayoutGuide.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: titleBackground.leadingAnchor, constant: Self.searchTitleLeadingPadding)
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: topTitleBackground.leadingAnchor, constant: Self.searchTitleLeadingPadding)
         ])
     }
     
@@ -163,7 +202,7 @@ class SearchViewController: UIViewController {
         clearHistoryLabel.isUserInteractionEnabled = true
         clearHistoryLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        titleBackground.contentView.addSubview(clearHistoryLabel)
+        topTitleBackground.contentView.addSubview(clearHistoryLabel)
         
         NSLayoutConstraint.activate([
             clearHistoryLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -175,11 +214,7 @@ class SearchViewController: UIViewController {
         
         clearHistoryLabel.addGestureRecognizer(tapGestureRecognizer)
         
-        clearHistoryLabel.isHidden = !textBinding.text.isEmpty || PersistenceModel.shared.currentData.searchHistory.isEmpty
-        
-        textBinding.didChangeCallbacks.append { [weak clearHistoryLabel] newText in
-            clearHistoryLabel?.isHidden = !newText.isEmpty || PersistenceModel.shared.currentData.searchHistory.isEmpty
-        }
+        clearHistoryLabel.isHidden = self.historyAutocompletionEntries.isEmpty
     }
     
     private func setupSearchHistoryIndicationLabel() {

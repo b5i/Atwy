@@ -521,10 +521,18 @@ class PersistenceModel: ObservableObject {
             self.id = UUID()
         }
         
+        func getMatchingHistoryEntries(query: String) -> [Search] {
+            return self.searchHistory.filter { $0.matchesQuery(query) }
+        }
+        
         struct Search: Equatable {
             var query: String
             var timestamp: Date
             var uuid: UUID
+            
+            func matchesQuery(_ query: String) -> Bool {
+                return query == "" || !query.lowercased().components(separatedBy: " ").filter({$0 != ""}).contains(where: {!self.query.lowercased().contains($0)})
+            }
         }
     }
 }
