@@ -14,6 +14,7 @@ struct HistoryView: View {
     @StateObject private var model = Model()
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     @State private var searchText: String = ""
+    @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
         VStack {
             if model.isFetching {
@@ -36,6 +37,7 @@ struct HistoryView: View {
                             }
                         }
                         .listStyle(.plain)
+                        .contentMargins(.bottom, length: VPM.currentItem != nil ? 70 : 0)
                     }
                 } else {
                     Text("No videos found for \"\(searchText)\".")

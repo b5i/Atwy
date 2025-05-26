@@ -26,7 +26,7 @@ struct UsersPlaylistsListView: View {
                 LoadingView()
             } else {
                 GeometryReader { geometry in
-                    ScrollView(.vertical, content: {
+                    ScrollView(.vertical) {
                         LazyVStack {
                             Color.clear.frame(width: 0, height: 20)
                             let playlistsToDisplay: [YTPlaylist] = search.isEmpty ? model.playlists ?? playlists : (model.playlists ?? playlists).filter({$0.title?.contains(search) ?? false})
@@ -36,9 +36,9 @@ struct UsersPlaylistsListView: View {
                                     .frame(width: geometry.size.width, height: 180)
                                     .routeTo(.playlistDetails(playlist: playlist))
                             }
-                            Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 50 : 0)
                         }
-                    })
+                    }
+                    .contentMargins(.bottom, length: VPM.currentItem != nil ? 70 : 0)
 #if os(macOS)
                     .searchable(text: $search, placement: .toolbar)
 #else

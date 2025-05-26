@@ -57,9 +57,9 @@ struct PersonnalAccountView: View {
                                 .frame(width: geometry.size.width, height: geometry.size.height * 0.3)
                             }
                         }
-                        Color.clear.frame(width: 0, height: (VPM.currentItem != nil) ? 100 : 50)
                     })
                     .scrollIndicators(.hidden)
+                    .contentMargins(.bottom, length: VPM.currentItem != nil ? 70 : 0)
                 }
             }
             .routeContainer()

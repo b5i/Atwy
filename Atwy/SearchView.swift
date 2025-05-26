@@ -24,6 +24,7 @@ struct SearchView: View {
     @ObservedObject private var model = Model.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
+    @ObservedObject private var VPM = VideoPlayerModel.shared
     var body: some View {
         VStack {
             if PSM.customSearchBarEnabled, PrivateManager.shared.isCustomSearchMenuAvailable, IUTM.userTyping, !model.autoCompletion.isEmpty {
@@ -99,7 +100,8 @@ struct SearchView: View {
                     })
                     ElementsInfiniteScrollView(
                         items: itemsBinding,
-                        shouldReloadScrollView: $shouldReloadScrollView, 
+                        shouldReloadScrollView: $shouldReloadScrollView,
+                        shouldAddBottomSpacing: VPM.currentItem != nil,
                         refreshAction: { endAction in
                             withAnimation(.easeOut(duration: 0.3)) {
                                 endAction()
@@ -112,8 +114,7 @@ struct SearchView: View {
                                     self.shouldReloadScrollView = true
                                 }
                             }
-                        },
-                        bottomSpacing: 70
+                        }
                     )
                 }
             }

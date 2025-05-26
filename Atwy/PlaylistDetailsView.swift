@@ -60,8 +60,9 @@ struct PlaylistDetailsView: View {
                             })
                             ElementsInfiniteScrollView(
                                 items: videosBinding,
-                                shouldReloadScrollView: $shouldReloadScrollView, 
-                                 fetchMoreResultsAction: {
+                                shouldReloadScrollView: $shouldReloadScrollView,
+                                shouldAddBottomSpacing: VPM.currentItem != nil,
+                                fetchMoreResultsAction: {
                                     model.fetchPlaylistContinuation()
                                 }
                             )
@@ -103,9 +104,6 @@ struct PlaylistDetailsView: View {
                         //.frame(width: geometry.size.width, height: topPaddingForInformations)
                     }, height: topPaddingForInformations)
                     //.padding(.top, topPaddingForInformations)
-                }
-                if VPM.currentItem != nil {
-                    Color.clear.frame(width: 0, height: 70)
                 }
             }
             .onAppear {
