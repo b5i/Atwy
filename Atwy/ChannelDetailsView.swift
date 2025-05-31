@@ -22,7 +22,11 @@ struct ChannelDetailsView: View {
     @State private var selectedCategory: ChannelInfosResponse.RequestTypes? = .videos
     @State private var shouldReloadScrollView: Bool = false
     @State private var isChangingSubscriptionStatus: Bool = false
-    @ObservedObject private var VPM = VideoPlayerModel.shared
+    
+    @ObservedModel(VideoPlayerModel.shared, { model in
+        return model.currentItem != nil
+    }) private var hasVideoItem
+    
     var body: some View {
         if model.isFetchingChannelInfos {
             HStack(alignment: .center) {
@@ -34,115 +38,121 @@ struct ChannelDetailsView: View {
             VStack {
                 if let channelInfos = model.channelInfos {
                     VStack {
-                        ChannelBannerRectangleView(channelBannerURL: channelInfos.bannerThumbnails.last?.url)
-                            .overlay(alignment: .center) {
-                                let thumbnailsCount = channelInfos.avatarThumbnails.count
-                                if thumbnailsCount == 0 {
-                                    UnknownAvatarView()
-                                } else if thumbnailsCount == 1 {
-                                    ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails.first?.url)
-                                } else {
-                                    ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails[thumbnailsCount - 2].url) // take the one before the last one
-                                }
-                            }
-                        Text(channelInfos.name ?? "")
-                            .font(.title)
-                            .bold()
-                    }
-                    /*
-                     .onAppear {
-                     navigationTitle = ""
-                     }
-                     .onDisappear {
-                     navigationTitle = channelInfos.name ?? ""
-                     }*/
-                    HStack {
-                        Text(channelInfos.handle ?? "")
-                        if channelInfos.handle != nil, channelInfos.subscriberCount != nil {
-                            Text(" • ")
-                        }
-                        Text(channelInfos.subscriberCount ?? "")
-                        if channelInfos.subscriberCount != nil, channelInfos.videoCount != nil {
-                            Text(" • ")
-                        }
-                        Text(channelInfos.videoCount ?? "")
-                    }
-                    .padding(.top)
-                    .font(.system(size: 12))
-                    .bold()
-                    .opacity(0.5)
-                    if channelInfos.isSubcribeButtonEnabled == true, let subscribeStatus = channelInfos.subscribeStatus {
-                        Button {
-                            Task {
-                                DispatchQueue.main.async {
-                                    self.isChangingSubscriptionStatus = true
-                                }
-                                var actionError: (any Error)?
-                                do {
-                                    if subscribeStatus {
-                                        try await channel.unsubscribeThrowing(youtubeModel: YTM)
+                        VStack {
+                            ChannelBannerRectangleView(channelBannerURL: channelInfos.bannerThumbnails.last?.url)
+                                .overlay(alignment: .center) {
+                                    let thumbnailsCount = channelInfos.avatarThumbnails.count
+                                    if thumbnailsCount == 0 {
+                                        UnknownAvatarView()
+                                    } else if thumbnailsCount == 1 {
+                                        ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails.first?.url)
                                     } else {
-                                        try await channel.subscribeThrowing(youtubeModel: YTM)
+                                        ChannelAvatarCircleView(avatarURL: channelInfos.avatarThumbnails[thumbnailsCount - 2].url) // take the one before the last one
                                     }
-                                } catch {
-                                    actionError = error
                                 }
-                                DispatchQueue.main.async {
-                                    if actionError == nil {
-                                        withAnimation {
-                                            model.channelInfos?.subscribeStatus?.toggle()
+                            Text(channelInfos.name ?? "")
+                                .font(.title)
+                                .bold()
+                        }
+                        /*
+                         .onAppear {
+                         navigationTitle = ""
+                         }
+                         .onDisappear {
+                         navigationTitle = channelInfos.name ?? ""
+                         }*/
+                        HStack {
+                            Text(channelInfos.handle ?? "")
+                            if channelInfos.handle != nil, channelInfos.subscriberCount != nil {
+                                Text(" • ")
+                            }
+                            Text(channelInfos.subscriberCount ?? "")
+                            if channelInfos.subscriberCount != nil, channelInfos.videoCount != nil {
+                                Text(" • ")
+                            }
+                            Text(channelInfos.videoCount ?? "")
+                        }
+                        .padding(.top)
+                        .font(.system(size: 12))
+                        .bold()
+                        .opacity(0.5)
+                        if channelInfos.isSubcribeButtonEnabled == true, let subscribeStatus = channelInfos.subscribeStatus {
+                            Button {
+                                Task {
+                                    DispatchQueue.main.async {
+                                        self.isChangingSubscriptionStatus = true
+                                    }
+                                    var actionError: (any Error)?
+                                    do {
+                                        if subscribeStatus {
+                                            try await channel.unsubscribeThrowing(youtubeModel: YTM)
+                                        } else {
+                                            try await channel.subscribeThrowing(youtubeModel: YTM)
                                         }
+                                    } catch {
+                                        actionError = error
                                     }
-                                    self.isChangingSubscriptionStatus = false
+                                    DispatchQueue.main.async {
+                                        if actionError == nil {
+                                            withAnimation {
+                                                model.channelInfos?.subscribeStatus?.toggle()
+                                            }
+                                        }
+                                        self.isChangingSubscriptionStatus = false
+                                    }
                                 }
+                            } label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .foregroundStyle(subscribeStatus ? colorScheme.textColor : .red)
+                                    Text(subscribeStatus ? "Subscribed" : "Subscribe")
+                                        .foregroundStyle(subscribeStatus ? colorScheme.backgroundColor == .white ? .white : .red : .white)
+                                        .font(.callout)
+                                }
+                                .frame(width: 100, height: 35)
                             }
-                        } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 5)
-                                    .foregroundStyle(subscribeStatus ? colorScheme.textColor : .red)
-                                Text(subscribeStatus ? "Subscribed" : "Subscribe")
-                                    .foregroundStyle(subscribeStatus ? colorScheme.backgroundColor == .white ? .white : .red : .white)
-                                    .font(.callout)
-                            }
-                            .frame(width: 100, height: 35)
+                            .disabled(isChangingSubscriptionStatus)
                         }
-                        .disabled(isChangingSubscriptionStatus)
+                        Divider()
+                        Picker("", selection: $selectedMode, content: {
+                            if model.channelInfos?.requestParams[.videos] != nil {
+                                Text("Videos").tag(0)
+                            }
+                            if model.channelInfos?.requestParams[.shorts] != nil {
+                                Text("Shorts").tag(1)
+                            }
+                            if model.channelInfos?.requestParams[.directs] != nil {
+                                Text("Directs").tag(2)
+                            }
+                            if model.channelInfos?.requestParams[.playlists] != nil {
+                                Text("Playlists").tag(3)
+                            }
+                        })
+                        .pickerStyle(.segmented)
+                        // only for iOS 17
+                        //                        .onChange(of: selectedMode, initial: true, {
+                        //                            selectedCategory = getCategoryForTabIndex(selectedMode)
+                        //                            guard let newValueCategory = selectedCategory else { selectedMode = 0; selectedCategory = .videos ; return }
+                        //                            if (model.channelInfos?.channelContentStore[newValueCategory] as? (any ListableChannelContent)) == nil {
+                        //                                model.fetchCategoryContents(for: newValueCategory)
+                        //                            }
+                        //                        })
+                        .onChange(of: selectedMode, perform: { _ in
+                            selectedCategory = getCategoryForTabIndex(selectedMode)
+                            guard let newValueCategory = selectedCategory else { selectedMode = 0; selectedCategory = .videos ; return }
+                            if (model.channelInfos?.channelContentStore[newValueCategory] as? (any ListableChannelContent)) == nil {
+                                model.fetchCategoryContents(for: newValueCategory)
+                            }
+                        })
+                        if let selectedCategory = selectedCategory, model.fetchingStates[selectedCategory] == true {
+                            Spacer()
+                                .overlay(alignment: .center) {
+                                    LoadingView()
+                                }
+                        }
                     }
-                    Divider()
-                    Picker("", selection: $selectedMode, content: {
-                        if model.channelInfos?.requestParams[.videos] != nil {
-                            Text("Videos").tag(0)
-                        }
-                        if model.channelInfos?.requestParams[.shorts] != nil {
-                            Text("Shorts").tag(1)
-                        }
-                        if model.channelInfos?.requestParams[.directs] != nil {
-                            Text("Directs").tag(2)
-                        }
-                        if model.channelInfos?.requestParams[.playlists] != nil {
-                            Text("Playlists").tag(3)
-                        }
-                    })
-                    .pickerStyle(.segmented)
-                    // only for iOS 17
-                    //                        .onChange(of: selectedMode, initial: true, {
-                    //                            selectedCategory = getCategoryForTabIndex(selectedMode)
-                    //                            guard let newValueCategory = selectedCategory else { selectedMode = 0; selectedCategory = .videos ; return }
-                    //                            if (model.channelInfos?.channelContentStore[newValueCategory] as? (any ListableChannelContent)) == nil {
-                    //                                model.fetchCategoryContents(for: newValueCategory)
-                    //                            }
-                    //                        })
-                    .onChange(of: selectedMode, perform: { _ in
-                        selectedCategory = getCategoryForTabIndex(selectedMode)
-                        guard let newValueCategory = selectedCategory else { selectedMode = 0; selectedCategory = .videos ; return }
-                        if (model.channelInfos?.channelContentStore[newValueCategory] as? (any ListableChannelContent)) == nil {
-                            model.fetchCategoryContents(for: newValueCategory)
-                        }
-                    })
                     if let selectedCategory = selectedCategory {
-                        if model.fetchingStates[selectedCategory] == true {
-                            LoadingView()
-                        } else {
+                        if model.fetchingStates[selectedCategory] != true {
                             if model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent) != nil {
                                 let itemsBinding: Binding<[YTElementWithData]> = Binding(get: {
                                     return ((model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent))?.items ?? [])
@@ -175,7 +185,7 @@ struct ChannelDetailsView: View {
                                     ElementsInfiniteScrollView(
                                         items: itemsBinding,
                                         shouldReloadScrollView: $shouldReloadScrollView,
-                                        shouldAddBottomSpacing: VPM.currentItem != nil,
+                                        shouldAddBottomSpacing: hasVideoItem,
                                         fetchMoreResultsAction: {
                                             if !(model.fetchingStates[selectedCategory] ?? false) {
                                                 model.fetchContentsContinuation(for: selectedCategory)
