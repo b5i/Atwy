@@ -109,7 +109,9 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     func setCurrentVideoThumbnailData(_ data: Data, videoId: String) {
         guard self.currentVideo?.video.videoId == videoId else { return }
-        self.currentVideo?.data.thumbnailData = data
+        DispatchQueue.main.async {
+            self.currentVideo?.data.thumbnailData = data
+        }
     }
     
     func addVideoToBottomQueue(video: YTVideo) {

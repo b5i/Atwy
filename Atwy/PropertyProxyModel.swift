@@ -29,7 +29,9 @@ class GeneralProxyModel<Object: ObservableObject, Value>: ObservableObject {
     }
     
     fileprivate func handleNewValue(_ newValue: Value) {
-        self.value = newValue
+        DispatchQueue.main.safeSync {
+            self.value = newValue
+        }
     }
     
     func getValue<T>(keyPath: KeyPath<Object, T>) -> T {

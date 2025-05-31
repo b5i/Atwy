@@ -9,10 +9,10 @@
 import SwiftUI
 
 struct UserPreferenceCircleView: View {
-    @ObservedObject private var APIM = APIKeyModel.shared
+    @ObservedProperty(APIKeyModel.shared, \.userAccount, \.$userAccount) private var userAccount
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     var body: some View {
-        if let account = APIM.userAccount, NM.connected {
+        if let account = userAccount, NM.connected {
             CachedAsyncImage(url: account.avatar.first?.url, content: { image, _ in
                 switch image {
                 case .success(let imageDisplay):
