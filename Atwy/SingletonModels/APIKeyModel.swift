@@ -12,7 +12,7 @@ import YouTubeKit
 import Security
 import OSLog
 
-class APIKeyModel: ObservableObject {
+final class APIKeyModel: ObservableObject {
     static let shared = APIKeyModel()
 
     @Published var googleCookies: String = "" {
@@ -47,10 +47,10 @@ class APIKeyModel: ObservableObject {
     }
     
     func updateAccount() {
-        guard self.googleCookies != "" else { return }
+        guard self.googleCookies != "" && !self.isFetchingAccountInfos else { return }
         YTM.cookies = self.googleCookies
         YTM.alwaysUseCookies = true
-        DispatchQueue.main.async {
+        DispatchQueue.main.safeSync {
             self.isFetchingAccountInfos = true
         }
         self.getUserInfos { result in

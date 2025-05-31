@@ -20,7 +20,10 @@ struct ContentView: View {
     @State private var errorText = ""
     @State private var showOverlay: Bool = true
     @ObservedObject private var network = NetworkReachabilityModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
+    
+    @ObservedProperty(APIKeyModel.shared, \.userAccount, \.$userAccount) private var userAccount
+    @ObservedProperty(APIKeyModel.shared, \.isFetchingAccountInfos, \.$isFetchingAccountInfos) private var isFetchingAccountInfos
+    
     @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var DM = DownloadersModel.shared
@@ -42,9 +45,9 @@ struct ContentView: View {
                 .badge(DM.activeDownloaders.count)
             TabBarElement(DestinationView: {
                 ZStack {
-                    if !(APIM.userAccount?.isDisconnected ?? true) {
+                    if !(userAccount?.isDisconnected ?? true) {
                         PersonnalAccountView()
-                    } else if APIM.isFetchingAccountInfos {
+                    } else if isFetchingAccountInfos {
                         LoadingView(customText: "account infos")
                     } else {
                         NotConnectedToGoogleView()
