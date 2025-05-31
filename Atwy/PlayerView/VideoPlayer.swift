@@ -23,7 +23,6 @@ struct PlayerViewController: UIViewControllerRepresentable {
     var nowPlayingController = MPNowPlayingInfoCenter.default()
 #endif
     var audioSession = AVAudioSession.sharedInstance()
-    @ObservedObject private var VPM = VideoPlayerModel.shared
     @ObservedObject private var PSM = PreferencesStorageModel.shared
     
     class Model: NSObject, AVPlayerViewControllerDelegate {

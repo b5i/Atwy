@@ -9,13 +9,20 @@
 import Foundation
 import SwiftUI
 import OSLog
+import YouTubeKit
 
 struct SubscribeButtonOverlayView: View {
-    @ObservedObject var currentItem: YTAVPlayerItem
+    let currentItem: YTAVPlayerItem
+    @ObservedProperty<YTAVPlayerItem, MoreVideoInfosResponse?> private var moreVideoInfos: MoreVideoInfosResponse?
     @State private var isFetching: Bool = false
     @ObservedObject private var APIM = APIKeyModel.shared
+    
+    init(currentItem: YTAVPlayerItem) {
+        self.currentItem = currentItem
+        self._moreVideoInfos = ObservedProperty(currentItem, \.moreVideoInfos, \.$moreVideoInfos)
+    }
     var body: some View {
-        if let subscriptionStatus = currentItem.moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = currentItem.moreVideoInfos?.channel {
+        if let subscriptionStatus = moreVideoInfos?.authenticatedInfos?.subscriptionStatus, let channel = moreVideoInfos?.channel {
             if APIM.userAccount != nil && APIM.googleCookies != "" {
                 if isFetching {
                     ZStack {

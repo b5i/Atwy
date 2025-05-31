@@ -11,20 +11,31 @@ import SwiftUI
 
 struct ChannelAvatarView: View {
     let makeGradient: (UIImage) -> Void
-    @ObservedObject var currentItem: YTAVPlayerItem
+    @ObservedModel<YTAVPlayerItem, URL?> private var avatarURL: URL?
+    @ObservedProperty<YTAVPlayerItem, Data?> private var avatarData: Data?
+    
+    init(currentItem: YTAVPlayerItem, makeGradient: @escaping (UIImage) -> Void) {
+        self._avatarURL = ObservedModel(currentItem, { item in
+            return ((currentItem.streamingInfos.channel?.thumbnails.maxFor(2) ?? currentItem.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? currentItem.video.channel?.thumbnails.maxFor(2))?.url
+        })
+        
+        self._avatarData = ObservedProperty(currentItem, \.channelAvatarImageData, \.$channelAvatarImageData)
+        self.makeGradient = makeGradient
+    }
+    
     var body: some View {
         ZStack {
-            if let channelAvatar = (currentItem.streamingInfos.channel?.thumbnails.maxFor(2) ?? currentItem.moreVideoInfos?.channel?.thumbnails.maxFor(2)) ?? currentItem.video.channel?.thumbnails.maxFor(2) {
-                CachedAsyncImage(url: channelAvatar.url) { _, imageData in
+            if let avatarURL = avatarURL {
+                CachedAsyncImage(url: avatarURL) { _, imageData in
                     if !imageData.isEmpty, let uiImage = UIImage(data: imageData) {
                         AvatarCircleView(image: uiImage, makeGradient: makeGradient)
-                    } else if let imageData = currentItem.channelAvatarImageData, let image = UIImage(data: imageData) {
+                    } else if let imageData = avatarData, let image = UIImage(data: imageData) {
                         AvatarCircleView(image: image, makeGradient: makeGradient)
                     } else {
                         NoAvatarCircleView(makeGradient: makeGradient)
                     }
                 }
-            } else if let imageData = currentItem.channelAvatarImageData, let image = UIImage(data: imageData) {
+            } else if let imageData = avatarData, let image = UIImage(data: imageData) {
                 AvatarCircleView(image: image, makeGradient: makeGradient)
             } else {
                 NoAvatarCircleView(makeGradient: makeGradient)

@@ -58,8 +58,9 @@ struct WatchVideoView: View {
         }
     }
     @Namespace private var animation
-    @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var APIM = APIKeyModel.shared
+    @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var currentItem
+    @ObservedProperty(VideoPlayerModel.shared, \.currentVideo, \.$currentVideo) private var currentVideo
+    @ObservedProperty(VideoPlayerModel.shared, \.isLoadingVideo, \.$isLoadingVideo) private var isLoadingVideo
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -106,16 +107,16 @@ struct WatchVideoView: View {
                                     //.padding(.bottom, geometry.size.height * 0.05)
                                     //(showQueue || showDescription) ? :
                                     HStack(spacing: 0) {
-                                        if VPM.player.currentItem != nil {
+                                        if currentItem != nil {
                                             PlayerViewController(
-                                                player: VPM.player,
-                                                controller: VPM.controller
+                                                player: VideoPlayerModel.shared.player,
+                                                controller: VideoPlayerModel.shared.controller
                                             )
                                             .frame(width: topMenuShown ? geometry.size.width / 2 : geometry.size.width, height: topMenuShown ? geometry.size.height * 0.175 : geometry.size.height * 0.35)
                                             .padding(.top, topMenuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.115)
                                             .shadow(radius: 10)
                                             
-                                        } else if VPM.isLoadingVideo {
+                                        } else if isLoadingVideo {
                                             LoadingView(style: .light)
                                                 .frame(alignment: .center)
                                         }
@@ -124,9 +125,10 @@ struct WatchVideoView: View {
                                         //                                        .padding(.top, menuShown ? -geometry.size.height * 0.01 : -geometry.size.height * 0.11)
                                         //                                        .shadow(radius: 10)
                                         if topMenuShown {
+                                            // TODO: separate that in another view so that we directly observe currentItem's properties and not the object itself
                                             ZStack {
                                                 VStack(alignment: .leading) {
-                                                    Text(VPM.currentItem?.video.title ?? "")
+                                                    Text(currentItem?.video.title ?? "")
                                                         .font(.system(size: 500))
                                                         .foregroundStyle(.white)
                                                         .minimumScaleFactor(0.01)
@@ -135,7 +137,7 @@ struct WatchVideoView: View {
                                                         .transition(.asymmetric(insertion: .offset(y: 100), removal: .offset(y: 100)))
                                                     Divider()
                                                         .frame(height: 1)
-                                                    Text(VPM.currentItem?.video.channel?.name ?? "")
+                                                    Text(currentItem?.video.channel?.name ?? "")
                                                         .font(.system(size: 500))
                                                         .foregroundStyle(.white)
                                                         .minimumScaleFactor(0.01)
@@ -160,7 +162,7 @@ struct WatchVideoView: View {
                                         .offset(x: topMenuShown ? -geometry.size.width * 0.55 : 0, y: topMenuShown ? -geometry.size.height * 0.15 : -geometry.size.height * 0.01)
                                     if !topMenuShown {
                                         VStack(alignment: .leading, spacing: 2) {
-                                            let videoTitle = VPM.currentItem?.videoTitle ?? VPM.loadingVideo?.video.title ?? ""
+                                            let videoTitle = currentItem?.videoTitle ?? currentVideo?.video.title ?? ""
                                             Text(videoTitle)
                                                 .font(.callout)
                                                 .foregroundStyle(.white)
@@ -170,7 +172,7 @@ struct WatchVideoView: View {
                                                 .multilineTextAlignment(.leading)
                                                 .matchedGeometryEffect(id: "VIDEO_TITLE", in: animation)
                                             
-                                            let channelName: String = VPM.currentItem?.channelName ?? VPM.loadingVideo?.video.channel?.name ?? ""
+                                            let channelName: String = currentItem?.channelName ?? currentVideo?.video.channel?.name ?? ""
                                             Text(channelName)
                                                 .font(.subheadline)
                                                 .lineLimit(2)
@@ -203,8 +205,8 @@ struct WatchVideoView: View {
                         }
                         let bottomBarHeight: CGFloat = geometry.safeAreaInsets.bottom + 60
                         GeometryReader { scrollViewGeometry in
-                            if let playerItem = self.VPM.currentItem {
-                                RecommendedVideosView(playerItem: playerItem)
+                            if let currentItem = currentItem {
+                                RecommendedVideosView(currentItem: currentItem)
                                     .frame(height: !topMenuShown ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
                                     .environment(\.colorScheme, .dark)
@@ -225,9 +227,9 @@ struct WatchVideoView: View {
                                     //                                        }
                                     //                                    }
                                     //                            }
-                                    if let playerItem = VPM.currentItem, let videoDescription = playerItem.videoDescription {
+                                    if let playerItem = currentItem, let videoDescription = playerItem.videoDescription {
                                         ChaptersView(geometry: geometry, chapterAction: { clickedChapter in
-                                            VPM.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
+                                            VideoPlayerModel.shared.player.seek(to: CMTime(seconds: Double(clickedChapter.time), preferredTimescale: 600))
                                         }, videoItem: playerItem)
                                         HStack {
                                             Text("Description")
@@ -250,7 +252,7 @@ struct WatchVideoView: View {
                             PlayingQueueView()
                                 .opacity(showQueue ? 1 : 0)
                                 .frame(height: showQueue ? geometry.size.height * 0.85 : 0)
-                            if let currentItem = VPM.currentItem {
+                            if let currentItem = currentItem {
                                 CommentsSectionView(currentItem: currentItem)
                                     .opacity(showComments ? 1 : 0)
                                     .frame(height: showComments ? geometry.size.height * 0.85 : 0)
@@ -359,11 +361,17 @@ struct WatchVideoView: View {
         let geometry: GeometryProxy
         let chapterAction: (Chapter) -> Void
         @State private var lastScrolled: Int = 0
+                
+        @ObservedProperty<YTAVPlayerItem, [Chapter]?> private var chapters: [Chapter]?
         
-        @ObservedObject var videoItem: YTAVPlayerItem
+        init(geometry: GeometryProxy, chapterAction: @escaping (Chapter) -> Void, videoItem: YTAVPlayerItem) {
+            self.geometry = geometry
+            self.chapterAction = chapterAction
+            self._chapters = ObservedProperty(videoItem, \.chapters, \.$chapters)
+        }
         var body: some View {
             VStack {
-                if let chapters = videoItem.chapters,
+                if let chapters = chapters,
                     !chapters.isEmpty {
                     HStack {
                         Text("Chapters")

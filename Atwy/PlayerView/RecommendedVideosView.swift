@@ -10,15 +10,26 @@ import SwiftUI
 import YouTubeKit
 
 struct RecommendedVideosView: View {
-    @ObservedObject var playerItem: YTAVPlayerItem
     
     var topSpacing: CGFloat = 0
     var bottomSpacing: CGFloat = 0
     
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
+    
+    @ObservedProperty<YTAVPlayerItem, MoreVideoInfosResponse?> private var moreVideoInfos: MoreVideoInfosResponse?
+    @ObservedModel<YTAVPlayerItem, Bool> private var isLoading: Bool
+    let currentItem: YTAVPlayerItem
+    
+    init(currentItem: YTAVPlayerItem) {
+        self.currentItem = currentItem
+        self._moreVideoInfos = ObservedProperty(currentItem, \.moreVideoInfos, \.$moreVideoInfos)
+        self._isLoading = ObservedModel(currentItem, { model in
+            return model.isFetchingMoreRecommendedVideos || model.isFetchingMoreVideoInfos
+        })
+    }
     var body: some View {
         VStack {
-            if let trendingVideos = self.playerItem.moreVideoInfos?.recommendedVideos
+            if let trendingVideos = moreVideoInfos?.recommendedVideos
                 .filter({ trendingVideo in
                     if NRM.connected {
                         return true
@@ -29,9 +40,9 @@ struct RecommendedVideosView: View {
                     return trendingVideos.map({YTElementWithData(element: $0, data: .init(allowChannelLinking: false, videoViewMode: .halfThumbnail))})
                 }, set: {_ in})
                 ElementsInfiniteScrollView(items: elementsBinding, shouldReloadScrollView: .constant(false), fetchMoreResultsAction: {
-                    self.playerItem.fetchMoreRecommendedVideos()
+                    currentItem.fetchMoreRecommendedVideos()
                 }, topSpacing: topSpacing, bottomSpacing: bottomSpacing, orientation: .vertical)
-            } else if self.playerItem.isFetchingMoreRecommendedVideos || self.playerItem.isFetchingMoreVideoInfos {
+            } else if isLoading {
                 LoadingView(style: .light)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {

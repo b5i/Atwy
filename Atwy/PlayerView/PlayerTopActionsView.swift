@@ -7,26 +7,29 @@
 //  
 
 import SwiftUI
+import YouTubeKit
 
 struct PlayerTopActionsView: View {
     let menuShown: Bool
-    @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var currentItem
+    @ObservedProperty(VideoPlayerModel.shared, \.currentVideo, \.$currentVideo) private var video: YTVideoWithData?
+    
     @ObservedObject private var NRM = NetworkReachabilityModel.shared
     @ObservedObject private var DM = DownloadersModel.shared
     var body: some View {
         ScrollView(.horizontal) {
             HStack {
-                if let currentItem = VPM.currentItem {
+                if let currentItem = currentItem {
                     VideoAppreciationView(currentItem: currentItem)
                 }
-                if let video = VPM.currentItem?.video ?? VPM.loadingVideo?.video {
+                if let video = video?.video {
                     if NRM.connected {
                         PlayerQuickActionView {
                             let downloadLocation: URL? = PersistenceModel.shared.currentData.downloadedVideoIds
                                 .first(where: {
                                     $0.videoId == video.videoId
                                 })?.storageLocation
-                            DownloadButtonView(video: video, videoThumbnailData: VPM.currentItem?.videoThumbnailData ?? VPM.loadingVideo?.data.thumbnailData, downloadURL: downloadLocation)
+                            DownloadButtonView(video: video, videoThumbnailData: self.video?.data.thumbnailData, downloadURL: downloadLocation)
                                 .foregroundStyle(.white)
                         } action: {}
                             .contextMenu(menuItems: {
@@ -49,7 +52,7 @@ struct PlayerTopActionsView: View {
                         if PersistenceModel.shared.checkIfFavorite(video: video) {
                             PersistenceModel.shared.removeFromFavorites(video: video)
                         } else {
-                            PersistenceModel.shared.addToFavorites(video: video, imageData: VPM.currentItem?.videoThumbnailData)
+                            PersistenceModel.shared.addToFavorites(video: video, imageData: currentItem?.videoThumbnailData)
                         }
                     }
                     
@@ -60,7 +63,7 @@ struct PlayerTopActionsView: View {
                             .frame(width: 18)
                             .foregroundStyle(.white)
                     } action: {
-                        video.showShareSheet(thumbnailData: VPM.currentItem?.videoThumbnailData)
+                        video.showShareSheet(thumbnailData: currentItem?.videoThumbnailData)
                     }
                     
                     if NRM.connected {

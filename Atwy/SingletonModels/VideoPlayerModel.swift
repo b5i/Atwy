@@ -27,8 +27,9 @@ class VideoPlayerModel: NSObject, ObservableObject {
 
     private(set) var nowPlayingSession: MPNowPlayingSession?
     #endif
-    var isLoadingVideo: Bool { self.loadingVideo != nil }
-    @Published private(set) var loadingVideo: YTVideoWithData? = nil
+    @Published private(set) var isLoadingVideo: Bool = false
+    
+    @Published private(set) var currentVideo: YTVideoWithData? = nil
     private var loadingVideoTask: Task<Void, Never>? = nil
     
     @Published var isFetchingAppreciation: Bool = false
@@ -106,6 +107,11 @@ class VideoPlayerModel: NSObject, ObservableObject {
 #endif
         }
     
+    func setCurrentVideoThumbnailData(_ data: Data, videoId: String) {
+        guard self.currentVideo?.video.videoId == videoId else { return }
+        self.currentVideo?.data.thumbnailData = data
+    }
+    
     func addVideoToBottomQueue(video: YTVideo) {
         if self.currentItem == nil, !self.isLoadingVideo {
             self.loadVideo(video: video.withData())
@@ -143,9 +149,10 @@ class VideoPlayerModel: NSObject, ObservableObject {
     
     /// `seekTo`: Variable that will make the player seek to that time (in seconds) as soon as it has loaded the video.
     func loadVideo(video: YTVideoWithData, seekTo: Double? = nil) {
-        guard loadingVideo?.video.videoId != video.video.videoId, self.currentItem?.videoId != video.video.videoId else { return }
+        guard currentVideo?.video.videoId != video.video.videoId, self.currentItem?.videoId != video.video.videoId else { return }
         self.deleteCurrentVideo()
-        self.loadingVideo = video
+        self.currentVideo = video
+        self.isLoadingVideo = true
         self.loadingVideoTask = Task {
             do {
                 let newItem = try await YTAVPlayerItem(video: video.video, thumbnailData: video.data.thumbnailData, channelAvatarImageData: video.data.channelAvatarData)
@@ -271,7 +278,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 //                        }
                 //                    } else {
                 
-                guard self.loadingVideo?.video.videoId == video.video.videoId else { return }
+                guard self.currentVideo?.video.videoId == video.video.videoId else { return }
                 self.player.replaceCurrentItem(with: newItem)
                 await self.player.updateEndAction()
                 if let seekTo = seekTo {
@@ -279,7 +286,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 }
                 self.player.play()
                 DispatchQueue.main.async {
-                    self.loadingVideo = nil
+                    //self.loadingVideo = nil TODO: check if this has any impact
+                    self.isLoadingVideo = false
                     self.objectWillChange.send()
                 }
             } catch {
@@ -292,7 +300,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
     public func deleteCurrentVideo() {
         self.loadingVideoTask?.cancel()
         self.loadingVideoTask = nil
-        self.loadingVideo = nil
+        self.currentVideo = nil
         self.player.removeAllItems()
         self.isFetchingAppreciation = false
         DispatchQueue.main.async {

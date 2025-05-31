@@ -8,27 +8,37 @@
 
 import SwiftUI
 import OSLog
+import YouTubeKit
 
 struct VideoAppreciationView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingConfirmation: Bool = false
-    @ObservedObject private var APIM = APIKeyModel.shared
-    @ObservedObject private var NM = NetworkReachabilityModel.shared
-    @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedProperty(APIKeyModel.shared, \.userAccount, \.$userAccount) private var userAccount
+    private var hasAccount: Bool { userAccount != nil }
     
-    @ObservedObject var currentItem: YTAVPlayerItem
+    @ObservedObject private var NM = NetworkReachabilityModel.shared
+    
+    @MutableObservedProperty(VideoPlayerModel.shared, \.isFetchingAppreciation, \.$isFetchingAppreciation) private var isFetchingAppreciation
+    @ObservedProperty<YTAVPlayerItem, MoreVideoInfosResponse?> private var moreVideoInfos: MoreVideoInfosResponse?
+    let currentItem: YTAVPlayerItem
+    
+    init(currentItem: YTAVPlayerItem) {
+        self.currentItem = currentItem
+        self._moreVideoInfos = ObservedProperty(currentItem, \.moreVideoInfos, \.$moreVideoInfos)
+    }
+    
     var body: some View {
-        let shouldShowWidget = NM.connected && (currentItem.moreVideoInfos?.likesCount.defaultState ?? "") != ""
+        let shouldShowWidget = NM.connected && (moreVideoInfos?.likesCount.defaultState ?? "") != ""
         PlayerQuickActionView {
             HStack {
-                let likeStatus = currentItem.moreVideoInfos?.authenticatedInfos?.likeStatus
-                Text((likeStatus == .liked ? currentItem.moreVideoInfos?.likesCount.clickedState : currentItem.moreVideoInfos?.likesCount.defaultState) ?? "")
+                let likeStatus = moreVideoInfos?.authenticatedInfos?.likeStatus
+                Text((likeStatus == .liked ? moreVideoInfos?.likesCount.clickedState : moreVideoInfos?.likesCount.defaultState) ?? "")
                     .foregroundStyle(.white)
                     .fixedSize()
                 Button {
                     guard let likeStatus = likeStatus else { return }
                     DispatchQueue.main.async {
-                        VPM.isFetchingAppreciation = true
+                        isFetchingAppreciation = true
                     }
                     switch likeStatus {
                     case .liked:
@@ -39,7 +49,7 @@ struct VideoAppreciationView: View {
                                 currentItem.setNewLikeStatus(.nothing)
                             }
                             DispatchQueue.main.async {
-                                VPM.isFetchingAppreciation = false
+                                isFetchingAppreciation = false
                             }
                         })
                     case .disliked, .nothing:
@@ -50,7 +60,7 @@ struct VideoAppreciationView: View {
                                 currentItem.setNewLikeStatus(.liked)
                             }
                             DispatchQueue.main.async {
-                                VPM.isFetchingAppreciation = false
+                                isFetchingAppreciation = false
                             }
                         })
                     }
@@ -60,11 +70,11 @@ struct VideoAppreciationView: View {
                 }
                 .frame(width: 40, height: 40)
                 .buttonStyle(.borderless)
-                .hapticFeedbackOnTap(style: VPM.isFetchingAppreciation || (APIM.userAccount != nil) ? nil : .soft)
-                .disabled(VPM.isFetchingAppreciation || APIM.userAccount == nil)
+                .hapticFeedbackOnTap(style: isFetchingAppreciation || hasAccount ? nil : .soft)
+                .disabled(isFetchingAppreciation || !hasAccount)
                 .padding(.vertical)
                 .foregroundColor(.white)
-                if APIM.userAccount != nil {
+                if hasAccount {
                     Divider()
                         .overlay(.white)
                         .padding(.vertical)
@@ -72,7 +82,7 @@ struct VideoAppreciationView: View {
                     Button {
                         guard let likeStatus = likeStatus else { return }
                         DispatchQueue.main.async {
-                            VPM.isFetchingAppreciation = true
+                            isFetchingAppreciation = true
                         }
                         switch likeStatus {
                         case .disliked:
@@ -83,7 +93,7 @@ struct VideoAppreciationView: View {
                                     currentItem.setNewLikeStatus(.nothing)
                                 }
                                 DispatchQueue.main.async {
-                                    VPM.isFetchingAppreciation = false
+                                    isFetchingAppreciation = false
                                 }
                             })
                         case .nothing, .liked:
@@ -94,7 +104,7 @@ struct VideoAppreciationView: View {
                                     currentItem.setNewLikeStatus(.disliked)
                                 }
                                 DispatchQueue.main.async {
-                                    VPM.isFetchingAppreciation = false
+                                    isFetchingAppreciation = false
                                 }
                             })
                         }
@@ -104,14 +114,14 @@ struct VideoAppreciationView: View {
                     }
                     .frame(width: 40, height: 40)
                     .buttonStyle(.borderless)
-                    .hapticFeedbackOnTap(style: VPM.isFetchingAppreciation ? nil : .soft)
-                    .disabled(VPM.isFetchingAppreciation)
+                    .hapticFeedbackOnTap(style: isFetchingAppreciation ? nil : .soft)
+                    .disabled(isFetchingAppreciation)
                     .padding(.vertical)
                     .foregroundColor(colorScheme.textColor)
                 }
             }
         } action: {}
-        .frame(width: shouldShowWidget ? (APIM.userAccount != nil /* the user can't like the video so we only show the likes count */ ? 180 : 110) : 0)
+        .frame(width: shouldShowWidget ? (hasAccount /* the user can't like the video so we only show the likes count */ ? 180 : 110) : 0)
         .opacity(shouldShowWidget ? 1 : 0)
         .padding(.horizontal, shouldShowWidget ? 5 : 0)
     }

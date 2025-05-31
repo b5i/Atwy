@@ -11,20 +11,22 @@ import SwiftUI
 
 struct OptionalItemChannelAvatarView: View {
     let makeGradient: (UIImage) -> Void
-    @ObservedObject private var VPM = VideoPlayerModel.shared
+    @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var currentItem
+    @ObservedProperty(VideoPlayerModel.shared, \.currentVideo, \.$currentVideo) private var currentVideo
+    
     @ObservedObject private var NM = NetworkReachabilityModel.shared
     var body: some View {
         Group {
-            if let currentItem = VPM.currentItem {
-                ChannelAvatarView(makeGradient: makeGradient, currentItem: currentItem)
-            } else if let imageData = VPM.loadingVideo?.data.channelAvatarData, let uiImage = UIImage(data: imageData) {
+            if let currentItem = currentItem {
+                ChannelAvatarView(currentItem: currentItem, makeGradient: makeGradient)
+            } else if let imageData = currentVideo?.data.channelAvatarData, let uiImage = UIImage(data: imageData) {
                 AvatarCircleView(image: uiImage, makeGradient: makeGradient)
             } else {
                 NoAvatarCircleView(makeGradient: makeGradient)
             }
         }
         .overlay(alignment: .bottomTrailing, content: {
-            if let currentItem = VPM.currentItem, NM.connected {
+            if let currentItem = currentItem, NM.connected {
                 SubscribeButtonOverlayView(currentItem: currentItem)
             }
         })

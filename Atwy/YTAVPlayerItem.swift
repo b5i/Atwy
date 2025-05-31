@@ -50,9 +50,9 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     @Published private(set) var comments: VideoCommentsResponse? = nil
     @Published private(set) var isFetchingComments: Bool = false
     
-    var chapters: [Chapter]?
+    @Published var chapters: [Chapter]?
     var videoThumbnailData: Data? = nil
-    var channelAvatarImageData: Data? = nil
+    @Published var channelAvatarImageData: Data? = nil
     
     init(video: YTVideo, thumbnailData: Data? = nil, channelAvatarImageData: Data? = nil) async throws {
         self.video = video
@@ -78,7 +78,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.streamingInfos.videoDescription = downloadedVideo.videoDescription
             
             self.videoThumbnailData = self.videoThumbnailData ?? downloadedVideo.thumbnail
-            self.channelAvatarImageData = self.channelAvatarImageData ?? downloadedVideo.channel?.thumbnail
+            self.channelAvatarImageData = channelAvatarImageData ?? downloadedVideo.channel?.thumbnail
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
         } else {
@@ -110,6 +110,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         self.addMetadatas()
         if let thumbnailData = self.videoThumbnailData {
             self.setAndAppendImageData(imageData: thumbnailData)
+            VideoPlayerModel.shared.setCurrentVideoThumbnailData(thumbnailData, videoId: self.videoId)
         }
     
         self.fetchMoreInfos()
@@ -141,6 +142,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                     if let thumbnailData = fetchThumbnailOperation.imageData {
                         self.videoThumbnailData = thumbnailData
                         self.setAndAppendImageData(imageData: thumbnailData)
+                        VideoPlayerModel.shared.setCurrentVideoThumbnailData(thumbnailData, videoId: self.videoId)
                     }
                 }
                 fetchThumbnailOperation.start()

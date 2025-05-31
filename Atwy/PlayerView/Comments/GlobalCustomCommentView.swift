@@ -17,13 +17,13 @@ struct GlobalCustomCommentView: View {
     @State private var isSubmittingReply: Bool = false
     
     @FocusState private var isFocused: Bool
-    
-    @ObservedObject private var APIM = APIKeyModel.shared
+        
+    @ObservedProperty(APIKeyModel.shared, \.userAccount, \.$userAccount) private var userAccount
     private let accessoriesColor: Color = Color(cgColor: .init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1))
     var body: some View {
         CommentBoxView(content: {
-            let username = APIM.userAccount?.channelHandle
-            TopUtilitiesView(comment: .init(commentIdentifier: "", sender: .init(name: username ?? "You", channelId: "", thumbnails: APIM.userAccount?.avatar ?? []), text: "", replies: [], actionsParams: [:]), largeText: false, isExpanded: .constant(false))
+            let username = userAccount?.channelHandle
+            TopUtilitiesView(comment: .init(commentIdentifier: "", sender: .init(name: username ?? "You", channelId: "", thumbnails: userAccount?.avatar ?? []), text: "", replies: [], actionsParams: [:]), largeText: false, isExpanded: .constant(false))
             CommentTextField(replyText: $commentText, replyTextSize: .constant(nil), isFocused: $isFocused)
             HStack(spacing: 20) {
                 if isFocused {
@@ -77,7 +77,7 @@ struct GlobalCustomCommentView: View {
             .padding(.top, 10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }, shouldPadTrailing: true)
-        .disabled(APIM.userAccount == nil || postCommentToken == nil)
+        .disabled(userAccount == nil || postCommentToken == nil)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
