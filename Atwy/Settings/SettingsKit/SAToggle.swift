@@ -23,7 +23,7 @@ struct SAToggle<TStyle>: SavableAction where TStyle: ToggleStyle {
     let toggleStyle: TStyle
     
     @State var currentValue: Bool
-    
+        
     var internalValue: State<Bool> {
         get { _currentValue }
         set { _currentValue = newValue }
@@ -42,4 +42,9 @@ struct SAToggle<TStyle>: SavableAction where TStyle: ToggleStyle {
     }
     
     class Delegate: SavableActionDelegate<Bool> {}
+    
+    func setCallback(_ callback: @escaping (Bool) -> Void) -> Self {
+        self.delegate.onSetAction = { callback($0); return $0 }
+        return self
+    }
 }

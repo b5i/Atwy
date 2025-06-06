@@ -91,6 +91,7 @@ struct AtwyApp: App {
         if YTM.logger == nil {
             YTM.logger = YouTubeModelLogger.shared
         }
+        _ = APIKeyModel.shared
     }
     var body: some Scene {
         WindowGroup {
@@ -152,6 +153,7 @@ struct AtwyApp: App {
                 }
             })
             .persistentSystemOverlays(.hidden)
+             
         }
     }
     

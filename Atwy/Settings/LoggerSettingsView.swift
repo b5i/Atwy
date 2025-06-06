@@ -18,7 +18,18 @@ struct LoggerSettingsView: View {
     var body: some View {
         SettingsMenu(title: "Logger") { geometry in
             SettingsSection(title: "Logger") {
-                Setting(textDescription: nil, action: try! SAToggle(PSMType: .isLoggerActivated, title: "Activate Logger"))
+                Setting(
+                    textDescription: nil,
+                    action: try! SAToggle(PSMType: .isLoggerActivated,
+                                          title: "Activate Logger")
+                    .setCallback { newValue in
+                        if newValue {
+                            YTM.logger?.startLogging()
+                        } else {
+                            YTM.logger?.stopLogging()
+                        }
+                    }
+                )
                 let cacheLimitEnabledBinding = Binding(get: {
                     self.logger.maximumCacheSize != nil
                 }, set: { newValue in

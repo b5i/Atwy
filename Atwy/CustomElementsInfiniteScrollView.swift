@@ -68,7 +68,7 @@ struct CustomElementsInfiniteScrollView: View {
                                 .swipeMinimumDistance(50)
                                 .frame(width: geometry.size.width, height: 180, alignment: .center)
                             case let rawVideo as YTVideo:
-                                VideoInScrollView(video: rawVideo.withData(item.data), geometry: geometry)
+                                VideoInScrollView(video: rawVideo.withData(item.data), size: geometry.size)
                             default:
                                 Color.clear.frame(width: 0, height: 0)
                             }
