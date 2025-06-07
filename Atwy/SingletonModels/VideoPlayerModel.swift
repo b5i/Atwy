@@ -357,8 +357,8 @@ class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
                 loadingRequest.finishLoading(with: error)
                     return
             }
-            let str = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"YT-EXT-AUDIO-CONTENT-ID=\"([a-zA-Z-]*)[\w\.]*\""#, with: "LANGUAGE=\"$1\",NAME=\"$1\"", options: .regularExpression)
-            loadingRequest.dataRequest?.respond(with: str.data(using: .utf8)!)
+            //let str = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"YT-EXT-AUDIO-CONTENT-ID=\"([a-zA-Z-]*)[\w\.]*\""#, with: "LANGUAGE=\"$1\",NAME=\"$1\"", options: .regularExpression).data(using: .utf8)!
+            loadingRequest.dataRequest?.respond(with: String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"#EXT-X-STREAM-INF:BANDWIDTH=[0-9]*,CODECS="vp09.*?\n.*?\n"#, with: "", options: .regularExpression).data(using: .utf8)!) // we remove the entries that contain a VP9 format that the AVPlayer can't play
             loadingRequest.finishLoading()
         }
         task.resume()

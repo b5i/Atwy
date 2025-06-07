@@ -68,6 +68,8 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         self.channelAvatarImageData = channelAvatarImageData
         self.videoThumbnailData = thumbnailData
 
+        let isDownloaded: Bool
+        
         if let downloadedVideo = PersistenceModel.shared.getDownloadedVideo(videoId: video.videoId) {
             self.streamingInfos = VideoInfosResponse.createEmpty()
             self.streamingInfos.streamingURL = downloadedVideo.storageLocation
@@ -81,19 +83,20 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.channelAvatarImageData = channelAvatarImageData ?? downloadedVideo.channel?.thumbnail
             self.chapters = downloadedVideo.chaptersArray.map({ .init(time: Int($0.startTimeSeconds), formattedTime: $0.shortTimeDescription, title: $0.title, thumbnailData: $0.thumbnail)
             })
+            isDownloaded = true
         } else {
             guard NetworkReachabilityModel.shared.connected else { throw "Attempted to load a non-downloaded video while being offline." }
             
             await YTM.getVisitorData()
             
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
+            isDownloaded = false
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }
 
         let asset: AVURLAsset
         
-        /*
-        if !isDownloaded {
+        if !isDownloaded && ProcessInfo.processInfo.isiOSAppOnMac {
             let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
             components?.scheme = "customloader"
             asset = AVURLAsset(url: components!.url!)
@@ -101,9 +104,6 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         } else {
             asset = AVURLAsset(url: url)
         }
-         */
-        
-        asset = AVURLAsset(url: url)
         
         super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         
