@@ -139,7 +139,9 @@ struct PlayerViewController: UIViewControllerRepresentable {
         controller.player?.replaceCurrentItem(with: nil)
     }
 
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        // let is360 = (player.currentItem as? YTAVPlayerItem)?.streamingInfos.downloadFormats.contains(where: { ($0 as? VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat)?.is360 == true }) ?? false
+    }
 }
 #else
 

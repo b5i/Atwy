@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import AVKit
 #if !os(macOS)
-import MediaPlayer
 import SwiftUI
 #endif
 import GroupActivities
@@ -24,8 +23,6 @@ class VideoPlayerModel: NSObject, ObservableObject {
     let player = CustomAVPlayer(playerItem: nil)
     #if !os(macOS)
     private(set) lazy var controller = AVPlayerViewController() // lazy var to avoid  -[UIViewController init] must be used from main thread only
-
-    private(set) var nowPlayingSession: MPNowPlayingSession?
     #endif
     @Published private(set) var isLoadingVideo: Bool = false
     
