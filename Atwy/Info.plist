@@ -2,19 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>OSLogPreferences</key>
-	<dict>
-		<key>Antoine-Bollengier.Atwy</key>
-		<dict>
-			<key>all</key>
-			<dict>
-				<key>Enable-Private-Data</key>
-				<true/>
-			</dict>
-		</dict>
-	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>Antoine-Bollengier.Atwy.DownloaderBackgroundProgressRefresh</string>
@@ -32,10 +19,23 @@
 			</array>
 		</dict>
 	</array>
+	<key>OSLogPreferences</key>
+	<dict>
+		<key>Antoine-Bollengier.Atwy</key>
+		<dict>
+			<key>all</key>
+			<dict>
+				<key>Enable-Private-Data</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 		<string>fetch</string>
 	</array>
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
 </dict>
 </plist>

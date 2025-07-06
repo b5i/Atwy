@@ -11,13 +11,10 @@ import OSLog
 
 extension YouTubeModel {
     func getVisitorData() async {
-        // get the visitorData if it isn't already set
-        if YTM.visitorData.isEmpty {
-            if let visitorData = try? await SearchResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: "homefwhfjoifj"]).visitorData {
-                YTM.visitorData = visitorData
-            } else {
-                Logger.atwyLogs.simpleLog("Couldn't get visitorData, request may fail.")
-            }
+        if let visitorData = try? await SearchResponse.sendThrowingRequest(youtubeModel: YTM, data: [.query: "mrbeast"]).visitorData {
+            YTM.visitorData = visitorData
+        } else {
+            Logger.atwyLogs.simpleLog("Couldn't get visitorData, request may fail.")
         }
     }
 }
