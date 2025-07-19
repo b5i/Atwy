@@ -92,5 +92,6 @@ struct PlayerTopActionsView: View {
         }
         .opacity(!menuShown ? 1 : 0)
         .animation(.spring(duration: 0.35), value: menuShown)
+        .id(currentItem)
     }
 }

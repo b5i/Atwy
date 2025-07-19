@@ -210,6 +210,7 @@ struct WatchVideoView: View {
                                     .frame(height: !topMenuShown ? max(180, scrollViewGeometry.size.height) : 0)
                                     .mask(FadeInOutView(mode: .vertical, gradientSize: 20))
                                     .environment(\.colorScheme, .dark)
+                                    .id(currentItem)
                             }
                             VStack {
                                 ScrollView {

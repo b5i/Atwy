@@ -25,10 +25,6 @@ struct OptionalItemChannelAvatarView: View {
                 NoAvatarCircleView(makeGradient: makeGradient)
             }
         }
-        .overlay(alignment: .bottomTrailing) {
-            if let currentItem = currentItem, NM.connected {
-                SubscribeButtonOverlayView(currentItem: currentItem)
-            }
-        }
+        .id(currentItem)
     }
 }
