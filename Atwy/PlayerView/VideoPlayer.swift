@@ -15,6 +15,8 @@ import MediaPlayer
 
 #if canImport(UIKit)
 import UIKit
+import Combine
+
 struct PlayerViewController: UIViewControllerRepresentable {
     var player: CustomAVPlayer
     var showControls: Bool = true
@@ -28,17 +30,34 @@ struct PlayerViewController: UIViewControllerRepresentable {
     class Model: NSObject, AVPlayerViewControllerDelegate {
         private var isFullScreen: Bool = false
                 
-        private var mainPlayer: AVPlayerViewController? = nil
+        private weak var mainPlayer: AVPlayerViewController?
         
         private var backgroundObserver: NSObjectProtocol? = nil
+        
+        private var combineObservers: Set<AnyCancellable> = .init()
                         
-        override init() {
+        init(mainPlayer: AVPlayerViewController) {
+            self.mainPlayer = mainPlayer
             super.init()
             self.backgroundObserver = NotificationCenter.default.addObserver(forName:             UIApplication.didEnterBackgroundNotification, object: nil, queue: nil, using: { [weak self] _ in
                 if let isFullscreen = self?.mainPlayer?.value(forKey: "avkit_isEffectivelyFullScreen") as? Bool {
                     self?.isFullScreen = isFullscreen
                 }
             })
+            DeviceOrientationModel.shared.$orientation
+                .sink { [weak self] newValue in
+                    guard PreferencesStorageModel.shared.automaticFullscreen else { return }
+                    let fullScreenCompletionBlock: (@convention(block) () -> ()) = {}
+                    switch newValue {
+                    case .landscapeLeft, .landscapeRight:
+                        self?.mainPlayer?.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+                    case .portrait, .portraitUpsideDown:
+                        self?.mainPlayer?.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+                    default:
+                        break
+                    }
+                }
+                .store(in: &self.combineObservers)
         }
         
         deinit {
@@ -85,7 +104,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
     }
     
     func makeCoordinator() -> Model {
-        return Model()
+        return Model(mainPlayer: self.controller)
     }
         
     func makeUIViewController(context: Context) -> AVPlayerViewController {

@@ -37,6 +37,9 @@ struct BehaviorSettingsView: View {
             SettingsSection(title: "Background playback") {
                 Setting(textDescription: "Enabling background playback will make the player continue playing the video/audio when you quit the app or shut down the screen. If automatic PiP is enabled, it will be preferred over simple background playback when quitting the app.", action: try! SAToggle(PSMType: .backgroundPlayback, title: "Background playback"))
             }
+            SettingsSection(title: "Automatic fullscreen") {
+                Setting(textDescription: "Enabling automatic fullscreen makes the player enter fullscreen whenever you switch to a landscape orientation or exit it when you switch to a portrait mode.", action: try! SAToggle(PSMType: .automaticFullscreen, title: "Automatic fullscreen"))
+            }
         }
     }
 }

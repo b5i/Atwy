@@ -84,6 +84,7 @@ class PreferencesStorageModel: ObservableObject {
         case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
+        case automaticFullscreen
         
         case searchHistoryEnabled
         
@@ -107,7 +108,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
                 return Bool.self
             case .loggerCacheLimit, .concurrentDownloadsLimit:
                 return Int.self
@@ -124,7 +125,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled:
+            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false
@@ -173,6 +174,10 @@ extension PreferencesStorageModel {
     
     var backgroundPlayback: Bool {
         self.getValueForKey(.backgroundPlayback) as! Bool
+    }
+    
+    var automaticFullscreen: Bool {
+        self.getValueForKey(.automaticFullscreen) as! Bool
     }
     
     var searchHistoryEnabled: Bool {
