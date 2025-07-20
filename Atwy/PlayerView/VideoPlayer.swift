@@ -51,7 +51,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
                     switch newValue {
                     case .landscapeLeft, .landscapeRight:
                         self?.mainPlayer?.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
-                    case .portrait, .portraitUpsideDown:
+                    case .portrait:
                         self?.mainPlayer?.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
                     default:
                         break
