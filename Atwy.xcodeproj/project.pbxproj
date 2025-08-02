@@ -770,8 +770,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
-				kind = exactVersion;
-				version = 2.5.0;
+				kind = revision;
+				revision = cd24dfc8cb51b7994fa45f381aeb7cbd945ce2ef;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
