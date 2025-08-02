@@ -332,6 +332,8 @@ extension VideoPlayerModel: AVPlayerPlaybackCoordinatorDelegate {
 }
 
 class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
+    var defaultLanguage: String? = nil // TODO: use this to let the user choose the language of the video (provoque a main m3u8 reload, filter the new language and seek to the right time)
+    
     func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForResponseTo authenticationChallenge: URLAuthenticationChallenge) -> Bool {
         return true
     }
@@ -354,8 +356,37 @@ class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
                 loadingRequest.finishLoading(with: error)
                     return
             }
+            
+            var stringToReturn = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"#EXT-X-STREAM-INF:BANDWIDTH=[0-9]*,CODECS="vp09.*?\n.*?\n"#, with: "", options: .regularExpression) // we remove the entries that contain a VP9 format that the AVPlayer can't play
+            
             //let str = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"YT-EXT-AUDIO-CONTENT-ID=\"([a-zA-Z-]*)[\w\.]*\""#, with: "LANGUAGE=\"$1\",NAME=\"$1\"", options: .regularExpression).data(using: .utf8)!
-            loadingRequest.dataRequest?.respond(with: String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"#EXT-X-STREAM-INF:BANDWIDTH=[0-9]*,CODECS="vp09.*?\n.*?\n"#, with: "", options: .regularExpression).data(using: .utf8)!) // we remove the entries that contain a VP9 format that the AVPlayer can't play
+            
+            
+            if let defaultLanguage = self.defaultLanguage {
+                if stringToReturn.contains("YT-EXT-AUDIO-CONTENT-ID=\"\(defaultLanguage)") {
+                    var newString: String = ""
+                    var didFindPartToRemove: Bool = false
+                    
+                    for part in stringToReturn.split(separator: "\n") {
+                        guard !didFindPartToRemove else {
+                            didFindPartToRemove = false
+                            continue
+                        }
+                        
+                        if part.contains("YT-EXT-AUDIO-CONTENT-ID=") && !part.contains("YT-EXT-AUDIO-CONTENT-ID=\"\(defaultLanguage)") {
+                            didFindPartToRemove = true
+                            continue
+                        }
+                        
+                        newString += part + "\n"
+                    }
+                    stringToReturn = newString
+                } // we remove all the formats that don't have the default language if it's present
+            }
+            
+            loadingRequest.dataRequest?.respond(with: stringToReturn.data(using: .utf8)!)
+            
+            
             loadingRequest.finishLoading()
         }
         task.resume()

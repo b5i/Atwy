@@ -140,11 +140,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
 
         let asset: AVURLAsset
         
-        if !isDownloaded && ProcessInfo.processInfo.isiOSAppOnMac {
+        if !isDownloaded {
             let components = NSURLComponents.init(url: url, resolvingAgainstBaseURL: true)
             components?.scheme = "customloader"
             asset = AVURLAsset(url: components!.url!)
             asset.resourceLoader.setDelegate(ressourceLoader, queue: .main)
+            ressourceLoader.defaultLanguage = self.streamingInfos.downloadFormats.compactMap { $0 as? AudioOnlyFormat }.first(where: { $0.formatLocaleInfos?.isDefaultAudioFormat == true })?.formatLocaleInfos?.localeId
         } else {
             asset = AVURLAsset(url: url)
         }
