@@ -90,6 +90,50 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             await YTM.getVisitorData()
             
             self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
+            guard let streamingURL = streamingInfos.streamingURL else { throw "No streaming URL" }
+            
+            do {
+                try await Self.testVideoFormat(url: streamingURL)
+            } catch {
+                defer {
+                    YTM.customHeaders[.videoInfos] = nil
+                }
+                Logger.atwyLogs.simpleLog("First streaming URL doesn't work, trying a new one")
+                YTM.customHeaders[.videoInfos] = HeadersList(
+                    url: URL(string: "https://www.youtube.com/youtubei/v1/player")!,
+                    method: .POST,
+                    headers: [
+                        .init(name: "Accept", content: "*/*"),
+                        .init(name: "Accept-Encoding", content: "gzip, deflate, br"),
+                        .init(name: "Host", content: "www.youtube.com"),
+                        .init(name: "User-Agent", content: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15"),
+                        .init(name: "Accept-Language", content: "\(YTM.selectedLocale);q=0.9"),
+                        .init(name: "Origin", content: "https://www.youtube.com/"),
+                        .init(name: "Referer", content: "https://www.youtube.com/"),
+                        .init(name: "Content-Type", content: "application/json"),
+                        .init(name: "X-Origin", content: "https://www.youtube.com")
+                    ],
+                    addQueryAfterParts: [
+                        .init(index: 0, encode: true),
+                        .init(index: 1, encode: true)
+                    ],
+                    httpBody: [
+                        "{\"context\":{\"client\":{\"deviceMake\":\"Apple\",\"deviceModel\":\"\",\"userAgent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15,gzip(gfe)\",\"clientName\":\"WEB\",\"clientVersion\":\"2.20250731.01.00\",\"osName\":\"Macintosh\",\"osVersion\":\"10_15_7\",\"platform\":\"DESKTOP\",\"clientFormFactor\":\"UNKNOWN_FORM_FACTOR\",\"configInfo\":{},\"screenDensityFloat\":2,\"userInterfaceTheme\":\"USER_INTERFACE_THEME_DARK\",\"timeZone\":\"Europe/Zurich\",\"browserName\":\"Safari\",\"browserVersion\":\"16.5\",\"acceptHeader\":\"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\"utcOffsetMinutes\":120,\"clientScreen\":\"WATCH\",\"mainAppWebInfo\":{\"graftUrl\":\"/watch?v=",
+                        "&pp=YAHIAQE%3D\",\"webDisplayMode\":\"WEB_DISPLAY_MODE_BROWSER\",\"isWebNativeShareAvailable\":true}},\"user\":{\"lockedSafetyMode\":false},\"request\":{\"useSsl\":true,\"internalExperimentFlags\":[],\"consistencyTokenJars\":[]}},\"videoId\":\"",
+                        "\",\"params\":\"YAHIAQE%3D\",\"playbackContext\":{\"contentPlaybackContext\":{\"vis\":5,\"splay\":false,\"autoCaptionsDefaultOn\":false,\"autonavState\":\"STATE_NONE\",\"html5Preference\":\"HTML5_PREF_WANTS\",\"signatureTimestamp\":19508,\"autoplay\":true,\"autonav\":true,\"referer\":\"https://www.youtube.com/\",\"lactMilliseconds\":\"-1\",\"watchAmbientModeContext\":{\"hasShownAmbientMode\":true,\"watchAmbientModeEnabled\":true}}},\"racyCheckOk\":false,\"contentCheckOk\":false}"
+                    ],
+                    parameters: [
+                        .init(name: "prettyPrint", content: "false")
+                    ]
+                )
+                
+                guard let newStreamingURL = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM).streamingURL else {
+                    throw "No second streaming URL"
+                }
+                                
+                try await Self.testVideoFormat(url: newStreamingURL)
+                self.streamingInfos.streamingURL = newStreamingURL
+            }
             isDownloaded = false
         }
         guard let url = self.streamingInfos.streamingURL else { throw "Couldn't get streaming URL." }
@@ -120,6 +164,24 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         let metadatas = Self.getMetadatasForInfos(title: self.video.title ?? "", channelName: self.video.channel?.name ?? self.streamingInfos.channel?.name ?? self.moreVideoInfos?.channel?.name ?? "", videoDescription: self.streamingInfos.videoDescription ?? "")
         for metadataItem in metadatas {
             self.setAndAppendMetdataItem(value: metadataItem.value, type: metadataItem.identifier, key: metadataItem.key)
+        }
+    }
+    
+    static func testVideoFormat(url: URL) async throws {
+        let (hlsData, _) = try await URLSession.shared.data(from: url)
+        
+        let hlsStringParts = String(String(decoding: hlsData, as: UTF8.self)).split(separator: "\n").map(String.init)
+        
+        guard let testingLink = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:)).first else { throw "No valid URL found in the format" }
+        
+        if testingLink.pathExtension == "m3u8" {
+            return try await testVideoFormat(url: testingLink)
+        }
+        
+        let (testingLinkData, _) = try await URLSession.shared.data(from: testingLink)
+        
+        if testingLinkData.isEmpty {
+            throw "Video data is empty"
         }
     }
     
