@@ -89,12 +89,11 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             
             await YTM.getVisitorData()
             
-            self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
-            guard let streamingURL = streamingInfos.streamingURL else { throw "No streaming URL" }
-            
             do {
+                self.streamingInfos = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
+                guard let streamingURL = streamingInfos.streamingURL else { throw "No streaming URL" }
                 try await Self.testVideoFormat(url: streamingURL)
-            } catch {
+            } catch { // check with browser headers
                 defer {
                     YTM.customHeaders[.videoInfos] = nil
                 }
@@ -127,12 +126,16 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                     ]
                 )
                 
-                guard let newStreamingURL = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM).streamingURL else {
+                await YTM.getVisitorData()
+                
+                let newStreamingInfo = try await video.fetchStreamingInfosThrowing(youtubeModel: YTM)
+                
+                guard let newStreamingURL = newStreamingInfo.streamingURL else {
                     throw "No second streaming URL"
                 }
-                                
+                self.streamingInfos = newStreamingInfo
+
                 try await Self.testVideoFormat(url: newStreamingURL)
-                self.streamingInfos.streamingURL = newStreamingURL
             }
             isDownloaded = false
         }

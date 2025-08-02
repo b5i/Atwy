@@ -357,7 +357,11 @@ class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
                     return
             }
             
-            var stringToReturn = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"#EXT-X-STREAM-INF:BANDWIDTH=[0-9]*,CODECS="vp09.*?\n.*?\n"#, with: "", options: .regularExpression) // we remove the entries that contain a VP9 format that the AVPlayer can't play
+            var stringToReturn = String(decoding: data, as: UTF8.self)
+            
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                var stringToReturn = stringToReturn.replacingOccurrences(of: #"#EXT-X-STREAM-INF:BANDWIDTH=[0-9]*,CODECS="vp09.*?\n.*?\n"#, with: "", options: .regularExpression) // we remove the entries that contain a VP9 format that the AVPlayer can't play
+            }
             
             //let str = String(decoding: data, as: UTF8.self).replacingOccurrences(of: #"YT-EXT-AUDIO-CONTENT-ID=\"([a-zA-Z-]*)[\w\.]*\""#, with: "LANGUAGE=\"$1\",NAME=\"$1\"", options: .regularExpression).data(using: .utf8)!
             
