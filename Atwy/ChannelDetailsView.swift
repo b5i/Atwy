@@ -319,6 +319,8 @@ struct ChannelDetailsView: View {
         }
         
         public func fetchContentsContinuation(for category: ChannelInfosResponse.RequestTypes) {
+            guard self.continuationsFetchingStates[category] != true else { return }
+                        
             func fetchContentsContinuationRequest<Category>(category: Category.Type) where Category: ListableChannelContent {
                 DispatchQueue.main.async {
                     self.continuationsFetchingStates[category.type] = true
