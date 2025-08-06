@@ -176,16 +176,20 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         
         let hlsStringParts = String(String(decoding: hlsData, as: UTF8.self)).split(separator: "\n").map(String.init)
         
-        guard let testingLink = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:)).first else { throw "No valid URL found in the format" }
+        let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:))
         
-        if testingLink.pathExtension == "m3u8" {
-            return try await testVideoFormat(url: testingLink)
-        }
+        guard !testingLinks.isEmpty else { throw "No stream" }
         
-        let (testingLinkData, _) = try await URLSession.shared.data(from: testingLink)
-        
-        if testingLinkData.isEmpty {
-            throw "Video data is empty"
+        for testingLink in testingLinks {
+            if testingLink.pathExtension == "m3u8" {
+                return try await testVideoFormat(url: testingLink)
+            }
+            
+            let (testingLinkData, _) = try await URLSession.shared.data(from: testingLink)
+            
+            if testingLinkData.isEmpty {
+                throw "Video data is empty"
+            }
         }
     }
     
