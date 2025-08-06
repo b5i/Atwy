@@ -178,14 +178,20 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         
         let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:))
         
-        guard !testingLinks.isEmpty else { throw "No stream" }
+        guard let firstLink = testingLinks.first else { throw "No stream" }
         
-        for testingLink in testingLinks {
-            if testingLink.pathExtension == "m3u8" {
-                return try await testVideoFormat(url: testingLink)
-            }
-            
-            let (testingLinkData, _) = try await URLSession.shared.data(from: testingLink)
+        // TODO: are all those tests really necessary?
+        if firstLink.pathExtension == "m3u8" {
+            try await withThrowingTaskGroup(body: { group in
+                testingLinks.forEach { link in
+                    group.addTask(operation: {
+                        try await testVideoFormat(url: link)
+                    })
+                }
+                try await group.waitForAll()
+            })
+        } else {
+            let (testingLinkData, _) = try await URLSession.shared.data(from: firstLink)
             
             if testingLinkData.isEmpty {
                 throw "Video data is empty"
