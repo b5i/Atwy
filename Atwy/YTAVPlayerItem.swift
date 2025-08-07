@@ -182,7 +182,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
         
         // TODO: are all those tests really necessary?
         if firstLink.pathExtension == "m3u8" {
-            try await withThrowingTaskGroup(body: { group in
+            try await withThrowingTaskGroup(of: Void.self, body: { group in
                 testingLinks.forEach { link in
                     group.addTask(operation: {
                         try await testVideoFormat(url: link)
