@@ -367,7 +367,7 @@ class AssetRessourceLoader: NSObject, AVAssetResourceLoaderDelegate {
             
             
             if let defaultLanguage = self.defaultLanguage {
-                if stringToReturn.contains("YT-EXT-AUDIO-CONTENT-ID=\"\(defaultLanguage)") {
+                if stringToReturn.contains("YT-EXT-AUDIO-CONTENT-ID=\"\(defaultLanguage)") && !stringToReturn.contains("TYPE=AUDIO") /* in the case it contains this, it means the user is able to change manually */ {
                     var newString: String = ""
                     var didFindPartToRemove: Bool = false
                     
