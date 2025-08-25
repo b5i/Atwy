@@ -174,7 +174,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     static func testVideoFormat(url: URL) async throws {
         let (hlsData, _) = try await URLSession.shared.data(from: url)
         
-        let hlsStringParts = String(String(decoding: hlsData, as: UTF8.self)).split(separator: "\n").map(String.init)
+        let hlsStringParts = AssetRessourceLoader.removeUncompatibleFormats(fromPlaylist: String(String(decoding: hlsData, as: UTF8.self))).split(separator: "\n").map(String.init)
         
         let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:))
         
