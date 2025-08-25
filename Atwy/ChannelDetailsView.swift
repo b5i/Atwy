@@ -156,8 +156,9 @@ struct ChannelDetailsView: View {
                             if model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent) != nil {
                                 let itemsBinding: Binding<[YTElementWithData]> = Binding(get: {
                                     return ((model.channelInfos?.channelContentStore[selectedCategory] as? (any ListableChannelContent))?.items ?? [])
-                                        .map({ item in
+                                        .compactMap({ item in
                                             if var video = item as? YTVideo {
+                                                guard !(video.memberOnly ?? false) else { return nil }
                                                 video.channel?.thumbnails = self.channel.thumbnails
                                                 
                                                 let videoWithData = YTElementWithData(element: video, data: .init(allowChannelLinking: false))
