@@ -47,12 +47,11 @@ struct PlayerViewController: UIViewControllerRepresentable {
             DeviceOrientationModel.shared.$orientation
                 .sink { [weak self] newValue in
                     guard PreferencesStorageModel.shared.automaticFullscreen else { return }
-                    let fullScreenCompletionBlock: (@convention(block) () -> ()) = {}
                     switch newValue {
                     case .landscapeLeft, .landscapeRight:
-                        self?.mainPlayer?.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+                        self?.setNewFullScreenState(isFullScreen: true)
                     case .portrait:
-                        self?.mainPlayer?.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+                        self?.setNewFullScreenState(isFullScreen: false)
                     default:
                         break
                     }
@@ -64,22 +63,22 @@ struct PlayerViewController: UIViewControllerRepresentable {
             NotificationCenter.default.removeObserver(self.backgroundObserver as Any)
         }
         
+        func setNewFullScreenState(isFullScreen: Bool, fullScreenCompletionBlock: (@convention(block) @escaping () -> ()) = {}) {
+            if isFullScreen {
+                self.mainPlayer?.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+            } else {
+                self.mainPlayer?.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenCompletionBlock)
+            }
+        }
+        
         func playerViewController(_ playerViewController: AVPlayerViewController,
                                   restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
             self.mainPlayer = playerViewController
-            
             SheetsModel.shared.showSheet(.watchVideo)
-            if isFullScreen { // restore the fullscreen state
-                let fullScreenEnteringCompletionBlock: (@convention(block) () -> ()) = {
-                    completionHandler(true)
-                }
-                playerViewController.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: fullScreenEnteringCompletionBlock)
-            } else {
-                let fullScreenExitingCompletionBlock: (@convention(block) () -> ()) = {
-                    completionHandler(true)
-                }
-                playerViewController.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: fullScreenExitingCompletionBlock)
+            let fullScreenEnteringCompletionBlock: (@convention(block) () -> ()) = {
+                completionHandler(true)
             }
+            self.setNewFullScreenState(isFullScreen: isFullScreen, fullScreenCompletionBlock: fullScreenEnteringCompletionBlock) // restore the fullscreen state
         }
         
         func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator coordinator: any UIViewControllerTransitionCoordinator) {
@@ -160,6 +159,11 @@ struct PlayerViewController: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         // let is360 = (player.currentItem as? YTAVPlayerItem)?.streamingInfos.downloadFormats.contains(where: { ($0 as? VideoInfosWithDownloadFormatsResponse.VideoDownloadFormat)?.is360 == true }) ?? false
+        if DeviceOrientationModel.shared.orientation.isLandscape {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: { // add little delay in case it needs to finish a transition
+                context.coordinator.setNewFullScreenState(isFullScreen: true)
+            })
+        }
     }
 }
 #else
