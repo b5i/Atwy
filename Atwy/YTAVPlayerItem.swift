@@ -148,7 +148,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             components?.scheme = "customloader"
             asset = AVURLAsset(url: components!.url!)
             asset.resourceLoader.setDelegate(ressourceLoader, queue: .main)
-            ressourceLoader.defaultLanguage = self.streamingInfos.downloadFormats.compactMap { $0 as? AudioOnlyFormat }.first(where: { $0.formatLocaleInfos?.isDefaultAudioFormat == true })?.formatLocaleInfos?.localeId
+            let audioFormats = self.streamingInfos.downloadFormats.compactMap { $0 as? AudioOnlyFormat }
+            var originalLanguages = audioFormats.filter { $0.formatLocaleInfos?.isAutoDubbed != true }
+            if originalLanguages.isEmpty {
+                originalLanguages = audioFormats
+            }
+            ressourceLoader.defaultLanguage = originalLanguages.first(where: { $0.formatLocaleInfos?.isDefaultAudioFormat == true })?.formatLocaleInfos?.localeId ?? originalLanguages.first?.formatLocaleInfos?.localeId
         } else {
             asset = AVURLAsset(url: url)
         }

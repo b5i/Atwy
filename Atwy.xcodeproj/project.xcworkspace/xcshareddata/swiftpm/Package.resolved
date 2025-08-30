@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/b5i/InfiniteScrollViews",
       "state" : {
-        "revision" : "92e9a14ceea4430fe522faeb68070aa43ea2be9e",
-        "version" : "1.1.0"
+        "revision" : "1a00cc92ee64cf912fbadacf53c3ee85aa7fa3d6",
+        "version" : "1.2.0"
       }
     },
     {
@@ -24,7 +24,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/b5i/YouTubeKit",
       "state" : {
-        "revision" : "6b64751c522c7c92972185e73a76636f20fcc2ab"
+        "revision" : "3b7d67d2c5adad0fcc88b88887e8f8a68788bfcd"
       }
     }
   ],

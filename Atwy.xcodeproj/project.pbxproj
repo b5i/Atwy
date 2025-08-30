@@ -763,7 +763,7 @@
 			repositoryURL = "https://github.com/b5i/InfiniteScrollViews";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.0;
+				version = 1.2.0;
 			};
 		};
 		347AE2542A6C65490099DDE7 /* XCRemoteSwiftPackageReference "YouTubeKit" */ = {
@@ -771,7 +771,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = 6b64751c522c7c92972185e73a76636f20fcc2ab;
+				revision = 3b7d67d2c5adad0fcc88b88887e8f8a68788bfcd;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
