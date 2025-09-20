@@ -93,6 +93,10 @@ class AVMobileAuxiliaryControlsView {
     private var dislikeButtonControl: AVMobileAuxiliaryControl? = nil
     private var realRouteDelegate: CustomAVControlOverflowButtonDelegate? = nil
     
+    func refreshMenu(withIdentifier identifier: String? = nil, newMenu menu: UIMenu) {
+        self.realRouteDelegate?.refreshMenu(withIdentifier: identifier, newMenu: menu)
+    }
+    
     private func handleNewLikeStatus(_ likeStatus: YTLikeStatus?) {
         if let likeStatus = likeStatus {
             switch likeStatus {
@@ -186,42 +190,7 @@ class AVMobileAuxiliaryControlsView {
             visibleControls.append(contentsOf: (defaultControlsToAdd.filter({$0.value(forKey: "_identifier") as? String == "AVAnalysisControl"})))
             visibleControls.append(AVMobileAuxiliaryControl(priority: 0, controlName: "fakeControl", manager: self.manager).control) // create a empty control so that the controls are immediatly displayed
             
-            return ([
-                UIMenu(title: "", options: .displayInline, children: [ // show a divider
-                    UIMenu(title: "Add To Playlist", image: UIImage(systemName: "plus.circle"), children: [
-                        UIDeferredMenuElement({ result in
-                            guard let video = VideoPlayerModel.shared.currentItem?.video else { result([]); return }
-                            video.fetchAllPossibleHostPlaylists(youtubeModel: YTM, result: { returning in
-                                switch returning {
-                                case .success(let response):
-                                    guard !response.isDisconnected else { fallthrough }
-                                    DispatchQueue.main.async {
-                                        result(response.playlistsAndStatus.map({ playlistAndStatus in
-                                            return UIAction(
-                                                title: playlistAndStatus.playlist.title ?? "Unknown name",
-                                                image: UIImage(systemName: PrivacyIconView.getIconNameForPrivacyType(playlistAndStatus.playlist.privacy ?? .unlisted)),
-                                                state: playlistAndStatus.isVideoPresentInside ? .on : .off,
-                                                handler: { _ in
-                                                    if playlistAndStatus.isVideoPresentInside {
-                                                        RemoveVideoByIdFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: {_ in})
-                                                    } else {
-                                                        AddVideoToPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: { _ in })
-                                                    }
-                                                })
-                                        }))
-                                    }
-                                case .failure(_):
-                                    DispatchQueue.main.async {
-                                        result([])
-                                    }
-                                }
-                            })
-                        })
-                    ]),
-                    UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
-                        VideoPlayerModel.shared.currentItem?.video.showShareSheet()
-                    })
-                ])], defaultControlsToAdd, visibleControls)
+            return ([PlayerViewController.makeControls()], defaultControlsToAdd, visibleControls)
         case .notFullScreen:
             return ([], [], defaultControlsToAdd)
         }
@@ -237,6 +206,8 @@ class AVMobileAuxiliaryControlsView {
             
             
             self.realRouteDelegate = CustomAVControlOverflowButtonDelegate(addedItems: menuControls, actions: menuItems, globalDelegate: controlsView, manager: self.manager)
+            
+            print(self.realRouteDelegate!)
             
             (controlsView.value(forKey: "_overflowControl") as? NSObject)?.perform(NSSelectorFromString("setDelegate:"), with: realRouteDelegate)
             

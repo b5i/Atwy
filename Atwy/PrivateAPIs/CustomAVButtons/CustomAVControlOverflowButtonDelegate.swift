@@ -16,6 +16,12 @@ class CustomAVControlOverflowButtonDelegate: NSObject {
     /// an array of UIMenu or UIAction (mixed or not) that will be added to the menu of the overflow button
     var actions: [NSObject]
     var globalDelegate: NSObject
+    
+    private var button: NSObject? = nil {
+        didSet {
+            print("set buttton for", self)
+        }
+    }
     init(addedItems: [NSObject], actions: [NSObject], globalDelegate: NSObject, manager: CustomAVButtonsManager) {
         self.manager = manager
         
@@ -53,12 +59,36 @@ class CustomAVControlOverflowButtonDelegate: NSObject {
         return toReturn
     }
     
+    func refreshMenu(withIdentifier identifier: String? = nil, newMenu menu: UIMenu) {
+        guard let interaction = self.button?.value(forKey: "_activeMenuInteraction") as? UIContextMenuInteraction else { return }
+        // took from BetterMenus
+        DispatchQueue.main.async {
+            var didUpdateRoot: Bool = false
+            interaction.updateVisibleMenu { oldMenu in
+                if let identifier = identifier {
+                    if oldMenu.identifier.rawValue == identifier {
+                        if let menuToReplace = menu.findChildren(withIdentifier: UIMenu.Identifier(rawValue: identifier)) {
+                            return menuToReplace
+                        } else {
+                            print("[Atwy] Didn't find menu with identifier \(identifier) in the result of body(). Not replacing current menu.")
+                        }
+                    }
+                    return oldMenu
+                } else {
+                    guard !didUpdateRoot else { return UIMenu() }
+                    didUpdateRoot = true
+                    return menu
+                }
+            }
+        }
+    }
+    
     private func makeAVControlOverflowButtonDelegateConform() {
         for (selector, args, _) in getMethodsForProtocol(self.manager.AVControlOverflowButtonDelegateProtocol) {
             
             if selector.description.contains("overflowMenuItemsForControlOverflowButton") {
-                let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> [NSObject]) = { delegate, _ in
-                    
+                let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> [NSObject]) = { delegate, button in
+                    delegate.button = button
                     let defaultItems = delegate.globalDelegate.perform(NSSelectorFromString("overflowMenuItemsForControlOverflowButton:"), with: delegate.globalDelegate.value(forKey: "_overflowControl"))
                     if defaultItems != nil {
                         var castedDefaultItems: [NSObject] = (defaultItems?.takeUnretainedValue() as? [NSObject]) ?? []
@@ -77,6 +107,7 @@ class CustomAVControlOverflowButtonDelegate: NSObject {
             // we need to pass the willShow and didHide info to the global delegate in order for it not to dismiss automatically, but wait for the menu to close before disappearing
             if selector.description.contains("overflowButtonWillShowContextMenu") {
                 let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> Void) = { delegate, button in
+                    delegate.button = button
                     delegate.globalDelegate.perform(NSSelectorFromString("overflowButtonWillShowContextMenu:"), with: button)
                 }
 
@@ -87,6 +118,7 @@ class CustomAVControlOverflowButtonDelegate: NSObject {
             
             if selector.description.contains("overflowButtonDidHideContextMenu") {
                 let handler: (@convention(block) (CustomAVControlOverflowButtonDelegate, UIButton) -> Void) = { delegate, button in
+                    delegate.button = button
                     delegate.globalDelegate.perform(NSSelectorFromString("overflowButtonDidHideContextMenu:"), with: button)
                 }
 

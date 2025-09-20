@@ -16,6 +16,8 @@ import MediaPlayer
 #if canImport(UIKit)
 import UIKit
 import Combine
+import YouTubeKit
+import BetterMenus
 
 struct PlayerViewController: UIViewControllerRepresentable {
     var player: CustomAVPlayer
@@ -106,22 +108,79 @@ struct PlayerViewController: UIViewControllerRepresentable {
         return Model(mainPlayer: self.controller)
     }
         
+    @BUIMenuBuilder static func makeControls() -> UIMenu {
+        Button("Share", image: UIImage(systemName: "plus.circle")) { _ in
+            VideoPlayerModel.shared.currentItem?.video.showShareSheet()
+        }
+        BetterMenus.Divider()
+        BetterMenus.Menu("Add to playlist", image: UIImage(systemName: "plus.circle")) {
+            Async { () -> (playlists: [(playlist: YTPlaylist, isVideoPresentInside: Bool)], videoId: String) in
+                guard let video = VideoPlayerModel.shared.currentItem?.video else { return ([], "") }
+                let response = try? await video.fetchAllPossibleHostPlaylistsThrowing(youtubeModel: YTM)
+                guard response?.isDisconnected != true else { return ([], "") }
+                return (response?.playlistsAndStatus ?? [], video.videoId)
+            } body: { playlistInfo in
+                ForEach(playlistInfo.playlists) { (playlist, isVideoPresentInside) in
+                    Button(playlist.title ?? "Unknown name", image: UIImage(systemName: PrivacyIconView.getIconNameForPrivacyType(playlist.privacy ?? .unlisted))) {_ in
+                        if isVideoPresentInside {
+                            RemoveVideoByIdFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: playlistInfo.videoId, .browseId: playlist.playlistId], result: {_ in
+                                AsyncStorage.modifyCache(forIdentifier: "player-add-to-playlist-\(playlistInfo.videoId)", { (content: (playlists: [(playlist: YTPlaylist, isVideoPresentInside: Bool)], videoId: String)) in
+                                    if let playlistContentIndex = content.playlists.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {
+                                        var playlists = content.playlists
+                                        var playlistElement = playlists[playlistContentIndex]
+                                        playlistElement.isVideoPresentInside = false
+                                        playlists[playlistContentIndex] = playlistElement
+                                        let newContent = (playlists: playlists, videoId: content.videoId)
+                                        return newContent
+                                    }
+                                    return content
+                                })
+                                PrivateManager.shared.avButtonsManager?.controlsView.refreshMenu(withIdentifier: "Add-To-Playlist-Player", newMenu: makeControls())
+                            })
+                        } else {
+                            AddVideoToPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: playlistInfo.videoId, .browseId: playlist.playlistId], result: { _ in
+                                AsyncStorage.modifyCache(forIdentifier: "player-add-to-playlist-\(playlistInfo.videoId)", { (content: (playlists: [(playlist: YTPlaylist, isVideoPresentInside: Bool)], videoId: String)) in
+                                    if let playlistContentIndex = content.playlists.firstIndex(where: {$0.playlist.playlistId == playlist.playlistId}) {
+                                        var playlists = content.playlists
+                                        var playlistElement = playlists[playlistContentIndex]
+                                        playlistElement.isVideoPresentInside = true
+                                        playlists[playlistContentIndex] = playlistElement
+                                        let newContent = (playlists: playlists, videoId: content.videoId)
+                                        return newContent
+                                    }
+                                    return content
+                                })
+                                PrivateManager.shared.avButtonsManager?.controlsView.refreshMenu(withIdentifier: "Add-To-Playlist-Player", newMenu: makeControls())
+                            })
+                        }
+                    }
+                    .style(.keepsMenuPresented)
+                    .state(isVideoPresentInside ? .on : .off)
+                }
+            }
+            .cached(true)
+            .identifier("player-add-to-playlist-\(VideoPlayerModel.shared.currentItem?.video.videoId ?? "")")
+            .calculateBodyWithCache(true)
+        }
+        .identifier("Add-To-Playlist-Player")
+    }
+    
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-//        NotificationCenter.default.addObserver(
-//            forName: UIApplication.didEnterBackgroundNotification,
-//            object: nil,
-//            queue: nil,
-//            using: { _ in
-//                controller.player = nil
-//            })
-//        
-//        NotificationCenter.default.addObserver(
-//            forName: UIApplication.didBecomeActiveNotification,
-//            object: nil,
-//            queue: nil,
-//            using: { _ in
-//                controller.player = player
-//            })
+        //        NotificationCenter.default.addObserver(
+        //            forName: UIApplication.didEnterBackgroundNotification,
+        //            object: nil,
+        //            queue: nil,
+        //            using: { _ in
+        //                controller.player = nil
+        //            })
+        //
+        //        NotificationCenter.default.addObserver(
+        //            forName: UIApplication.didBecomeActiveNotification,
+        //            object: nil,
+        //            queue: nil,
+        //            using: { _ in
+        //                controller.player = player
+        //            })
         
         NotificationCenter.default.addObserver(
             forName: .atwyStopPlayer,
@@ -131,7 +190,7 @@ struct PlayerViewController: UIViewControllerRepresentable {
                 stopPlayer()
             })
         
-
+        
         player.allowsExternalPlayback = true
         player.audiovisualBackgroundPlaybackPolicy = PSM.backgroundPlayback ? .continuesIfPossible : .pauses
         player.preventsDisplaySleepDuringVideoPlayback = true
@@ -150,6 +209,54 @@ struct PlayerViewController: UIViewControllerRepresentable {
         
         PrivateManager.shared.avButtonsManager?.controlsView.menuState = .automatic // initialize it
         
+        let controls = [PlayerViewController.makeControls()]
+        AsyncStorage.AsyncCacheMaxSize = 1
+        controller.perform(NSSelectorFromString("setTransportBarCustomMenuItems:"), with: controls
+        )
+        /*
+        controller.perform(NSSelectorFromString("setTransportBarCustomMenuItems:"), with: [
+            UIMenu(title: " ", image: UIImage(systemName: "cube"), options: .displayInline, children: [ // show a divider
+                UIDeferredMenuElement({ result in
+                    // TODO: make it dynamic in case this changes
+                    guard APIKeyModel.shared.userAccount != nil else { result([]); return }
+                    
+                    result([UIMenu(title: "Add To Playlist", image: UIImage(systemName: "plus.circle"), children: [
+                        UIDeferredMenuElement({ result in
+                            guard let video = VideoPlayerModel.shared.currentItem?.video else { result([]); return }
+                            video.fetchAllPossibleHostPlaylists(youtubeModel: YTM, result: { returning in
+                                switch returning {
+                                case .success(let response):
+                                    guard !response.isDisconnected else { fallthrough }
+                                    DispatchQueue.main.async {
+                                        result(response.playlistsAndStatus.map({ playlistAndStatus in
+                                            return UIAction(
+                                                title: playlistAndStatus.playlist.title ?? "Unknown name",
+                                                image: UIImage(systemName: PrivacyIconView.getIconNameForPrivacyType(playlistAndStatus.playlist.privacy ?? .unlisted)),
+                                                state: playlistAndStatus.isVideoPresentInside ? .on : .off,
+                                                handler: { _ in
+                                                    if playlistAndStatus.isVideoPresentInside {
+                                                        RemoveVideoByIdFromPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: {_ in})
+                                                    } else {
+                                                        AddVideoToPlaylistResponse.sendNonThrowingRequest(youtubeModel: YTM, data: [.movingVideoId: video.videoId, .browseId: playlistAndStatus.playlist.playlistId], result: { _ in })
+                                                    }
+                                                })
+                                        }))
+                                    }
+                                case .failure(_):
+                                    DispatchQueue.main.async {
+                                        result([])
+                                    }
+                                }
+                            })
+                        })
+                    ])])
+                }),
+                UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in
+                    VideoPlayerModel.shared.currentItem?.video.showShareSheet()
+                })
+                                                                 ])
+        ])
+         */
         return controller
     }
 
@@ -166,6 +273,16 @@ struct PlayerViewController: UIViewControllerRepresentable {
         }
     }
 }
+
+extension Async {
+    func setState(_ state: UIMenuElement.State) -> UIDeferredMenuElement {
+        let element = self.uiKitEquivalent
+        element.setValue(state, forKey: "state")
+        return element
+    }
+}
+
+
 #else
 
 struct PlayerViewController: View {
