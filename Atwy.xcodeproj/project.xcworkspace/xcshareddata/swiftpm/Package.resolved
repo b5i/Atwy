@@ -1,6 +1,15 @@
 {
-  "originHash" : "beab74e6507cba1663c4587d02b978a133e63522baa58cf3b3238f5e20601968",
+  "originHash" : "6126b2f1ceac72bc38cebee97ca3a3f20c819f3cf7379078277ac9b9823536e0",
   "pins" : [
+    {
+      "identity" : "bettermenus",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/b5i/BetterMenus",
+      "state" : {
+        "revision" : "f7d479f6e55fb18a7281ad97b981106a71976b83",
+        "version" : "1.1.0"
+      }
+    },
     {
       "identity" : "infinitescrollviews",
       "kind" : "remoteSourceControl",
@@ -8,6 +17,15 @@
       "state" : {
         "revision" : "1a00cc92ee64cf912fbadacf53c3ee85aa7fa3d6",
         "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "8c0c0a8b49e080e54e5e328cc552821ff07cd341",
+        "version" : "1.2.1"
       }
     },
     {

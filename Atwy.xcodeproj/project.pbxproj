@@ -46,6 +46,7 @@
 		34E2652F2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2652E2B1A694E007BB226 /* FavoriteVideo+toYTVideo.swift */; };
 		34F0AF002C581A6300F4043B /* View+centered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F0AE492C581A6300F4043B /* View+centered.swift */; };
 		34F0AF4F2C5820E100F4043B /* View+centered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F0AE492C581A6300F4043B /* View+centered.swift */; };
+		34FEECFD2E7BC9D800E1F154 /* BetterMenus in Frameworks */ = {isa = PBXBuildFile; productRef = 34FEECFC2E7BC9D800E1F154 /* BetterMenus */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,6 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */,
+				34FEECFD2E7BC9D800E1F154 /* BetterMenus in Frameworks */,
 				340995622A759EC9004F9AAF /* SwipeActions in Frameworks */,
 				347AE2562A6C65490099DDE7 /* YouTubeKit in Frameworks */,
 			);
@@ -286,6 +288,7 @@
 				344DFF0C2A69AE250057093F /* InfiniteScrollViews */,
 				347AE2552A6C65490099DDE7 /* YouTubeKit */,
 				340995612A759EC9004F9AAF /* SwipeActions */,
+				34FEECFC2E7BC9D800E1F154 /* BetterMenus */,
 			);
 			productName = Atwy;
 			productReference = 344ED4A12928D85100DB56EA /* Atwy.app */;
@@ -342,6 +345,7 @@
 				344DFF0B2A69AE250057093F /* XCRemoteSwiftPackageReference "InfiniteScrollViews" */,
 				347AE2542A6C65490099DDE7 /* XCRemoteSwiftPackageReference "YouTubeKit" */,
 				340995602A759EC9004F9AAF /* XCRemoteSwiftPackageReference "SwipeActions" */,
+				34FEECFB2E7BC9D800E1F154 /* XCRemoteSwiftPackageReference "BetterMenus" */,
 			);
 			productRefGroup = 344ED4A22928D85100DB56EA /* Products */;
 			projectDirPath = "";
@@ -774,6 +778,14 @@
 				revision = 3e7478066f044739398cc9a504330ddc8daec17f;
 			};
 		};
+		34FEECFB2E7BC9D800E1F154 /* XCRemoteSwiftPackageReference "BetterMenus" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/b5i/BetterMenus";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -791,6 +803,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 347AE2542A6C65490099DDE7 /* XCRemoteSwiftPackageReference "YouTubeKit" */;
 			productName = YouTubeKit;
+		};
+		34FEECFC2E7BC9D800E1F154 /* BetterMenus */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34FEECFB2E7BC9D800E1F154 /* XCRemoteSwiftPackageReference "BetterMenus" */;
+			productName = BetterMenus;
 		};
 /* End XCSwiftPackageProductDependency section */
 
