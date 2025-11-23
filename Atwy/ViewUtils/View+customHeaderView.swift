@@ -16,9 +16,9 @@ public extension View {
         })
     }
     
-    @ViewBuilder func customHeaderView(_ headerViewController: UIViewController, shouldShow: (() -> Bool)? = nil) -> some View {
+    @ViewBuilder func customHeaderView(_ headerViewController: UIViewController, height: CGFloat?, shouldShow: (() -> Bool)? = nil) -> some View {
         overlay(content: {
-            CustomNavigationHeaderControllerView(headerViewController: headerViewController)
+            CustomNavigationHeaderControllerView(headerViewController: headerViewController, height: height)
                 .frame(width: 0, height: 0)
         })
     }
@@ -27,18 +27,22 @@ public extension View {
 public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentable {
     public var headerViewController: UIViewController
     
+    public var height: CGFloat?
+    
     public var shouldShow: (() -> Bool)?
     
     public func makeUIViewController(context: Context) -> UIViewController {
-        return ViewControllerWrapper(headerViewController: headerViewController, shouldShow: shouldShow)
+        return ViewControllerWrapper(headerViewController: headerViewController, height: height, shouldShow: shouldShow)
     }
     
     class ViewControllerWrapper: UIViewController {
         let headerViewController: UIViewController
         let shouldShow: (() -> Bool)?
+        let height: CGFloat?
                 
-        init(headerViewController: UIViewController, shouldShow: (() -> Bool)?) {
+        init(headerViewController: UIViewController, height: CGFloat?, shouldShow: (() -> Bool)?) {
             self.headerViewController = headerViewController
+            self.height = height
             self.shouldShow = shouldShow
             super.init(nibName: nil, bundle: nil)
         }
@@ -64,9 +68,11 @@ public struct CustomNavigationHeaderControllerView: UIViewControllerRepresentabl
                 .takeUnretainedValue()
                 .perform(NSSelectorFromString("initWithContentView:"), with: headerViewController.view)
                 .takeUnretainedValue()
-            
             navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: palette)
-            
+            if let height = self.height {
+                palette.setValue(height, forKey: "_preferredHeight")
+            }
+            //print(headerViewController.view.frame)
             super.viewWillAppear(animated)
         }
         
