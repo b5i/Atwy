@@ -52,6 +52,13 @@ struct CommentView: View {
     
     private let accessoriesColor: Color = Color(cgColor: .init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1))
     
+    var commentTextView: some View {
+        Text(LocalizedStringKey(self.comment.text))
+            .foregroundStyle(.white)
+            .font(.system(size: self.commentFontSize))
+            .multilineTextAlignment(.leading)
+    }
+    
     var body: some View {
         VStack {
             SwipeView {
@@ -59,18 +66,12 @@ struct CommentView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             TopUtilitiesView(comment: self.comment, largeText: self.largeText, isExpanded: $isExpanded)
-                            Text(self.comment.text)
-                                .foregroundStyle(.white)
-                                .font(.system(size: self.commentFontSize))
-                                .multilineTextAlignment(.leading)
+                            commentTextView
                                 .lineLimit(self.isExpanded ? nil : self.maxLines) // we add a "Read More button that takes one line"
                             //.frame(maxHeight: .infinity, alignment: .top)
                                 .background {
                                     // get size of text
-                                    Text(self.comment.text)
-                                        .foregroundStyle(.white)
-                                        .font(.system(size: self.commentFontSize))
-                                        .multilineTextAlignment(.leading)
+                                    commentTextView
                                         .lineLimit(nil)
                                         .fixedSize(horizontal: false, vertical: true)
                                         .overlay {
