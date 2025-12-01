@@ -9,22 +9,16 @@ import SwiftUI
 import AVKit
 
 struct NowPlayingBarView: View {
+    let videoItem: YTAVPlayerItem
     let sheetAnimation: Namespace.ID
     @Binding var isSheetPresented: Bool
     var isSettingsSheetPresented: Bool = false
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var VPM = VideoPlayerModel.shared
-    @ObservedObject private var PM = PersistenceModel.shared
+    @ObservedProperty(PersistenceModel.shared, \.currentData, \.$currentData) private var PMcurrentData
     var body: some View {
-        let isFavorite: Bool = {
-            guard let videoId = VPM.currentItem?.videoId else { return false }
-            return PM.currentData.favoriteVideoIds.contains(where: {$0 == videoId})
-        }()
+        let isFavorite: Bool = PMcurrentData.favoriteVideoIds.contains(where: {$0 == videoItem.videoId})
         
-        let downloadLocation: URL? = {
-            guard let videoId = VPM.currentItem?.videoId else { return nil }
-            return PM.currentData.downloadedVideoIds.first(where: {$0.videoId == videoId})?.storageLocation
-        }()
+        let downloadLocation: URL? = PMcurrentData.downloadedVideoIds.first(where: {$0.videoId == videoItem.videoId})?.storageLocation
         ZStack {
             Rectangle()
                 .fill(.ultraThickMaterial)
@@ -33,7 +27,7 @@ struct NowPlayingBarView: View {
                     HStack {
                         VStack {
                             if !isSettingsSheetPresented {
-                                VideoPlayer(player: VPM.player)
+                                VideoPlayer(player: VideoPlayerModel.shared.player)
                                     .frame(height: 70)
                                     .onAppear {
 #if os(macOS)
@@ -51,7 +45,7 @@ struct NowPlayingBarView: View {
 #endif
                                     }
                                     .disabled(true)
-                            } else if let thumbnail = VPM.currentItem?.video.thumbnails.first {
+                            } else if let thumbnail = videoItem.video.thumbnails.first {
                                 CachedAsyncImage(url: thumbnail.url, content: { image, _ in
                                     switch image {
                                     case .success(let image):
@@ -69,7 +63,7 @@ struct NowPlayingBarView: View {
                         .matchedGeometryEffect(id: "VIDEO", in: sheetAnimation)
                         Spacer()
                         VStack {
-                            if let currentVideoTitle = VPM.currentItem?.video.title {
+                            if let currentVideoTitle = videoItem.video.title {
                                 Text(currentVideoTitle)
                                     .truncationMode(.tail)
                                     .foregroundColor(colorScheme.textColor)
@@ -84,7 +78,7 @@ struct NowPlayingBarView: View {
                         //                            }
                         Button {
                             withAnimation {
-                                VPM.deleteCurrentVideo()
+                                VideoPlayerModel.shared.deleteCurrentVideo()
                             }
                         } label: {
                             Image(systemName: "multiply")
@@ -97,7 +91,7 @@ struct NowPlayingBarView: View {
                         .contentShape(Rectangle())
                         .tappablePadding(.init(top: 10, leading: 10, bottom: 10, trailing: 10), onTap: {
                             withAnimation {
-                                VPM.deleteCurrentVideo()
+                                VideoPlayerModel.shared.deleteCurrentVideo()
                             }
                         })
                     }
@@ -110,13 +104,11 @@ struct NowPlayingBarView: View {
         }
         .frame(height: 70)
         .contextMenu {
-            if let video = VPM.currentItem?.video {
-                VideoContextMenuView(videoWithData: video.withData(.init(allowChannelLinking: false, thumbnailData: VPM.currentItem?.videoThumbnailData)), isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
-            }
+            VideoContextMenuView(videoWithData: videoItem.video.withData(.init(allowChannelLinking: false, thumbnailData: videoItem.videoThumbnailData)), isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
         } preview: {
-            if let video = VPM.currentItem?.video {
-                VideoView(videoWithData: video.withData(.init(allowChannelLinking: false)))
-            }
+            VideoView(videoWithData: videoItem.video.withData(.init(allowChannelLinking: false)))
+                .padding(.horizontal)
+                .frame(width: UIScreen.main.bounds.width * 0.85, height: 160)
         }
         .offset(y: -49)
         .onTapGesture {

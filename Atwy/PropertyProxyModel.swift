@@ -21,6 +21,7 @@ class GeneralProxyModel<Object: ObservableObject, Value>: ObservableObject {
         self.transform = transform
         
         object.objectWillChange
+            .receive(on: RunLoop.main) // effectively transforms the willChange into a didChange, otherwise the transform is exectued before the change actually took place and processes old values. the change in the object is still executed on the main thread in handleNewValue https://stackoverflow.com/a/74141342/16456439
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 self.handleNewValue(self.transform(self.object))

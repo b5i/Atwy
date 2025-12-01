@@ -92,7 +92,7 @@ class PersistenceModel: ObservableObject {
     var controller: PersistenceController
     var context: NSManagedObjectContext
     
-    var currentData: PersistenceData
+    @Published var currentData: PersistenceData
     
     private var videoIdsAddedToFavorites: [String] = []
     

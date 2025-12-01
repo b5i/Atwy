@@ -23,9 +23,7 @@ struct ContentView: View {
     
     @ObservedProperty(APIKeyModel.shared, \.userAccount, \.$userAccount) private var userAccount
     @ObservedProperty(APIKeyModel.shared, \.isFetchingAccountInfos, \.$isFetchingAccountInfos) private var isFetchingAccountInfos
-    @ObservedModel(VideoPlayerModel.shared, { model in
-        return model.currentItem != nil
-    }) private var hasVideoItem
+    @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var videoItem
     
     @ObservedObject private var IUTM = IsUserTypingModel.shared
     @ObservedObject private var DM = DownloadersModel.shared
@@ -104,15 +102,16 @@ struct ContentView: View {
 #endif
         }
         .safeAreaInset(edge: .bottom, content: {
-            if !IUTM.userTyping && hasVideoItem {
+            if let videoItem = videoItem, !IUTM.userTyping {
                 NowPlayingBarView(
+                    videoItem: videoItem,
                     sheetAnimation: sheetAnimation,
                     isSheetPresented: watchVideoBinding,
                     isSettingsSheetPresented: settingsSheetBinding.wrappedValue
                 )
             }
         })
-        .animation(.spring, value: !IUTM.userTyping && hasVideoItem)
+        .animation(.spring, value: !IUTM.userTyping && videoItem != nil)
         .sheet(isPresented: settingsSheetBinding, content: {
             SettingsView()
         })
