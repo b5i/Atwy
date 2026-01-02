@@ -130,7 +130,7 @@ extension UIKitInfiniteScrollViewController: UITableViewDelegate, UITableViewDat
         default:
             fatalError("Unknown item type")
         }
-        if indexPath.item > animatedUntil && !view.isHidden && !self.viewDidAlreadyScroll && self.tableView.visibleCells.reduce(0, {$0 + $1.frame.height}) < self.tableView.visibleSize.height {
+        if indexPath.item > animatedUntil && !view.isHidden && !self.viewDidAlreadyScroll && self.tableView.visibleCells.reduce(0, {$0 + $1.frame.height}) < self.tableView.visibleSize.height { // TODO: fix UITableViewAlertForVisibleCellsAccessDuringUpdate
             animatedUntil += 1
             toReturn.hasAnimated = false
             print(indexPath.item, "can animate", "animatedUntil", animatedUntil)

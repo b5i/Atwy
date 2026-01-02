@@ -187,6 +187,17 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
             }
         }
     }
+    
+    private lazy var paletteView: UIView? = {
+        guard let paletteType = NSClassFromString("_UINavigationBarPalette") as? UIView.Type else { return nil }
+        
+        // https://x.com/SebJVidal/status/1748659522455937213
+        return paletteType
+            .perform(NSSelectorFromString("alloc"))
+            .takeUnretainedValue()
+            .perform(NSSelectorFromString("initWithContentView:"), with: navigationBarIncreaseView)
+            .takeUnretainedValue() as? UIView
+    }()
         
     private let channelVideosContentController = UIKitInfiniteScrollViewController()
     private let channelShortsContentController = UIKitInfiniteScrollViewController()
@@ -352,8 +363,8 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
         super.viewDidDisappear(animated)
         channelNameLabelOverlay.removeFromSuperview()
         overlaySegmentedControl.removeFromSuperview()
-        navigationBarIncreaseView.removeFromSuperview()
         titleBackground.removeFromSuperview()
+        removeBiggerNavigationBar()
     }
     
     private func setupViews() {
@@ -473,8 +484,10 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
             contentSegmentedControl.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             contentSegmentedControl.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -32),
             contentSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
-            contentView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
+        
+        contentViewBottomConstraint = contentView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+        contentViewBottomConstraint?.isActive = true
         
         channelInfoHeightConstraint = channelInfoLabel.heightAnchor.constraint(equalToConstant: channelInfoLabel.intrinsicContentSize.height)
         channelInfoHeightConstraint?.isActive = true
@@ -515,28 +528,21 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
         navigationBarIncreaseView.frame.size.height = 0
         navigationBarIncreaseView.frame.size.width = view.frame.width
         navigationBarIncreaseView.backgroundColor = .clear
-        
-        guard let paletteType = NSClassFromString("_UINavigationBarPalette") as? UIView.Type else { return }
-        
+                
         guard let navigationItem = navigationController?.visibleViewController?.navigationItem else { return }
         
         guard navigationItem.value(forKey: "_bottomPalette") == nil else { return }
         
-        // https://x.com/SebJVidal/status/1748659522455937213
-        let palette = paletteType
-            .perform(NSSelectorFromString("alloc"))
-            .takeUnretainedValue()
-            .perform(NSSelectorFromString("initWithContentView:"), with: navigationBarIncreaseView)
-            .takeUnretainedValue()
-        
-        navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: palette)
+        navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: self.paletteView)
     }
     
     private func removeBiggerNavigationBar() {
         guard biggerNavigationBar else { return }
         
         guard let navigationItem = navigationController?.visibleViewController?.navigationItem else { return }
-        navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: nil)
+        if navigationItem.value(forKey: "_bottomPalette") as? UIView == self.paletteView {
+            navigationItem.perform(NSSelectorFromString("_setBottomPalette:"), with: nil)
+        }
         biggerNavigationBar = false
     }
 
@@ -631,10 +637,10 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
                 
                 let newHeight = max(0, overlaySegmentedControl.frame.size.height + 30 - overlaySegmentedControl.frame.origin.y + navigationBarTopY)
                 
-                if let oldHeight = navigationBarIncreaseView.superview?.value(forKey: "_preferredHeight") as? CGFloat, (oldHeight * 1000).rounded() != (newHeight * 1000).rounded() { // so we aren't stuck in an infinite loop because of a 0.000000001 change somewhere
+                if let oldHeight = paletteView?.value(forKey: "_preferredHeight") as? CGFloat, (oldHeight * 1000).rounded() != (newHeight * 1000).rounded() { // so we aren't stuck in an infinite loop because of a 0.000000001 change somewhere
                     navigationBarIncreaseView.frame.size.height = newHeight
-                    navigationBarIncreaseView.superview?.frame.size.height = newHeight
-                    navigationBarIncreaseView.superview?.setValue(navigationBarIncreaseView.frame.size.height, forKey: "_preferredHeight")
+                    paletteView?.frame.size.height = newHeight
+                    paletteView?.setValue(navigationBarIncreaseView.frame.size.height, forKey: "_preferredHeight")
                     navigationController?.visibleViewController?.navigationItem.perform(NSSelectorFromString("_setBottomPaletteNeedsUpdate"))
                 }
             }
