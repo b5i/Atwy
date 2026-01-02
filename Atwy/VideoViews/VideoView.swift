@@ -259,7 +259,7 @@ struct VideoView2: View {
                             }
                         }
                     })
-                    .padding(.horizontal, 5)
+                    .padding(.horizontal, self.videoWithData.data.shouldApplyHorizontalPadding ? 5 : 0)
                     .frame(width: geometry.size.width)
 //                    .background(Color(uiColor: .init(red: 10/255, green: 10/255, blue: 10/255, alpha: 1)))
                 HStack(spacing: 0) {
@@ -338,12 +338,12 @@ struct VideoView2: View {
                         Spacer()
                     }
                     .frame(alignment: .top)
-                    .padding(.trailing, 5)
+                    .padding(.trailing, self.videoWithData.data.shouldApplyHorizontalPadding ? 5 : 0)
                     if !(video.channel?.thumbnails.isEmpty ?? true) && self.videoWithData.data.channelAvatarData != nil {
                         Spacer()
                     }
                 }
-                .padding(.horizontal, 5)
+                .padding(.horizontal, self.videoWithData.data.shouldApplyHorizontalPadding ? 5 : 0)
                 .padding(.top, 10)
                 .frame(width: geometry.size.width, height: 90)
                 Spacer()

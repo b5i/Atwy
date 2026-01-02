@@ -95,13 +95,6 @@ struct AtwyApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            /*
-            NavigationStack(path: .constant(NavigationPath([RouteDestination.channelDetailsv2]))) {
-                Color.clear
-                    .routeContainer()
-            }
-             */
-            
             Group {
                 if !FMM.filesRemovedProgress {
                     VStack {

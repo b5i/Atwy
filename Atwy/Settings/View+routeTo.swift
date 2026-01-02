@@ -29,7 +29,16 @@ public extension View {
                 case .usersPlaylists(let playlists):
                     UsersPlaylistsListView(playlists: playlists)
                 case .channelDetails(let channel):
-                    ChannelDetailsView(channel: channel)
+                    //ChannelDetailsView(channel: channel)
+                    ChannelDetailsViewV2(channel: channel)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing, content: {
+                                ShareButtonView {
+                                    channel.showShareSheet()
+                                }
+                                .tint(.white)
+                            })
+                        }
                 case .playlistDetails(let playlist):
                     PlaylistDetailsView(playlist: playlist)
                 case .history:

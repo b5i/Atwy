@@ -9,7 +9,16 @@
 import Foundation
 import YouTubeKit
 
-struct YTElementWithData {
+struct YTElementWithData: Hashable {
+    static func == (lhs: YTElementWithData, rhs: YTElementWithData) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(data)
+    }
+    
     var id: Int? { self.element.id }
     
     var element: any YTSearchResult
@@ -21,7 +30,7 @@ struct YTElementDataSet: Hashable {
     typealias VideoViewMode = PreferencesStorageModel.Properties.VideoViewModes
     
     static func == (lhs: YTElementDataSet, rhs: YTElementDataSet) -> Bool {
-        return lhs.allowChannelLinking == rhs.allowChannelLinking && (lhs.removeFromPlaylistAvailable == nil) == (rhs.removeFromPlaylistAvailable == nil) && lhs.channelAvatarData == rhs.channelAvatarData && lhs.thumbnailData == rhs.thumbnailData && lhs.videoViewMode == rhs.videoViewMode
+        return lhs.allowChannelLinking == rhs.allowChannelLinking && (lhs.removeFromPlaylistAvailable == nil) == (rhs.removeFromPlaylistAvailable == nil) && lhs.channelAvatarData == rhs.channelAvatarData && lhs.thumbnailData == rhs.thumbnailData && lhs.videoViewMode == rhs.videoViewMode && lhs.shouldApplyHorizontalPadding == rhs.shouldApplyHorizontalPadding
     }
     
     var allowChannelLinking: Bool = true
@@ -34,17 +43,20 @@ struct YTElementDataSet: Hashable {
     
     var videoViewMode: VideoViewMode = PreferencesStorageModel.shared.videoViewMode
     
+    var shouldApplyHorizontalPadding: Bool = true
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.allowChannelLinking)
         hasher.combine(self.removeFromPlaylistAvailable == nil)
         hasher.combine(self.channelAvatarData)
         hasher.combine(self.thumbnailData)
         hasher.combine(self.videoViewMode)
+        hasher.combine(self.shouldApplyHorizontalPadding)
     }
 }
 
 
-struct YTVideoWithData: Hashable {
+struct YTVideoWithData {
     
     var video: YTVideo
     

@@ -18,7 +18,7 @@ struct VideoInScrollView: View {
             let isHalfThumbnail = PSM.videoViewMode == .halfThumbnail || video.data.videoViewMode == .halfThumbnail
             // Big thumbnail view by default
             VideoFromSearchView(videoWithData: video)
-                .frame(width: size.width, height: isHalfThumbnail ? 180 : size.width * 9/16 + 90, alignment: .center)
+                .frame(width: size.width, height: isHalfThumbnail ? 180 : size.width * 9/16 + 90 + (video.data.shouldApplyHorizontalPadding ? 0 : 15), alignment: .center)
         }
     }
 }

@@ -9,6 +9,8 @@ import SwiftUI
 import AVKit
 
 struct NowPlayingBarView: View {
+    static let height: CGFloat = 70
+    
     let videoItem: YTAVPlayerItem
     let sheetAnimation: Namespace.ID
     @Binding var isSheetPresented: Bool
@@ -28,7 +30,7 @@ struct NowPlayingBarView: View {
                         VStack {
                             if !isSettingsSheetPresented {
                                 VideoPlayer(player: VideoPlayerModel.shared.player)
-                                    .frame(height: 70)
+                                    .frame(height: Self.height)
                                     .onAppear {
 #if os(macOS)
                                         if NSApplication.shared.isActive {
@@ -102,7 +104,7 @@ struct NowPlayingBarView: View {
             Rectangle().fill(.gray.opacity(0.1))
                 .frame(height: 1)
         }
-        .frame(height: 70)
+        .frame(height: Self.height)
         .contextMenu {
             VideoContextMenuView(videoWithData: videoItem.video.withData(.init(allowChannelLinking: false, thumbnailData: videoItem.videoThumbnailData)), isFavorite: isFavorite, isDownloaded: downloadLocation != nil)
         } preview: {
