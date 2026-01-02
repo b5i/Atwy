@@ -3,7 +3,7 @@
 //  Atwy
 //
 //  Created by Antoine Bollengier on 21.02.2025.
-//  Copyright © 2025 Antoine Bollengier (github.com/b5i). All rights reserved.
+//  Copyright © 2025-2026 Antoine Bollengier (github.com/b5i). All rights reserved.
 //  
 
 import Combine
