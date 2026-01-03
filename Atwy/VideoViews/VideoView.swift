@@ -126,6 +126,7 @@ struct VideoView: View {
         let videoWithData: YTVideoWithData
         var hqImage: Bool = false
         @State private var imageSize: CGSize = .zero
+        @ObservedObject private var PSM = PreferencesStorageModel.shared
         var body: some View {
             let timeLengthIndicatorWidth: CGFloat = {
                 if let timeLenght = self.videoWithData.video.timeLength {
@@ -136,6 +137,14 @@ struct VideoView: View {
                     }
                 }
                 return 0
+            }()
+            let startTimePercentage: CGFloat? = {
+                if let startTimePercentage = PersistenceModel.shared.currentData.watchedVideos[videoWithData.video.videoId]?.watchedPercentage {
+                    return min(max(startTimePercentage, 0), 1)
+                } else if let startTime = self.videoWithData.video.startTime, startTime > 0, let timeLength = self.videoWithData.video.timeLengthSeconds {
+                    return min(max(CGFloat(Double(startTime) / (Double(timeLength) + 0.01)), 0), 1)
+                }
+                return nil
             }()
             let progressBarWidth = max(self.imageSize.width - timeLengthIndicatorWidth, 0)
             ZStack(alignment: .center) {
@@ -219,23 +228,19 @@ struct VideoView: View {
                     .frame(width: timeLengthIndicatorWidth, height: 25)
                 }
             })
-            .overlay(alignment: .bottomLeading, content: {
-                if let startTime = self.videoWithData.video.startTime, startTime > 0, let timeLength = self.videoWithData.video.timeLengthSeconds {
-                    ZStack(alignment: .bottomLeading) {
-                        Rectangle()
-                            .frame(width: progressBarWidth, height: 5)
-                            .foregroundStyle(.gray.opacity(0.5))
-                            .overlay(alignment: .leading, content: {
-                                Rectangle()
-                                    .frame(width: progressBarWidth * (Double(startTime) / (Double(timeLength) + 0.01)), height: 5)
-                                    .foregroundStyle(.red.opacity(0.8))
-                            })
-                        Rectangle()
-                            .frame(width: progressBarWidth * (Double(startTime) / (Double(timeLength) + 0.01)), height: 5)
-                            .foregroundStyle(.red.opacity(0.8))
-                    }
+            .overlay(alignment: .bottomLeading) {
+                if let startTimePercentage = startTimePercentage,
+                   PSM.watchHistoryEnabled {
+                    Rectangle()
+                        .frame(width: progressBarWidth, height: 5)
+                        .foregroundStyle(.gray.opacity(0.5))
+                        .overlay(alignment: .leading, content: {
+                            Rectangle()
+                                .frame(width: progressBarWidth * startTimePercentage, height: 5)
+                                .foregroundStyle(.red.opacity(0.8))
+                        })
                 }
-            })
+            }
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size

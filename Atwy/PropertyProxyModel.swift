@@ -76,7 +76,9 @@ class PropertyProxyModel<Object: ObservableObject, Value, KeyPathType: KeyPath<O
     }
     
     fileprivate func handleNewValue(_ newValue: Value) {
-        self.value = newValue
+        DispatchQueue.main.safeSync {
+            self.value = newValue
+        }
     }
     
     func getValue<T>(keyPath: KeyPath<Object, T>) -> T {
@@ -97,7 +99,9 @@ extension PropertyProxyModel where KeyPathType: WritableKeyPath<Object, Value> {
 extension PropertyProxyModel where Value: Equatable {
     fileprivate func handleNewValue(_ newValue: Value) {
         if self.value != newValue {
-            self.value = newValue
+            DispatchQueue.main.safeSync {
+                self.value = newValue
+            }
         }
     }
 }

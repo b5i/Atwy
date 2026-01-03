@@ -166,8 +166,10 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             VideoPlayerModel.shared.setCurrentVideoThumbnailData(thumbnailData, videoId: self.videoId)
         }
         
-        if let startTime = self.video.startTime {
-            await self.seek(to: CMTime(seconds: Double(startTime), preferredTimescale: 600))
+        let startTime = PersistenceModel.shared.currentData.watchedVideos[self.videoId]?.watchedUntil ?? Double(self.video.startTime ?? 0)
+        
+        if startTime > 0 {
+            await self.seek(to: CMTime(seconds: startTime, preferredTimescale: 600))
         }
         
         self.fetchMoreInfos()

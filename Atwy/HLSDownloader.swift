@@ -409,82 +409,30 @@ class HLSDownloader: NSObject, ObservableObject, Identifiable {
     
     // Should never be called directly
     func processEndOfDownload(finalURL: URL) {
-        let backgroundContext = PersistenceModel.shared.controller.container.newBackgroundContext()
-        backgroundContext.performAndWait {
-            let newVideo = DownloadedVideo(context: backgroundContext)
-            newVideo.timestamp = Date()
-            newVideo.storageLocation = finalURL
-            newVideo.title = self.downloadInfo.videoInfo?.videoTitle ?? self.downloadInfo.video.title
-            if let imageData = self.downloadInfo.thumbnailData {
-                newVideo.thumbnail = self.cropImage(data: imageData)
+        do {
+            try PersistenceModel.shared.addDownloadedVideo(
+                videoId: self.downloadInfo.video.videoId,
+                title: self.downloadInfo.videoInfo?.videoTitle ?? self.downloadInfo.video.title,
+                description: self.downloadInfo.videoDescription,
+                storageLocation: finalURL,
+                imageData: self.downloadInfo.thumbnailData,
+                timeLength: self.downloadInfo.video.timeLength,
+                timePosted: self.downloadInfo.videoInfo?.timePosted.postedDate,
+                chapters: self.downloadInfo.chapters,
+                channelId: self.downloadInfo.video.channel?.channelId,
+                channelName: self.downloadInfo.videoInfo?.channel?.name ?? self.downloadInfo.video.channel?.name,
+                channelThumbnailData: self.downloadInfo.channelThumbnailData)
+            Logger.atwyLogs.simpleLog("Video downloaded successfully, saved to \(finalURL)")
+            DispatchQueue.main.async {
+                self.percentComplete = 100
+                self.downloaderState = .success
             }
-            newVideo.timeLength = self.downloadInfo.video.timeLength
-            newVideo.timePosted = self.downloadInfo.videoInfo?.timePosted.postedDate
-            newVideo.videoId = self.downloadInfo.video.videoId
-            
-            for chapter in self.downloadInfo.chapters {
-                newVideo.addToChapters(chapter.getEntity(context: backgroundContext))
-            }
-            
-            if let channelId = self.downloadInfo.video.channel?.channelId {
-                let fetchRequest = DownloadedChannel.fetchRequest()
-                fetchRequest.fetchLimit = 1
-                fetchRequest.predicate = NSPredicate(format: "channelId == %@", channelId)
-                let result = try? backgroundContext.fetch(fetchRequest)
-                
-                if let channel = result?.first {
-                    channel.thumbnail = self.downloadInfo.channelThumbnailData
-                    channel.addToVideos(newVideo)
-                } else {
-                    let newChannel = DownloadedChannel(context: backgroundContext)
-                    newChannel.channelId = channelId
-                    newChannel.name = self.downloadInfo.videoInfo?.channel?.name ?? self.downloadInfo.video.channel?.name
-                    newChannel.thumbnail = self.downloadInfo.channelThumbnailData
-                    newChannel.addToVideos(newVideo)
-                }
-            }
-            
-            newVideo.videoDescription = self.downloadInfo.videoDescription
-            do {
-                try backgroundContext.save()
-                PersistenceModel.shared.currentData.addDownloadedVideo(videoId: self.downloadInfo.video.videoId, storageLocation: finalURL)
-                Logger.atwyLogs.simpleLog("Video downloaded successfully, saved to \(finalURL)")
-                DispatchQueue.main.async {
-                    self.percentComplete = 100
-                    self.downloaderState = .success
-                    NotificationCenter.default.post(
-                        name: .atwyCoreDataChanged,
-                        object: nil
-                    )
-                }
-            } catch {
-                let nsError = error as NSError
-                Logger.atwyLogs.simpleLog("Unresolved error \(nsError), \(nsError.userInfo)")
-                DispatchQueue.main.async {
-                    self.downloaderState = .failed
-                }
+        } catch {
+            let nsError = error as NSError
+            Logger.atwyLogs.simpleLog("Unresolved error \(nsError), \(nsError.userInfo)")
+            DispatchQueue.main.async {
+                self.downloaderState = .failed
             }
         }
-    }
-    
-    @Sendable private func cropImage(data: Data) -> Data? {
-        guard let uiImage = UIImage(data: data) else { return nil }
-        let portionToCut = (uiImage.size.height - uiImage.size.width * 9/16) / 2
-        
-        // Scale cropRect to handle images larger than shown-on-screen size
-        let cropZone = CGRect(x: 0,
-                              y: portionToCut,
-                              width: uiImage.size.width,
-                              height: uiImage.size.height - portionToCut * 2)
-        
-        // Perform cropping in Core Graphics
-        guard let cutImageRef: CGImage = uiImage.cgImage?.cropping(to: cropZone)
-        else {
-            return nil
-        }
-        
-        // Return image to UIImage
-        let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
-        return croppedImage.pngData()
     }
 }

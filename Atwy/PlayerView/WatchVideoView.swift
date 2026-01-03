@@ -57,6 +57,8 @@ struct WatchVideoView: View {
             }
         }
     }
+    @State private var timeObserver: Any? = nil
+    
     @Namespace private var animation
     @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var currentItem
     @ObservedProperty(VideoPlayerModel.shared, \.currentVideo, \.$currentVideo) private var currentVideo
@@ -281,6 +283,18 @@ struct WatchVideoView: View {
         .onReceive(of: .atwyDismissPlayerSheet, handler: { _ in
             dismiss()
         })
+        .onAppear {
+            timeObserver = VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 10, preferredTimescale: 600), queue: .main) { time in
+                
+                if let currentItem = VideoPlayerModel.shared.currentItem, time.seconds > 0, currentItem.duration.seconds > 0 {
+                    PersistenceModel.shared.addOrUpdateWatchedVideo(videoId: currentItem.videoId, watchedUntil: time.seconds, watchedPercentage: time.seconds / currentItem.duration.seconds)
+                }
+                 
+            }
+        }
+        .onDisappear {
+            VideoPlayerModel.shared.player.removeTimeObserver(self.timeObserver)
+        }
 //        .task {
 //            if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
 //                URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in
@@ -362,6 +376,7 @@ struct WatchVideoView: View {
         let geometry: GeometryProxy
         let chapterAction: (Chapter) -> Void
         @State private var lastScrolled: Int = 0
+        @State private var timeObserver: Any? = nil
                 
         @ObservedProperty<YTAVPlayerItem, [Chapter]?> private var chapters: [Chapter]?
         
@@ -396,7 +411,7 @@ struct WatchVideoView: View {
                         .padding([.horizontal, .bottom])
                         .scrollIndicators(.hidden)
                         .onAppear {
-                            VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { time in
+                            timeObserver = VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { time in
                                 if let nextChapter = chapters.last(where: {Int(time.seconds) >= $0.time}), nextChapter.time != lastScrolled {
                                     lastScrolled = nextChapter.time
                                     withAnimation(.spring) {
@@ -404,6 +419,9 @@ struct WatchVideoView: View {
                                     }
                                 }
                             }
+                        }
+                        .onDisappear {
+                            VideoPlayerModel.shared.player.removeTimeObserver(timeObserver)
                         }
                     }
                 }

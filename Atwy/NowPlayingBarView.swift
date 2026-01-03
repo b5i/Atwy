@@ -16,7 +16,7 @@ struct NowPlayingBarView: View {
     @Binding var isSheetPresented: Bool
     var isSettingsSheetPresented: Bool = false
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedProperty(PersistenceModel.shared, \.currentData, \.$currentData) private var PMcurrentData
+    @ObservedProperty(PersistenceModel.shared, \.pCurrentData, \.$pCurrentData) private var PMcurrentData
     var body: some View {
         let isFavorite: Bool = PMcurrentData.favoriteVideoIds.contains(where: {$0 == videoItem.videoId})
         

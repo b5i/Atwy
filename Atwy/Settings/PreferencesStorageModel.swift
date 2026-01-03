@@ -81,6 +81,7 @@ class PreferencesStorageModel: ObservableObject {
         case performanceModeEnabled
         
         case concurrentDownloadsLimit
+        case watchHistoryEnabled
         case liveActivitiesEnabled
         case automaticPiP
         case backgroundPlayback
@@ -108,7 +109,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.self
             case .performanceMode:
                 return PerformanceModes.self
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
+            case .liveActivitiesEnabled, .automaticPiP, .watchHistoryEnabled, .backgroundPlayback, .isLoggerActivated, .showCredentials, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
                 return Bool.self
             case .loggerCacheLimit, .concurrentDownloadsLimit:
                 return Int.self
@@ -125,7 +126,7 @@ class PreferencesStorageModel: ObservableObject {
                 return VideoViewModes.fullThumbnail
             case .performanceMode:
                 return PerformanceModes.full
-            case .liveActivitiesEnabled, .automaticPiP, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
+            case .liveActivitiesEnabled, .automaticPiP, .watchHistoryEnabled, .backgroundPlayback, .customAVButtonsEnabled, .variableBlurEnabled, .customSearchBarEnabled, .performanceModeEnabled, .searchHistoryEnabled, .automaticFullscreen:
                 return true
             case .isLoggerActivated, .showCredentials:
                 return false
@@ -213,5 +214,9 @@ extension PreferencesStorageModel {
             return potentialHeight == -1 ? nil : potentialHeight
         }
         return nil
+    }
+    
+    var watchHistoryEnabled: Bool {
+        self.getValueForKey(.watchHistoryEnabled) as! Bool
     }
 }

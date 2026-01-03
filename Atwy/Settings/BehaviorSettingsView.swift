@@ -30,6 +30,10 @@ struct BehaviorSettingsView: View {
             }, hidden: {if #available(iOS 16.1, *) { false } else { true }}())
             SettingsSection(title: "Downloads") {
                 Setting(textDescription: nil, action: try! SAStepper(valueType: Int.self, PSMType: .concurrentDownloadsLimit, title: "Concurrent Downloads Limit").setAction { let newValue = max(1, $0); DownloadersModel.shared.maxConcurrentDownloadsChanged(newValue); return newValue })
+                Setting(textDescription: "Enabling Watch History will make the player save the progress of watched videos locally and show a red line indicating the watched amount of the video. Will also take the value from YouTube if it's available.", action: try! SAToggle(PSMType: .watchHistoryEnabled, title: "Watch History"))
+                Setting(textDescription: "Delete all the local watch history, may need app restart to apply.", action: SATextButton(title: "Reset Local Watch History", buttonLabel: "Reset", action: { _ in
+                    PersistenceModel.shared.resetLocalWatchHistory()
+                }))
             }
             SettingsSection(title: "Picture in Picture") {
                 Setting(textDescription: "Enabling automatic Picture in Picture (PiP) will switch to PiP when put the app in background but don't quit it, while playing a video. If the player is playing an audio-only asset the PiP will never launch.", action: try! SAToggle(PSMType: .automaticPiP, title: "Automatic PiP"))
