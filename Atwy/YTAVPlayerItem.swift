@@ -165,7 +165,11 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
             self.setAndAppendImageData(imageData: thumbnailData)
             VideoPlayerModel.shared.setCurrentVideoThumbnailData(thumbnailData, videoId: self.videoId)
         }
-    
+        
+        if let startTime = self.video.startTime {
+            await self.seek(to: CMTime(seconds: Double(startTime), preferredTimescale: 600))
+        }
+        
         self.fetchMoreInfos()
     }
     

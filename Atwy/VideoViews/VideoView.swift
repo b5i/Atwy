@@ -125,8 +125,20 @@ struct VideoView: View {
         @Environment(\.colorScheme) private var colorScheme
         let videoWithData: YTVideoWithData
         var hqImage: Bool = false
+        @State private var imageSize: CGSize = .zero
         var body: some View {
-            ZStack {
+            let timeLengthIndicatorWidth: CGFloat = {
+                if let timeLenght = self.videoWithData.video.timeLength {
+                    if timeLenght == "live" {
+                        return 105
+                    } else {
+                        return CGFloat(timeLenght.count) * 10 + 5
+                    }
+                }
+                return 0
+            }()
+            let progressBarWidth = max(self.imageSize.width - timeLengthIndicatorWidth, 0)
+            ZStack(alignment: .center) {
                 if let thumbnailData = self.videoWithData.data.thumbnailData {
 #if os(macOS)
                     if let image = NSImage(data: thumbnailData) {
@@ -178,7 +190,58 @@ struct VideoView: View {
                     }
                 }
             }
+            .overlay(alignment: .bottomTrailing, content: {
+                if let timeLenght = self.videoWithData.video.timeLength {
+                    ZStack {
+                        if timeLenght == "live" {
+                            Rectangle()
+                                .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, bottomTrailingRadius: 10))
+                                .foregroundStyle(.red)
+                            HStack {
+                                Image(systemName: "antenna.radiowaves.left.and.right")
+                                Text("En Direct")
+                            }
+                            .bold()
+                            .foregroundStyle(.white)
+                            .font(.system(size: 14))
+                            .frame(alignment: .center)
+                        } else {
+                            Rectangle()
+                                .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, bottomTrailingRadius: 10))
+                                .foregroundStyle(.black)
+                            Text(timeLenght)
+                                .bold()
+                                .foregroundStyle(.white)
+                                .font(.system(size: 14))
+                                .frame(alignment: .center)
+                        }
+                    }
+                    .frame(width: timeLengthIndicatorWidth, height: 25)
+                }
+            })
+            .overlay(alignment: .bottomLeading, content: {
+                if let startTime = self.videoWithData.video.startTime, startTime > 0, let timeLength = self.videoWithData.video.timeLengthSeconds {
+                    ZStack(alignment: .bottomLeading) {
+                        Rectangle()
+                            .frame(width: progressBarWidth, height: 5)
+                            .foregroundStyle(.gray.opacity(0.5))
+                            .overlay(alignment: .leading, content: {
+                                Rectangle()
+                                    .frame(width: progressBarWidth * (Double(startTime) / (Double(timeLength) + 0.01)), height: 5)
+                                    .foregroundStyle(.red.opacity(0.8))
+                            })
+                        Rectangle()
+                            .frame(width: progressBarWidth * (Double(startTime) / (Double(timeLength) + 0.01)), height: 5)
+                            .foregroundStyle(.red.opacity(0.8))
+                    }
+                }
+            })
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .onGeometryChange(for: CGSize.self) { proxy in
+                proxy.size
+            } action: { newValue in
+                self.imageSize = newValue
+            }
         }
         
         // Inspired from https://developer.apple.com/documentation/coregraphics/cgimage/1454683-cropping
@@ -227,38 +290,6 @@ struct VideoView2: View {
             VStack(spacing: 0) {
                 Spacer()
                 VideoView.ImageOfVideoView(videoWithData: self.videoWithData, hqImage: true)
-                    .overlay(alignment: .bottomTrailing, content: {
-                        if let timeLenght = video.timeLength {
-                            if timeLenght == "live" {
-                                ZStack {
-                                    Rectangle()
-                                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, bottomTrailingRadius: 10))
-                                        .foregroundStyle(.red)
-                                    HStack {
-                                        Image(systemName: "antenna.radiowaves.left.and.right")
-                                        Text("En Direct")
-                                    }
-                                    .bold()
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 14))
-                                    .frame(alignment: .center)
-                                }
-                                .frame(width: 105, height: 25)
-                            } else {
-                                ZStack {
-                                    Rectangle()
-                                        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 10, bottomTrailingRadius: 10))
-                                        .foregroundStyle(.black)
-                                    Text(timeLenght)
-                                        .bold()
-                                        .foregroundStyle(.white)
-                                        .font(.system(size: 14))
-                                        .frame(alignment: .center)
-                                }
-                                .frame(width: CGFloat(timeLenght.count) * 10 + 5, height: 25)
-                            }
-                        }
-                    })
                     .padding(.horizontal, self.videoWithData.data.shouldApplyHorizontalPadding ? 5 : 0)
                     .frame(width: geometry.size.width)
 //                    .background(Color(uiColor: .init(red: 10/255, green: 10/255, blue: 10/255, alpha: 1)))
