@@ -17,7 +17,6 @@ let YTM = YouTubeModel()
 struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismissSearch) private var dismissSearch
-    @State private var needToReload = true
     
     @State private var shouldReloadScrollView: Bool = false
     
@@ -133,14 +132,8 @@ struct SearchView: View {
             model.refreshAutoCompletionEntries(forSearch: model.search)
         }
         .onSubmit(of: .search, {
-            model.getVideos()
+            model.getVideos() // the first getVideos is done by APIKeyModel
         })
-        .onAppear {
-            if needToReload {
-                model.getVideos()
-                needToReload = false
-            }
-        }
         .navigationTitle("Home")
         .navigationBarTitleDisplayMode(.automatic)
         .customNavigationTitleWithRightIcon {
