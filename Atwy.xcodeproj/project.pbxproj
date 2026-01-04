@@ -13,6 +13,9 @@
 		340995622A759EC9004F9AAF /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 340995612A759EC9004F9AAF /* SwipeActions */; };
 		341333FE2D346D47001110EF /* Array<Equatable&Hashable>+unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */; };
 		341333FF2D346D47001110EF /* Array<Equatable&Hashable>+unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */; };
+		34339D042F0ABF840041AB23 /* View+isPresentedSearchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34339D032F0ABF840041AB23 /* View+isPresentedSearchable.swift */; };
+		34339D052F0ABF840041AB23 /* View+isPresentedSearchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34339D032F0ABF840041AB23 /* View+isPresentedSearchable.swift */; };
+		34339D072F0AC05B0041AB23 /* LocalVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34339D062F0AC0580041AB23 /* LocalVideo.swift */; };
 		344DFF0D2A69AE250057093F /* InfiniteScrollViews in Frameworks */ = {isa = PBXBuildFile; productRef = 344DFF0C2A69AE250057093F /* InfiniteScrollViews */; };
 		3457B4942AE4373B00390A5A /* GetImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3457B4932AE4373B00390A5A /* GetImage.swift */; };
 		3457B49C2AE43A0C00390A5A /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3457B49B2AE43A0C00390A5A /* README.md */; };
@@ -81,6 +84,8 @@
 		341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array<Equatable&Hashable>+unique.swift"; sourceTree = "<group>"; };
 		3417B20C2BA99CD2001D354C /* CoreAudioTypes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioTypes.framework; path = System/Library/Frameworks/CoreAudioTypes.framework; sourceTree = SDKROOT; };
 		34320DFE297324C700B2CAE8 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
+		34339D032F0ABF840041AB23 /* View+isPresentedSearchable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+isPresentedSearchable.swift"; sourceTree = "<group>"; };
+		34339D062F0AC0580041AB23 /* LocalVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalVideo.swift; sourceTree = "<group>"; };
 		344ED4A12928D85100DB56EA /* Atwy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Atwy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3457B4932AE4373B00390A5A /* GetImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetImage.swift; sourceTree = "<group>"; };
 		3457B49B2AE43A0C00390A5A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -233,6 +238,7 @@
 		34AB99A72B1A79DF0083B1DB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				34339D032F0ABF840041AB23 /* View+isPresentedSearchable.swift */,
 				3403C5A82D7A046400E33349 /* View+contentMargins.swift */,
 				341333FD2D346D39001110EF /* Array<Equatable&Hashable>+unique.swift */,
 				34B5FDF52ADA856800367036 /* ColorSchemeExtension.swift */,
@@ -245,6 +251,7 @@
 		34B8B2CC2AE018FD00C5C07C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				34339D062F0AC0580041AB23 /* LocalVideo.swift */,
 				34AB99AB2B1A7A460083B1DB /* FileManagerModel.swift */,
 				345DC3042AE45E2B007AE044 /* Atwy.xcdatamodeld */,
 				34B8B2CD2AE0265200C5C07C /* DownloadedChannel+CoreDataClass.swift */,
@@ -419,6 +426,8 @@
 				3403C5A92D7A046400E33349 /* View+contentMargins.swift in Sources */,
 				34BE05CD2B18A4DF00E1A2B6 /* NotificationName+AtwyNotifications.swift in Sources */,
 				34B8B2F42AE1278300C5C07C /* FavoriteVideo+CoreDataProperties.swift in Sources */,
+				34339D072F0AC05B0041AB23 /* LocalVideo.swift in Sources */,
+				34339D042F0ABF840041AB23 /* View+isPresentedSearchable.swift in Sources */,
 				34B5FE1B2ADA856900367036 /* Persistence.swift in Sources */,
 				3483A7812AFEC4BF00A19533 /* FavoriteVideo+matchesQuery.swift in Sources */,
 				3457B4942AE4373B00390A5A /* GetImage.swift in Sources */,
@@ -441,6 +450,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34F0AF4F2C5820E100F4043B /* View+centered.swift in Sources */,
+				34339D052F0ABF840041AB23 /* View+isPresentedSearchable.swift in Sources */,
 				349ED13B2BA38CAC00F4B805 /* AtwyWidgetsBundle.swift in Sources */,
 				349ED14B2BA38EC200F4B805 /* NotificationName+AtwyNotifications.swift in Sources */,
 				349ED14C2BA38EC200F4B805 /* ColorSchemeExtension.swift in Sources */,

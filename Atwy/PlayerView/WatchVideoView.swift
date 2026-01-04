@@ -286,7 +286,7 @@ struct WatchVideoView: View {
         .onAppear {
             timeObserver = VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 10, preferredTimescale: 600), queue: .main) { time in
                 
-                if let currentItem = VideoPlayerModel.shared.currentItem, time.seconds > 0, currentItem.duration.seconds > 0 {
+                if let currentItem = VideoPlayerModel.shared.currentItem, currentItem.streamingInfos.isLive == false, time.seconds > 0, currentItem.duration.seconds > 0 {
                     PersistenceModel.shared.addOrUpdateWatchedVideo(videoId: currentItem.videoId, watchedUntil: time.seconds, watchedPercentage: time.seconds / currentItem.duration.seconds)
                 }
                  

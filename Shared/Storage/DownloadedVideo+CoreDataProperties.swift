@@ -11,6 +11,7 @@ import CoreData
 
 
 extension DownloadedVideo {
+    static let sortSetting: ReferenceWritableKeyPath<PreferencesStorageModel, PreferencesStorageModel.SortingModes> = \.downloadsSortingMode
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<DownloadedVideo> {
         return NSFetchRequest<DownloadedVideo>(entityName: "DownloadedVideo")
@@ -24,6 +25,13 @@ extension DownloadedVideo {
     @NSManaged public var timeLength: String?
     @NSManaged public var timePosted: String?
     @NSManaged public var thumbnail: Data?
+    var thumbnailData: Data? {
+        get {
+            return thumbnail
+        } set {
+            thumbnail = newValue
+        }
+    }
     @NSManaged public var storageLocation: URL
 
     @NSManaged public var channel: DownloadedChannel?

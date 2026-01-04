@@ -10,6 +10,6 @@ import Foundation
 import CoreData
 
 @objc(FavoriteVideo)
-public class FavoriteVideo: NSManagedObject {
+public final class FavoriteVideo: NSManagedObject, LocalVideo {
 
 }

@@ -10,7 +10,8 @@ import Foundation
 import CoreData
 
 extension FavoriteVideo {
-
+    static let sortSetting: ReferenceWritableKeyPath<PreferencesStorageModel, PreferencesStorageModel.SortingModes> = \.favoritesSortingMode
+    
     @nonobjc public class func fetchRequest() -> NSFetchRequest<FavoriteVideo> {
         return NSFetchRequest<FavoriteVideo>(entityName: "FavoriteVideo")
     }

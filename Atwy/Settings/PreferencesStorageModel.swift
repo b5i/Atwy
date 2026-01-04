@@ -146,11 +146,19 @@ extension PreferencesStorageModel {
     typealias VideoViewModes = Properties.VideoViewModes
     
     var favoritesSortingMode: SortingModes {
-        self.getValueForKey(.favoritesSortingMode) as! SortingModes
+        get {
+            self.getValueForKey(.favoritesSortingMode) as! SortingModes
+        } set {
+            self.setNewValueForKey(.favoritesSortingMode, value: newValue)
+        }
     }
     
     var downloadsSortingMode: SortingModes {
-        self.getValueForKey(.downloadsSortingMode) as! SortingModes
+        get {
+            self.getValueForKey(.downloadsSortingMode) as! SortingModes
+        } set {
+            self.setNewValueForKey(.downloadsSortingMode, value: newValue)
+        }
     }
     
     var videoViewMode: VideoViewModes {

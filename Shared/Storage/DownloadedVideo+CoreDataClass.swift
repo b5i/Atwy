@@ -10,6 +10,6 @@ import Foundation
 import CoreData
 
 @objc(DownloadedVideo)
-public class DownloadedVideo: NSManagedObject {
+public final class DownloadedVideo: NSManagedObject, LocalVideo {
 
 }

@@ -38,9 +38,9 @@ struct ContentView: View {
                 SearchView()
             }, type: .search, name: "Home", image: "square.stack.fill", needConnection: true)
             .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {FavoritesView()}, type: .favorites, name: "Favorites", image: "star.fill", needConnection: false)
+            TabBarElement(DestinationView: {LocalCategoryView<FavoriteVideo>(title: "Favorites")}, type: .favorites, name: "Favorites", image: "star.fill", needConnection: false)
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
-            TabBarElement(DestinationView: {DownloadedVideosView()}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill", needConnection: false)
+            TabBarElement(DestinationView: {LocalCategoryView<DownloadedVideo>(title: "Downloads", header: {DownloadingsHeaderView()})}, type: .downloads, name: "Downloads", image: "arrow.down.circle.fill", needConnection: false)
                 .environment(\.managedObjectContext, PersistenceModel.shared.context)
                 .badge(DM.activeDownloaders.count)
             TabBarElement(DestinationView: {
