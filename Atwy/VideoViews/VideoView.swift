@@ -127,6 +127,7 @@ struct VideoView: View {
         var hqImage: Bool = false
         @State private var imageSize: CGSize = .zero
         @ObservedObject private var PSM = PreferencesStorageModel.shared
+        @ObservedObject private var PM = PersistenceModel.shared
         var body: some View {
             let timeLengthIndicatorWidth: CGFloat = {
                 if let timeLenght = self.videoWithData.video.timeLength {
@@ -139,7 +140,7 @@ struct VideoView: View {
                 return 0
             }()
             let startTimePercentage: CGFloat? = {
-                if let startTimePercentage = PersistenceModel.shared.currentData.watchedVideos[videoWithData.video.videoId]?.watchedPercentage {
+                if let startTimePercentage = PM.currentData.watchedVideos[videoWithData.video.videoId]?.watchedPercentage {
                     return min(max(startTimePercentage, 0), 1)
                 } else if let startTime = self.videoWithData.video.startTime, startTime > 0, let timeLength = self.videoWithData.video.timeLengthSeconds {
                     return min(max(CGFloat(Double(startTime) / (Double(timeLength) + 0.01)), 0), 1)
@@ -238,6 +239,7 @@ struct VideoView: View {
                             Rectangle()
                                 .frame(width: progressBarWidth * startTimePercentage, height: 5)
                                 .foregroundStyle(.red.opacity(0.8))
+                                .animation(.easeInOut, value: startTimePercentage)
                         })
                 }
             }

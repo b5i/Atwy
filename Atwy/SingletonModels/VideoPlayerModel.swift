@@ -36,6 +36,8 @@ class VideoPlayerModel: NSObject, ObservableObject {
         }
     }
     
+    private var timeObserver: Any? = nil
+    
     private var subscriptions = Set<AnyCancellable>()
 
     // The group session to coordinate playback with.
@@ -50,6 +52,10 @@ class VideoPlayerModel: NSObject, ObservableObject {
             player.playbackCoordinator.coordinateWithSession(session)
             player.playbackCoordinator.delegate = self
         }
+    }
+    
+    deinit {
+        self.player.removeTimeObserver(self.timeObserver as Any)
     }
 
     override init() {
@@ -86,6 +92,7 @@ class VideoPlayerModel: NSObject, ObservableObject {
                 }
             }
             .store(in: &subscriptions)
+        timeObserver = self.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 10, preferredTimescale: 600), queue: .main, using: updateWatchProgress)
 #if !os(macOS)
         // Observe audio session interruptions.
         NotificationCenter.default
@@ -103,6 +110,12 @@ class VideoPlayerModel: NSObject, ObservableObject {
             }.store(in: &subscriptions)
 #endif
         }
+    
+    func updateWatchProgress(time: CMTime) {
+        if let currentItem = self.currentItem, currentItem.streamingInfos.isLive == false, time.seconds > 0, currentItem.duration.seconds > 0 {
+            PersistenceModel.shared.addOrUpdateWatchedVideo(videoId: currentItem.videoId, watchedUntil: time.seconds, watchedPercentage: time.seconds / currentItem.duration.seconds)
+        }
+    }
     
     func setCurrentVideoThumbnailData(_ data: Data, videoId: String) {
         guard self.currentVideo?.video.videoId == videoId else { return }
@@ -297,6 +310,9 @@ class VideoPlayerModel: NSObject, ObservableObject {
     }
 
     public func deleteCurrentVideo() {
+        if let currentItem = self.currentItem {
+            self.updateWatchProgress(time: currentItem.currentTime())
+        }
         self.loadingVideoTask?.cancel()
         self.loadingVideoTask = nil
         self.currentVideo = nil

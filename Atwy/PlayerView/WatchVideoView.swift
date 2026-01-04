@@ -57,7 +57,6 @@ struct WatchVideoView: View {
             }
         }
     }
-    @State private var timeObserver: Any? = nil
     
     @Namespace private var animation
     @ObservedProperty(VideoPlayerModel.shared, \.currentItem, \.$currentItem) private var currentItem
@@ -283,18 +282,6 @@ struct WatchVideoView: View {
         .onReceive(of: .atwyDismissPlayerSheet, handler: { _ in
             dismiss()
         })
-        .onAppear {
-            timeObserver = VideoPlayerModel.shared.player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 10, preferredTimescale: 600), queue: .main) { time in
-                
-                if let currentItem = VideoPlayerModel.shared.currentItem, currentItem.streamingInfos.isLive == false, time.seconds > 0, currentItem.duration.seconds > 0 {
-                    PersistenceModel.shared.addOrUpdateWatchedVideo(videoId: currentItem.videoId, watchedUntil: time.seconds, watchedPercentage: time.seconds / currentItem.duration.seconds)
-                }
-                 
-            }
-        }
-        .onDisappear {
-            VideoPlayerModel.shared.player.removeTimeObserver(self.timeObserver)
-        }
 //        .task {
 //            if let channelAvatar = VPM.streamingInfos?.channel?.thumbnails.first?.url {
 //                URLSession.shared.dataTask(with: channelAvatar, completionHandler: { data, _, _ in
