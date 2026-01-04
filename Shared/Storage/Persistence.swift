@@ -442,6 +442,7 @@ class PersistenceModel: ObservableObject {
             
         let backgroundContext = self.controller.container.newBackgroundContext()
         backgroundContext.perform {
+            backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
             let fetchRequest = WatchedVideo.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "videoId == %@", videoId)
             fetchRequest.fetchLimit = 1

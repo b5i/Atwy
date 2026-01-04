@@ -185,13 +185,13 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     static func testVideoFormat(url: URL) async throws {
         let (hlsData, _) = try await URLSession.shared.data(from: url)
         
-        let hlsStringParts = AssetRessourceLoader.removeUncompatibleFormats(fromPlaylist: String(String(decoding: hlsData, as: UTF8.self))).split(separator: "\n").map(String.init)
+        let hlsStringParts = AssetRessourceLoader.removeUncompatibleFormats(fromPlaylist: String(decoding: hlsData, as: UTF8.self)).split(separator: "\n")
         
-        let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).compactMap(URL.init(string:))
+        let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).map(String.init).compactMap(URL.init(string:))
         
         guard let firstLink = testingLinks.first else { throw "No stream" }
         
-        // TODO: are all those tests really necessary?
+        // TODO: remove the non-working links from the main playlist, maybe some others will work?
         if firstLink.pathExtension == "m3u8" {
             try await withThrowingTaskGroup(of: Void.self, body: { group in
                 testingLinks.forEach { link in
@@ -202,10 +202,12 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                 try await group.waitForAll()
             })
         } else {
-            let (testingLinkData, _) = try await URLSession.shared.data(from: firstLink)
+            var request = URLRequest(url: firstLink)
+            request.httpMethod = "HEAD"
+            let (_, response) = try await URLSession.shared.data(for: request)
             
-            if testingLinkData.isEmpty {
-                throw "Video data is empty"
+            if ((response as? HTTPURLResponse)?.statusCode ?? 400) != 200 {
+                throw "Link doesn't work"
             }
         }
     }
