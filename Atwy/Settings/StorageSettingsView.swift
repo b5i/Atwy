@@ -21,6 +21,12 @@ struct StorageSettingsView: View {
                     return newValue
                 })
             }
+            SettingsSection(title: "Watch History") {
+                Setting(textDescription: "Enabling Watch History will make the player save the progress of watched videos locally and show a red line indicating the watched amount of the video. Will also take the value from YouTube if it's available.", action: try! SAToggle(PSMType: .watchHistoryEnabled, title: "Watch History"))
+                Setting(textDescription: "Delete all the local watch history, may need app restart to apply.", action: SATextButton(title: "Reset Local Watch History", buttonLabel: "Reset", action: { _ in
+                    PersistenceModel.shared.resetLocalWatchHistory()
+                }))
+            }
             SettingsSection(title: "Spotlight", settings: {
                 Setting(textDescription: nil, action: SATextButton(title: "Reset CoreSpotlight indexing", buttonLabel: "Reset", action: { showHideButton in
                     showHideButton(false)
