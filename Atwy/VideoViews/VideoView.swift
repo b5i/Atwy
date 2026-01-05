@@ -125,6 +125,7 @@ struct VideoView: View {
         @Environment(\.colorScheme) private var colorScheme
         let videoWithData: YTVideoWithData
         var hqImage: Bool = false
+        var showPlain: Bool = false
         @State private var imageSize: CGSize = .zero
         @ObservedObject private var PSM = PreferencesStorageModel.shared
         @ObservedObject private var PM = PersistenceModel.shared
@@ -201,7 +202,7 @@ struct VideoView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing, content: {
-                if let timeLenght = self.videoWithData.video.timeLength {
+                if let timeLenght = self.videoWithData.video.timeLength, !self.showPlain {
                     ZStack {
                         if timeLenght == "live" {
                             Rectangle()
@@ -231,7 +232,7 @@ struct VideoView: View {
             })
             .overlay(alignment: .bottomLeading) {
                 if let startTimePercentage = startTimePercentage,
-                   PSM.watchHistoryEnabled {
+                   PSM.watchHistoryEnabled, !self.showPlain {
                     Rectangle()
                         .frame(width: progressBarWidth, height: 5)
                         .foregroundStyle(.gray.opacity(0.5))
