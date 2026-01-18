@@ -38,9 +38,32 @@ class UIKitInfiniteScrollViewController: UIViewController {
     var onContentSizeChange: ((CGSize) -> Void)?
     private var contentSizeObservation: NSKeyValueObservation?
     
-    var tableView: UITableView!
+    private var tableView: UITableView!
     private let refreshControl = UIRefreshControl()
     private let fetchIndicator = UIActivityIndicatorView(style: .medium)
+    
+    var contentOffset: CGPoint {
+        get {
+            return self.tableView.contentOffset
+        }
+        set {
+            let initialScrollAction = scrollAction
+            scrollAction = true
+            self.tableView.contentOffset = newValue
+            scrollAction = initialScrollAction
+        }
+    }
+    
+    func changeContentInsetBottomAnimated(to newInsetBottom: CGFloat, duration: TimeInterval) {
+        UIView.transition(with: self.tableView, duration: duration, options: .transitionCrossDissolve, animations: {
+            self.tableView.contentInset.bottom = newInsetBottom
+        })
+    }
+    
+    // Transfer a scroll amount to the tableview while making sure we don't exceed content size
+    func transferScrollAmount(_ amount: CGFloat) {
+        self.contentOffset.y = min(self.contentOffset.y + amount, self.tableView.contentSize.height - self.tableView.frame.height)
+    }
     
     deinit {
         contentSizeObservation?.invalidate()
@@ -61,7 +84,7 @@ class UIKitInfiniteScrollViewController: UIViewController {
     
     private var oldContentOffset: CGFloat = 0
     private var viewDidAlreadyScroll: Bool = false
-    var scrollAction: Bool = false
+    private var scrollAction: Bool = false
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let scrollCallback = scrollCallback, !scrollAction else { scrollAction = false; return }
         if !self.viewDidAlreadyScroll {
@@ -80,6 +103,7 @@ class UIKitInfiniteScrollViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
         view.addSubview(tableView)
         
         tableView.estimatedRowHeight = self.view.frame.size.width * 9/16 + 105

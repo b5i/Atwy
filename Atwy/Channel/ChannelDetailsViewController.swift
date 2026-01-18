@@ -35,15 +35,11 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
             guard let self = self else { return }
             if model.currentItem == nil {
                 for contentController in self.contentControllers {
-                    UIView.transition(with: contentController.tableView, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                        contentController.tableView.contentInset.bottom = self.tabBarController?.tabBar.frame.height ?? 0
-                    })
+                    currentContentController.changeContentInsetBottomAnimated(to: self.tabBarController?.tabBar.frame.height ?? 0, duration: 0.3)
                 }
             } else {
                 for contentController in self.contentControllers {
-                    UIView.transition(with: contentController.tableView, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                        contentController.tableView.contentInset.bottom = (self.tabBarController?.tabBar.frame.height ?? 0) + NowPlayingBarView.height
-                    })
+                    currentContentController.changeContentInsetBottomAnimated(to: (self.tabBarController?.tabBar.frame.height ?? 0) + NowPlayingBarView.height, duration: 0.3)
                 }
             }
         })
@@ -323,6 +319,18 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
         
         setupTitleBackground()
         setupNavigationBar()
+        guard let navBar = navigationController?.navigationBar else { return }
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+        appearance.backgroundColor = .clear
+
+        navBar.standardAppearance = appearance
+        navBar.scrollEdgeAppearance = appearance
+        navBar.compactAppearance = appearance
+
+        navBar.isTranslucent = true
     }
         
     override func viewDidAppear(_ animated: Bool) {
@@ -335,18 +343,20 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
         }
         
         for contentController in self.contentControllers {
-            contentController.tableView.contentInset.bottom = self.tabBarController?.tabBar.frame.height ?? 0
+            contentController.changeContentInsetBottomAnimated(to: self.tabBarController?.tabBar.frame.height ?? 0, duration: 0.0)
         }
+
     }
      
     private func setupNavigationBar() {
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-        navigationController?.navigationBar.barTintColor = .clear
+        //navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        //navigationController?.navigationBar.shadowImage = UIImage()
+        //navigationController?.navigationBar.isTranslucent = false
+        //navigationController?.navigationBar.barTintColor = .clear
         navigationController?.navigationBar.addSubview(channelNameLabelOverlay)
         navigationController?.navigationBar.addSubview(overlaySegmentedControl)
     }
+    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -402,7 +412,6 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
             contentController.view.isHidden = true
             self.contentView.addSubview(contentController.view)
             contentController.didMove(toParent: self)
-            contentController.tableView.showsVerticalScrollIndicator = false
         }
         
         self.channelVideosContentController.view.isHidden = false
@@ -426,7 +435,9 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
     }
     
     private func setupTitleBackground() {
-        navigationController?.navigationBar.perform(NSSelectorFromString("_setBackgroundView:"), with: titleBackground)
+        if #unavailable(iOS 26.0) {
+            navigationController?.navigationBar.perform(NSSelectorFromString("_setBackgroundView:"), with: titleBackground)
+        }
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
@@ -593,11 +604,10 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
                 if scrollView.contentOffset.y - navigationBarTopY >= 0.001 {
                     self.scrollView.isScrollEnabled = false
                     let amountToTransferToController = scrollView.contentOffset.y - navigationBarTopY
-                    currentContentController.scrollAction = true
-                    currentContentController.tableView.contentOffset.y = min(currentContentController.tableView.contentOffset.y + amountToTransferToController, currentContentController.tableView.contentSize.height - currentContentController.tableView.frame.height)
+                    currentContentController.transferScrollAmount(amountToTransferToController)
                     self.isUpdatingPosition = true
                     self.scrollView.contentOffset.y = navigationBarTopY
-                    print(self.scrollView.contentOffset.y, currentContentController.tableView.contentOffset.y)
+                    print(self.scrollView.contentOffset.y, currentContentController.contentOffset.y)
                 }
             } else {
                 self.scrollView.isScrollEnabled = true
@@ -605,10 +615,9 @@ class ChannelDetailsViewController: UIViewController, UIScrollViewDelegate, UIGe
             
             // if the user scroll to the top with the main scrollview and that the content scrollview isn't scrolled to the top we need to transfer the scroll to it before we allow scrolling to the top with the main scrollview
             if self.oldScrollViewContentOffset > self.scrollView.contentOffset.y {
-                if currentContentController.tableView.contentOffset.y > 0 {
-                    let rest = max(0, currentContentController.tableView.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y)) - (currentContentController.tableView.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y))
-                    currentContentController.scrollAction = true
-                    currentContentController.tableView.contentOffset.y = max(0, currentContentController.tableView.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y))
+                if currentContentController.contentOffset.y > 0 {
+                    let rest = max(0, currentContentController.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y)) - (currentContentController.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y))
+                    currentContentController.contentOffset.y = max(0, currentContentController.contentOffset.y - (self.oldScrollViewContentOffset - self.scrollView.contentOffset.y))
                     self.isUpdatingPosition = true
                     self.scrollView.contentOffset.y = self.oldScrollViewContentOffset - rest
                 }
