@@ -793,7 +793,7 @@
 			repositoryURL = "https://github.com/b5i/YouTubeKit";
 			requirement = {
 				kind = revision;
-				revision = 224f714bf83a0c86ea9b172755100af4d6a9a39e;
+				revision = 0b1cfbdd6a836dc538681ce7a814f061a2cb1d53;
 			};
 		};
 		34FEECFB2E7BC9D800E1F154 /* XCRemoteSwiftPackageReference "BetterMenus" */ = {
