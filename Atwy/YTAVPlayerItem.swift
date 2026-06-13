@@ -94,6 +94,7 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
                 guard let streamingURL = streamingInfos.streamingURL else { throw "No streaming URL" }
                 try await Self.testVideoFormat(url: streamingURL)
             } catch { // check with browser headers
+                print(error)
                 defer {
                     YTM.customHeaders[.videoInfos] = nil
                 }
@@ -185,30 +186,73 @@ class YTAVPlayerItem: AVPlayerItem, ObservableObject {
     static func testVideoFormat(url: URL) async throws {
         let (hlsData, _) = try await URLSession.shared.data(from: url)
         
-        let hlsStringParts = AssetRessourceLoader.removeUncompatibleFormats(fromPlaylist: String(decoding: hlsData, as: UTF8.self)).split(separator: "\n")
+        let hlsStringParts = AssetRessourceLoader.removeUncompatibleFormats(
+            fromPlaylist: String(decoding: hlsData, as: UTF8.self)
+        ).split(separator: "\n")
         
-        let testingLinks = hlsStringParts.filter({ $0.hasPrefix("https://")  }).map(String.init).compactMap(URL.init(string:))
+        let testingLinks = hlsStringParts
+            .filter({ $0.hasPrefix("https://") })
+            .map(String.init)
+            .compactMap(URL.init(string:))
         
         guard let firstLink = testingLinks.first else { throw "No stream" }
         
         // TODO: remove the non-working links from the main playlist, maybe some others will work?
         if firstLink.pathExtension == "m3u8" {
-            try await withThrowingTaskGroup(of: Void.self, body: { group in
-                testingLinks.forEach { link in
-                    group.addTask(operation: {
-                        try await testVideoFormat(url: link)
-                    })
-                }
-                try await group.waitForAll()
-            })
-        } else {
-            var request = URLRequest(url: firstLink)
-            request.httpMethod = "HEAD"
-            let (_, response) = try await URLSession.shared.data(for: request)
+            // test the first link alone because if it doesn't work then the others probably wont either
+            try await testVideoFormat(url: firstLink)
             
-            if ((response as? HTTPURLResponse)?.statusCode ?? 400) != 200 {
-                throw "Link doesn't work"
+            // first link works, now test the rest concurrently, if any fail, the catch below retries that single failed link until it recovers, then re-launches all remaining concurrently
+            var remaining = Array(testingLinks.dropFirst())
+            while !remaining.isEmpty {
+                do {
+                    try await withThrowingTaskGroup(of: URL.self) { group in
+                        remaining.forEach { link in
+                            group.addTask {
+                                try await testVideoFormat(url: link)
+                                return link
+                            }
+                        }
+                        // collect successes and remove them from remaining so a retry only re-tests what hasn't passed yet
+                        while let succeeded = try await group.next() {
+                            remaining.removeAll { $0 == succeeded }
+                        }
+                    }
+                } catch {
+                    // if link fails, test it alone until it works (max 40) and then relaunch concurrent testing of the others
+                    guard let failedLink = remaining.first else { throw error }
+                    for _ in 0..<40 {
+                        try await Task.sleep(for: .seconds(1.5))
+                        do {
+                            try await testVideoFormat(url: failedLink)
+                            break // recovered -> go back to concurrent test of remaining
+                        } catch {
+                            continue
+                        }
+                    }
+                    throw "Link doesn't work"
+                }
             }
+        } else {
+            for _ in 0..<40 {
+                var request = URLRequest(url: firstLink)
+                request.httpMethod = "HEAD"
+                request.addValue(
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15",
+                    forHTTPHeaderField: "User-Agent"
+                )
+                request.setValue("*", forHTTPHeaderField: "Accept-Language")
+                
+                let (_, response) = try await URLSession.shared.data(for: request)
+                let responseCode = (response as? HTTPURLResponse)?.statusCode ?? 400
+                
+                if responseCode == 200 {
+                    return
+                }
+                
+                try await Task.sleep(for: .seconds(1.5))
+            }
+            throw "Link did not work"
         }
     }
     
