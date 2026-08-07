@@ -36,9 +36,6 @@ If the app crash in a reproducible way, make sure to disable all Private APIs in
 
 ## Disclaimer
 Make sure you check the [Disclaimer](https://github.com/b5i/Atwy/blob/main/DISCLAIMER.md), you are solely responsible of your usage of Atwy. Make sure using it is legal in your region/country.
- 
-## Contribution
-At this time, contributing to Atwy with code is not possible as it is a personnal school project. You can still contribute by raising issues about unexpected behaviors of the app or feedbacks.
 
 ### Note
 At this time, Atwy is still in a early stage with a lot improvements, refactoring and bug fixes still to come.
